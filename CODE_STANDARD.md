@@ -8,12 +8,10 @@
 
 **Rule:** Each component/class/module has a single, clear responsibility.
 
-* **UI components**: strictly presentational (receive data via props). No data fetching or business logic.
+* **UI components**: strictly presentational, receive necessary data and callbacks via props. For example, a `UserCard` component displays a user's name and avatar, but does not fetch them directly (this is handled by the container component and passed down as a prop).
 * **Containers/screens**: compose UI components and orchestrate data (call hooks/services, handle navigation).
 * **Hooks**: encapsulate reusable stateful logic (e.g., `useAuth`, `useDebounce`).
-* **Services**: pure functions for API, storage, analytics, feature flags, etc.
 * **Utilities**: pure, reusable helpers (formatting, parsing, validation).
-* **Navigation**: routing artifacts only (stack/tab/screen registration).
 
 **Anti‑patterns to avoid:**
 
@@ -32,7 +30,6 @@
 * `ComponentName.tsx` – component
 * `ComponentName.types.ts` – prop & helper types/interfaces
 * `ComponentName.test.tsx` – tests (React Native Testing Library)
-* `ComponentName.stories.tsx` – Storybook story (if used)
 * `index.ts` – barrel export (optional for folder‑scoped components)
 
 > If a component grows beyond ~250 lines or violates SoC, split it into child components living in a `ComponentName/` folder using the same convention.
@@ -45,10 +42,9 @@
 * All incoming data is typed; no `any` and no implicit `any`.
 * **Never hardcode user‑facing text** inside components. Use translation keys via our i18n layer (e.g., `i18next`/`expo-localization`).
 
-**Example:**
+**Example: `Button.tsx`**
 
 ```tsx
-// Button.tsx
 import React from 'react';
 import { Text, Pressable } from 'react-native';
 import { useTranslation } from 'react-i18next';
@@ -72,71 +68,10 @@ export default function Button({ labelKey, onPress, disabled, testID }: ButtonPr
 
 ## 4) Styling & Design Tokens with Tailwind (NativeWind)
 
-**We use Tailwind via [NativeWind] for React Native.** No plain CSS in components. Styling lives in utility classes applied with `className` and in our **Tailwind design tokens**.
+**We use Tailwind via [NativeWind](https://www.nativewind.dev/) for React Native.** No plain CSS in components. Styling lives in utility classes applied with `className`.
 
-**Single source of truth:** `tailwind.config.js`
-
-* Define **semantic tokens** (not raw hex in components): `primary`, `bg`, `text`, `muted`, `danger`, etc.
-* Extend scales for `colors`, `spacing`, `fontSize`, `borderRadius`, `shadow`, and `opacity`.
-* Keep names semantic so UI can change without refactors.
-
-> We **do not** maintain `assets/styles/main.css`. For web targets, Tailwind generates CSS automatically; on native, NativeWind compiles class names to RN styles at runtime.
-
-### 4.1 Config example — semantic design tokens
-
-```js
-// tailwind.config.js
-/** @type {import('tailwindcss').Config} */
-module.exports = {
-  content: [
-    './App.{ts,tsx}',
-    './app/**/*.{ts,tsx}',
-    './src/**/*.{ts,tsx}',
-  ],
-  theme: {
-    extend: {
-      colors: {
-        primary: '#3B82F6',
-        secondary: '#9333EA',
-        success: '#10B981',
-        warning: '#F59E0B',
-        danger: '#EF4444',
-        bg: {
-          DEFAULT: '#FFFFFF',
-          muted: '#F3F4F6',
-        },
-        text: {
-          DEFAULT: '#111827',
-          muted: '#6B7280',
-        },
-        border: '#E5E7EB',
-      },
-      spacing: {
-        'xs': '4',
-        'sm': '8',
-        'md': '12',
-        'lg': '16',
-        'xl': '24',
-      },
-      fontFamily: {
-        sans: ['Inter', 'System'],
-      },
-      borderRadius: {
-        xl: 16,
-        '2xl': 24,
-      },
-    },
-  },
-  plugins: [],
-};
-```
-
-> Tip: Add an alias file `src/theme/tokens.ts` that re-exports the same semantic names (for places where you need numbers at runtime), but **treat Tailwind config as canonical**.
-
-### 4.2 Using Tailwind in components
-
+**Example:**
 ```tsx
-// Card.tsx
 import { View } from 'react-native';
 import React from 'react';
 
@@ -149,80 +84,34 @@ export function Card({ children }: React.PropsWithChildren) {
 }
 ```
 
-```tsx
-// Button.tsx
-import { Pressable, Text } from 'react-native';
-import React from 'react';
+To define global colors, fonts, spacing, etc. add to the [`tailwind.config.js`](./tailwind.config.js). For example:
 
-type Variant = 'primary' | 'secondary' | 'danger';
-
-export interface ButtonProps {
-  label: string;
-  onPress: () => void;
-  variant?: Variant;
-  disabled?: boolean;
-}
-
-const base = 'px-xl py-md rounded-xl items-center justify-center';
-const variants: Record<Variant, string> = {
-  primary: 'bg-primary',
-  secondary: 'bg-secondary',
-  danger: 'bg-danger',
-};
-
-export function Button({ label, onPress, variant = 'primary', disabled }: ButtonProps) {
-  return (
-    <Pressable className={`${base} ${variants[variant]} ${disabled ? 'opacity-50' : ''}`} onPress={onPress} disabled={disabled}>
-      <Text className="text-white font-semibold">{label}</Text>
-    </Pressable>
-  );
+```js
+module.exports = {
+  content: [
+    "./App.{js,jsx,ts,tsx}",
+    "./src/**/*.{js,jsx,ts,tsx}",
+  ],
+  theme: {
+    extend: {
+      colors: {
+        brand: {
+          light: '#93c5fd',
+          DEFAULT: '#3b82f6',
+          dark: '#1e40af',
+        },
+      },
+      fontFamily: {
+        heading: ['Poppins_700Bold'],
+        body: ['Poppins_400Regular'],
+      },
+    },
+  },
+  plugins: [],
 }
 ```
 
-### 4.3 Dark mode and theming
-
-* Use Tailwind’s `dark:` variant together with NativeWind’s color scheme integration.
-* Provide a theme toggle via `useColorScheme()` or a persisted setting, and set the provider at the app root.
-
-```tsx
-// Example dark styles
-<View className="bg-bg dark:bg-black">
-  <Text className="text-text dark:text-white">…</Text>
-</View>
-```
-
-### 4.4 When Tailwind isn’t enough
-
-* **Dynamic values** (computed at runtime) can use `StyleSheet.create` **sparingly**; still derive from the same scales (e.g., spacing multipliers).
-* Complex animations should use `react-native-reanimated` + class utilities for base styles.
-
-```tsx
-import { StyleSheet, View } from 'react-native';
-
-const styles = StyleSheet.create({
-  meter: (pct: number) => ({ width: `${pct}%` }),
-});
-
-<View className="h-2 bg-border rounded-full">
-  <View className="h-2 bg-success rounded-full" style={styles.meter(progress)} />
-</View>
-```
-
-### 4.5 Do & Don’t
-
-**Do**
-
-* Use **semantic** classes/tokens (`bg-primary`, `text-text`) instead of raw hex.
-* Keep components class-based and composable; prefer variants over boolean style props explosion.
-* Centralize spacing/typography in Tailwind scales.
-
-**Don’t**
-
-* Hardcode colors or magic numbers in components.
-* Mix many inline styles with Tailwind—favor classes, fall back only for true dynamic cases.
-* Maintain parallel CSS files for native; Tailwind config is the single source.
-
-**Assumption:** We use Expo + TypeScript + (optional) Expo Router for file‑based routing.
+# 5) Project Structure
 
 ```
 app/                        # Expo Router (file-based routing)
@@ -234,58 +123,23 @@ app/                        # Expo Router (file-based routing)
   +not-found.tsx
 
 src/
-  components/
-    Button/
-      Button.tsx
-      Button.types.ts
-      Button.test.tsx
-      index.ts
-    Card/
-      Card.tsx
-      Card.types.ts
-      index.ts
-  screens/                  # non-router screens, or screen parts used by routes
-    HomeScreen/
-      HomeScreen.tsx
-      HomeScreen.types.ts
-  hooks/
-    useAuth.ts
-    useDebounce.ts
-  services/
-    api/
-      client.ts            # axios/fetch setup
-      users.ts             # user endpoints
-    storage/
-      secureStore.ts
-    analytics/
-      index.ts
+  components/   
+  screens/                  # non-router screens, or screen parts used by routes    
+  hooks/  
   state/
     store.ts               # Zustand/Redux store
     slices/
       authSlice.ts
-  theme/
-    colors.ts
-    spacing.ts
-    typography.ts
-    index.ts
   utils/
     formatters.ts
     validators.ts
-  i18n/
-    index.ts               # i18next init
-    locales/
-      en.json
-      nl.json
-
 assets/
   fonts/
   images/
   styles/
-    main.css               # (web mirror only; TS is source of truth)
-
+    main.css               
 tests/
   setup.ts                 # RTL/Jest setup
-
 app.json / app.config.ts
 babel.config.js
 package.json
@@ -293,12 +147,6 @@ tsconfig.json
 .eslintrc.cjs
 .prettierrc
 ```
-
-**Notes:**
-
-* Use absolute imports with the `@` alias for `src/*` via `tsconfig.json` + Babel module resolver.
-* Keep screens thin; push logic to hooks/services.
-* Co-locate tests with their subjects or place under `tests/` for e2e/integration.
 
 ## 6) File‑Based Routing
 
@@ -308,8 +156,6 @@ tsconfig.json
 * Use [route groups] like `(auth)/login.tsx` for grouping without affecting paths.
 * Use `_layout.tsx` for nested layouts/stacks/tabs.
 * Dynamic routes: `[id].tsx`, catch‑alls: `[...slug].tsx`.
-
-> If we **do not** use Expo Router, ignore `app/` and define navigators under `src/navigation/` (React Navigation). In either case, keep navigation artifacts separate from UI components.
 
 ## 7) Commit Messages — Conventional Commits
 
@@ -616,13 +462,8 @@ jobs:
 
 ---
 
-## 11) Accessibility & Internationalization
 
-* Provide `accessibilityRole`, `accessibilityLabel`, and support screen readers.
-* All user-visible strings must come from i18n JSONs; base locale is `en`, include `nl`.
-* Support RTL where possible; avoid layout assumptions.
-
-## 12) Performance Guidelines
+## 11) Performance Guidelines
 
 * Memoize heavy components with `React.memo`.
 * Use `useCallback`/`useMemo` for stable references.
@@ -630,19 +471,13 @@ jobs:
 * Avoid inline object/array literals in `style` or props for frequently re-rendered components.
 * Batch network calls and debounce user input.
 
-## 13) Error Handling & Logging
-
-* Centralize API error mapping (`services/api/errors.ts`).
-* Show human‑readable messages via a toast/snackbar utility.
-* Log unexpected errors with a reporter (e.g., Sentry) including device context.
-
-## 14) Environment & Configuration
+## 12) Environment & Configuration
 
 * Use `.env` (and `app.config.ts`) for environment variables; never commit secrets.
 * Provide `.env.example` with placeholders.
 * Access configuration through a typed `config.ts` module.
 
-## 15) Pull Request Checklist (Author)
+## 13) Pull Request Checklist (Author)
 
 * [ ] Scope is focused; SoC respected; components small & reusable.
 * [ ] Types complete; no `any`; props documented.
@@ -653,26 +488,11 @@ jobs:
 * [ ] Accessibility verified.
 * [ ] Documentation updated (README/CHANGELOG as needed).
 
-## 16) Code Review Guidelines (Reviewer)
+## 14) Code Review Guidelines (Reviewer)
 
 * Enforce SoC, naming, and file structure.
 * Demand clear commit messages and branch naming.
 * Check for dead code, duplication, and unnecessary complexity.
 * Verify tests, accessibility, and performance considerations.
-
-## 17) Exceptions & Deviations
-
-* Deviations require a short ADR (Architecture Decision Record) under `docs/adr/` explaining the context, decision, and consequences.
-
----
-
-**TL;DR**
-
-* One responsibility per unit. One component per file. `ComponentName.tsx`.
-* Typed props. No hardcoded strings—use i18n.
-* Central theme tokens in `src/theme/*`; mirror to CSS only for web.
-* Use Expo Router file-based routing **if enabled**; otherwise keep navigation isolated.
-* Conventional Commits + trunk-based branches.
-* Strict TS, ESLint, Prettier, pre-commit checks.
 * Tests, a11y, performance, and clear PR process.
 
