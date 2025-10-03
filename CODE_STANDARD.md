@@ -70,52 +70,157 @@ export default function Button({ labelKey, onPress, disabled, testID }: ButtonPr
 }
 ```
 
-## 4) Styling & Design Tokens (Global Reuse)
+## 4) Styling & Design Tokens with Tailwind (NativeWind)
 
-> **Note:** Pure React Native does not consume `.css` files. If we’re targeting native (iOS/Android) first, define global tokens in TypeScript. If we’re also using `react-native-web` or a CSS-in-JS solution, we still centralize tokens in TS and optionally mirror to CSS for web only.
+**We use Tailwind via [NativeWind] for React Native.** No plain CSS in components. Styling lives in utility classes applied with `className` and in our **Tailwind design tokens**.
 
-**Source of truth:** `src/theme/` (TypeScript files).
+**Single source of truth:** `tailwind.config.js`
 
-* `src/theme/colors.ts` — color palette & semantic colors
-* `src/theme/spacing.ts` — spacing scale
-* `src/theme/typography.ts` — font sizes, families, weights
-* `src/theme/index.ts` — export a unified `theme` object
+* Define **semantic tokens** (not raw hex in components): `primary`, `bg`, `text`, `muted`, `danger`, etc.
+* Extend scales for `colors`, `spacing`, `fontSize`, `borderRadius`, `shadow`, and `opacity`.
+* Keep names semantic so UI can change without refactors.
 
-**If a CSS file is required for web builds:** maintain a generated mirror at `assets/styles/main.css` that reflects the same tokens. Do **not** author styles in both places by hand; TS is canonical.
+> We **do not** maintain `assets/styles/main.css`. For web targets, Tailwind generates CSS automatically; on native, NativeWind compiles class names to RN styles at runtime.
 
-**Usage example:**
+### 4.1 Config example — semantic design tokens
 
-```ts
-// src/theme/colors.ts
-export const colors = {
-  brandPrimary: '#3B82F6',
-  brandSecondary: '#9333EA',
-  textPrimary: '#111827',
-  textSecondary: '#6B7280',
-  bgPrimary: '#FFFFFF',
-  bgMuted: '#F3F4F6',
-  border: '#E5E7EB',
-  danger: '#EF4444',
-  warning: '#F59E0B',
-  success: '#10B981',
-} as const;
+```js
+// tailwind.config.js
+/** @type {import('tailwindcss').Config} */
+module.exports = {
+  content: [
+    './App.{ts,tsx}',
+    './app/**/*.{ts,tsx}',
+    './src/**/*.{ts,tsx}',
+  ],
+  theme: {
+    extend: {
+      colors: {
+        primary: '#3B82F6',
+        secondary: '#9333EA',
+        success: '#10B981',
+        warning: '#F59E0B',
+        danger: '#EF4444',
+        bg: {
+          DEFAULT: '#FFFFFF',
+          muted: '#F3F4F6',
+        },
+        text: {
+          DEFAULT: '#111827',
+          muted: '#6B7280',
+        },
+        border: '#E5E7EB',
+      },
+      spacing: {
+        'xs': '4',
+        'sm': '8',
+        'md': '12',
+        'lg': '16',
+        'xl': '24',
+      },
+      fontFamily: {
+        sans: ['Inter', 'System'],
+      },
+      borderRadius: {
+        xl: 16,
+        '2xl': 24,
+      },
+    },
+  },
+  plugins: [],
+};
 ```
 
+> Tip: Add an alias file `src/theme/tokens.ts` that re-exports the same semantic names (for places where you need numbers at runtime), but **treat Tailwind config as canonical**.
+
+### 4.2 Using Tailwind in components
+
 ```tsx
-// usage in a component
-import { StyleSheet, View } from 'react-native';
-import { colors } from '@/theme/colors';
+// Card.tsx
+import { View } from 'react-native';
+import React from 'react';
 
-const styles = StyleSheet.create({
-  card: { backgroundColor: colors.bgPrimary },
-});
-
-export function Card(props: React.PropsWithChildren) {
-  return <View style={styles.card}>{props.children}</View>;
+export function Card({ children }: React.PropsWithChildren) {
+  return (
+    <View className="bg-bg rounded-2xl p-lg shadow">
+      {children}
+    </View>
+  );
 }
 ```
 
-## 5) File & Folder Structure (Example)
+```tsx
+// Button.tsx
+import { Pressable, Text } from 'react-native';
+import React from 'react';
+
+type Variant = 'primary' | 'secondary' | 'danger';
+
+export interface ButtonProps {
+  label: string;
+  onPress: () => void;
+  variant?: Variant;
+  disabled?: boolean;
+}
+
+const base = 'px-xl py-md rounded-xl items-center justify-center';
+const variants: Record<Variant, string> = {
+  primary: 'bg-primary',
+  secondary: 'bg-secondary',
+  danger: 'bg-danger',
+};
+
+export function Button({ label, onPress, variant = 'primary', disabled }: ButtonProps) {
+  return (
+    <Pressable className={`${base} ${variants[variant]} ${disabled ? 'opacity-50' : ''}`} onPress={onPress} disabled={disabled}>
+      <Text className="text-white font-semibold">{label}</Text>
+    </Pressable>
+  );
+}
+```
+
+### 4.3 Dark mode and theming
+
+* Use Tailwind’s `dark:` variant together with NativeWind’s color scheme integration.
+* Provide a theme toggle via `useColorScheme()` or a persisted setting, and set the provider at the app root.
+
+```tsx
+// Example dark styles
+<View className="bg-bg dark:bg-black">
+  <Text className="text-text dark:text-white">…</Text>
+</View>
+```
+
+### 4.4 When Tailwind isn’t enough
+
+* **Dynamic values** (computed at runtime) can use `StyleSheet.create` **sparingly**; still derive from the same scales (e.g., spacing multipliers).
+* Complex animations should use `react-native-reanimated` + class utilities for base styles.
+
+```tsx
+import { StyleSheet, View } from 'react-native';
+
+const styles = StyleSheet.create({
+  meter: (pct: number) => ({ width: `${pct}%` }),
+});
+
+<View className="h-2 bg-border rounded-full">
+  <View className="h-2 bg-success rounded-full" style={styles.meter(progress)} />
+</View>
+```
+
+### 4.5 Do & Don’t
+
+**Do**
+
+* Use **semantic** classes/tokens (`bg-primary`, `text-text`) instead of raw hex.
+* Keep components class-based and composable; prefer variants over boolean style props explosion.
+* Centralize spacing/typography in Tailwind scales.
+
+**Don’t**
+
+* Hardcode colors or magic numbers in components.
+* Mix many inline styles with Tailwind—favor classes, fall back only for true dynamic cases.
+* Maintain parallel CSS files for native; Tailwind config is the single source.
 
 **Assumption:** We use Expo + TypeScript + (optional) Expo Router for file‑based routing.
 
@@ -570,3 +675,4 @@ jobs:
 * Conventional Commits + trunk-based branches.
 * Strict TS, ESLint, Prettier, pre-commit checks.
 * Tests, a11y, performance, and clear PR process.
+
