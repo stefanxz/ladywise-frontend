@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Alert, Text, View } from "react-native";
 import "../assets/styles/main.css";
+import { AppBar } from "../components/Pressable/appbar-backbutton";
 import { ThemedPressable } from "../components/Pressable/ThemedPressable";
 import { ThemedTextInput } from "../components/TextInput/ThemedTextInput";
 
@@ -34,7 +35,9 @@ export default function Register() {
       hasError = true;
     }
     if (!isPasswordValid(password)) {
-      setPasswordError("Password must contain at least 8 characters, 1 upper case, 1 lower case and 1 number (and no spaces).");
+      setPasswordError(
+        "Password must contain at least 8 characters, 1 upper case, 1 lower case and 1 number (and no spaces)."
+      );
       hasError = true;
     }
     if (hasError) return;
@@ -51,15 +54,15 @@ export default function Register() {
 
       setEmail("");
       setPassword("");
-      Alert.alert("Success", "Registration successful."); 
+      Alert.alert("Success", "Registration successful.");
     } catch (err: unknown) {
       const message =
         err instanceof Error
           ? err.message
           : typeof err === "string"
-          ? err
-          : "Registration failed.";
-      setFormError(message); 
+            ? err
+            : "Registration failed.";
+      setFormError(message);
     } finally {
       setRegistering(false);
     }
@@ -67,6 +70,7 @@ export default function Register() {
 
   return (
     <View className="flex-1 bg-red-300">
+      <AppBar />
       <View className="h-3/4 bg-red-300 items-center justify-center">
         <Text className="mb-2 text-gray-800 text-center text-2xl my-10 font-bold">
           Create an Account
