@@ -10,11 +10,12 @@ export default function Index() {
       <Text className="font-semibold text-xl my-10">
         Welcome to LadyWise Appication
       </Text>
-      <Text className="font-semibold text-xl m-5">
-        Login
-      </Text>
-      <ThemedPressable className="my-4" label="Register" onPress={() => router.push('/Register') } />
+      <Text className="font-semibold text-xl m-5">Login</Text>
+      <ThemedPressable
+        className="my-4"
+        label="Register"
+        onPress={() => router.push("/Register")}
+      />
     </View>
-
   );
 }
