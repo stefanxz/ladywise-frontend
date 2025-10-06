@@ -70,7 +70,7 @@ export default function Register() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView className="flex-1 bg-red-300">
       <View className="flex-1 bg-red-300">
         <AppBar />
         <View className="h-3/4 bg-red-300 items-center justify-center">
