@@ -9,6 +9,7 @@ export function ThemedTextInput({
   value,
   onChangeText,
   placeholder,
+  placeholderTextColor,
   secureTextEntry,
   disabled,
   className,
@@ -18,6 +19,7 @@ export function ThemedTextInput({
       value={value}
       onChangeText={onChangeText}
       placeholder={placeholder}
+      placeholderTextColor={placeholderTextColor}
       secureTextEntry={secureTextEntry}
       editable={!disabled}
       className={[

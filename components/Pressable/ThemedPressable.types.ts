@@ -4,7 +4,7 @@ export interface ThemedButtonProperties {
   disabled?: boolean;
   loading?: boolean;
 
-  /** Tailwind classes */
+  // /** Tailwind classes */
   className?: string;      // applied to Pressable
   textClassName?: string;  // applied to inner Text
 }
