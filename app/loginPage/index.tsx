@@ -2,11 +2,11 @@ import React from 'react';
 import { Text, View } from 'react-native';
 import '../../assets/styles/main.css';
 
-const register = () => {
+const login = () => {
   return (
     <View className="flex-1 bg-pink-200 p-[60px]">
       <Text className="text-black text-[30px] font-bold text-center mb-[120px]"> 
-        Make a new account
+        Login to your account
       </Text>
     </View>
 
@@ -14,4 +14,4 @@ const register = () => {
 }
 
 
-export default register
+export default login
