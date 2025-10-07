@@ -1,13 +1,14 @@
 # Team Coding Standards
 
-## 1. Component Naming and Structure
+## 1. Naming and Structure
+### 1.1 Component Naming and Structure
 One component per file: a component lives in its own `ComponentName.tsx` file.
 
 Components use PascalCase naming (e.g. `UserCard`).
 
 For each component, its files must be grouped within a single folder for clarity. Below is the preferred structure for any non-trivial component.
 ```
-src/
+./
 └── components/
     └── UserProfileCard/
         ├── UserProfileCard.tsx      # The component logic and JSX
@@ -40,6 +41,30 @@ export function Button({ labelKey, onPress, disabled }: ButtonProps) {
   )
 }
 ```
+### 1.2 Route Naming and Organization
+Routes represent screens or navigation entry points in the app. They follow `kebab-case` naming for file and folder names to ensure consistency (e.g. `user-profie.tsx`). Dynamic routes use square brackets (e.g. `[userId].tsx`). Nested routes are organized by folders (e.g., `app/user/[userId]/setting.tsx`).
+
+**Default routes:** `index.tsx` files define the default screen for a folder. For example:
+```
+app/
+├── index.tsx          # Home screen (default route '/')
+└── settings/
+    ├── index.tsx      # Default route '/settings'
+    └── account.tsx    # Route '/settings/account'
+```
+**Organizational groups:** parantheses denote grouping routes without affecting the URL path. For example:
+```
+app/
+├── (tabs)/            # Organizational folder for tab navigation
+│   ├── home.tsx
+│   ├── explore.tsx
+│   └── profile.tsx
+└── (auth)/
+    ├── login.tsx
+    └── register.tsx
+```
+
+Generally, make sure to keep the screens modular, group routes by logical context (e.g. `(auth)`, `(tabs)`, etc.), and keep screen components lightweight (delegate logic and hooks).
 
 ## 2. Styling
 Styling must be done using Tailwind CSS (via NativeWind) utility classes.
