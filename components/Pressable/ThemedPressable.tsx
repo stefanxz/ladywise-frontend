@@ -19,10 +19,10 @@ export function ThemedPressable({
   return (
     <Pressable
       disabled={isBlocked}
-      onPress={isBlocked ? undefined : onPress}
+      onPress={onPress}
       className={cn(
         "h-11 px-4 rounded-xl items-center justify-center",
-        "bg-black active:opacity-90",
+        "bg-[#a45a6b] active:opacity-90",
         isBlocked && "opacity-60",
         className
       )}
