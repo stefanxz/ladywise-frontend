@@ -1,12 +1,18 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
-    "./App.{js,jsx,ts,tsx}",
+    "./app.{js,jsx,ts,tsx}",
     "./app/**/*.{js,jsx,ts,tsx}",
   ],
   presets: [require("nativewind/preset")],
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        //custom color
+        'Dusty-Rose': '#A45A6B'
+      }
+
+    },
   },
   plugins: [],
 }
