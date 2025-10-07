@@ -1,10 +1,8 @@
 import React from "react";
 import { ActivityIndicator, Pressable, Text } from "react-native";
 //import "../../assets/styles/main.css";
+import { cn } from "../../utils/helpers";
 import type { ThemedButtonProperties } from "./ThemedPressable.types";
-
-const cn = (...xs: Array<string | false | undefined | null>) =>
-  xs.filter(Boolean).join(" ");
 
 export function ThemedPressable({
   label,
