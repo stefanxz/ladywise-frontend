@@ -54,7 +54,7 @@ export default function Register() {
       setNameError("Please enter your name.");
       hasError = true;
     }
-    if (confirmPassword != password || !confirmPassword.trim()) {
+    if (confirmPassword !== password || !confirmPassword.trim()) {
       setConfirmPasswordError("Please make sure the passwords match.");
       hasError = true;
     }

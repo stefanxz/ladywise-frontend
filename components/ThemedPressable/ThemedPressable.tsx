@@ -22,13 +22,15 @@ export function ThemedPressable({
         "h-11 px-4 rounded-xl items-center justify-center",
         "bg-[#a45a6b] active:opacity-90",
         isBlocked && "opacity-60",
-        className
+        className,
       )}
     >
       {loading ? (
         <ActivityIndicator />
       ) : (
-        <Text className={cn("text-white font-medium", textClassName)}>{label}</Text>
+        <Text className={cn("text-white font-medium", textClassName)}>
+          {label}
+        </Text>
       )}
     </Pressable>
   );
