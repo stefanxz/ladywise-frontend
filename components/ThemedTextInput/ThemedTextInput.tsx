@@ -1,5 +1,5 @@
 // This function can be used by all text input fields in the project, including Email and Password
-// returns a single React Native TextInput component
+// returns a single React Native ThemedTextInput component
 import React from "react";
 import { TextInput } from "react-native";
 //import "../../assets/styles/main.css";

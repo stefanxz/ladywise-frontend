@@ -1,8 +1,7 @@
 import { router } from "expo-router";
 import React from "react";
 import { Text, View } from "react-native";
-import "../../assets/styles/main.css";
-import { ThemedPressable } from "../../components/Pressable/ThemedPressable";
+import { ThemedPressable } from "@/components/ThemedPressable/ThemedPressable";
 
 export default function Index() {
   return (

@@ -5,6 +5,6 @@ export interface ThemedButtonProperties {
   loading?: boolean;
 
   // /** Tailwind classes */
-  className?: string;      // applied to Pressable
-  textClassName?: string;  // applied to inner Text
+  className?: string; // applied to ThemedPressable
+  textClassName?: string; // applied to inner Text
 }
