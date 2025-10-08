@@ -1,16 +1,23 @@
-import { useState } from "react";
-import { Image, Linking, Pressable, Text, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { AppBar } from "@/components/ThemedPressable/appbar-backbutton";
 import { ThemedPressable } from "@/components/ThemedPressable/ThemedPressable";
 import { ThemedTextInput } from "@/components/ThemedTextInput/ThemedTextInput";
 import { registerUser } from "@/lib/api";
+import { useState } from "react";
+import { Image, Linking, Pressable, Text, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 // At least 8 chars, 1 upper, 1 lower, 1 number, no spaces
-const PASSWORD_RE = /^(?=\S{8,}$)(?=.*[A-Z])(?=.*[a-z])(?=.*\d).*$/;
+const PASSWORD_FORMAT = /^(?=\S{8,}$)(?=.*[A-Z])(?=.*[a-z])(?=.*\d).*$/;
 
-export function isPasswordValid(pw: string): boolean {
-  return PASSWORD_RE.test(pw);
+//At least one character before and after the @ and one . after the email service
+const EMAIL_FORMAT = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+export function isPasswordValid(password: string): boolean {
+  return PASSWORD_FORMAT.test(password);
+}
+
+export function isEmailValid(email: string): boolean {
+  return EMAIL_FORMAT.test(email);
 }
 
 export default function Register() {
@@ -42,6 +49,9 @@ export default function Register() {
     let hasError = false;
     if (!email.trim()) {
       setEmailError("Please enter your email.");
+      hasError = true;
+    }else if (!isEmailValid(email)){
+      setEmailError("Email must have the format example@domain.com.");
       hasError = true;
     }
     if (!isPasswordValid(password)) {
