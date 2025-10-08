@@ -7,7 +7,16 @@ module.exports = {
   ],
   presets: [require("nativewind/preset")],
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        brand: "#A45A6B",
+      },
+    },
+    fontFamily: {
+      "inter-regular": "Inter_400Regular",
+      "inter-semibold": "Inter_600Bold",
+      "aclonica-regular": "Aclonica_400Regular",
+    },
   },
   plugins: [],
-}
+};

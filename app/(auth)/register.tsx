@@ -78,7 +78,7 @@ export default function Register() {
         <AppBar />
       </View>
 
-      <View className="flex-1 w-full items-center">
+      <View className="flex-1 w-full items-center font-inter-regular">
         <View className="w-full max-w-md px-6 pt-6">
           <View className="mb-6">
             <View style={{ flexDirection: "row", alignItems: "center" }}>
@@ -93,7 +93,7 @@ export default function Register() {
                 resizeMode="contain"
               />
               <View style={{ flexShrink: 1 }}>
-                <Text className="text-4xl font-serif font-semibold text-[#A45A6B] ml-3">
+                <Text className="text-4xl font-aclonica-regular text-brand ml-3">
                   LadyWise
                 </Text>
                 <Text
@@ -223,7 +223,7 @@ export default function Register() {
             onPress={handlePressed}
             loading={registering}
             disabled={!termsConditions}
-            className="mt-18 w-80 self-center bg-[#a45a6b]"
+            className="mt-18 w-80 self-center bg-brand"
           />
           {formError ? (
             <Text className="text-red-700 text-sm mt-2 text-center">
