@@ -1,9 +1,10 @@
-import { Redirect } from 'expo-router';
-import '../assets/styles/main.css';
+import { Redirect } from "expo-router";
 
-const app = () => {
-  return <Redirect href="./landingPage/" />;
+export default function RootIndex() {
+  const user = null;
+  return user ? (
+    <Redirect href="/(main)/home" />
+  ) : (
+    <Redirect href="/(auth)/landing" />
+  );
 }
-
-
-export default app
