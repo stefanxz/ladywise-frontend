@@ -2,6 +2,7 @@ import { AppBar } from "@/components/AppBarBackButton/AppBarBackButton";
 import { ThemedPressable } from "@/components/ThemedPressable/ThemedPressable";
 import { ThemedTextInput } from "@/components/ThemedTextInput/ThemedTextInput";
 import { registerUser } from "@/lib/api";
+import { useRouter } from "expo-router";
 import { useState } from "react";
 import { Image, Linking, Pressable, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -27,6 +28,7 @@ export default function Register() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [termsConditions, setTermsConditions] = useState(false);
   const [registering, setRegistering] = useState(false);
+  const router = useRouter(); // Navigation instance
 
   // error messages
   const [emailError, setEmailError] = useState<string | null>(null);
@@ -72,11 +74,17 @@ export default function Register() {
 
     // frontend to backend register request
     try {
-      setRegistering(true);
-      await registerUser({ email, name, password });
+    setRegistering(true);
+    // Submit registration to backend
+    const response = await registerUser({ email, name, password });
+    // if successful registration, navigate to first time questionnaire
+    router.push("/first-time-questionnaire"); 
+    
     } catch (err: unknown) {
+      //user-friendly error message
       const message =
         err instanceof Error ? err.message : "Registration failed.";
+        setFormError(message);
     } finally {
       setRegistering(false);
     }
