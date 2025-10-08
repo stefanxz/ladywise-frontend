@@ -19,7 +19,7 @@ const LandingPage = () => {
 
   // Navigation logic to login page.
   const handleLogin = () => {
-    router.push('../login');
+    router.push('/login');
   };
 
     return (
