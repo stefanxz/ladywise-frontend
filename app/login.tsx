@@ -1,7 +1,9 @@
+import AppBar from "@/components/ThemedPressable/appbar-backbutton";
 import { Feather } from "@expo/vector-icons";
 import { Stack } from "expo-router";
 import React, { useState } from "react";
 import { Image, Pressable, Text, TextInput, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import ladybugLogo from "../assets/images/ladybug.png";
 
 export default function LoginScreen() {
@@ -14,7 +16,8 @@ export default function LoginScreen() {
       {/* Header is hidden for now; _layout can override this if needed. */}
       <Stack.Screen options={{ headerShown: false, title: "Log In" }} />
 
-      <View className="flex-1 bg-[#FDFBFB] px-6">
+      <SafeAreaView className="flex-1 bg-[#FDFBFB] px-6">
+        <AppBar />
         <View className="mt-8 gap-6">
           {/* Logo */}
           <View className="items-center mt-12 mb-8">
@@ -94,7 +97,7 @@ export default function LoginScreen() {
             Log In
           </Text>
         </Pressable>
-      </View>
+      </SafeAreaView>
     </>
   );
 }
