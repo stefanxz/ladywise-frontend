@@ -22,19 +22,32 @@ export default function RootLayout() {
   useEffect(() => {
     async function prepare() {
       try {
-        // Take contro
+        // Take control of the splash screen
         await SplashScreen.preventAutoHideAsync();
-        const delay = (ms: number) => {
-          new Promise((resolve) => setTimeout(resolve, ms));
-        };
-        await delay(3000);
+
+        // If the fontsLoaded is true (boolean auto updated once the useFonts() hook finished execution)
+        if (fontsLoaded) {
+          const delay = (ms: number) =>
+            new Promise((resolve) => setTimeout(resolve, ms));
+          await delay(3000);
+        }
       } catch (e) {
         console.log(e);
       } finally {
-        setAppReadyStatus(true);
+        if (fontsLoaded) {
+          setAppReadyStatus(true);
+        }
       }
     }
-  });
+    prepare();
+  }, [fontsLoaded]);
+
+  useEffect(() => {
+    if (appReadyStatus) {
+      // Hide the splash screen once the app is ready
+      SplashScreen.hideAsync();
+    }
+  }, [appReadyStatus]);
 
   if (!appReadyStatus) {
     return null;
