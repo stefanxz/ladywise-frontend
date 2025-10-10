@@ -29,7 +29,7 @@ export default function RootLayout() {
         if (fontsLoaded) {
           const delay = (ms: number) =>
             new Promise((resolve) => setTimeout(resolve, ms));
-          await delay(3000); // PLACEHOLDER timer to mimic what happens when the app first fetches user data. The fetching data is to be implemented this
+          await delay(100); // PLACEHOLDER timer to mimic what happens when the app first fetches user data. The fetching data is to be implemented this
         }
       } catch (e) {
         console.error(
