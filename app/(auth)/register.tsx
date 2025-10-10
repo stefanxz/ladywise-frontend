@@ -1,4 +1,4 @@
-import { AppBar } from "@/components/ThemedPressable/AppBarBackButton";
+import { AppBar } from "@/components/AppBarBackButton/AppBarBackButton";
 import { ThemedPressable } from "@/components/ThemedPressable/ThemedPressable";
 import { ThemedTextInput } from "@/components/ThemedTextInput/ThemedTextInput";
 import { registerUser } from "@/lib/api";
@@ -56,7 +56,7 @@ export default function Register() {
     }
     if (!isPasswordValid(password)) {
       setPasswordError(
-        "Password must contain at least 8 characters, 1 upper case, 1 lower case and 1 number (and no spaces)."
+        "Password must contain at least 8 characters, 1 upper case, 1 lower case and 1 number (and no spaces).",
       );
       hasError = true;
     }
