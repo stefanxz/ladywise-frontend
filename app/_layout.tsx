@@ -6,6 +6,7 @@ import {
   useFonts,
 } from "@expo-google-fonts/inter";
 import { Stack } from "expo-router";
+import * as SplashScreen from "expo-splash-screen";
 import { useEffect, useState } from "react";
 
 export default function RootLayout() {
@@ -19,12 +20,25 @@ export default function RootLayout() {
   const [appReadyStatus, setAppReadyStatus] = useState(false);
 
   useEffect(() => {
-    async function placeholder() {
-      setTimeout(10000);
+    async function prepare() {
+      try {
+        // Take contro
+        await SplashScreen.preventAutoHideAsync();
+        const delay = (ms: number) => {
+          new Promise((resolve) => setTimeout(resolve, ms));
+        };
+        await delay(3000);
+      } catch (e) {
+        console.log(e);
+      } finally {
+        setAppReadyStatus(true);
+      }
     }
-  }, []);
+  });
 
-  if (appReadyStatus) {
-    return <Stack screenOptions={{ headerShown: false }} />;
+  if (!appReadyStatus) {
+    return null;
   }
+
+  return <Stack screenOptions={{ headerShown: false }} />;
 }
