@@ -13,7 +13,7 @@ const LandingPage = () => {
 
   // Navigation logic to registration page.
   const handleGetStarted = () => {
-    router.push('/register');
+    router.push('/register1');
   };
 
   // Navigation logic to login page.
