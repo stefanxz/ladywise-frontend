@@ -53,7 +53,7 @@ export default function RootLayout() {
     }
   }, [appReadyStatus]); // Also executes once
 
-  // Do not return anything if the app is not ready; currently looks bad bacuse of the delay, real delay would be 10x smaller, unovservable by human eye
+  // Do not return anything if the app is not ready;
   if (!appReadyStatus) {
     return null;
   }
