@@ -1,4 +1,4 @@
-import { AppBar } from "@/components/ThemedPressable/appbar-backbutton";
+import { AppBar } from "@/components/AppBarBackButton/AppBarBackButton";
 import { ThemedPressable } from "@/components/ThemedPressable/ThemedPressable";
 import { ThemedTextInput } from "@/components/ThemedTextInput/ThemedTextInput";
 import { registerUser } from "@/lib/api";
@@ -50,7 +50,7 @@ export default function Register() {
     if (!email.trim()) {
       setEmailError("Please enter your email.");
       hasError = true;
-    }else if (!isEmailValid(email)){
+    } else if (!isEmailValid(email)) {
       setEmailError("Email must have the format example@domain.com.");
       hasError = true;
     }
