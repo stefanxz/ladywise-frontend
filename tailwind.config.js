@@ -10,11 +10,13 @@ module.exports = {
     extend: {
       colors: {
         brand: "#A45A6B",
+        background: "#F9FAFB",
+        regularText: "#374151",
       },
     },
     fontFamily: {
       "inter-regular": "Inter_400Regular",
-      "inter-semibold": "Inter_600Bold",
+      "inter-semibold": "Inter_600SemiBold",
       "aclonica-regular": "Aclonica_400Regular",
     },
   },

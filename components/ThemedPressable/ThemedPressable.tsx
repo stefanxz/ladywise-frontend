@@ -19,7 +19,7 @@ export function ThemedPressable({
       disabled={isBlocked}
       onPress={onPress}
       className={cn(
-        "h-11 px-4 rounded-xl items-center justify-center",
+        "h-11 px-4 rounded-2xl items-center justify-center",
         "bg-[#a45a6b] active:opacity-90",
         isBlocked && "opacity-60",
         className,
@@ -28,7 +28,7 @@ export function ThemedPressable({
       {loading ? (
         <ActivityIndicator />
       ) : (
-        <Text className={cn("text-white font-medium", textClassName)}>
+        <Text className={cn("text-background font-inter-semibold", textClassName)}>
           {label}
         </Text>
       )}
