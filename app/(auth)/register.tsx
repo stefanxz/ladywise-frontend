@@ -1,4 +1,4 @@
-import { AppBar } from "@/components/ThemedPressable/appbar-backbutton";
+import { AppBar } from "@/components/ThemedPressable/AppBarBackButton";
 import { ThemedPressable } from "@/components/ThemedPressable/ThemedPressable";
 import { ThemedTextInput } from "@/components/ThemedTextInput/ThemedTextInput";
 import { registerUser } from "@/lib/api";
@@ -50,13 +50,13 @@ export default function Register() {
     if (!email.trim()) {
       setEmailError("Please enter your email.");
       hasError = true;
-    }else if (!isEmailValid(email)){
+    } else if (!isEmailValid(email)) {
       setEmailError("Email must have the format example@domain.com.");
       hasError = true;
     }
     if (!isPasswordValid(password)) {
       setPasswordError(
-        "Password must contain at least 8 characters, 1 upper case, 1 lower case and 1 number (and no spaces).",
+        "Password must contain at least 8 characters, 1 upper case, 1 lower case and 1 number (and no spaces)."
       );
       hasError = true;
     }
