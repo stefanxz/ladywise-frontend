@@ -9,4 +9,6 @@ export interface ThemedTextInputProps {
 
   // /** Tailwind classes applied directly to the ThemedTextInput */
   className?: string;
+
+  onBlur?: () => void;
 }
