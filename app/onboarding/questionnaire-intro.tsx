@@ -4,7 +4,7 @@ import { useRouter } from "expo-router";
 import { Image, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-export default function Register3() {
+export default function RegisterQuestIntro() {
     const router = useRouter();
 
     const handlePressed = async () => {
@@ -22,7 +22,7 @@ export default function Register3() {
 
                 <View className="items-center"> 
                 <Image
-                    source={require("../../assets/images/woman-holding-phone.png")}
+                    source={require("@/assets/images/woman-holding-phone.png")}
                     style={{ width: 275, height: 275 }}
                     resizeMode="contain"
                 />

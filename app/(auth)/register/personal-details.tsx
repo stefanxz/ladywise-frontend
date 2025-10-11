@@ -6,7 +6,7 @@ import { useState } from "react";
 import { Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-export default function Register1() {
+export default function RegisterPersDetails() {
     const [firstName, setFirstName] = useState("");
     const [lastName, setLastName] = useState("");
     const router = useRouter(); // Navigation instance
@@ -34,7 +34,7 @@ export default function Register1() {
 
         if (hasError) return;
 
-        router.push("/register3"); 
+        router.push("/onboarding/questionnaire-intro"); 
     };
 
     return (
