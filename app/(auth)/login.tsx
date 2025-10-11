@@ -15,9 +15,9 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import appleIcon from "../../assets/images/apple-icon.png";
-import facebookIcon from "../../assets/images/facebook-icon.png";
-import googleIcon from "../../assets/images/google-icon.png";
+import appleIcon from "@/assets/images/apple-icon.png";
+import facebookIcon from "@/assets/images/facebook-icon.png";
+import googleIcon from "@/assets/images/google-icon.png";
 
 export default function LoginScreen() {
   const [email, setEmail] = useState("");
@@ -70,7 +70,9 @@ export default function LoginScreen() {
                   numberOfLines={2}
                 >
                   Log in to continue your journey with{" "}
-                  <Text className="text-[#9B4F60] font-semibold">LadyWise.</Text>
+                  <Text className="text-[#9B4F60] font-semibold">
+                    LadyWise.
+                  </Text>
                 </Text>
               </View>
 
@@ -78,7 +80,9 @@ export default function LoginScreen() {
               <View className="gap-5 mt-4">
                 {/* Email */}
                 <View>
-                  <Text className="text-sm font-medium text-gray-700">Email</Text>
+                  <Text className="text-sm font-medium text-gray-700">
+                    Email
+                  </Text>
                   <ThemedTextInput
                     value={email}
                     onChangeText={(t: string) => {
