@@ -1,7 +1,7 @@
 import { AppBar } from "@/components/AppBarBackButton/AppBarBackButton";
 import { EmailField } from "@/components/Authentication/EmailField";
 import { PasswordField } from "@/components/Authentication/PasswordField";
-import { SocialSignOn } from "@/components/Authentication/SocialSignOn";
+import { SocialSignOn } from "@/components/SocialSignOn/SocialSignOn";
 import { TermsConditionsCheckbox } from "@/components/Authentication/TermsConditionsCheckbox";
 import { ThemedPressable } from "@/components/ThemedPressable/ThemedPressable";
 import { isEmailValid, isPasswordValid } from "@/utils/validations";
@@ -10,8 +10,7 @@ import React, { useState } from "react";
 import { Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-
-//Main page for registering 
+//Main page for registering
 //Contains email, password, password confirmation, option for social sign up
 export default function RegisterIndex() {
   const [email, setEmail] = useState("");
@@ -22,7 +21,9 @@ export default function RegisterIndex() {
 
   const [emailError, setEmailError] = useState<string | null>(null);
   const [passwordError, setPasswordError] = useState<string | null>(null);
-  const [confirmPasswordError, setConfirmPasswordError] = useState<string | null>(null);
+  const [confirmPasswordError, setConfirmPasswordError] = useState<
+    string | null
+  >(null);
   const [formError, setFormError] = useState<string | null>(null);
 
   const router = useRouter();
@@ -46,7 +47,9 @@ export default function RegisterIndex() {
     setPasswordError(null);
     setConfirmPasswordError(null);
 
-    {/* Error handling - if validation finds error on the entered input, error flag is set*/}
+    {
+      /* Error handling - if validation finds error on the entered input, error flag is set*/
+    }
     let hasError = false;
     if (!email.trim()) {
       setEmailError("Please enter your email.");
@@ -58,7 +61,7 @@ export default function RegisterIndex() {
 
     if (!isPasswordValid(password)) {
       setPasswordError(
-        "Password must contain at least 8 characters, 1 upper case, 1 lower case and 1 number (and no spaces)."
+        "Password must contain at least 8 characters, 1 upper case, 1 lower case and 1 number (and no spaces).",
       );
       hasError = true;
     }
@@ -67,7 +70,9 @@ export default function RegisterIndex() {
       setConfirmPasswordError("Please make sure the passwords match.");
       hasError = true;
     }
-    {/* If there is error, do not route, stay on the same page */}
+    {
+      /* If there is error, do not route, stay on the same page */
+    }
     if (hasError) return;
 
     // setRegistering(true);
@@ -100,7 +105,6 @@ export default function RegisterIndex() {
         </View>
 
         <View className="gap-y-8 w-80 self-center">
-
           {/* Email input field */}
           <EmailField
             label="Email"
@@ -110,7 +114,7 @@ export default function RegisterIndex() {
             error={emailError}
             testID="email-input"
           />
-          
+
           {/* Password input field */}
           <PasswordField
             label="Password"
@@ -134,7 +138,7 @@ export default function RegisterIndex() {
         <View className="mt-6 mb-2 w-80 self-center">
           <TermsConditionsCheckbox
             checked={termsConditions}
-            onToggle={() => setTermsConditions(v => !v)}
+            onToggle={() => setTermsConditions((v) => !v)}
             termsUrl="https://example.com/terms"
           />
         </View>
@@ -150,13 +154,17 @@ export default function RegisterIndex() {
         />
 
         {formError ? (
-          <Text className="text-red-700 text-sm mt-2 text-center">{formError}</Text>
+          <Text className="text-red-700 text-sm mt-2 text-center">
+            {formError}
+          </Text>
         ) : null}
 
         {/* Social media sign on buttons */}
         <SocialSignOn
           onPress={(provider) => {
-            {/*TODO: Actual social media sign on*/}
+            {
+              /*TODO: Actual social media sign on*/
+            }
             console.log("SSO pressed:", provider);
           }}
         />
