@@ -3,7 +3,6 @@ module.exports = {
   setupFilesAfterEnv: ["@testing-library/jest-native/extend-expect"],
   moduleNameMapper: { "^@/(.*)$": "<rootDir>/$1" },
   testMatch: [
-    "**/__tests__/**/*.[tj]s?(x)",
     "**/?(*.)+(spec|test).[tj]s?(x)",
   ],
   transformIgnorePatterns: [
