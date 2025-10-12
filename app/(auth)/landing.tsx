@@ -36,7 +36,7 @@ const LandingPage = () => {
           </Text>
         </View>
 
-        {/* Bottom section with button and link */}
+        {/* Button and link */}
         <View className="flex-[0.45] w-full bg-background justify-center">
           <ImageBackground source={backgroundPart1} resizeMode="stretch"  className="absolute inset-0  bg-background">
             {/* Vertical padding */}

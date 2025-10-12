@@ -3,6 +3,7 @@ export interface ThemedButtonProperties {
   onPress: () => void;
   disabled?: boolean;
   loading?: boolean;
+  testID? : string
 
   // /** Tailwind classes */
   className?: string; // applied to ThemedPressable

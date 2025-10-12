@@ -13,6 +13,7 @@ export function ThemedTextInput({
   secureTextEntry,
   disabled,
   className,
+  testID
 }: ThemedTextInputProps) {
   return (
     <TextInput
@@ -22,6 +23,7 @@ export function ThemedTextInput({
       placeholderTextColor={placeholderTextColor}
       secureTextEntry={secureTextEntry}
       editable={!disabled}
+      testID = {testID}
       className={[
         "h-11 px-3 rounded-xl border border-gray-300 bg-white",
         "text-gray-900",
