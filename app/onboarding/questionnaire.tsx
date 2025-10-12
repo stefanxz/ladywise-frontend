@@ -1,8 +1,9 @@
 import { ThemedPressable } from "@/components/ThemedPressable/ThemedPressable";
 import { useRouter } from "expo-router";
-import { SafeAreaView, Text, View } from "react-native";
+import { Text, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
-export default function FirstTimeQuestionnaire() {
+export default function Questionnaire() {
   const router = useRouter();
 
   return (
