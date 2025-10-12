@@ -1,8 +1,9 @@
 import { AppBar } from "@/components/AppBarBackButton/AppBarBackButton";
 import { ThemedPressable } from "@/components/ThemedPressable/ThemedPressable";
 import { ThemedTextInput } from "@/components/ThemedTextInput/ThemedTextInput";
+import { isEmailValid } from "@/lib/validation";
 import { Feather } from "@expo/vector-icons";
-import { Stack, useRouter } from "expo-router";
+import { Stack } from "expo-router";
 import React, { useState } from "react";
 import {
   Image,
@@ -15,25 +16,32 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import appleIcon from "@/assets/images/apple-icon.png";
-import facebookIcon from "@/assets/images/facebook-icon.png";
-import googleIcon from "@/assets/images/google-icon.png";
+import appleIcon from "../../assets/images/apple-icon.png";
+import facebookIcon from "../../assets/images/facebook-icon.png";
+import googleIcon from "../../assets/images/google-icon.png";
 
 export default function LoginScreen() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPw, setShowPw] = useState(false);
-  const [emailTouched, setEmailTouched] = useState(false);
-  const router = useRouter();
-
-  const isValidEmail = (value: string) =>
-    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
-  const showEmailError =
-    emailTouched && email.length > 0 && !isValidEmail(email);
+  const [emailError, setEmailError] = useState<string | null>(null);
 
   const handleLogin = () => {
-    setEmailTouched(true);
-    if (!isValidEmail(email) || password.trim().length === 0) return;
+    // Reset any existing error
+    setEmailError(null);
+
+    // Validation checks
+    if (!email.trim()) {
+      setEmailError("Please enter your email.");
+      return;
+    }
+    if (!isEmailValid(email)) {
+      setEmailError("Please enter a valid email address.");
+      return;
+    }
+    if (password.trim().length === 0) return;
+
+    // Placeholder action
     console.log("Log in pressed");
   };
 
@@ -46,14 +54,11 @@ export default function LoginScreen() {
         className="flex-1 bg-[#FDFBFB]"
       >
         <ScrollView
-          contentContainerStyle={{
-            flexGrow: 1,
-            justifyContent: "center",
-          }}
+          contentContainerStyle={{ flexGrow: 1, justifyContent: "center" }}
           keyboardShouldPersistTaps="handled"
         >
           <SafeAreaView className="flex-1 bg-[#FDFBFB] px-6">
-            {/* Back button */}
+            {/* Back Button */}
             <View className="pt-4">
               <AppBar />
             </View>
@@ -70,53 +75,50 @@ export default function LoginScreen() {
                   numberOfLines={2}
                 >
                   Log in to continue your journey with{" "}
-                  <Text className="text-[#9B4F60] font-semibold">
-                    LadyWise.
-                  </Text>
+                  <Text className="text-[#9B4F60] font-semibold">LadyWise.</Text>
                 </Text>
               </View>
 
               {/* Form Section */}
-              <View className="gap-5 mt-4">
+              <View className="space-y-4 mt-6 w-80 self-center">
                 {/* Email */}
                 <View>
-                  <Text className="text-sm font-medium text-gray-700">
+                  <Text className="text-gray-700 mb-1 font-extrabold">
                     Email
                   </Text>
                   <ThemedTextInput
                     value={email}
                     onChangeText={(t: string) => {
                       setEmail(t);
-                      if (showEmailError) setEmailTouched(false);
+                      if (emailError) setEmailError(null);
                     }}
-                    placeholder="your email"
-                    placeholderTextColor="#9CA3AF"
+                    placeholder="Your email"
+                    placeholderTextColor="gray"
                     secureTextEntry={false}
-                    className={`h-12 mt-1 ${
-                      showEmailError ? "border border-rose-400" : ""
-                    }`}
-                    onBlur={() => setEmailTouched(true)}
+                    className={`h-11 ${emailError ? "border border-red-500" : ""}`}
+                    onBlur={() => {
+                      if (email && !isEmailValid(email))
+                        setEmailError("Please enter a valid email address.");
+                    }}
                   />
-                  {showEmailError && (
-                    <Text className="text-xs text-rose-500 mt-1">
-                      Please enter a valid email address.
-                    </Text>
+                  {emailError && (
+                    <Text className="text-red-600 text-xs mt-1">{emailError}</Text>
                   )}
                 </View>
 
                 {/* Password */}
                 <View>
-                  <Text className="text-sm font-medium text-gray-700">
+                  <Text className="text-gray-700 mb-1 font-extrabold">
                     Password
                   </Text>
                   <View className="flex-row items-center">
                     <ThemedTextInput
                       value={password}
                       onChangeText={setPassword}
-                      placeholder="your password"
-                      placeholderTextColor="#9CA3AF"
+                      placeholder="Your password"
+                      placeholderTextColor="gray"
                       secureTextEntry={!showPw}
-                      className="flex-1 h-12 mt-1"
+                      className="flex-1 h-11"
                     />
                     <Pressable
                       onPress={() => setShowPw((v) => !v)}
@@ -142,9 +144,7 @@ export default function LoginScreen() {
                 <ThemedPressable
                   label="Log In"
                   onPress={handleLogin}
-                  disabled={
-                    !isValidEmail(email) || password.trim().length === 0
-                  }
+                  disabled={!isEmailValid(email) || password.trim().length === 0}
                   className="mt-6 w-full bg-[#9B4F60]"
                 />
               </View>
