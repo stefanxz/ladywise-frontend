@@ -10,10 +10,23 @@ export function SocialSignOn({ onPress }: SocialSignOnProps) {
   return (
     <View className="mt-16">
       <DividerText>or sign up with</DividerText>
-      <View className="mt-6 flex-row justify-center items-center space-x-12">
+      <View
+        style={{
+          flexDirection: "row",
+          justifyContent: "center",
+          alignItems: "center",
+          gap: 45,
+        }}
+        className="mt-6"
+      >
         <Pressable
           onPress={() => onPress("google")}
-          className="w-12 h-12 items-center justify-center"
+          style={{
+            width: 48,
+            height: 48,
+            alignItems: "center",
+            justifyContent: "center",
+          }}
           accessibilityRole="button"
           accessibilityLabel="Sign up with Google"
           testID="sso-google"
@@ -27,7 +40,12 @@ export function SocialSignOn({ onPress }: SocialSignOnProps) {
 
         <Pressable
           onPress={() => onPress("facebook")}
-          className="w-12 h-12 items-center justify-center"
+          style={{
+            width: 48,
+            height: 48,
+            alignItems: "center",
+            justifyContent: "center",
+          }}
           accessibilityRole="button"
           accessibilityLabel="Sign up with Facebook"
           testID="sso-facebook"
@@ -41,7 +59,12 @@ export function SocialSignOn({ onPress }: SocialSignOnProps) {
 
         <Pressable
           onPress={() => onPress("apple")}
-          className="w-12 h-12 items-center justify-center"
+          style={{
+            width: 48,
+            height: 48,
+            alignItems: "center",
+            justifyContent: "center",
+          }}
           accessibilityRole="button"
           accessibilityLabel="Sign up with Apple"
           testID="sso-apple"
