@@ -1,4 +1,5 @@
 import { AppBar } from "@/components/AppBarBackButton/AppBarBackButton";
+import { SocialSignOn } from "@/components/SocialSignOn/SocialSignOn";
 import { ThemedPressable } from "@/components/ThemedPressable/ThemedPressable";
 import { ThemedTextInput } from "@/components/ThemedTextInput/ThemedTextInput";
 import { isEmailValid } from "@/lib/validation";
@@ -6,20 +7,14 @@ import { Feather } from "@expo/vector-icons";
 import { Stack } from "expo-router";
 import React, { useState } from "react";
 import {
-  Image,
   KeyboardAvoidingView,
   Platform,
   Pressable,
   ScrollView,
   Text,
-  View,
+  View
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-
-import appleIcon from "../../assets/images/apple-icon.png";
-import facebookIcon from "../../assets/images/facebook-icon.png";
-import googleIcon from "../../assets/images/google-icon.png";
-import { SocialSignOn } from "@/components/SocialSignOn/SocialSignOn";
 
 export default function LoginScreen() {
   const [email, setEmail] = useState("");
