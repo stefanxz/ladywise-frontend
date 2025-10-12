@@ -1,16 +1,7 @@
 import { ThemedTextInput } from "@/components/ThemedTextInput/ThemedTextInput";
 import React from "react";
 import { Text, View } from "react-native";
-
-export type EmailFieldProps = {
-  label: string;
-  value: string;
-  onChangeText: (t: string) => void;
-  placeholder?: string;
-  error?: string | null;
-  inputProps?: Partial<React.ComponentProps<typeof ThemedTextInput>>;
-  testID?: string;
-};
+import { EmailFieldProps } from "@/components/EmailField/EmailField.types";
 
 export function EmailField({
   label,
@@ -37,7 +28,9 @@ export function EmailField({
         ].join(" ")}
         testID={testID}
       />
-      {error ? <Text className="text-red-600 text-xs mt-1">{error}</Text> : null}
+      {error ? (
+        <Text className="text-red-600 text-xs mt-1">{error}</Text>
+      ) : null}
     </View>
   );
 }

@@ -1,5 +1,5 @@
 import { AppBar } from "@/components/AppBarBackButton/AppBarBackButton";
-import { EmailField } from "@/components/Authentication/EmailField";
+import { EmailField } from "@/components/EmailField/EmailField";
 import { PasswordField } from "@/components/Authentication/PasswordField";
 import { SocialSignOn } from "@/components/SocialSignOn/SocialSignOn";
 import { TermsConditionsCheckbox } from "@/components/Authentication/TermsConditionsCheckbox";
