@@ -2,15 +2,7 @@ import { ThemedTextInput } from "@/components/ThemedTextInput/ThemedTextInput";
 import { Feather } from "@expo/vector-icons";
 import React, { useState } from "react";
 import { Pressable, Text, View } from "react-native";
-
-type PasswordFieldProps = {
-  label: string;
-  value: string;
-  onChangeText: (t: string) => void;
-  placeholder?: string;
-  error?: string | null;
-  testID?: string;
-};
+import { PasswordFieldProps } from "@/components/PasswordField/PasswordField.types";
 
 export function PasswordField({
   label,
@@ -37,17 +29,23 @@ export function PasswordField({
         />
         <View className="absolute right-0 top-0 bottom-0 justify-center pr-3">
           <Pressable
-            onPress={() => setShow(v => !v)}
+            onPress={() => setShow((v) => !v)}
             hitSlop={12}
             accessibilityRole="button"
             accessibilityLabel={`${show ? "Hide" : "Show"} ${label.toLowerCase()}`}
             testID={`${testID}-toggle`}
           >
-            <Feather name={show ? "eye-off" : "eye"} size={20} color="#6B7280" />
+            <Feather
+              name={show ? "eye-off" : "eye"}
+              size={20}
+              color="#6B7280"
+            />
           </Pressable>
         </View>
       </View>
-      {error ? <Text className="text-red-600 text-xs mt-1">{error}</Text> : null}
+      {error ? (
+        <Text className="text-red-600 text-xs mt-1">{error}</Text>
+      ) : null}
     </View>
   );
 }

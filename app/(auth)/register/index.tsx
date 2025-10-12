@@ -1,6 +1,6 @@
 import { AppBar } from "@/components/AppBarBackButton/AppBarBackButton";
 import { EmailField } from "@/components/EmailField/EmailField";
-import { PasswordField } from "@/components/Authentication/PasswordField";
+import { PasswordField } from "@/components/PasswordField/PasswordField";
 import { SocialSignOn } from "@/components/SocialSignOn/SocialSignOn";
 import { TermsConditionsCheckbox } from "@/components/Authentication/TermsConditionsCheckbox";
 import { ThemedPressable } from "@/components/ThemedPressable/ThemedPressable";
