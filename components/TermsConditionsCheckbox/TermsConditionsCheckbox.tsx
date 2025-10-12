@@ -1,13 +1,12 @@
 import React from "react";
 import { Linking, Pressable, Text, View } from "react-native";
+import { TermsConditionsCheckboxProps } from "@/components/TermsConditionsCheckbox/TermsConditionsCheckbox.types";
 
-type TermsConditionsCheckboxProps = {
-  checked: boolean;
-  onToggle: () => void;
-  termsUrl: string;
-};
-
-export function TermsConditionsCheckbox({ checked, onToggle, termsUrl }: TermsConditionsCheckboxProps) {
+export function TermsConditionsCheckbox({
+  checked,
+  onToggle,
+  termsUrl,
+}: TermsConditionsCheckboxProps) {
   return (
     <View className="flex-row items-center">
       <Pressable
