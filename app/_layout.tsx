@@ -14,8 +14,6 @@ import { View } from "react-native";
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
-  // --- STATE AND ASYNC HOOKS ---
-
   // State #1: Fonts
   const [fontsLoaded] = useFonts({
     Aclonica_400Regular,
@@ -30,7 +28,7 @@ export default function RootLayout() {
   useEffect(() => {
     async function prepareData() {
       try {
-        // This is where you'd put your actual data fetching logic
+        // This is where we will put the actual data fetching logic
         // The promise is a placeholder for that async work.
         await new Promise((resolve) => setTimeout(resolve, 1500)); // Simulate a 1.5s fetch
       } catch (e) {
@@ -45,16 +43,12 @@ export default function RootLayout() {
     prepareData();
   }, []); // The empty dependency array ensures this runs only once.
 
-  // --- UI TRANSITION LOGIC ---
-
   // Hide the splash screen only when fonts AND data are ready
   const onLayoutRootView = useCallback(async () => {
     if (fontsLoaded && dataReady) {
       await SplashScreen.hideAsync();
     }
   }, [fontsLoaded, dataReady]);
-
-  // --- RENDER LOGIC ---
 
   // Do not render the main app until all assets are loaded
   if (!fontsLoaded || !dataReady) {
