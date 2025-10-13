@@ -29,7 +29,7 @@ export default function LandingPage() {
 
   // Navigate to the login page
   const handleLogin = () => {
-    router.push("/(auth)/login");
+    router.push("/login");
   };
 
   return (
