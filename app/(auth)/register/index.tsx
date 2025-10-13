@@ -88,7 +88,7 @@ export default function RegisterIndex() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-gray-50">
+    <SafeAreaView className="flex-1 bg-background">
       <View className="w-full bg-gray-50" style={{ zIndex: 10, elevation: 10 }}>
         <AppBar />
       </View>
