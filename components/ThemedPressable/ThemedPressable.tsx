@@ -11,20 +11,22 @@ export function ThemedPressable({
   loading,
   className,
   textClassName,
-  testID
+  testID,
 }: ThemedButtonProperties) {
   const isBlocked = Boolean(disabled) || Boolean(loading);
 
   return (
     <Pressable
+      accessibilityRole="button"
+      accessibilityState={{ disabled: isBlocked }}
       disabled={isBlocked}
       onPress={onPress}
-      testID = {testID}
+      testID={testID ?? "themed-pressable"}
       className={cn(
         "h-11 px-4 rounded-2xl items-center justify-center",
         "bg-[#a45a6b] active:opacity-90",
         isBlocked && "opacity-60",
-        className,
+        className
       )}
     >
       {loading ? (
