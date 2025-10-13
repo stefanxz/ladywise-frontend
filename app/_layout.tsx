@@ -1,17 +1,16 @@
 import "@/assets/styles/main.css";
 import { Aclonica_400Regular } from "@expo-google-fonts/aclonica";
-import {
-  Inter_400Regular,
-  Inter_600SemiBold,
-  useFonts,
-} from "@expo-google-fonts/inter";
+import { Inter_400Regular, Inter_600SemiBold, useFonts } from "@expo-google-fonts/inter";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
+
+import { useEffect } from "react";
+import { View } from "react-native";
 import { useEffect, useState } from "react";
 
 export default function RootLayout() {
-  // Loads custom fonts
   const [fontsLoaded] = useFonts({
+    Aclonica_400Regular,
     Inter_400Regular,
     Inter_600SemiBold,
     Aclonica_400Regular,
@@ -56,6 +55,18 @@ export default function RootLayout() {
   // Do not return anything if the app is not ready;
   if (!appReadyStatus) {
     return null;
+  }
+
+
+  useEffect(() => {
+    if (fontsLoaded) {
+      SplashScreen.hideAsync();
+    }
+  }, [fontsLoaded]);
+
+  if (!fontsLoaded) {
+    // keep background consistent during loading
+    return <View style={{ flex: 1, backgroundColor: "#fff" }} />;
   }
 
   return <Stack screenOptions={{ headerShown: false }} />;
