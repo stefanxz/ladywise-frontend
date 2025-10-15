@@ -3,7 +3,7 @@ import * as validation from "@/lib/validation";
 import { fireEvent, render } from "@testing-library/react-native";
 import React from "react";
 
-// Mocks
+// --- Mock navigation, stack, and icons ---
 jest.mock("expo-router", () => ({
   Stack: { Screen: () => null },
   useRouter: () => ({ push: jest.fn(), replace: jest.fn(), back: jest.fn() }),
@@ -11,49 +11,85 @@ jest.mock("expo-router", () => ({
 
 jest.mock("@expo/vector-icons", () => ({
   Feather: () => null,
+  Ionicons: () => null,
 }));
 
-jest.mock("react-native-safe-area-context", () => ({
-  SafeAreaView: ({ children }: any) => children,
-  useSafeAreaInsets: () => ({ top: 0, bottom: 0 }),
-}));
+jest.mock("react-native-safe-area-context", () => {
+  const React = require("react");
+  return {
+    SafeAreaView: ({ children }: { children: React.ReactNode }) => (
+      <>{children}</>
+    ),
+    useSafeAreaInsets: () => ({ top: 0, bottom: 0 }),
+  };
+});
 
+// --- Mock components not under test ---
 jest.mock("@/components/AppBarBackButton/AppBarBackButton", () => ({
   AppBar: () => null,
 }));
 
-jest.mock("@/components/ThemedPressable/ThemedPressable", () => ({
-  ThemedPressable: ({ label, onPress, disabled }: any) => (
-    <button disabled={disabled} onClick={onPress} testID="login-button">
-      {label}
-    </button>
-  ),
+jest.mock("@/components/SocialSignOn/SocialSignOn", () => ({
+  SocialSignOn: () => null,
 }));
 
-jest.mock("@/components/ThemedTextInput/ThemedTextInput", () => ({
-  ThemedTextInput: ({ value, onChangeText, placeholder }: any) => {
-    let autoTestId = "text-input";
-    if (placeholder?.toLowerCase().includes("email")) autoTestId = "email-input";
-    if (placeholder?.toLowerCase().includes("password")) autoTestId = "password-input";
+// ✅ Use RN components instead of DOM mocks
+jest.mock("@/components/ThemedPressable/ThemedPressable", () => {
+  const React = require("react");
+  const { Pressable, Text } = require("react-native");
+  return {
+    ThemedPressable: ({
+      label,
+      onPress,
+      disabled,
+    }: {
+      label: string;
+      onPress: () => void;
+      disabled?: boolean;
+    }) => (
+      <Pressable
+        accessibilityRole="button"
+        accessibilityState={{ disabled }}
+        onPress={disabled ? undefined : onPress}
+        testID="login-button"
+      >
+        <Text>{label}</Text>
+      </Pressable>
+    ),
+  };
+});
 
-    return (
-      <input
-        // @ts-expect-error: testID is a React Native testing prop, ignored in DOM
-        testID={autoTestId}
-        value={value}
-        placeholder={placeholder}
-        onChange={(e) => onChangeText?.(e.target.value)}
-      />
-    );
-  },
-}));
+jest.mock("@/components/ThemedTextInput/ThemedTextInput", () => {
+  const React = require("react");
+  const { TextInput } = require("react-native");
+  return {
+    ThemedTextInput: ({
+      value,
+      onChangeText,
+      placeholder,
+    }: {
+      value: string;
+      onChangeText: (text: string) => void;
+      placeholder: string;
+    }) => {
+      let testID = "";
+      if (placeholder.toLowerCase().includes("email")) testID = "email-input";
+      else if (placeholder.toLowerCase().includes("password"))
+        testID = "password-input";
 
+      return (
+        <TextInput
+          testID={testID}
+          value={value}
+          placeholder={placeholder}
+          onChangeText={onChangeText}
+        />
+      );
+    },
+  };
+});
 
-jest.mock("../../assets/images/google-icon.png", () => 1);
-jest.mock("../../assets/images/facebook-icon.png", () => 1);
-jest.mock("../../assets/images/apple-icon.png", () => 1);
-
-// Mock validation functions
+// --- Mock validation ---
 jest.mock("@/lib/validation", () => ({
   isEmailValid: jest.fn(),
 }));
@@ -77,6 +113,7 @@ describe("LoginScreen", () => {
   it("renders correctly and shows welcome text", () => {
     const { getByText } = setup();
     expect(getByText("Welcome Back 🌸")).toBeTruthy();
+    expect(getByText("Log In")).toBeTruthy();
   });
 
   it("shows email validation error when invalid email entered", () => {
@@ -89,10 +126,10 @@ describe("LoginScreen", () => {
     expect(getByText("Please enter a valid email address.")).toBeTruthy();
   });
 
-  it("disables login button when form invalid", () => {
+  it("disables login button when form is invalid", () => {
     const { getByTestId } = setup();
     const btn = getByTestId("login-button");
-    expect(btn.props.disabled).toBe(true);
+    expect(btn.props.accessibilityState?.disabled).toBe(true);
   });
 
   it("validates email helper function correctly", () => {
