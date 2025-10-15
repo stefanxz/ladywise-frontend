@@ -25,3 +25,17 @@ export const resetFailedLoginCount = async (): Promise<void> => {
     console.error('Error resetting failed login count', error);
   }
 };
+
+/**
+ * Retrieves the current failed login attempt count from AsyncStorage.
+ * @returns Promise<number> — The current count, or 0 if not set.
+ */
+export const getFailedLoginCount = async (): Promise<number> => {
+  try {
+    const value = await AsyncStorage.getItem('failedLoginCount');
+    return value ? parseInt(value, 10) : 0;
+  } catch (error) {
+    console.error('Error getting failed login count:', error);
+    return 0;
+  }
+};
