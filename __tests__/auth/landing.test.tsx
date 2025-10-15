@@ -38,13 +38,42 @@ describe("landing page", () => {
     jest.clearAllMocks();
   });
 
-  it("navigates to the register screen when button is pressed", () => {
-    const { getByTestId } = render(<LandingPage />);
+  const setup = () => {
+     return render(<LandingPage />);
+  };
+
+  it("Shows app name", () => {
+    const { getByText } = setup();
+    expect(getByText("LadyWise")).toBeTruthy();
+  });
+
+  it("Shows app description", () => {
+    const { getByText } = setup();
+    expect(getByText("Your personal companion for menstrual health insights.")).toBeTruthy();
+  });
+
+  it("Shows button text 'Get Started'", () => {
+    const { getByText } = setup();
+    expect(getByText("Get Started")).toBeTruthy();
+  });
+
+  it("Shows text for login", () => {
+    const { getByText } = setup();
+    expect(getByText("Already have an account?")).toBeTruthy();
+  });
+
+  it("Shows text for login link", () => {
+    const { getByText } = setup();
+    expect(getByText("Log In")).toBeTruthy();
+  });
+
+  it("Navigates to the register screen when button is pressed", () => {
+    const { getByTestId } = setup();
     fireEvent.press(getByTestId("get-started-button"));
     expect(router.push).toHaveBeenCalledWith("/(auth)/register");
   });
 
-  it("navigates to the login screen when 'Log In' is pressed", () => {
+  it("Navigates to the login screen when 'Log In' is pressed", () => {
     const {getByText} = render(<LandingPage />);
     fireEvent.press(getByText("Log In"));
     expect(router.push).toHaveBeenCalledWith("/login");
