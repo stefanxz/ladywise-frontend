@@ -46,10 +46,8 @@ export default function LoginScreen() {
 
       if (isLoginSuccessful) {
         await resetFailedLoginCount();
-        console.log("Login successful, counter reset");
       } else {
         await incrementFailedLoginCount();
-        console.log("Login failed, counter increased");
       }
     } catch (error) {
       await incrementFailedLoginCount();
