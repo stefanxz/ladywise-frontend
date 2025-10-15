@@ -3,6 +3,7 @@ import { SocialSignOn } from "@/components/SocialSignOn/SocialSignOn";
 import { ThemedPressable } from "@/components/ThemedPressable/ThemedPressable";
 import { ThemedTextInput } from "@/components/ThemedTextInput/ThemedTextInput";
 import { isEmailValid } from "@/lib/validation";
+import { incrementFailedLoginCount, resetFailedLoginCount } from "@/utils/asyncStorageHelpers";
 import { Feather } from "@expo/vector-icons";
 import { Stack } from "expo-router";
 import React, { useState } from "react";
@@ -16,13 +17,14 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+
 export default function LoginScreen() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPw, setShowPw] = useState(false);
   const [emailError, setEmailError] = useState<string | null>(null);
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     // Reset any existing error
     setEmailError(null);
 
@@ -36,6 +38,21 @@ export default function LoginScreen() {
       return;
     }
     if (password.trim().length === 0) return;
+
+
+    try {
+      // TODO: Replace with actual API call later
+      const isLoginSuccessful = false; // placeholder for now
+
+      if (isLoginSuccessful) {
+        await resetFailedLoginCount();
+      } else {
+        await incrementFailedLoginCount();
+      }
+    } catch (error) {
+      await incrementFailedLoginCount();
+      console.error("Login error:", error);
+    }
 
     // Placeholder action
     console.log("Log in pressed");
