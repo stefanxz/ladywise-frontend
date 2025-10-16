@@ -9,10 +9,12 @@ export default function Questionnaire() {
   const router = useRouter();
   const [age, setAge] = useState("");
   const [weight, setWeight] = useState("");
+  const [height, setheight] = useState("");
 
   // error messages
   const [ageError, setAgeError] = useState<string | null>(null);
   const [weightError, setWeightError] = useState<string | null>(null);
+  const [heightError, setheightError] = useState<string | null>(null);
   
 
   return (
@@ -58,6 +60,21 @@ export default function Questionnaire() {
             />
             {ageError ? (
               <Text className="text-red-600 text-xs mt-1">{weightError}</Text>
+              ) : null}
+          </View>
+          <View className="w-full mt-8">
+            <Text className="pr-8 text-lg text-gray-600 text-left leading-relaxed">Height</Text>
+            <UnitInputField
+            unit="cm"
+            value = {height}
+            onChangeText={(t: string) => {
+                setheight(t);
+                if (heightError) setheightError(null);
+            }}
+            placeholder="Your height"
+            />
+            {ageError ? (
+              <Text className="text-red-600 text-xs mt-1">{heightError}</Text>
               ) : null}
           </View>
         </View>
