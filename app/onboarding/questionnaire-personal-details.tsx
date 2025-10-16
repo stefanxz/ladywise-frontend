@@ -1,3 +1,4 @@
+import { ThemedPressable } from "@/components/ThemedPressable/ThemedPressable";
 import { ThemedTextInput } from "@/components/ThemedTextInput/ThemedTextInput";
 import { UnitInputField } from "@/components/UnitInputField/UnitInputField";
 import { useRouter } from "expo-router";
@@ -15,6 +16,10 @@ export default function Questionnaire() {
   const [ageError, setAgeError] = useState<string | null>(null);
   const [weightError, setWeightError] = useState<string | null>(null);
   const [heightError, setheightError] = useState<string | null>(null);
+
+  const handlePressed = async () => {
+    router.push("/landing");
+  };
   
 
   return (
@@ -76,6 +81,12 @@ export default function Questionnaire() {
             {ageError ? (
               <Text className="text-red-600 text-xs mt-1">{heightError}</Text>
               ) : null}
+          </View>
+          <View className="w-full mt-8">
+            <ThemedPressable
+              label="Continue"
+              onPress={handlePressed}
+            />
           </View>
         </View>
       </View>
