@@ -20,7 +20,7 @@ export default function Questionnaire() {
 
         <ThemedPressable
           label="Start Questionnaire"
-          onPress={() => router.push("/landing")}
+          onPress={() => router.push("/onboarding/questionnaire-personal-details")}
           className="bg-brand w-60 self-center"
         />
       </View>
