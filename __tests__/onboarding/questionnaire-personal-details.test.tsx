@@ -56,6 +56,10 @@ describe("QuestionnairePersonalDetails screen", () => {
     expect(getByText("Let's start with a few basics 💫")).toBeTruthy();
     expect(getByText("Tell us a bit about yourself so we can tailor your health insights.")).toBeTruthy();
     expect(getByText("Age")).toBeTruthy();
+    expect(getByText("Weight")).toBeTruthy();
+    expect(getByText("Height")).toBeTruthy();
+    expect(getByText("Continue")).toBeTruthy();
+    expect(getByText("Skip")).toBeTruthy();
   });
 
   it("shows 'Please enter your age.' when age is empty", () => {
