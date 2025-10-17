@@ -3,8 +3,13 @@ import { ThemedTextInput } from "@/components/ThemedTextInput/ThemedTextInput";
 import { UnitInputField } from "@/components/UnitInputField/UnitInputField";
 import { useRouter } from "expo-router";
 import { useState } from "react";
-import { Text, View } from "react-native";
+import { Image, Platform, Pressable, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+
+// Assets
+import progression from "@/assets/images/progres1.png";
+import progressionBar from "@/assets/images/progresbar.png";
+
 
 export default function Questionnaire() {
   const router = useRouter();
@@ -17,14 +22,48 @@ export default function Questionnaire() {
   const [weightError, setWeightError] = useState<string | null>(null);
   const [heightError, setheightError] = useState<string | null>(null);
 
+  // Navigate to the login page
+  const handleSkip = () => {
+    router.push("/landing");
+  };
+
   const handlePressed = async () => {
     router.push("/landing");
   };
   
 
   return (
-    <SafeAreaView className="flex-1 bg-white items-center pt-[162px]">
-      <View className="w-full max-w-md items-start mt-2 gap-y-3 px-10">
+    <SafeAreaView className="flex-1 bg-white items-center">
+      <View className="w-full max-w-md mt-2 px-10 pt-[71px]">
+        <View className="flex-row items-center">
+          <View className="relative flex-1">
+            <Image
+              source={progressionBar}
+              className="absolute left-0 top-1/2 -translate-y-1/2"
+              resizeMode="contain"
+            />
+            <Image
+              source={progression}
+              className="absolute left-0 top-1/2 -translate-y-1/2"
+              resizeMode="contain"
+            />
+            <Pressable 
+              onPress={handleSkip}
+              >
+              <Text
+                className="text-lg text-right text-[#C3C3C3]"
+                style={{
+                  // Fix for Android text truncation bug
+                  paddingRight: Platform.OS === "android" ? 3 : 0,
+                }}
+              >
+                Skip
+              </Text>
+            </Pressable>
+          </View>
+        </View>
+      </View>
+      <View className="w-full max-w-md items-start mt-2 gap-y-3 px-10 pt-[71px]">
         <Text className="text-3xl font-semibold text-brand text-left">
         {"Let's start with a few basics 💫"}
         </Text>
