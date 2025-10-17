@@ -16,7 +16,7 @@ interface riskLevelColorMap {
 
 const RiskCard = ({ title, level, description }: RiskCardProps) => {
   return (
-    <View>
+    <View className="bg-white px-24 py-16 rounded-xl shadow-sm">
       <Text>{title}</Text>
       <Text>{level}</Text>
       <Text>{description}</Text>
