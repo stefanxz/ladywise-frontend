@@ -23,12 +23,15 @@ export default function Questionnaire() {
   const [weightError, setWeightError] = useState<string | null>(null);
   const [heightError, setheightError] = useState<string | null>(null);
 
-  // Navigate to the login page
+  // Navigate to the main page
+  // Main page does not exist yet so naviagtion is to langing page
   const handleSkip = () => {
     router.push("/landing");
   };
 
-const handleContinue = async () => {
+  // navigation to the next screen of first time questionnaire
+  // Only go to the next page of the questionair when all fiels are inputed correctly
+  const handleContinue = async () => {
     setAgeError(null);
     setWeightError(null);
     setheightError(null);
