@@ -33,7 +33,7 @@ export default function Questionnaire() {
   
 
   return (
-    <SafeAreaView className="flex-1 bg-white items-center">
+    <SafeAreaView className="flex-1 bg-background items-center">
       <View className="w-full max-w-md mt-2 px-10 pt-[71px]">
         <View className="flex-row items-center">
           <View className="relative flex-1">
@@ -51,7 +51,7 @@ export default function Questionnaire() {
               onPress={handleSkip}
               >
               <Text
-                className="text-lg text-right text-[#C3C3C3]"
+                className="text-inter-regular text-right text-lightGrey"
                 style={{
                   // Fix for Android text truncation bug
                   paddingRight: Platform.OS === "android" ? 3 : 0,
@@ -64,35 +64,35 @@ export default function Questionnaire() {
         </View>
       </View>
       <View className="w-full max-w-md items-start mt-2 gap-y-3 px-10 pt-[71px]">
-        <Text className="text-3xl font-semibold text-brand text-left">
+        <Text className="text-3xl font-inter-semibold text-brand text-left">
         {"Let's start with a few basics 💫"}
         </Text>
         
-        <Text className="pr-8 text-lg text-gray-600 text-left leading-relaxed">
+        <Text className="pr-8 text-inter-regular text-regularText text-left leading-relaxed">
         {
           "Tell us a bit about yourself so we can tailor your health insights."
         }
         </Text >
         <View className="w-full mt-12">
           <View>
-            <Text className="pr-8 text-lg text-gray-600 text-left leading-relaxed">Age</Text>
+            <Text className="pr-8 text-inter-regular text-regularText text-left leading-relaxed">Age</Text>
             <ThemedTextInput
             value={age}
             onChangeText={(t: string) => {
                 setAge(t);
                 if (ageError) setAgeError(null);
             }}
-            placeholderTextColor="gray"
+            placeholder="Your age"
+            placeholderTextColor="lightGrey"
             className={`h-11 ${ageError ? "border border-red-500" : ""}`}
             secureTextEntry={false}
-            placeholder="Your age"
             />
             {ageError ? (
               <Text className="text-red-600 text-xs mt-1">{ageError}</Text>
               ) : null}
           </View>
           <View className="w-full mt-8">
-            <Text className="pr-8 text-lg text-gray-600 text-left leading-relaxed">Weight</Text>
+            <Text className="pr-8 text-inter-regular text-regularText text-left leading-relaxed">Weight</Text>
             <UnitInputField
             unit="kg"
             value = {weight}
@@ -107,7 +107,7 @@ export default function Questionnaire() {
               ) : null}
           </View>
           <View className="w-full mt-8">
-            <Text className="pr-8 text-lg text-gray-600 text-left leading-relaxed">Height</Text>
+            <Text className="pr-8 text-inter-regular text-regularText text-left leading-relaxed">Height</Text>
             <UnitInputField
             unit="cm"
             value = {height}

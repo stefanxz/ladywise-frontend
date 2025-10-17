@@ -32,13 +32,13 @@ export function UnitInputField({
           value={value}
           onChangeText={onChangeText}
           placeholder={placeholder}
-          placeholderTextColor="gray"
+          placeholderTextColor="lightGrey"
           className={`h-11 pr-12 ${error ? "border border-red-500" : ""}`} // Padding on the right
         />
 
         {/* 3. Place the unit Text on top using absolute positioning. */}
         <View className="absolute right-0 top-0 bottom-0 justify-center pr-4">
-          <Text className="text-gray-500 font-semibold">{unit}</Text>
+          <Text className="text-regularText font-inter-regular">{unit}</Text>
         </View>
 
       </View>
