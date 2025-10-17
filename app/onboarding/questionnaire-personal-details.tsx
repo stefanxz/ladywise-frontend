@@ -9,6 +9,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 // Assets
 import progression from "@/assets/images/progres1.png";
 import progressionBar from "@/assets/images/progresbar.png";
+import { isInputInteger } from "@/utils/validations";
 
 
 export default function Questionnaire() {
@@ -33,11 +34,10 @@ const handleContinue = async () => {
     setheightError(null);
 
     let hasError = false;
-    const regex = /^\d+$/;
     if (!age.trim()) {
       setAgeError("Please enter your age.");
       hasError = true;
-    } else if (!(regex.test(age))) {
+    } else if (!isInputInteger(age)) {
       setAgeError("Age must be a number.");
       hasError = true;
     }
@@ -45,7 +45,7 @@ const handleContinue = async () => {
     if (!weight.trim()) {
       setWeightError("Please enter your weight.");
       hasError = true;
-    } else if (!(regex.test(weight))) {
+    } else if (!isInputInteger(weight)) {
       setWeightError("Weight must be a number.");
       hasError = true;
     }
@@ -53,7 +53,7 @@ const handleContinue = async () => {
     if (!height.trim()) {
       setheightError("Please enter your height.");
       hasError = true;
-    } else if (!(regex.test(height))) {
+    } else if (!isInputInteger(height)) {
       setheightError("Height must be a number.");
       hasError = true;
     }
