@@ -1,18 +1,8 @@
 // In a new file, e.g., components/UnitInputField/UnitInputField.tsx
 
 import { ThemedTextInput } from "@/components/ThemedTextInput/ThemedTextInput";
-import React from "react";
 import { Text, View } from "react-native";
-
-// Define the component's props
-export interface UnitInputFieldProps {
-  unit: string;
-  value: string;
-  onChangeText: (text: string) => void;
-  placeholder?: string;
-  error?: string | null;
-  testID?: string;
-}
+import { UnitInputFieldProps } from "./UnitInputField.types";
 
 export function UnitInputField({
   unit,
