@@ -1,25 +1,24 @@
 import React from "react";
-import { View } from "react-native";
-import { Text } from "react-native-svg";
-
+import { Text, View } from "react-native";
 interface RiskCardProps {
   title: string;
   level: "Low" | "Medium" | "High";
   description: string;
 }
 
-interface riskLevelColorMap {
-  Low: "text-green-500";
-  Medium: "text-yellow-500";
-  High: "text-red-500";
-}
+const riskLevelColorMap = {
+  Low: "text-green-500",
+  Medium: "text-yellow-500",
+  High: "text-red-500",
+};
 
 const RiskCard = ({ title, level, description }: RiskCardProps) => {
+  const dynamicColor = riskLevelColorMap[level];
   return (
-    <View className="bg-white px-24 py-16 rounded-xl shadow-sm">
-      <Text>{title}</Text>
-      <Text>{level}</Text>
-      <Text>{description}</Text>
+    <View className="bg-white p-4 rounded-xl shadow-sm items-center">
+      <Text className="text-grey-600 mb-2">{title}</Text>
+      <Text className={`text-xl font-bold ${dynamicColor}`}>{level}</Text>
+      <Text className="text-sm text-gray-400 mt-1">{description}</Text>
     </View>
   );
 };
