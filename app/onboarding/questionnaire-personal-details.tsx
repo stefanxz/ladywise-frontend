@@ -27,8 +27,39 @@ export default function Questionnaire() {
     router.push("/landing");
   };
 
-  const handlePressed = async () => {
-    router.push("/landing");
+const handleContinue = async () => {
+    setAgeError(null);
+    setWeightError(null);
+    setheightError(null);
+
+    let hasError = false;
+    const regex = /^\d+$/;
+    if (!age.trim()) {
+      setAgeError("Please enter your age.");
+      hasError = true;
+    } else if (!(regex.test(age))) {
+      setAgeError("Age must be a number.");
+      hasError = true;
+    }
+
+    if (!weight.trim()) {
+      setWeightError("Please enter your weight.");
+      hasError = true;
+    } else if (!(regex.test(weight))) {
+      setWeightError("Weight must be a number.");
+      hasError = true;
+    }
+
+    if (!height.trim()) {
+      setheightError("Please enter your height.");
+      hasError = true;
+    } else if (!(regex.test(height))) {
+      setheightError("Height must be a number.");
+      hasError = true;
+    }
+
+    if (hasError) return;
+    router.push("/onboarding/questionnaire");
   };
   
 
@@ -102,7 +133,7 @@ export default function Questionnaire() {
             }}
             placeholder="Your weight"
             />
-            {ageError ? (
+            {weightError ? (
               <Text className="text-red-600 text-xs mt-1">{weightError}</Text>
               ) : null}
           </View>
@@ -117,14 +148,14 @@ export default function Questionnaire() {
             }}
             placeholder="Your height"
             />
-            {ageError ? (
+            {heightError ? (
               <Text className="text-red-600 text-xs mt-1">{heightError}</Text>
               ) : null}
           </View>
           <View className="w-full mt-8">
             <ThemedPressable
               label="Continue"
-              onPress={handlePressed}
+              onPress={handleContinue}
             />
           </View>
         </View>
