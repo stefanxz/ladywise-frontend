@@ -11,6 +11,7 @@ export interface UnitInputFieldProps {
   onChangeText: (text: string) => void;
   placeholder?: string;
   error?: string | null;
+  testID?: string;
 }
 
 export function UnitInputField({
@@ -19,6 +20,7 @@ export function UnitInputField({
   onChangeText,
   placeholder,
   error,
+  testID,
 }: UnitInputFieldProps) {
   return (
     // This outer View groups the label and the input field
@@ -34,6 +36,7 @@ export function UnitInputField({
           placeholder={placeholder}
           placeholderTextColor="lightGrey"
           className={`h-11 pr-12 ${error ? "border border-red-500" : ""}`} // Padding on the right
+          testID={testID}
         />
 
         {/* 3. Place the unit Text on top using absolute positioning. */}
