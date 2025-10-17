@@ -117,6 +117,7 @@ const handleContinue = async () => {
             placeholderTextColor="lightGrey"
             className={`h-11 ${ageError ? "border border-red-500" : ""}`}
             secureTextEntry={false}
+            testID="age-input"
             />
             {ageError ? (
               <Text className="text-red-600 text-xs mt-1">{ageError}</Text>
@@ -132,6 +133,7 @@ const handleContinue = async () => {
                 if (weightError) setWeightError(null);
             }}
             placeholder="Your weight"
+            testID="weight-input"
             />
             {weightError ? (
               <Text className="text-red-600 text-xs mt-1">{weightError}</Text>
@@ -147,6 +149,7 @@ const handleContinue = async () => {
                 if (heightError) setheightError(null);
             }}
             placeholder="Your height"
+            testID="height-input"
             />
             {heightError ? (
               <Text className="text-red-600 text-xs mt-1">{heightError}</Text>
@@ -156,6 +159,7 @@ const handleContinue = async () => {
             <ThemedPressable
               label="Continue"
               onPress={handleContinue}
+              testID="continue-button"
             />
           </View>
         </View>
