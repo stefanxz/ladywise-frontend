@@ -3,12 +3,11 @@ import { ThemedTextInput } from "@/components/ThemedTextInput/ThemedTextInput";
 import { UnitInputField } from "@/components/UnitInputField/UnitInputField";
 import { useRouter } from "expo-router";
 import { useState } from "react";
-import { Image, Platform, Pressable, Text, View } from "react-native";
+import { Platform, Pressable, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 // Assets
-import progression from "@/assets/images/progres1.png";
-import progressionBar from "@/assets/images/progresbar.png";
+import ProgressBar from "@/components/ProgressBar/ProgressBar";
 import { isInputInteger } from "@/utils/validations";
 
 
@@ -70,17 +69,10 @@ export default function Questionnaire() {
     <SafeAreaView className="flex-1 bg-background items-center">
       <View className="w-full max-w-md mt-2 px-10 pt-[71px]">
         <View className="flex-row items-center">
-          <View className="relative flex-1">
-            <Image
-              source={progressionBar}
-              className="absolute left-0 top-1/2 -translate-y-1/2"
-              resizeMode="contain"
-            />
-            <Image
-              source={progression}
-              className="absolute left-0 top-1/2 -translate-y-1/2"
-              resizeMode="contain"
-            />
+          <View className="flex-1">
+            <ProgressBar currentStep={1} totalSteps={5} />
+          </View>
+          <View className="w-1/6">
             <Pressable 
               onPress={handleSkip}
               >
