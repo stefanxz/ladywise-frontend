@@ -15,12 +15,12 @@ export default function Questionnaire() {
   const router = useRouter();
   const [age, setAge] = useState("");
   const [weight, setWeight] = useState("");
-  const [height, setheight] = useState("");
+  const [height, setHeight] = useState("");
 
   // error messages
   const [ageError, setAgeError] = useState<string | null>(null);
   const [weightError, setWeightError] = useState<string | null>(null);
-  const [heightError, setheightError] = useState<string | null>(null);
+  const [heightError, setHeightError] = useState<string | null>(null);
 
   // Navigate to the main page
   // Main page does not exist yet so naviagtion is to langing page
@@ -33,7 +33,7 @@ export default function Questionnaire() {
   const handleContinue = async () => {
     setAgeError(null);
     setWeightError(null);
-    setheightError(null);
+    setHeightError(null);
 
     let hasError = false;
     if (!age.trim()) {
@@ -53,10 +53,10 @@ export default function Questionnaire() {
     }
 
     if (!height.trim()) {
-      setheightError("Please enter your height.");
+      setHeightError("Please enter your height.");
       hasError = true;
     } else if (!isInputInteger(height)) {
-      setheightError("Height must be a number.");
+      setHeightError("Height must be a number.");
       hasError = true;
     }
 
@@ -140,8 +140,8 @@ export default function Questionnaire() {
             unit="cm"
             value = {height}
             onChangeText={(t: string) => {
-                setheight(t);
-                if (heightError) setheightError(null);
+                setHeight(t);
+                if (heightError) setHeightError(null);
             }}
             placeholder="Your height"
             testID="height-input"
