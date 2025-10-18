@@ -7,6 +7,9 @@ const EMAIL_FORMAT = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 //Check if input is an integer
 const INTEGER_FORMAT= /^\d+$/;
 
+//Check if input is an decimal
+const DECIMAL_FORMAT= /^\d+(\.\d+)?$/;
+
 export function isPasswordValid(password: string): boolean {
   return PASSWORD_FORMAT.test(password);
 }
@@ -17,4 +20,8 @@ export function isEmailValid(email: string): boolean {
 
 export function isInputInteger(input: string): boolean {
   return INTEGER_FORMAT.test(input);
+}
+
+export function isInputDecimal(input: string): boolean {
+  return DECIMAL_FORMAT.test(input);
 }

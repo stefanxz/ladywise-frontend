@@ -8,7 +8,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 // Assets
 import { ProgressBar } from "@/components/ProgressBar/ProgressBar";
-import { isInputInteger } from "@/utils/validations";
+import { isInputDecimal, isInputInteger } from "@/utils/validations";
 
 
 export default function Questionnaire() {
@@ -47,7 +47,7 @@ export default function Questionnaire() {
     if (!weight.trim()) {
       setWeightError("Please enter your weight.");
       hasError = true;
-    } else if (!isInputInteger(weight)) {
+    } else if (!isInputDecimal(weight)) {
       setWeightError("Weight must be a number.");
       hasError = true;
     }
@@ -55,7 +55,7 @@ export default function Questionnaire() {
     if (!height.trim()) {
       setHeightError("Please enter your height.");
       hasError = true;
-    } else if (!isInputInteger(height)) {
+    } else if (!isInputDecimal(height)) {
       setHeightError("Height must be a number.");
       hasError = true;
     }
