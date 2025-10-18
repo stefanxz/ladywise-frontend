@@ -9,7 +9,6 @@ import { ProgressBarProps } from "./ProgressBar.types";
 export function ProgressBar({
   currentStep,
   totalSteps,
-  animated = true,
 }: ProgressBarProps) {
   
   // Animation state reference
@@ -20,16 +19,8 @@ export function ProgressBar({
 
   // Animation Effect
   useEffect(() => {
-    if (animated) {
-      Animated.timing(animatedWidth, {
-        toValue: progress,
-        duration: 300,
-        useNativeDriver: false,
-      }).start();
-    } else {
-      animatedWidth.setValue(progress);
-    }
-  }, [currentStep, totalSteps, animated, progress]);
+    animatedWidth.setValue(progress);
+  }, [currentStep, totalSteps, progress]);
 
   // Rendering the Track and Animated Bar
   return (
