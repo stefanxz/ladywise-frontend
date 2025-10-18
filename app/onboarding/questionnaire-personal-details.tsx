@@ -39,8 +39,8 @@ export default function Questionnaire() {
     if (!age.trim()) {
       setAgeError("Please enter your age.");
       hasError = true;
-    } else if (!isInputInteger(age)) {
-      setAgeError("Age must be a number.");
+    } else if(!isInputInteger(age)) {
+      setAgeError("Age must be a whole positive number.");
       hasError = true;
     }
 
@@ -48,7 +48,7 @@ export default function Questionnaire() {
       setWeightError("Please enter your weight.");
       hasError = true;
     } else if (!isInputDecimal(weight)) {
-      setWeightError("Weight must be a number.");
+      setWeightError("Weight must be a positive number, using a dot (.) for decimals.");
       hasError = true;
     }
 
@@ -56,7 +56,7 @@ export default function Questionnaire() {
       setHeightError("Please enter your height.");
       hasError = true;
     } else if (!isInputDecimal(height)) {
-      setHeightError("Height must be a number.");
+      setHeightError("Height must be a positive number, using a dot (.) for decimals.");
       hasError = true;
     }
 
