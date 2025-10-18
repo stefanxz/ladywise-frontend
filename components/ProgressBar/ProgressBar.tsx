@@ -9,6 +9,7 @@ import { ProgressBarProps } from "./ProgressBar.types";
 export function ProgressBar({
   currentStep,
   totalSteps,
+  testID = 'progress-bar',
 }: ProgressBarProps) {
   
   // Animation state reference
@@ -30,6 +31,7 @@ export function ProgressBar({
       >
         <Animated.View
           className={`h-full rounded-full bg-brand`}
+          testID={`${testID}-progress`}
           style={{
             width: animatedWidth.interpolate({
               inputRange: [0, 1],
