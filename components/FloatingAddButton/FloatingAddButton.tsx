@@ -17,6 +17,7 @@ import React from "react";
  *  size={56}
  *  buttonColor={"#F9ACAC"}
  *  textColor={"#271411"}
+ *  onPress={openModal}
  * />
  * ```
  * @param {FloatingAddButtonProps} props - Component props
@@ -35,6 +36,7 @@ export function FloatingAddButton({
 }: FloatingAddButtonProps): React.ReactElement {
   return (
     <TouchableOpacity
+      testID="floating-add-button"
       className="rounded-full shadow-md items-center justify-center"
       style={{
         width: size,
