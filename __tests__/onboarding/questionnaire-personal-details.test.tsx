@@ -24,6 +24,7 @@ jest.mock("react-native-safe-area-context", () => {
 //Mock validations
 jest.mock("@/utils/validations", () => ({
   isInputInteger: jest.fn(),
+  isInputDecimal: jest.fn(),
 }));
 const mockedValidations = jest.mocked(validations);
 
@@ -35,6 +36,7 @@ describe("QuestionnairePersonalDetails screen", () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockedValidations.isInputInteger.mockReset();
+    mockedValidations.isInputDecimal.mockReset();
   });
 
   const setup = () => {
@@ -72,7 +74,7 @@ describe("QuestionnairePersonalDetails screen", () => {
     expect(router.push).not.toHaveBeenCalled();
   });
 
-  it("shows 'Age must be a number.' when age is not an integer", () => {
+  it("shows 'Age must be a whole positive number.' when age is not a number", () => {
     const { pressContinue, getByText, typeAge } = setup();
     
     mockedValidations.isInputInteger.mockReturnValue(false);
@@ -80,14 +82,52 @@ describe("QuestionnairePersonalDetails screen", () => {
     typeAge("abc");
     pressContinue();
 
-    expect(getByText("Age must be a number.")).toBeTruthy();
+    expect(getByText("Age must be a whole positive number.")).toBeTruthy();
     expect(router.push).not.toHaveBeenCalled();
     expect(mockedValidations.isInputInteger).toHaveBeenCalledWith("abc");
   });
 
+  it("shows 'Age must be a whole positive number.' when age is not a decimal", () => {
+    const { pressContinue, getByText, typeAge } = setup();
+    
+    mockedValidations.isInputInteger.mockReturnValue(false);
+
+    typeAge("12.1");
+    pressContinue();
+
+    expect(getByText("Age must be a whole positive number.")).toBeTruthy();
+    expect(router.push).not.toHaveBeenCalled();
+    expect(mockedValidations.isInputInteger).toHaveBeenCalledWith("12.1");
+  });
+
+  it("shows 'Age must be a whole positive number.' when age < 0", () => {
+    const { pressContinue, getByText, typeAge } = setup();
+    
+    mockedValidations.isInputInteger.mockReturnValue(false);
+
+    typeAge("-1");
+    pressContinue();
+
+    expect(getByText("Age must be a whole positive number.")).toBeTruthy();
+    expect(router.push).not.toHaveBeenCalled();
+    expect(mockedValidations.isInputInteger).toHaveBeenCalledWith("-1");
+  });
+
+  it("Accpets integer value for age", () => {
+    const { pressContinue, queryByText, typeWeight} = setup();
+    
+    mockedValidations.isInputDecimal.mockReturnValue(true);
+
+    typeWeight("12");
+    pressContinue();
+
+    expect(queryByText("Weight must be a number.")).toBeNull();
+    expect(mockedValidations.isInputDecimal).toHaveBeenCalledWith("12");
+  });
+
   it("shows 'Please enter your weight.' when weight is empty", () => {
     const { pressContinue,  getByText } = setup();
-    mockedValidations.isInputInteger.mockReturnValue(false);
+    mockedValidations.isInputDecimal.mockReturnValue(false);
 
     pressContinue();
 
@@ -95,22 +135,58 @@ describe("QuestionnairePersonalDetails screen", () => {
     expect(router.push).not.toHaveBeenCalled();
   });
 
-  it("shows 'Weight must be a number.' when weight is not an integer", () => {
+  it("shows 'Weight must be a positive number, using a dot (.) for decimals.' when weight is not a number", () => {
     const { pressContinue, getByText, typeWeight} = setup();
     
-    mockedValidations.isInputInteger.mockReturnValue(false);
+    mockedValidations.isInputDecimal.mockReturnValue(false);
 
     typeWeight("abc");
     pressContinue();
 
-    expect(getByText("Weight must be a number.")).toBeTruthy();
+    expect(getByText("Weight must be a positive number, using a dot (.) for decimals.")).toBeTruthy();
     expect(router.push).not.toHaveBeenCalled();
-    expect(mockedValidations.isInputInteger).toHaveBeenCalledWith("abc");
+    expect(mockedValidations.isInputDecimal).toHaveBeenCalledWith("abc");
+  });
+
+  it("Accpets integer value for weight", () => {
+    const { pressContinue, queryByText, typeWeight} = setup();
+    
+    mockedValidations.isInputDecimal.mockReturnValue(true);
+
+    typeWeight("12");
+    pressContinue();
+
+    expect(queryByText("Weight must be a positive number, using a dot (.) for decimals.")).toBeNull();
+    expect(mockedValidations.isInputDecimal).toHaveBeenCalledWith("12");
+  });
+
+  it("Accpets decimal value for weight", () => {
+    const { pressContinue, queryByText, typeWeight} = setup();
+    
+    mockedValidations.isInputDecimal.mockReturnValue(true);
+
+    typeWeight("12.1");
+    pressContinue();
+
+    expect(queryByText("Weight must be a positive number, using a dot (.) for decimals.")).toBeNull();
+    expect(mockedValidations.isInputDecimal).toHaveBeenCalledWith("12.1");
+  });
+
+   it("shows 'Weight must be a positive number, using a dot (.) for decimals.' when weight < 0", () => {
+    const { pressContinue, getByText, typeWeight} = setup();
+    
+    mockedValidations.isInputDecimal.mockReturnValue(false);
+
+    typeWeight("-1");
+    pressContinue();
+
+    expect(getByText("Weight must be a positive number, using a dot (.) for decimals.")).toBeTruthy();
+    expect(mockedValidations.isInputDecimal).toHaveBeenCalledWith("-1");
   });
 
   it("shows 'Please enter your height.' when age is empty", () => {
     const { pressContinue,  getByText } = setup();
-    mockedValidations.isInputInteger.mockReturnValue(false);
+    mockedValidations.isInputDecimal.mockReturnValue(false);
 
     pressContinue();
 
@@ -118,17 +194,63 @@ describe("QuestionnairePersonalDetails screen", () => {
     expect(router.push).not.toHaveBeenCalled();
   });
 
-  it("shows 'Height must be a number.' when height is not an integer", () => {
+  it("shows 'Please enter your height.' when height is empty", () => {
+    const { pressContinue,  getByText } = setup();
+    mockedValidations.isInputDecimal.mockReturnValue(false);
+
+    pressContinue();
+
+    expect(getByText("Please enter your height.")).toBeTruthy();
+    expect(router.push).not.toHaveBeenCalled();
+  });
+
+  it("shows 'Height must be a positive number, using a dot (.) for decimals.' when height is not a number", () => {
     const { pressContinue, getByText, typeHeight} = setup();
     
-    mockedValidations.isInputInteger.mockReturnValue(false);
+    mockedValidations.isInputDecimal.mockReturnValue(false);
 
     typeHeight("abc");
     pressContinue();
 
-    expect(getByText("Height must be a number.")).toBeTruthy();
+    expect(getByText("Height must be a positive number, using a dot (.) for decimals.")).toBeTruthy();
     expect(router.push).not.toHaveBeenCalled();
-    expect(mockedValidations.isInputInteger).toHaveBeenCalledWith("abc");
+    expect(mockedValidations.isInputDecimal).toHaveBeenCalledWith("abc");
+  });
+
+  it("Accpets integer value for height", () => {
+    const { pressContinue, queryByText, typeHeight} = setup();
+    
+    mockedValidations.isInputDecimal.mockReturnValue(true);
+
+    typeHeight("12");
+    pressContinue();
+
+    expect(queryByText("Height must be a positive number, using a dot (.) for decimals.")).toBeNull();
+    expect(mockedValidations.isInputDecimal).toHaveBeenCalledWith("12");
+  });
+
+  it("Accpets decimal value for height", () => {
+    const { pressContinue, queryByText, typeHeight} = setup();
+    
+    mockedValidations.isInputDecimal.mockReturnValue(true);
+
+    typeHeight("12.1");
+    pressContinue();
+
+    expect(queryByText("Height must be a positive number, using a dot (.) for decimals.")).toBeNull();
+    expect(mockedValidations.isInputDecimal).toHaveBeenCalledWith("12.1");
+  });
+
+   it("shows 'Height must be a positive number, using a dot (.) for decimals.' when height < 0", () => {
+    const { pressContinue, getByText, typeHeight} = setup();
+    
+    mockedValidations.isInputDecimal.mockReturnValue(false);
+
+    typeHeight("-1");
+    pressContinue();
+
+    expect(getByText("Height must be a positive number, using a dot (.) for decimals.")).toBeTruthy();
+    expect(mockedValidations.isInputDecimal).toHaveBeenCalledWith("-1");
   });
 
   it("navigates successfully when all fields are valid", () => {
@@ -136,6 +258,7 @@ describe("QuestionnairePersonalDetails screen", () => {
 
     // Mock the validation to always return true for this happy path test
     mockedValidations.isInputInteger.mockReturnValue(true);
+    mockedValidations.isInputDecimal.mockReturnValue(true);
 
     // Fill in all fields with valid-looking data
     typeAge("25");
