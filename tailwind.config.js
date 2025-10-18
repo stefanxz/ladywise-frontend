@@ -12,6 +12,7 @@ module.exports = {
         brand: "#A45A6B",
         background: "#F9FAFB",
         regularText: "#374151",
+        lightGrey: "#C3C3C3",
       },
     },
     fontFamily: {
