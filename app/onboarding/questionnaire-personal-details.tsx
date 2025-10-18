@@ -110,7 +110,6 @@ export default function Questionnaire() {
             }}
             placeholder="Your age"
             placeholderTextColor="lightGrey"
-            className={`h-11 ${ageError ? "border border-red-500" : ""}`}
             secureTextEntry={false}
             testID="age-input"
             />
