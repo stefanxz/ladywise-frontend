@@ -23,12 +23,15 @@ import React from "react";
  * @param {number} [props.size=56] - The diameter of the circular button in pixels
  * @param {string} [props.buttonColor="#3b82f6"] - Background color of the button (hex/rgb/named color)
  * @param {string} [props.textColor="#ffffff"] - Color of the plus icon (hex/rgb/named color)
- *
+ * @param {() => void} props.onPress - Callback function when button is pressed
+ * @param {boolean} [props.disabled=false] - Whether the button is disabled
  */
 export function FloatingAddButton({
   size = 56,
-  buttonColor,
-  textColor,
+  buttonColor = "#3b82f6",
+  textColor = "#ffffff",
+  onPress,
+  disabled = false,
 }: FloatingAddButtonProps): React.ReactElement {
   return (
     <TouchableOpacity
@@ -37,7 +40,11 @@ export function FloatingAddButton({
         width: size,
         height: size,
         backgroundColor: buttonColor,
+        opacity: disabled ? 0.5 : 1,
       }}
+      onPress={onPress}
+      disabled={disabled}
+      activeOpacity={0.7}
     >
       <Ionicons name="add" size={size * 0.6} color={textColor} />
     </TouchableOpacity>
