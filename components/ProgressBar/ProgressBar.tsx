@@ -2,14 +2,23 @@ import React, { useEffect, useRef } from 'react';
 import { Animated, View } from 'react-native';
 import { ProgressBarProps } from "./ProgressBar.types";
 
-const ProgressBar: React.FC<ProgressBarProps> = ({
+/**
+ * A component that visually displays the progress between steps, 
+ * with optional smooth animation.
+ */
+export function ProgressBar({
   currentStep,
   totalSteps,
   animated = true,
-}) => {
+}: ProgressBarProps) {
+  
+  // Animation state reference
   const animatedWidth = useRef(new Animated.Value(0)).current;
+  
+  // Calculate normalized progress (0 to 1)
   const progress = Math.min(Math.max(currentStep / totalSteps, 0), 1);
 
+  // Animation Effect
   useEffect(() => {
     if (animated) {
       Animated.timing(animatedWidth, {
@@ -22,6 +31,7 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
     }
   }, [currentStep, totalSteps, animated, progress]);
 
+  // Rendering the Track and Animated Bar
   return (
     <View className={`w-full flex-row items-center gap-2.5`}>
       <View
@@ -39,6 +49,4 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
       </View>
     </View>
   );
-};
-
-export default ProgressBar;
+}

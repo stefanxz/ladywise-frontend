@@ -7,7 +7,7 @@ import { Platform, Pressable, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 // Assets
-import ProgressBar from "@/components/ProgressBar/ProgressBar";
+import { ProgressBar } from "@/components/ProgressBar/ProgressBar";
 import { isInputInteger } from "@/utils/validations";
 
 
@@ -70,7 +70,7 @@ export default function Questionnaire() {
       <View className="w-full max-w-md mt-2 px-10 pt-[71px]">
         <View className="flex-row items-center">
           <View className="flex-1">
-            <ProgressBar currentStep={1} totalSteps={5} />
+            <ProgressBar currentStep={1} totalSteps={5}/>
           </View>
           <View className="w-1/6">
             <Pressable 
