@@ -24,15 +24,15 @@ export default function LoginScreen() {
   const [showPw, setShowPw] = useState(false);
   const [emailError, setEmailError] = useState<string | null>(null);
   const [loginError, setLoginError] = useState<string | null>(null); // For backend errors
+  // Initialize the router for navigation.
   const router = useRouter();
 
   const handleLogin = async () => {
-    // Make the function async
-    // Reset errors
+    // Reset client-side and server-side errors
     setEmailError(null);
     setLoginError(null);
 
-    // Validation checks
+    //Client-Side Validation
     if (!email.trim()) {
       setEmailError("Please enter your email.");
       return;
@@ -46,7 +46,9 @@ export default function LoginScreen() {
       return;
     }
 
+    // Backend Authentication
     try {
+      // Send login credentials to the backend API.
       const response = await fetch("http://localhost:8080/api/auth/login", {
         method: "POST",
         headers: {
@@ -58,22 +60,24 @@ export default function LoginScreen() {
         }),
       });
 
+      // If login is successful (HTTP 200-299), process the response.
       if (response.ok) {
         const data = await response.json();
         console.log("Login successful:", data);
-        // Store the token securely
+
+        // Securely store the authentication token on the device.
         await SecureStore.setItemAsync("userToken", data.token);
 
-        // Navigate to the main application screen (e.g., a tab navigator)
-        // The '.replace()' method prevents the user from going back to the login screen
+        // Navigate to the main part of the app, replacing the login screen in the history
+        // so the user cannot press the back button to return to it.
         router.replace("/(tabs)");
       } else {
-        // Handle non-OK responses (e.g., 401 Unauthorized)
+        // If the server returns an error (e.g., 401 Unauthorized), display it.
         const errorText = await response.text();
-        setLoginError(errorText || "An unknown error occurred.");
+        setLoginError(errorText || "An unknown error occurred during login.");
       }
     } catch (error) {
-      // Handle network errors or other exceptions
+      // Handle network errors or other exceptions during the fetch call.
       console.error("Login failed:", error);
       setLoginError("Could not connect to the server. Please try again later.");
     }
