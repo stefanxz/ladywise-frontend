@@ -8,7 +8,6 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 // Assets
 import { ProgressBar } from "@/components/ProgressBar/ProgressBar";
-import { isInputDecimal, isInputInteger } from "@/utils/validations";
 
 
 export default function Questionnaire() {
@@ -35,29 +34,48 @@ export default function Questionnaire() {
     setWeightError(null);
     setHeightError(null);
 
+    const ageNum = Number(age);
+    const weightNum = Number(weight);
+    const heightNum = Number(height);
+
     let hasError = false;
     if (!age.trim()) {
       setAgeError("Please enter your age.");
       hasError = true;
-    } else if(!isInputInteger(age)) {
+    } else if (isNaN(ageNum)) {
       setAgeError("Age must be a whole positive number.");
       hasError = true;
-    }
+    } else if (!isNaN(ageNum)) {
+      if(!Number.isInteger(ageNum) || ageNum < 1) {
+        setAgeError("Age must be a whole positive number.");
+        hasError = true;
+      }
+    } 
 
     if (!weight.trim()) {
       setWeightError("Please enter your weight.");
       hasError = true;
-    } else if (!isInputDecimal(weight)) {
+    } else if (isNaN(weightNum)) {
       setWeightError("Weight must be a positive number, using a dot (.) for decimals.");
       hasError = true;
-    }
+    } else if (!isNaN(weightNum)) {
+      if(weightNum < 1) {
+        setWeightError("Weight must be a positive number, using a dot (.) for decimals.");
+        hasError = true;
+      }
+    } 
 
     if (!height.trim()) {
       setHeightError("Please enter your height.");
       hasError = true;
-    } else if (!isInputDecimal(height)) {
+    } else if (isNaN(heightNum)) {
       setHeightError("Height must be a positive number, using a dot (.) for decimals.");
       hasError = true;
+    } else if (!isNaN(heightNum)) {
+      if(heightNum < 1) {
+        setHeightError("Height must be a positive number, using a dot (.) for decimals.");
+        hasError = true;
+      }
     }
 
     if (hasError) return;
@@ -161,3 +179,7 @@ export default function Questionnaire() {
     </SafeAreaView>
   );
 }
+function isDecimal(weightNum: number) {
+  throw new Error("Function not implemented.");
+}
+
