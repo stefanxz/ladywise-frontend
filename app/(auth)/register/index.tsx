@@ -9,6 +9,8 @@ import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import { Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { registerUser } from "./backend_register";
+
 
 //Main page for registering
 //Contains email, password, password confirmation, option for social sign up
@@ -75,16 +77,15 @@ export default function RegisterIndex() {
     }
     if (hasError) return;
 
-    // setRegistering(true);
-    // try {
-    //   await registerUser({ email, password });
-    //   router.push("/register2");
-    // } catch (e) {
-    //   setFormError(e instanceof Error ? e.message : "Registration failed.");
-    // } finally {
-    //   setRegistering(false);
-    // }
-    router.push("/(auth)/register/personal-details");
+    setRegistering(true);
+    try {
+      await registerUser({ email, password });
+      router.push("/(auth)/register/personal-details");
+    } catch (e) {
+      setFormError(e instanceof Error ? e.message : "Registration failed.");
+    } finally {
+      setRegistering(false);
+    }
   };
 
   return (
