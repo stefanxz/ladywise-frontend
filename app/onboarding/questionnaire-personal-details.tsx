@@ -49,6 +49,11 @@ export default function Questionnaire() {
       if(!Number.isInteger(ageNum) || ageNum < 1) {
         setAgeError("Age must be a whole positive number.");
         hasError = true;
+      // Earliest age with menstrual flow = 8
+      // Latest age with menstirual flow = 56
+      } else if(Number.isInteger(ageNum) &&( ageNum < 8 || ageNum > 56)) {
+        setAgeError("Age is out of range.");
+        hasError = true;
       }
     } 
 
@@ -59,8 +64,10 @@ export default function Questionnaire() {
       setWeightError("Weight must be a positive number, using a dot (.) for decimals.");
       hasError = true;
     } else if (!isNaN(weightNum)) {
-      if(weightNum < 1) {
-        setWeightError("Weight must be a positive number, using a dot (.) for decimals.");
+      // Lightest woman ~5 kg
+      // Heaviest woman ~ 540 kg
+      if (weightNum < 5 || 540 < weightNum) {
+        setWeightError("Weight is out of range.");
         hasError = true;
       }
     } 
@@ -72,8 +79,10 @@ export default function Questionnaire() {
       setHeightError("Height must be a positive number, using a dot (.) for decimals.");
       hasError = true;
     } else if (!isNaN(heightNum)) {
-      if(heightNum < 1) {
-        setHeightError("Height must be a positive number, using a dot (.) for decimals.");
+      // Smallest woman ~62 cm
+      // Tallest woman ~ 216cm
+      if (heightNum < 62 || 216 < heightNum) {
+        setWeightError("Height is out of range.");
         hasError = true;
       }
     }
