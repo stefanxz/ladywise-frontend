@@ -3,10 +3,10 @@ import { ThemedPressable } from "@/components/ThemedPressable/ThemedPressable";
 import { ThemedTextInput } from "@/components/ThemedTextInput/ThemedTextInput";
 import { isEmailValid } from "@/lib/validation";
 import { Feather } from "@expo/vector-icons";
-import { Stack } from "expo-router";
+import { Stack, useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
-  Image,
+  Alert,
   KeyboardAvoidingView,
   Platform,
   Pressable,
@@ -16,16 +16,21 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { SocialSignOn } from "@/components/SocialSignOn/SocialSignOn";
+import * as SecureStore from "expo-secure-store";
 
 export default function LoginScreen() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPw, setShowPw] = useState(false);
   const [emailError, setEmailError] = useState<string | null>(null);
+  const [loginError, setLoginError] = useState<string | null>(null); // For backend errors
+  const router = useRouter();
 
-  const handleLogin = () => {
-    // Reset any existing error
+  const handleLogin = async () => {
+    // Make the function async
+    // Reset errors
     setEmailError(null);
+    setLoginError(null);
 
     // Validation checks
     if (!email.trim()) {
@@ -36,10 +41,42 @@ export default function LoginScreen() {
       setEmailError("Please enter a valid email address.");
       return;
     }
-    if (password.trim().length === 0) return;
+    if (password.trim().length === 0) {
+      // This case is handled by the disabled button, but good to have
+      return;
+    }
 
-    // Placeholder action
-    console.log("Log in pressed");
+    try {
+      const response = await fetch("http://localhost:8080/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: email.trim(),
+          password: password,
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log("Login successful:", data);
+        // Store the token securely
+        await SecureStore.setItemAsync("userToken", data.token);
+
+        // Navigate to the main application screen (e.g., a tab navigator)
+        // The '.replace()' method prevents the user from going back to the login screen
+        router.replace("/(tabs)");
+      } else {
+        // Handle non-OK responses (e.g., 401 Unauthorized)
+        const errorText = await response.text();
+        setLoginError(errorText || "An unknown error occurred.");
+      }
+    } catch (error) {
+      // Handle network errors or other exceptions
+      console.error("Login failed:", error);
+      setLoginError("Could not connect to the server. Please try again later.");
+    }
   };
 
   return (
@@ -91,11 +128,14 @@ export default function LoginScreen() {
                     onChangeText={(t: string) => {
                       setEmail(t);
                       if (emailError) setEmailError(null);
+                      if (loginError) setLoginError(null); // Also clear login error
                     }}
                     placeholder="Your email"
                     placeholderTextColor="gray"
                     secureTextEntry={false}
-                    className={`h-11 ${emailError ? "border border-red-500" : ""}`}
+                    className={`h-11 ${
+                      emailError || loginError ? "border border-red-500" : ""
+                    }`} // Highlight on login error too
                     onBlur={() => {
                       if (email && !isEmailValid(email))
                         setEmailError("Please enter a valid email address.");
@@ -116,11 +156,16 @@ export default function LoginScreen() {
                   <View className="flex-row items-center">
                     <ThemedTextInput
                       value={password}
-                      onChangeText={setPassword}
+                      onChangeText={(t: string) => {
+                        setPassword(t);
+                        if (loginError) setLoginError(null); // Also clear login error
+                      }}
                       placeholder="Your password"
                       placeholderTextColor="gray"
                       secureTextEntry={!showPw}
-                      className="flex-1 h-11"
+                      className={`flex-1 h-11 ${
+                        loginError ? "border border-red-500" : ""
+                      }`} // Highlight on login error too
                     />
                     <Pressable
                       onPress={() => setShowPw((v) => !v)}
@@ -141,6 +186,13 @@ export default function LoginScreen() {
                     </Text>
                   </Pressable>
                 </View>
+
+                {/* Display Login Error */}
+                {loginError && (
+                  <Text className="text-red-600 text-sm text-center">
+                    {loginError}
+                  </Text>
+                )}
 
                 {/* Log In Button */}
                 <ThemedPressable
