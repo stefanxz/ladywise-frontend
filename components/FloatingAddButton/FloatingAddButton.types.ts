@@ -4,4 +4,5 @@ export type FloatingAddButtonProps = {
   textColor?: string;
   onPress: () => void;
   disabled?: boolean;
+  accessibilityLabel?: string;
 };

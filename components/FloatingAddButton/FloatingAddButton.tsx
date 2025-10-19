@@ -33,6 +33,7 @@ export function FloatingAddButton({
   textColor = "#ffffff",
   onPress,
   disabled = false,
+  accessibilityLabel,
 }: FloatingAddButtonProps): React.ReactElement {
   return (
     <TouchableOpacity
@@ -47,6 +48,9 @@ export function FloatingAddButton({
       onPress={onPress}
       disabled={disabled}
       activeOpacity={0.7}
+      accessibilityRole="button"
+      accessibilityState={{ disabled }}
+      accessibilityLabel={accessibilityLabel}
     >
       <Ionicons name="add" size={size * 0.6} color={textColor} />
     </TouchableOpacity>
