@@ -4,4 +4,5 @@ export const Colors = {
   regularText: "#374151",
   activeTab: "#111827",
   inactiveTab: "#9CA3AF",
+  textHeading: "#111827",
 };
