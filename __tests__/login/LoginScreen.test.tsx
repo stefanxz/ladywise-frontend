@@ -4,9 +4,10 @@ import { fireEvent, render } from "@testing-library/react-native";
 import React from "react";
 
 // --- Mock navigation, stack, and icons ---
+const mockRouter = { push: jest.fn(), replace: jest.fn(), back: jest.fn() };
 jest.mock("expo-router", () => ({
   Stack: { Screen: () => null },
-  useRouter: () => ({ push: jest.fn(), replace: jest.fn(), back: jest.fn() }),
+  useRouter: () => mockRouter,
 }));
 
 jest.mock("@expo/vector-icons", () => ({
@@ -33,62 +34,6 @@ jest.mock("@/components/SocialSignOn/SocialSignOn", () => ({
   SocialSignOn: () => null,
 }));
 
-// ✅ Use RN components instead of DOM mocks
-jest.mock("@/components/ThemedPressable/ThemedPressable", () => {
-  const React = require("react");
-  const { Pressable, Text } = require("react-native");
-  return {
-    ThemedPressable: ({
-      label,
-      onPress,
-      disabled,
-    }: {
-      label: string;
-      onPress: () => void;
-      disabled?: boolean;
-    }) => (
-      <Pressable
-        accessibilityRole="button"
-        accessibilityState={{ disabled }}
-        onPress={disabled ? undefined : onPress}
-        testID="login-button"
-      >
-        <Text>{label}</Text>
-      </Pressable>
-    ),
-  };
-});
-
-jest.mock("@/components/ThemedTextInput/ThemedTextInput", () => {
-  const React = require("react");
-  const { TextInput } = require("react-native");
-  return {
-    ThemedTextInput: ({
-      value,
-      onChangeText,
-      placeholder,
-    }: {
-      value: string;
-      onChangeText: (text: string) => void;
-      placeholder: string;
-    }) => {
-      let testID = "";
-      if (placeholder.toLowerCase().includes("email")) testID = "email-input";
-      else if (placeholder.toLowerCase().includes("password"))
-        testID = "password-input";
-
-      return (
-        <TextInput
-          testID={testID}
-          value={value}
-          placeholder={placeholder}
-          onChangeText={onChangeText}
-        />
-      );
-    },
-  };
-});
-
 // --- Mock validation ---
 jest.mock("@/lib/validation", () => ({
   isEmailValid: jest.fn(),
@@ -98,6 +43,8 @@ const mockedValidation = jest.mocked(validation);
 describe("LoginScreen", () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    // Default to invalid email unless a test overrides it
+    mockedValidation.isEmailValid.mockImplementation(() => false);
   });
 
   const setup = () => {
@@ -107,33 +54,52 @@ describe("LoginScreen", () => {
     const typePassword = (v: string) =>
       fireEvent.changeText(utils.getByTestId("password-input"), v);
     const pressLogin = () => fireEvent.press(utils.getByTestId("login-button"));
-    return { ...utils, typeEmail, typePassword, pressLogin };
+    const getLoginBtn = () => utils.getByTestId("login-button");
+    return { ...utils, typeEmail, typePassword, pressLogin, getLoginBtn };
   };
 
-  it("renders correctly and shows welcome text", () => {
+  it("renders key texts", () => {
     const { getByText } = setup();
     expect(getByText("Welcome Back 🌸")).toBeTruthy();
     expect(getByText("Log In")).toBeTruthy();
   });
 
-  it("shows email validation error when invalid email entered", () => {
-    const { typeEmail, pressLogin, getByText } = setup();
-    mockedValidation.isEmailValid.mockReturnValue(false);
+  it("disables login button when form is invalid initially", () => {
+    const { getLoginBtn } = setup();
+    const btn = getLoginBtn();
+    expect(btn).toHaveAccessibilityState({ disabled: true });
+  });
 
+  it("shows email validation error for invalid email and keeps button disabled", () => {
+    const { typeEmail, pressLogin, getByText, getLoginBtn } = setup();
+
+    mockedValidation.isEmailValid.mockReturnValue(false);
     typeEmail("invalidemail");
     pressLogin();
 
     expect(getByText("Please enter a valid email address.")).toBeTruthy();
+    expect(getLoginBtn()).toHaveAccessibilityState({ disabled: true });
   });
 
-  it("disables login button when form is invalid", () => {
-    const { getByTestId } = setup();
-    const btn = getByTestId("login-button");
-    expect(btn.props.accessibilityState?.disabled).toBe(true);
+  it("enables login button when email and password are valid", () => {
+    const { typeEmail, typePassword, getLoginBtn } = setup();
+
+    mockedValidation.isEmailValid.mockReturnValue(true);
+    typeEmail("user@example.com");
+    typePassword("secret123");
+
+    expect(getLoginBtn()).toHaveAccessibilityState({ disabled: false });
   });
 
-  it("validates email helper function correctly", () => {
-    mockedValidation.isEmailValid.mockReturnValueOnce(true);
-    expect(mockedValidation.isEmailValid("test@example.com")).toBe(true);
+  it("calls email validator with the typed value", () => {
+    const { typeEmail } = setup();
+    mockedValidation.isEmailValid.mockClear();
+
+    typeEmail("typed@example.com");
+
+    expect(mockedValidation.isEmailValid).toHaveBeenCalledTimes(1);
+    expect(mockedValidation.isEmailValid).toHaveBeenCalledWith(
+      "typed@example.com"
+    );
   });
 });
