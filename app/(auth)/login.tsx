@@ -1,12 +1,16 @@
 import { AppBar } from "@/components/AppBarBackButton/AppBarBackButton";
+import { SocialSignOn } from "@/components/SocialSignOn/SocialSignOn";
 import { ThemedPressable } from "@/components/ThemedPressable/ThemedPressable";
 import { ThemedTextInput } from "@/components/ThemedTextInput/ThemedTextInput";
 import { isEmailValid } from "@/lib/validation";
+import {
+  incrementFailedLoginCount,
+  resetFailedLoginCount,
+} from "@/utils/asyncStorageHelpers";
 import { Feather } from "@expo/vector-icons";
 import { Stack, useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
-  Alert,
   KeyboardAvoidingView,
   Platform,
   Pressable,
@@ -15,8 +19,9 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { SocialSignOn } from "@/components/SocialSignOn/SocialSignOn";
 import * as SecureStore from "expo-secure-store";
+import { loginUser } from "@/lib/api";
+
 
 export default function LoginScreen() {
   const [email, setEmail] = useState("");
@@ -28,7 +33,7 @@ export default function LoginScreen() {
   const router = useRouter();
 
   const handleLogin = async () => {
-    // Reset client-side and server-side errors
+    // Reset any existing error
     setEmailError(null);
     setLoginError(null);
 
@@ -46,47 +51,29 @@ export default function LoginScreen() {
       return;
     }
 
-    // Backend Authentication
     try {
-      // Send login credentials to the backend API.
-      const response = await fetch("http://localhost:8080/api/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email: email.trim(),
-          password: password,
-        }),
-      });
+      const emailTrimmed = email.trim();
+      const passwordTrimmed = password.trim();
+      const data = await loginUser({ email: emailTrimmed, password: passwordTrimmed });
 
-      // If login is successful (HTTP 200-299), process the response.
-      if (response.ok) {
-        const data = await response.json();
-        console.log("Login successful:", data);
+      await resetFailedLoginCount();
+      // Securely store the authentication token on the device.
+      await SecureStore.setItemAsync("userToken", data.token);
 
-        // Securely store the authentication token on the device.
-        await SecureStore.setItemAsync("userToken", data.token);
+      // Navigate to the main part of the app, replacing the login screen in the history
+      // so the user cannot press the back button to return to it.
+      router.replace("/(main)/home");
 
-        // Navigate to the main part of the app, replacing the login screen in the history
-        // so the user cannot press the back button to return to it.
-        router.replace("/(tabs)");
-      } else {
-        // If the server returns an error (e.g., 401 Unauthorized), display it.
-        const errorText = await response.text();
-        setLoginError(errorText || "An unknown error occurred during login.");
-      }
     } catch (error) {
-      // Handle network errors or other exceptions during the fetch call.
-      console.error("Login failed:", error);
-      setLoginError("Could not connect to the server. Please try again later.");
+      await incrementFailedLoginCount();
+      const errorMessage = error instanceof Error ? error.message : "An unexpected error occurred.";
+      console.error("Login failed:", errorMessage);
+      setLoginError(errorMessage);
     }
   };
 
   return (
     <>
-      <Stack.Screen options={{ headerShown: false, title: "Log In" }} />
-
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         className="flex-1 bg-[#FDFBFB]"
@@ -95,14 +82,17 @@ export default function LoginScreen() {
           contentContainerStyle={{ flexGrow: 1, justifyContent: "center" }}
           keyboardShouldPersistTaps="handled"
         >
-          <SafeAreaView className="flex-1 bg-background px-6">
+          <SafeAreaView className="flex-1 bg-background">
             {/* Back Button */}
-            <View className="pt-4">
+            <View
+              className="w-full bg-gray-50"
+              style={{ zIndex: 10, elevation: 10 }}
+            >
               <AppBar />
             </View>
 
             {/* Main content container */}
-            <View className="flex-1 justify-between pt-12 pb-10">
+            <View className="flex-1 justify-between pt-12 mb-5">
               {/* Welcome Section */}
               <View className="px-16">
                 <Text className="text-3xl font-bold text-brand text-left">
@@ -121,7 +111,7 @@ export default function LoginScreen() {
               </View>
 
               {/* Form Section */}
-              <View className="space-y-4 mt-6 w-full px-16 self-center">
+              <View className="gap-y-8 w-full px-16 self-center">
                 {/* Email */}
                 <View>
                   <Text className="text-gray-700 mb-1 font-extrabold">
@@ -205,7 +195,7 @@ export default function LoginScreen() {
                   disabled={
                     !isEmailValid(email) || password.trim().length === 0
                   }
-                  className="mt-6 w-full bg-[#9B4F60]"
+                  className="w-full bg-[#9B4F60]"
                 />
               </View>
 
