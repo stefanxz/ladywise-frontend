@@ -1,16 +1,15 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 /**
  * Increments the failed login attempt count stored in AsyncStorage.
  */
 export const incrementFailedLoginCount = async (): Promise<void> => {
   try {
-    const value = await AsyncStorage.getItem('failedLoginCount');
+    const value = await AsyncStorage.getItem("failedLoginCount");
     const count = value ? parseInt(value, 10) + 1 : 1;
-    await AsyncStorage.setItem('failedLoginCount', count.toString());
-    console.log('Failed login count:', count);
+    await AsyncStorage.setItem("failedLoginCount", count.toString());
   } catch (error) {
-    console.error('Error updating failed login count', error);
+    console.error("Error updating failed login count", error);
   }
 };
 
@@ -19,10 +18,9 @@ export const incrementFailedLoginCount = async (): Promise<void> => {
  */
 export const resetFailedLoginCount = async (): Promise<void> => {
   try {
-    await AsyncStorage.setItem('failedLoginCount', '0');
-    console.log('Failed login count reset');
+    await AsyncStorage.setItem("failedLoginCount", "0");
   } catch (error) {
-    console.error('Error resetting failed login count', error);
+    console.error("Error resetting failed login count", error);
   }
 };
 
@@ -32,10 +30,10 @@ export const resetFailedLoginCount = async (): Promise<void> => {
  */
 export const getFailedLoginCount = async (): Promise<number> => {
   try {
-    const value = await AsyncStorage.getItem('failedLoginCount');
+    const value = await AsyncStorage.getItem("failedLoginCount");
     return value ? parseInt(value, 10) : 0;
   } catch (error) {
-    console.error('Error getting failed login count:', error);
+    console.error("Error getting failed login count:", error);
     return 0;
   }
 };
