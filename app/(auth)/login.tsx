@@ -1,12 +1,16 @@
 import { AppBar } from "@/components/AppBarBackButton/AppBarBackButton";
+import { SocialSignOn } from "@/components/SocialSignOn/SocialSignOn";
 import { ThemedPressable } from "@/components/ThemedPressable/ThemedPressable";
 import { ThemedTextInput } from "@/components/ThemedTextInput/ThemedTextInput";
 import { isEmailValid } from "@/lib/validation";
+import {
+  incrementFailedLoginCount,
+  resetFailedLoginCount,
+} from "@/utils/asyncStorageHelpers";
 import { Feather } from "@expo/vector-icons";
 import { Stack } from "expo-router";
 import React, { useState } from "react";
 import {
-  Image,
   KeyboardAvoidingView,
   Platform,
   Pressable,
@@ -15,7 +19,6 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { SocialSignOn } from "@/components/SocialSignOn/SocialSignOn";
 
 export default function LoginScreen() {
   const [email, setEmail] = useState("");
@@ -23,7 +26,7 @@ export default function LoginScreen() {
   const [showPw, setShowPw] = useState(false);
   const [emailError, setEmailError] = useState<string | null>(null);
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     // Reset any existing error
     setEmailError(null);
 
@@ -38,14 +41,23 @@ export default function LoginScreen() {
     }
     if (password.trim().length === 0) return;
 
-    // Placeholder action
-    console.log("Log in pressed");
+    try {
+      // TODO: Replace with actual API call later
+      const isLoginSuccessful = false; // placeholder for now
+
+      if (isLoginSuccessful) {
+        await resetFailedLoginCount();
+      } else {
+        await incrementFailedLoginCount();
+      }
+    } catch (error) {
+      await incrementFailedLoginCount();
+      console.error("Login error:", error);
+    }
   };
 
   return (
     <>
-      <Stack.Screen options={{ headerShown: false, title: "Log In" }} />
-
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         className="flex-1 bg-[#FDFBFB]"
@@ -54,14 +66,17 @@ export default function LoginScreen() {
           contentContainerStyle={{ flexGrow: 1, justifyContent: "center" }}
           keyboardShouldPersistTaps="handled"
         >
-          <SafeAreaView className="flex-1 bg-background px-6">
+          <SafeAreaView className="flex-1 bg-background">
             {/* Back Button */}
-            <View className="pt-4">
+            <View
+              className="w-full bg-gray-50"
+              style={{ zIndex: 10, elevation: 10 }}
+            >
               <AppBar />
             </View>
 
             {/* Main content container */}
-            <View className="flex-1 justify-between pt-12 pb-10">
+            <View className="flex-1 justify-between pt-12 mb-5">
               {/* Welcome Section */}
               <View className="px-16">
                 <Text className="text-3xl font-bold text-brand text-left">
@@ -80,7 +95,7 @@ export default function LoginScreen() {
               </View>
 
               {/* Form Section */}
-              <View className="space-y-4 mt-6 w-full px-16 self-center">
+              <View className="gap-y-8 w-full px-16 self-center">
                 {/* Email */}
                 <View>
                   <Text className="text-gray-700 mb-1 font-extrabold">
@@ -149,7 +164,7 @@ export default function LoginScreen() {
                   disabled={
                     !isEmailValid(email) || password.trim().length === 0
                   }
-                  className="mt-6 w-full bg-[#9B4F60]"
+                  className="w-full bg-[#9B4F60]"
                 />
               </View>
 
