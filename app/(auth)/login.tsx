@@ -20,7 +20,7 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import * as SecureStore from "expo-secure-store";
+import { storeAuthData } from "@/lib/auth";
 
 
 export default function LoginScreen() {
@@ -57,8 +57,8 @@ export default function LoginScreen() {
       const data = await loginUser({ email: emailTrimmed, password: passwordTrimmed });
 
       await resetFailedLoginCount();
-      // Securely store the authentication token on the device.
-      await SecureStore.setItemAsync("userToken", data.token);
+      // Securely store the authentication token and user info on the device.
+      await storeAuthData(data.token, data.userId, data.email);
 
       // Navigate to the main part of the app, replacing the login screen in the history
       // so the user cannot press the back button to return to it.
