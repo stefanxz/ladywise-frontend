@@ -58,8 +58,6 @@ export default function LoginScreen() {
 
   return (
     <>
-      <Stack.Screen options={{ headerShown: false, title: "Log In" }} />
-
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         className="flex-1 bg-[#FDFBFB]"
@@ -68,14 +66,17 @@ export default function LoginScreen() {
           contentContainerStyle={{ flexGrow: 1, justifyContent: "center" }}
           keyboardShouldPersistTaps="handled"
         >
-          <SafeAreaView className="flex-1 bg-background px-6">
+          <SafeAreaView className="flex-1 bg-background">
             {/* Back Button */}
-            <View className="pt-4">
+            <View
+              className="w-full bg-gray-50"
+              style={{ zIndex: 10, elevation: 10 }}
+            >
               <AppBar />
             </View>
 
             {/* Main content container */}
-            <View className="flex-1 justify-between pt-12 pb-10">
+            <View className="flex-1 justify-between pt-12 mb-5">
               {/* Welcome Section */}
               <View className="px-16">
                 <Text className="text-3xl font-bold text-brand text-left">
@@ -94,7 +95,7 @@ export default function LoginScreen() {
               </View>
 
               {/* Form Section */}
-              <View className="space-y-4 mt-6 w-full px-16 self-center">
+              <View className="gap-y-8 w-full px-16 self-center">
                 {/* Email */}
                 <View>
                   <Text className="text-gray-700 mb-1 font-extrabold">
@@ -163,7 +164,7 @@ export default function LoginScreen() {
                   disabled={
                     !isEmailValid(email) || password.trim().length === 0
                   }
-                  className="mt-6 w-full bg-[#9B4F60]"
+                  className="w-full bg-[#9B4F60]"
                 />
               </View>
 
