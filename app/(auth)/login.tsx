@@ -2,6 +2,7 @@ import { AppBar } from "@/components/AppBarBackButton/AppBarBackButton";
 import { SocialSignOn } from "@/components/SocialSignOn/SocialSignOn";
 import { ThemedPressable } from "@/components/ThemedPressable/ThemedPressable";
 import { ThemedTextInput } from "@/components/ThemedTextInput/ThemedTextInput";
+import { loginUser } from "@/lib/api";
 import { isEmailValid } from "@/lib/validation";
 import {
   incrementFailedLoginCount,
@@ -20,7 +21,6 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import * as SecureStore from "expo-secure-store";
-import { loginUser } from "@/lib/api";
 
 
 export default function LoginScreen() {
