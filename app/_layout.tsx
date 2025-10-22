@@ -1,4 +1,4 @@
-import { getAuthData } from "@/lib/auth";
+import { getAuthData, isValidAuthData } from "@/lib/auth";
 import "@assets/styles/main.css";
 import { Aclonica_400Regular } from "@expo-google-fonts/aclonica";
 import {
@@ -23,14 +23,14 @@ export default function RootLayout() {
     Inter_600SemiBold,
   });
 
-  const [authReady, setAuthReady] = useState(false);
+  const [authReady, setDataReady] = useState(false);
 
   // Effect for fetching data on component mount
   useEffect(() => {
-    async function checkAuth() {
+    async function prepareData() {
       try {
         const authData = await getAuthData();
-        if (authData) {
+        if (isValidAuthData(authData)) {
           // User is logged in
           router.replace("/(main)/home");
         } else {
@@ -41,11 +41,11 @@ export default function RootLayout() {
         console.warn("Failed to check auth token", e);
         router.replace("/(auth)/landing");
       } finally {
-        setAuthReady(true);
+        setDataReady(true);
       }
     }
 
-    checkAuth();
+  prepareData();
   }, [router]);
 
   // Hide the splash screen only when fonts AND data are ready

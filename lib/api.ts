@@ -1,5 +1,11 @@
 import axios from "axios";
 import { getAuthData } from "./auth";
+import {
+  LoginPayload,
+  LoginResponse,
+  RegisterPayload,
+  RegisterResponse,
+} from "./types";
 
 export const api = axios.create({
   baseURL: process.env.EXPO_PUBLIC_API_URL,
@@ -47,15 +53,6 @@ api.interceptors.response.use(
   }
 );
 
-type RegisterPayload = { email: string; name: string; password: string };
-type RegisterResponse = { id: string; email: string };
-type LoginPayload = { email: string; password: string };
-export type LoginResponse = {
-  token: string;
-  tokenType: "Bearer";
-  userId: string;
-  email: string;
-};
 
 // register new user by sending their credentials to the backend API
 // uses the base URL from .env + '/api/auth/register'

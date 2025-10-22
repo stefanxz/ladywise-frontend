@@ -1,4 +1,5 @@
 import * as SecureStore from "expo-secure-store";
+import { jwtDecode } from "jwt-decode";
 
 const TOKEN_KEY = "userToken";
 const USER_ID_KEY = "userId";
@@ -25,4 +26,22 @@ export async function clearAuthData(): Promise<void> {
     await SecureStore.deleteItemAsync(TOKEN_KEY);
     await SecureStore.deleteItemAsync(USER_ID_KEY);
     await SecureStore.deleteItemAsync(EMAIL_KEY);
+}
+
+export function isValidAuthData(authData: { token: string } | null): boolean {
+    if (!authData?.token) {
+        return false;
+    }
+
+    try {
+        const decoded = jwtDecode<{ exp: number }>(authData.token);
+        // Check if the token is expired. exp is in seconds, Date.now() is in milliseconds.
+        if (decoded.exp * 1000 < Date.now()) {
+            return false;
+        }
+        return true;
+    } catch (error) {
+        // If decoding fails, the token is invalid.
+        return false;
+    }
 }
