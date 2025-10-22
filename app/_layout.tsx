@@ -1,4 +1,4 @@
-import { getAuthData, isValidAuthData } from "@/lib/auth";
+import { getAuthData, isTokenValid } from "@/lib/auth";
 import "@assets/styles/main.css";
 import { Aclonica_400Regular } from "@expo-google-fonts/aclonica";
 import {
@@ -30,9 +30,12 @@ export default function RootLayout() {
     async function prepareData() {
       try {
         const authData = await getAuthData();
-        if (isValidAuthData(authData)) {
+        if (isTokenValid(authData)=='VALID') {
           // User is logged in
           router.replace("/(main)/home");
+        } else if (isTokenValid(authData)=='EXPIRED'){
+          // User was logged in at some point but token has expired
+          router.replace("/(auth)/login");
         } else {
           // User is not logged in
           router.replace("/(auth)/landing");

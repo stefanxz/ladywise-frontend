@@ -28,20 +28,21 @@ export async function clearAuthData(): Promise<void> {
     await SecureStore.deleteItemAsync(EMAIL_KEY);
 }
 
-export function isValidAuthData(authData: { token: string } | null): boolean {
+export type AuthStatus = 'VALID' | 'EXPIRED' | 'NO_TOKEN';
+
+export function isTokenValid(authData: { token: string } | null): AuthStatus {
     if (!authData?.token) {
-        return false;
+        return 'NO_TOKEN';
     }
 
     try {
         const decoded = jwtDecode<{ exp: number }>(authData.token);
-        // Check if the token is expired. exp is in seconds, Date.now() is in milliseconds.
         if (decoded.exp * 1000 < Date.now()) {
-            return false;
+            return 'EXPIRED';
         }
-        return true;
+        return 'VALID';
     } catch (error) {
-        // If decoding fails, the token is invalid.
-        return false;
+        // If decoding fails, the token is invalid/malformed.
+        return 'EXPIRED';
     }
 }
