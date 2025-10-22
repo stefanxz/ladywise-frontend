@@ -3,11 +3,13 @@ import { Modal, Pressable, ScrollView, Text, View } from "react-native";
 
 type Props = {
   visible: boolean;
-  onAccept: () => void;
+  onAccept: (version: string) => void;
   onClose: () => void;
 };
 
 export default function TermsModal({ visible, onAccept, onClose }: Props) {
+  // Terms and conditions version
+  const TERMS_VERSION = "v1.0";
   return (
     <Modal
       animationType="slide"
@@ -309,7 +311,7 @@ export default function TermsModal({ visible, onAccept, onClose }: Props) {
 
           <Pressable
             className="mt-4 bg-brand rounded-xl py-3 items-center"
-            onPress={onAccept}
+            onPress={() => onAccept(TERMS_VERSION)}
           >
             <Text className="text-white font-semibold">Accept & Continue</Text>
           </Pressable>
