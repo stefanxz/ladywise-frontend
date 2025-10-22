@@ -1,11 +1,12 @@
-import "@/assets/styles/main.css";
+import { getAuthData, isTokenValid } from "@/lib/auth";
+import "@assets/styles/main.css";
 import { Aclonica_400Regular } from "@expo-google-fonts/aclonica";
 import {
   Inter_400Regular,
   Inter_600SemiBold,
   useFonts,
 } from "@expo-google-fonts/inter";
-import { Stack } from "expo-router";
+import { Stack, useRouter } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { useCallback, useEffect, useState } from "react";
 import { View } from "react-native";
@@ -14,34 +15,41 @@ import { View } from "react-native";
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
-  // State #1: Fonts
+  const router = useRouter();
+
   const [fontsLoaded] = useFonts({
     Aclonica_400Regular,
     Inter_400Regular,
     Inter_600SemiBold,
   });
 
-  // State #2: Data Fetching
   const [dataReady, setDataReady] = useState(false);
 
   // Effect for fetching data on component mount
   useEffect(() => {
     async function prepareData() {
       try {
-        // This is where we will put the actual data fetching logic
-        // The promise is a placeholder for that async work.
-        await new Promise((resolve) => setTimeout(resolve, 1500)); // Simulate a 1.5s fetch
+        const authData = await getAuthData();
+        if (isTokenValid(authData)=='VALID') {
+          // User is logged in
+          router.replace("/(main)/home");
+        } else if (isTokenValid(authData)=='EXPIRED'){
+          // User was logged in at some point but token has expired
+          router.replace("/(auth)/login");
+        } else {
+          // User is not logged in
+          router.replace("/(auth)/landing");
+        }
       } catch (e) {
-        // You can handle data fetching errors here
-        console.warn("Failed to fetch app data", e);
+        console.warn("Failed to check auth token", e);
+        router.replace("/(auth)/landing");
       } finally {
-        // Mark the data as ready
         setDataReady(true);
       }
     }
 
-    prepareData();
-  }, []); // The empty dependency array ensures this runs only once.
+  prepareData();
+  }, [router]);
 
   // Hide the splash screen only when fonts AND data are ready
   const onLayoutRootView = useCallback(async () => {
@@ -50,7 +58,6 @@ export default function RootLayout() {
     }
   }, [fontsLoaded, dataReady]);
 
-  // Do not render the main app until all assets are loaded
   if (!fontsLoaded || !dataReady) {
     return null;
   }
