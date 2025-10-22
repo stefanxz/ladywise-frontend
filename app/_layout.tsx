@@ -23,7 +23,7 @@ export default function RootLayout() {
     Inter_600SemiBold,
   });
 
-  const [authReady, setDataReady] = useState(false);
+  const [dataReady, setDataReady] = useState(false);
 
   // Effect for fetching data on component mount
   useEffect(() => {
@@ -50,12 +50,12 @@ export default function RootLayout() {
 
   // Hide the splash screen only when fonts AND data are ready
   const onLayoutRootView = useCallback(async () => {
-    if (fontsLoaded && authReady) {
+    if (fontsLoaded && dataReady) {
       await SplashScreen.hideAsync();
     }
-  }, [fontsLoaded, authReady]);
+  }, [fontsLoaded, dataReady]);
 
-  if (!fontsLoaded || !authReady) {
+  if (!fontsLoaded || !dataReady) {
     return null;
   }
 
