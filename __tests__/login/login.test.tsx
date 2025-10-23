@@ -1,9 +1,6 @@
 import LoginScreen from "@/app/(auth)/login";
-import * as api from "@/lib/api";
 import * as validation from "@/lib/validation";
-import * as asyncStorage from "@/utils/asyncStorageHelpers";
-import { fireEvent, render, waitFor } from "@testing-library/react-native";
-import * as SecureStore from "expo-secure-store";
+import { fireEvent, render } from "@testing-library/react-native";
 import React from "react";
 
 // --- Mock navigation, stack, and icons ---
@@ -43,28 +40,6 @@ jest.mock("@/lib/validation", () => ({
 }));
 const mockedValidation = jest.mocked(validation);
 
-import * as auth from "@/lib/auth";
-// ...
-// Mock API and Auth
-jest.mock("@/lib/api", () => ({
-  loginUser: jest.fn(),
-}));
-const mockedApi = jest.mocked(api);
-
-jest.mock("@/lib/auth", () => ({
-  storeAuthData: jest.fn(),
-  getAuthData: jest.fn(),
-  clearAuthData: jest.fn(),
-}));
-const mockedAuth = jest.mocked(auth);
-
-jest.mock("@/utils/asyncStorageHelpers", () => ({
-  incrementFailedLoginCount: jest.fn(),
-  resetFailedLoginCount: jest.fn(),
-  getFailedLoginCount: jest.fn(),
-}));
-const mockedAsyncStorage = jest.mocked(asyncStorage);
-
 describe("LoginScreen", () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -78,10 +53,8 @@ describe("LoginScreen", () => {
       fireEvent.changeText(utils.getByPlaceholderText("Your email"), v);
     const typePassword = (v: string) =>
       fireEvent.changeText(utils.getByPlaceholderText("Your password"), v);
-    const pressLogin = () =>
-      fireEvent.press(utils.getByRole("button", { name: "Log In" }));
-    const getLoginBtn = () =>
-      utils.getByRole("button", { name: "Log In" });
+    const pressLogin = () => fireEvent.press(utils.getByRole("button"));
+    const getLoginBtn = () => utils.getByRole("button");
     return { ...utils, typeEmail, typePassword, pressLogin, getLoginBtn };
   };
 
@@ -129,65 +102,5 @@ describe("LoginScreen", () => {
     expect(mockedValidation.isEmailValid).toHaveBeenCalledWith(
       "typed@example.com"
     );
-  });
-
-  // API Call Tests
-  describe("API Calls", () => {
-    it("calls loginUser, stores token, and navigates on successful login", async () => {
-      mockedValidation.isEmailValid.mockReturnValue(true);
-      mockedApi.loginUser.mockResolvedValue({
-        token: "fake-token",
-        tokenType: "Bearer",
-        userId: "user-123",
-        email: "user@example.com",
-      });
-
-      const { typeEmail, typePassword, pressLogin } = setup();
-
-      typeEmail("user@example.com");
-      typePassword("password123");
-      pressLogin();
-
-      await waitFor(() => {
-        expect(mockedApi.loginUser).toHaveBeenCalledWith({
-          email: "user@example.com",
-          password: "password123",
-        });
-      });
-
-      await waitFor(() => {
-        expect(mockedAuth.storeAuthData).toHaveBeenCalledWith(
-          "fake-token",
-          "user-123",
-          "user@example.com"
-        );
-      });
-
-      await waitFor(() => {
-        expect(mockedAsyncStorage.resetFailedLoginCount).toHaveBeenCalled();
-      });
-
-      await waitFor(() => {
-        expect(mockRouter.replace).toHaveBeenCalledWith("/(main)/home");
-      });
-    });
-
-    it("shows an error message and increments failed login count on failed login", async () => {
-      mockedValidation.isEmailValid.mockReturnValue(true);
-      mockedApi.loginUser.mockRejectedValue(new Error("Invalid email or password"));
-
-      const { typeEmail, typePassword, pressLogin, findByText } = setup();
-
-      typeEmail("user@example.com");
-      typePassword("wrong-password");
-      pressLogin();
-
-      const errorMessage = await findByText("Invalid email or password");
-      expect(errorMessage).toBeTruthy();
-
-      expect(mockedAuth.storeAuthData).not.toHaveBeenCalled();
-      expect(mockRouter.replace).not.toHaveBeenCalled();
-      expect(mockedAsyncStorage.incrementFailedLoginCount).toHaveBeenCalled();
-    });
   });
 });

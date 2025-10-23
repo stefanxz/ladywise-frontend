@@ -2,14 +2,13 @@ import { AppBar } from "@/components/AppBarBackButton/AppBarBackButton";
 import { SocialSignOn } from "@/components/SocialSignOn/SocialSignOn";
 import { ThemedPressable } from "@/components/ThemedPressable/ThemedPressable";
 import { ThemedTextInput } from "@/components/ThemedTextInput/ThemedTextInput";
-import { loginUser } from "@/lib/api";
 import { isEmailValid } from "@/lib/validation";
 import {
   incrementFailedLoginCount,
   resetFailedLoginCount,
 } from "@/utils/asyncStorageHelpers";
 import { Feather } from "@expo/vector-icons";
-import { Stack, useRouter } from "expo-router";
+import { Stack } from "expo-router";
 import React, { useState } from "react";
 import {
   KeyboardAvoidingView,
@@ -20,24 +19,18 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { storeAuthData } from "@/lib/auth";
-
 
 export default function LoginScreen() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPw, setShowPw] = useState(false);
   const [emailError, setEmailError] = useState<string | null>(null);
-  const [loginError, setLoginError] = useState<string | null>(null); // For backend errors
-  // Initialize the router for navigation.
-  const router = useRouter();
 
   const handleLogin = async () => {
     // Reset any existing error
     setEmailError(null);
-    setLoginError(null);
 
-    //Client-Side Validation
+    // Validation checks
     if (!email.trim()) {
       setEmailError("Please enter your email.");
       return;
@@ -46,29 +39,20 @@ export default function LoginScreen() {
       setEmailError("Please enter a valid email address.");
       return;
     }
-    if (password.trim().length === 0) {
-      // This case is handled by the disabled button, but good to have
-      return;
-    }
+    if (password.trim().length === 0) return;
 
     try {
-      const emailTrimmed = email.trim();
-      const passwordTrimmed = password.trim();
-      const data = await loginUser({ email: emailTrimmed, password: passwordTrimmed });
+      // TODO: Replace with actual API call later
+      const isLoginSuccessful = false; // placeholder for now
 
-      await resetFailedLoginCount();
-      // Securely store the authentication token and user info on the device.
-      await storeAuthData(data.token, data.userId, data.email);
-
-      // Navigate to the main part of the app, replacing the login screen in the history
-      // so the user cannot press the back button to return to it.
-      router.replace("/(main)/home");
-
+      if (isLoginSuccessful) {
+        await resetFailedLoginCount();
+      } else {
+        await incrementFailedLoginCount();
+      }
     } catch (error) {
       await incrementFailedLoginCount();
-      const errorMessage = error instanceof Error ? error.message : "An unexpected error occurred.";
-      console.error("Login failed:", errorMessage);
-      setLoginError(errorMessage);
+      console.error("Login error:", error);
     }
   };
 
@@ -122,14 +106,11 @@ export default function LoginScreen() {
                     onChangeText={(t: string) => {
                       setEmail(t);
                       if (emailError) setEmailError(null);
-                      if (loginError) setLoginError(null); // Also clear login error
                     }}
                     placeholder="Your email"
                     placeholderTextColor="gray"
                     secureTextEntry={false}
-                    className={`h-11 ${
-                      emailError || loginError ? "border border-red-500" : ""
-                    }`} // Highlight on login error too
+                    className={`h-11 ${emailError ? "border border-red-500" : ""}`}
                     onBlur={() => {
                       if (email && !isEmailValid(email))
                         setEmailError("Please enter a valid email address.");
@@ -150,16 +131,11 @@ export default function LoginScreen() {
                   <View className="flex-row items-center">
                     <ThemedTextInput
                       value={password}
-                      onChangeText={(t: string) => {
-                        setPassword(t);
-                        if (loginError) setLoginError(null); // Also clear login error
-                      }}
+                      onChangeText={setPassword}
                       placeholder="Your password"
                       placeholderTextColor="gray"
                       secureTextEntry={!showPw}
-                      className={`flex-1 h-11 ${
-                        loginError ? "border border-red-500" : ""
-                      }`} // Highlight on login error too
+                      className="flex-1 h-11"
                     />
                     <Pressable
                       onPress={() => setShowPw((v) => !v)}
@@ -180,13 +156,6 @@ export default function LoginScreen() {
                     </Text>
                   </Pressable>
                 </View>
-
-                {/* Display Login Error */}
-                {loginError && (
-                  <Text className="text-red-600 text-sm text-center">
-                    {loginError}
-                  </Text>
-                )}
 
                 {/* Log In Button */}
                 <ThemedPressable
