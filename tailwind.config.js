@@ -13,6 +13,7 @@ module.exports = {
         background: "#F9FAFB",
         regularText: "#374151",
         headingText: "#111827",
+        lightGrey: "#C3C3C3",
       },
     },
     fontFamily: {
