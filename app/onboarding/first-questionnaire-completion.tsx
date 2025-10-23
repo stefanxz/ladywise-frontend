@@ -1,20 +1,49 @@
 import { AppBar } from "@/components/AppBarBackButton/AppBarBackButton";
 import { ThemedPressable } from "@/components/ThemedPressable/ThemedPressable";
+import { markFirstQuestionnaireComplete } from "@/lib/questionnaireService";
 import { useRouter } from "expo-router";
-import { Image, Text, View } from "react-native";
+import { useState } from "react";
+import { ActivityIndicator, Alert, Image, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 /**
  * FirstQuestionnaireCompletion
  * -----------------------------
- * Final screen after completing the first-time questionnaire.
  * Confirms successful setup and transitions the user to the cycle questionnaire.
+ * Integrated with backend to mark the questionnaire as completed.
  */
 export default function FirstQuestionnaireCompletion() {
   const router = useRouter();
+  const [loading, setLoading] = useState(false);
 
-  const handleContinue = () => {
-    router.push("/onboarding/cycle-questionnaire-mock"); 
+  /**
+   * Called when user presses "Continue".
+   * Marks questionnaire completion via backend before navigating.
+   */
+  const handleContinue = async () => {
+    try {
+      setLoading(true);
+
+      // Send completion flag to backend
+      const result = await markFirstQuestionnaireComplete();
+
+      if (result.success) {
+        // Proceed to the next questionnaire
+        router.push("/onboarding/cycle-questionnaire-mock");
+      } else {
+        // Unexpected response from backend
+        Alert.alert("Error", "Could not mark questionnaire as complete. Please try again.");
+      }
+    } catch (error: any) {
+      // Network / auth error
+      console.error("Completion error:", error);
+      Alert.alert(
+        "Connection Error",
+        "We couldn’t update your progress. Please check your internet connection."
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -49,11 +78,17 @@ export default function FirstQuestionnaireCompletion() {
             </View>
 
             {/* Continue button */}
-            <ThemedPressable
-              label="Continue"
-              onPress={handleContinue}
-              className="mt-10 self-center bg-brand w-80"
-            />
+            <View className="mt-10 self-center w-80">
+              {loading ? (
+                <ActivityIndicator size="large" color="#B87D99" />
+              ) : (
+                <ThemedPressable
+                  label="Continue"
+                  onPress={handleContinue}
+                  className="bg-brand"
+                />
+              )}
+            </View>
           </View>
         </View>
       </View>
