@@ -12,22 +12,6 @@ import React from "react";
 jest.mock("expo-router");
 jest.mock("@expo/vector-icons");
 jest.mock("react-native-safe-area-context");
-jest.mock("@/components/ThemedPressable/ThemedPressable", () => ({
-  ThemedPressable: ({
-    label,
-    onPress,
-  }: {
-    label: string;
-    onPress: () => void;
-  }) => {
-    const { Pressable, Text } = require("react-native");
-    return (
-      <Pressable onPress={onPress} testID="get-started-button">
-        <Text>{label}</Text>
-      </Pressable>
-    );
-  },
-}));
 
 // --- Get router mock from expo-router ---
 const { __getMocks } = jest.requireMock("expo-router");
@@ -39,7 +23,12 @@ describe("landing page", () => {
   });
 
   const setup = () => {
-     return render(<LandingPage />);
+    const utils = render(<LandingPage />);
+    const pressGetStarted = () =>
+      fireEvent.press(utils.getByTestId("get-started-button"));
+    const pressLogIn = () =>
+      fireEvent.press(utils.getByTestId("login-button"));
+    return { ...utils, pressGetStarted, pressLogIn}
   };
 
   it("Shows app name", () => {
@@ -68,14 +57,18 @@ describe("landing page", () => {
   });
 
   it("Navigates to the register screen when button is pressed", () => {
-    const { getByTestId } = setup();
-    fireEvent.press(getByTestId("get-started-button"));
+    const { pressGetStarted } = setup();
+    
+    pressGetStarted();
+
     expect(router.push).toHaveBeenCalledWith("/(auth)/register");
   });
 
   it("Navigates to the login screen when 'Log In' is pressed", () => {
-    const {getByText} = render(<LandingPage />);
-    fireEvent.press(getByText("Log In"));
+    const { pressLogIn } = setup();
+    
+    pressLogIn();
+
     expect(router.push).toHaveBeenCalledWith("/login");
   });
 });

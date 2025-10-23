@@ -77,6 +77,7 @@ export default function LandingPage() {
           <ThemedPressable
             label="Get Started"
             onPress={handleGetStarted}
+            testID="get-started-button"
             loading={false}
             disabled={false}
             className="h-11 w-[327px] mt-18 self-center bg-brand rounded-2xl"
@@ -85,7 +86,7 @@ export default function LandingPage() {
             <Text className="text-regularText">
               Already have an account?{" "}
             </Text>
-            <Pressable onPress={handleLogin}>
+            <Pressable onPress={handleLogin} testID="login-button">
               <Text
                 className="text-brand font-inter-semibold"
                 style={{
