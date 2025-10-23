@@ -20,13 +20,13 @@ export async function getAuthData(): Promise<{
   userId: string;
   email: string;
 } | null> {
-  // const token = await SecureStore.getItemAsync(TOKEN_KEY);
-  // const userId = await SecureStore.getItemAsync(USER_ID_KEY);
-  // const email = await SecureStore.getItemAsync(EMAIL_KEY);
-  //
-  // if (token && userId && email) {
-  //   return { token, userId, email };
-  // }
+  const token = await SecureStore.getItemAsync(TOKEN_KEY);
+  const userId = await SecureStore.getItemAsync(USER_ID_KEY);
+  const email = await SecureStore.getItemAsync(EMAIL_KEY);
+
+  if (token && userId && email) {
+    return { token, userId, email };
+  }
   return null;
 }
 
