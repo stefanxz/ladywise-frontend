@@ -18,6 +18,15 @@ const MOCK_INSIGHTS: RiskData[] = [
   },
 ];
 
+const fetchRiskData = (): Promise<RiskData[]> => {
+  // function promises that it will return, at some point, a RiskData array
+  return new Promise(
+    (
+      resolve // each promise needs to be resolved, by a solver. resolve is that solver function. definition of the function is below; this is a description of the resolver rather than a definition. it just specifies what the function that will be called to resolve is named.
+    ) => setTimeout(() => resolve(MOCK_INSIGHTS), 1500) // def of solver: resolve calls the setTimeout function, that calls the resolve function. the resolve function fufills the promise by returning the specified type of data, after 1500 ms go by
+  );
+};
+
 const home = () => {
   useEffect(() => {}, []);
   const [data, setData] = useState<RiskData[]>(MOCK_INSIGHTS);
