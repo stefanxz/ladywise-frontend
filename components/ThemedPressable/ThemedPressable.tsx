@@ -26,13 +26,15 @@ export function ThemedPressable({
         "h-11 px-4 rounded-2xl items-center justify-center",
         "bg-[#a45a6b] active:opacity-90",
         isBlocked && "opacity-60",
-        className
+        className,
       )}
     >
       {loading ? (
         <ActivityIndicator />
       ) : (
-        <Text className={cn("text-background font-inter-semibold", textClassName)}>
+        <Text
+          className={cn("text-background font-inter-semibold", textClassName)}
+        >
           {label}
         </Text>
       )}

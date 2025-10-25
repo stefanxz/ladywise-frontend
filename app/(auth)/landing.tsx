@@ -1,13 +1,7 @@
 import { ThemedPressable } from "@/components/ThemedPressable/ThemedPressable";
 import { useRouter } from "expo-router";
 import React from "react";
-import {
-  Image,
-  Platform,
-  Pressable,
-  Text,
-  View
-} from "react-native";
+import { Image, Platform, Pressable, Text, View } from "react-native";
 
 // Assets
 import logotest from "@/assets/images/Elegant-Ladybug-Woman-Logo-Design2.png";
@@ -83,9 +77,7 @@ export default function LandingPage() {
             className="h-11 w-[327px] mt-18 self-center bg-brand rounded-2xl"
           />
           <View className="flex-row items-center justify-center space-x-2 mt-4">
-            <Text className="text-regularText">
-              Already have an account?{" "}
-            </Text>
+            <Text className="text-regularText">Already have an account? </Text>
             <Pressable onPress={handleLogin} testID="login-button">
               <Text
                 className="text-brand font-inter-semibold"

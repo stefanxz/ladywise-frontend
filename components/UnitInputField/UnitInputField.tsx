@@ -28,9 +28,8 @@ export function UnitInputField({
         <View className="absolute right-0 top-0 bottom-0 justify-center pr-4">
           <Text className="text-regularText font-inter-regular">{unit}</Text>
         </View>
-
       </View>
-      
+
       {error ? (
         <Text className="text-red-600 text-xs mt-1">{error}</Text>
       ) : null}
