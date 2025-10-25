@@ -9,7 +9,6 @@ import { SafeAreaView } from "react-native-safe-area-context";
 // Assets
 import { ProgressBar } from "@/components/ProgressBar/ProgressBar";
 
-
 export default function Questionnaire() {
   const router = useRouter();
   const [age, setAge] = useState("");
@@ -46,22 +45,24 @@ export default function Questionnaire() {
       setAgeError("Age must be a whole positive number.");
       hasError = true;
     } else if (!isNaN(ageNum)) {
-      if(!Number.isInteger(ageNum) || ageNum < 1) {
+      if (!Number.isInteger(ageNum) || ageNum < 1) {
         setAgeError("Age must be a whole positive number.");
         hasError = true;
-      // Earliest age with menstrual flow = 8
-      // Latest age with menstirual flow = 56
-      } else if(Number.isInteger(ageNum) &&( ageNum < 8 || ageNum > 56)) {
+        // Earliest age with menstrual flow = 8
+        // Latest age with menstirual flow = 56
+      } else if (Number.isInteger(ageNum) && (ageNum < 8 || ageNum > 56)) {
         setAgeError("Age is out of range.");
         hasError = true;
       }
-    } 
+    }
 
     if (!weight.trim()) {
       setWeightError("Please enter your weight.");
       hasError = true;
     } else if (isNaN(weightNum)) {
-      setWeightError("Weight must be a positive number, using a dot (.) for decimals.");
+      setWeightError(
+        "Weight must be a positive number, using a dot (.) for decimals.",
+      );
       hasError = true;
     } else if (!isNaN(weightNum)) {
       // Lightest woman ~5 kg
@@ -70,13 +71,15 @@ export default function Questionnaire() {
         setWeightError("Weight is out of range.");
         hasError = true;
       }
-    } 
+    }
 
     if (!height.trim()) {
       setHeightError("Please enter your height.");
       hasError = true;
     } else if (isNaN(heightNum)) {
-      setHeightError("Height must be a positive number, using a dot (.) for decimals.");
+      setHeightError(
+        "Height must be a positive number, using a dot (.) for decimals.",
+      );
       hasError = true;
     } else if (!isNaN(heightNum)) {
       // Smallest woman ~62 cm
@@ -90,19 +93,16 @@ export default function Questionnaire() {
     if (hasError) return;
     router.push("/onboarding/questionnaire");
   };
-  
 
   return (
     <SafeAreaView className="flex-1 bg-background items-center">
       <View className="w-full max-w-md mt-2 px-10 pt-[71px]">
         <View className="flex-row items-center">
           <View className="flex-1">
-            <ProgressBar currentStep={1} totalSteps={5}/>
+            <ProgressBar currentStep={1} totalSteps={5} />
           </View>
           <View className="w-1/6">
-            <Pressable 
-              onPress={handleSkip}
-              >
+            <Pressable onPress={handleSkip}>
               <Text
                 className="text-inter-regular text-right text-lightGrey"
                 style={{
@@ -118,63 +118,69 @@ export default function Questionnaire() {
       </View>
       <View className="w-full max-w-md items-start mt-2 gap-y-3 px-10 pt-[71px]">
         <Text className="text-3xl font-inter-semibold text-brand text-left">
-        {"Let's start with a few basics 💫"}
+          {"Let's start with a few basics 💫"}
         </Text>
-        
+
         <Text className="pr-8 text-inter-regular text-regularText text-left leading-relaxed">
-        {
-          "Tell us a bit about yourself so we can tailor your health insights."
-        }
-        </Text >
+          {
+            "Tell us a bit about yourself so we can tailor your health insights."
+          }
+        </Text>
         <View className="w-full mt-12">
           <View>
-            <Text className="pr-8 text-inter-regular text-regularText text-left leading-relaxed">Age</Text>
+            <Text className="pr-8 text-inter-regular text-regularText text-left leading-relaxed">
+              Age
+            </Text>
             <ThemedTextInput
-            value={age}
-            onChangeText={(t: string) => {
+              value={age}
+              onChangeText={(t: string) => {
                 setAge(t);
                 if (ageError) setAgeError(null);
-            }}
-            placeholder="Your age"
-            placeholderTextColor="lightGrey"
-            secureTextEntry={false}
-            testID="age-input"
+              }}
+              placeholder="Your age"
+              placeholderTextColor="lightGrey"
+              secureTextEntry={false}
+              testID="age-input"
             />
             {ageError ? (
               <Text className="text-red-600 text-xs mt-1">{ageError}</Text>
-              ) : null}
+            ) : null}
           </View>
           <View className="w-full mt-8">
-            <Text className="pr-8 text-inter-regular text-regularText text-left leading-relaxed">Weight</Text>
+            <Text className="pr-8 text-inter-regular text-regularText text-left leading-relaxed">
+              Weight
+            </Text>
             <UnitInputField
-            unit="kg"
-            value = {weight}
-            onChangeText={(t: string) => {
+              unit="kg"
+              value={weight}
+              onChangeText={(t: string) => {
                 setWeight(t);
                 if (weightError) setWeightError(null);
-            }}
-            placeholder="Your weight"
-            testID="weight-input"
+              }}
+              placeholder="Your weight"
+              testID="weight-input"
             />
             {weightError ? (
               <Text className="text-red-600 text-xs mt-1">{weightError}</Text>
-              ) : null}
+            ) : null}
           </View>
           <View className="w-full mt-8">
-            <Text className="pr-8 text-inter-regular text-regularText text-left leading-relaxed">Height</Text>
+            <Text className="pr-8 text-inter-regular text-regularText text-left leading-relaxed">
+              Height
+            </Text>
             <UnitInputField
-            unit="cm"
-            value = {height}
-            onChangeText={(t: string) => {
+              unit="cm"
+              value={height}
+              onChangeText={(t: string) => {
                 setHeight(t);
                 if (heightError) setHeightError(null);
-            }}
-            placeholder="Your height"
-            testID="height-input"
+              }}
+              placeholder="Your height"
+              testID="height-input"
             />
             {heightError ? (
               <Text className="text-red-600 text-xs mt-1">{heightError}</Text>
-              ) : null}
+            ) : null}
           </View>
           <View className="w-full mt-8">
             <ThemedPressable
@@ -191,4 +197,3 @@ export default function Questionnaire() {
 function isDecimal(weightNum: number) {
   throw new Error("Function not implemented.");
 }
-
