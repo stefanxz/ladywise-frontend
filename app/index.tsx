@@ -1,5 +1,6 @@
 import { Redirect } from "expo-router";
 
+// test comment
 export default function RootIndex() {
   const user = null;
 
