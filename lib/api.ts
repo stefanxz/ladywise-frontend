@@ -1,4 +1,5 @@
 import axios from "axios";
+import { RiskData } from "./types/health";
 
 export const api = axios.create({
   baseURL: process.env.EXPO_PUBLIC_API_URL,
@@ -29,6 +30,13 @@ export async function registerUser(payload: RegisterPayload) {
   return data;
 }
 
- export async function getRiskData(payload: UserPayload) {
-  
+// get the risk indicators data
+
+ export async function getRiskData(payload: UserPayload): Promise<RiskData> {
+  const config = {
+    params: { userId: payload.userId },
+    headers: { Authorization: `Bearer ${payload.authToken}` },
+  };
+  const { data } = await api.get<RiskData>("/api/getRiskData", config);
+  return data;
  }
