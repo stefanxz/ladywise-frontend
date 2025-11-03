@@ -1,7 +1,25 @@
 import LoginScreen from "@/app/(auth)/login";
+import { AuthContext } from "@/app/_layout";
+import * as api from "@/lib/api";
+import * as auth from "@/lib/auth";
 import * as validation from "@/lib/validation";
-import { fireEvent, render } from "@testing-library/react-native";
+import * as asyncStorage from "@/utils/asyncStorageHelpers";
+import { fireEvent, render, waitFor } from "@testing-library/react-native";
 import React from "react";
+const mockSetStatus = jest.fn();
+
+// Provide a lightweight AuthContext mock so the screen can drive setStatus without pulling in the real layout.
+jest.mock("@/app/_layout", () => {
+  const React = require("react");
+  const AuthContext = React.createContext({
+    status: "signedOut",
+    setStatus: mockSetStatus,
+  });
+  return {
+    __esModule: true,
+    AuthContext,
+  };
+});
 
 // --- Mock navigation, stack, and icons ---
 const mockRouter = { push: jest.fn(), replace: jest.fn(), back: jest.fn() };
@@ -34,27 +52,56 @@ jest.mock("@/components/SocialSignOn/SocialSignOn", () => ({
   SocialSignOn: () => null,
 }));
 
-// --- Mock validation ---
+// --- Mock modules --- //
+jest.mock("@/lib/api", () => ({
+  loginUser: jest.fn(),
+}));
+
+jest.mock("@/lib/auth", () => ({
+  storeAuthData: jest.fn(),
+  getAuthData: jest.fn(),
+  clearAuthData: jest.fn(),
+}));
+
 jest.mock("@/lib/validation", () => ({
   isEmailValid: jest.fn(),
 }));
+
+jest.mock("@/utils/asyncStorageHelpers", () => ({
+  incrementFailedLoginCount: jest.fn(),
+  resetFailedLoginCount: jest.fn(),
+  getFailedLoginCount: jest.fn(),
+}));
+
+const mockedApi = jest.mocked(api);
+const mockedAuth = jest.mocked(auth);
 const mockedValidation = jest.mocked(validation);
+const mockedAsyncStorage = jest.mocked(asyncStorage);
 
 describe("LoginScreen", () => {
+
   beforeEach(() => {
     jest.clearAllMocks();
-    // Default to invalid email unless a test overrides it
+    mockSetStatus.mockClear();
     mockedValidation.isEmailValid.mockImplementation(() => false);
+    mockedAsyncStorage.getFailedLoginCount.mockResolvedValue(0);
   });
 
   const setup = () => {
-    const utils = render(<LoginScreen />);
+    const utils = render(
+      // Wrap the screen with the mocked context so navigation state updates can be asserted.
+      <AuthContext.Provider value={{ status: "signedOut", setStatus: mockSetStatus }}>
+        <LoginScreen />
+      </AuthContext.Provider>
+    );
     const typeEmail = (v: string) =>
       fireEvent.changeText(utils.getByPlaceholderText("Your email"), v);
     const typePassword = (v: string) =>
       fireEvent.changeText(utils.getByPlaceholderText("Your password"), v);
-    const pressLogin = () => fireEvent.press(utils.getByRole("button"));
-    const getLoginBtn = () => utils.getByRole("button");
+    const pressLogin = () =>
+      fireEvent.press(utils.getByRole("button", { name: "Log In" }));
+    const getLoginBtn = () =>
+      utils.getByRole("button", { name: "Log In" });
     return { ...utils, typeEmail, typePassword, pressLogin, getLoginBtn };
   };
 
@@ -66,8 +113,7 @@ describe("LoginScreen", () => {
 
   it("disables login button when form is invalid initially", () => {
     const { getLoginBtn } = setup();
-    const btn = getLoginBtn();
-    expect(btn).toHaveAccessibilityState({ disabled: true });
+    expect(getLoginBtn()).toHaveAccessibilityState({ disabled: true });
   });
 
   it("shows email validation error for invalid email and keeps button disabled", () => {
@@ -77,7 +123,6 @@ describe("LoginScreen", () => {
     typeEmail("invalidemail");
     pressLogin();
 
-    // UI may or may not render inline error text; primary contract is disabled button
     queryByText("Please enter a valid email address.");
     expect(getLoginBtn()).toHaveAccessibilityState({ disabled: true });
   });
@@ -96,11 +141,76 @@ describe("LoginScreen", () => {
     const { typeEmail } = setup();
     mockedValidation.isEmailValid.mockClear();
 
+    mockedValidation.isEmailValid.mockReturnValue(true);
     typeEmail("typed@example.com");
 
     expect(mockedValidation.isEmailValid).toHaveBeenCalledTimes(1);
     expect(mockedValidation.isEmailValid).toHaveBeenCalledWith(
-      "typed@example.com"
+      "typed@example.com",
     );
+  });
+
+  describe("API Calls", () => {
+    it("calls loginUser, stores token, resets failed count, and navigates on successful login", async () => {
+      mockedValidation.isEmailValid.mockReturnValue(true);
+      mockedApi.loginUser.mockResolvedValue({
+        token: "fake-token",
+        tokenType: "Bearer",
+        userId: "user-123",
+        email: "user@example.com",
+      });
+
+      const { typeEmail, typePassword, pressLogin } = setup();
+
+      typeEmail("user@example.com");
+      typePassword("password123");
+      pressLogin();
+
+      await waitFor(() => {
+        expect(mockedApi.loginUser).toHaveBeenCalledWith({
+          email: "user@example.com",
+          password: "password123",
+        });
+      });
+
+      await waitFor(() => {
+        expect(mockedAuth.storeAuthData).toHaveBeenCalledWith(
+          "fake-token",
+          "user-123",
+          "user@example.com",
+        );
+      });
+
+      await waitFor(() => {
+        expect(mockedAsyncStorage.resetFailedLoginCount).toHaveBeenCalled();
+      });
+
+      await waitFor(() => {
+        expect(mockRouter.replace).toHaveBeenCalledWith("/(main)/home");
+      });
+
+      expect(mockSetStatus).toHaveBeenCalledWith("signedIn");
+    });
+
+    it("shows an error message and increments failed login count on failed login", async () => {
+      mockedValidation.isEmailValid.mockReturnValue(true);
+      mockedApi.loginUser.mockRejectedValue(
+        new Error("Invalid email or password"),
+      );
+
+      const { typeEmail, typePassword, pressLogin, findByText } = setup();
+
+      typeEmail("user@example.com");
+      typePassword("wrong-password");
+      pressLogin();
+
+      const errorMessage = await findByText("Invalid email or password");
+      expect(errorMessage).toBeTruthy();
+
+      expect(mockedAuth.storeAuthData).not.toHaveBeenCalled();
+      expect(mockRouter.replace).not.toHaveBeenCalled();
+      expect(mockedAsyncStorage.incrementFailedLoginCount).toHaveBeenCalled();
+      expect(mockSetStatus).not.toHaveBeenCalled();
+    });
   });
 });

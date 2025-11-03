@@ -11,9 +11,16 @@ import { createContext, useEffect, useMemo, useState } from "react";
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
 
-type AuthStatus = "loading" | "signedIn" | "signedOut";
-export const AuthContext = createContext<{ status: AuthStatus }>({
+// Represents the UI-facing session lifecycle (distinct from raw token status).
+type SessionStatus = "loading" | "signedIn" | "signedOut";
+type AuthContextValue = {
+  status: SessionStatus;
+  setStatus: (status: SessionStatus) => void;
+};
+
+export const AuthContext = createContext<AuthContextValue>({
   status: "loading",
+  setStatus: () => undefined,
 });
 
 export default function RootLayout() {
@@ -23,7 +30,7 @@ export default function RootLayout() {
     Inter_600SemiBold,
   });
 
-  const [status, setStatus] = useState<AuthStatus>("loading");
+  const [status, setStatus] = useState<SessionStatus>("loading");
 
   // Bootstrap: resolve auth once
   useEffect(() => {
@@ -49,7 +56,7 @@ export default function RootLayout() {
     }
   }, [fontsLoaded, status]);
 
-  const value = useMemo(() => ({ status }), [status]);
+  const value = useMemo(() => ({ status, setStatus }), [status]);
 
   if (!fontsLoaded || status === "loading") {
     return null;
