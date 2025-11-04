@@ -6,6 +6,8 @@ import { useState } from "react";
 import { Platform, Pressable, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+import axios from "axios";
+
 // Assets
 import { ProgressBar } from "@/components/ProgressBar/ProgressBar";
 
@@ -20,6 +22,13 @@ export default function Questionnaire() {
   const [ageError, setAgeError] = useState<string | null>(null);
   const [weightError, setWeightError] = useState<string | null>(null);
   const [heightError, setHeightError] = useState<string | null>(null);
+
+  const [loading, setLoading] = useState(false); // To show a loading indicator
+  const [serverError, setServerError] = useState<string | null>(null); // For errors from the backend
+
+  // TODO: Remove this and use AsyncStorage once login flow is connected.
+  // For now add hardcoded token
+  const DEV_AUTH_TOKEN = "";
 
   // Navigate to the main page
   // Main page does not exist yet so naviagtion is to langing page
@@ -87,9 +96,66 @@ export default function Questionnaire() {
       }
     }
 
-    if (hasError) return;
+    if (hasError) {
+      return;
+    }
+
+    setLoading(true);
+    const payload = {
+      age: ageNum,
+      weight: weightNum,
+      height: heightNum,
+    };
+
+    // Make the API call
+    try {
+       // For now, we use the hardcoded development token.
+      if (!DEV_AUTH_TOKEN) {
+        setServerError("Development token is missing.");
+        setLoading(false);
+        return;
+      }
+
+      // Create the request headers using the hardcoded token.
+      const headers = {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${DEV_AUTH_TOKEN}`
+      };
+
+
+      // Make the API call WITH the headers.
+      const response = await axios.post(QUESTIONNAIRE_ENDPOINT, payload, { headers: headers });
+
+      // Handle a successful response from the server
+      console.log("Data submitted successfully:", response.data);
+
+      // Navigate to the next screen on success
+      router.push("/onboarding/questionnaire");
+
+    } catch (error) {
+      // Handle errors from the API call
+      if (axios.isAxiosError(error) && error.response) {
+        // The backend responded with an error (e.g., 400 Bad Request)
+        console.error("Backend Error:", error.response.data);
+        // Assuming your backend sends an error like { "message": "..." }
+        setServerError(error.response.data.message || "An error occurred on the server.");
+        return;
+      } else {
+        // A network error or other issue occurred
+        console.error("Network/Request Error:", error);
+        setServerError("Could not connect to the server. Please check your network and try again.");
+        return;
+      }
+    } finally {
+      // 5. Always stop the loading indicator, whether it succeeded or failed
+      setLoading(false);
+    }
+    
     router.push("/onboarding/questionnaire");
   };
+
+  const API_BASE_URL = Platform.OS === 'ios' ? 'http://localhost:8080' : 'http://10.0.2.2:8080';
+  const QUESTIONNAIRE_ENDPOINT = `${API_BASE_URL}/api/questionnaires/initial`;
   
 
   return (
