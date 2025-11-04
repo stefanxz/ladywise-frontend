@@ -1,10 +1,20 @@
-import { ThemedPressable } from "@/components/ThemedPressable/ThemedPressable";
-import { useRouter } from "expo-router";
+﻿import { ThemedPressable } from "@/components/ThemedPressable/ThemedPressable";
+import { useQuestionnaire } from "@/app/onboarding/QuestionnaireContext";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { useEffect } from "react";
 import { Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function Questionnaire() {
   const router = useRouter();
+  const { setUserId } = useQuestionnaire();
+  const params = useLocalSearchParams<{ userId?: string }>();
+
+  useEffect(() => {
+    if (typeof params.userId === "string" && params.userId.trim().length > 0) {
+      setUserId(params.userId.trim());
+    }
+  }, [params.userId, setUserId]);
 
   return (
     <SafeAreaView className="flex-1 bg-white items-center justify-center">
@@ -14,7 +24,7 @@ export default function Questionnaire() {
         </Text>
 
         <Text className="text-base text-gray-700 text-center mb-8">
-          This is your first-time questionnaire. Here we’ll collect a few
+          This is your first-time questionnaire. Here we'll collect a few
           details to personalise your experience.
         </Text>
 

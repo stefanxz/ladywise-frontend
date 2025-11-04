@@ -19,8 +19,12 @@ export function ProgressBar({
 
   // Animation Effect
   useEffect(() => {
-    animatedWidth.setValue(progress);
-  }, [currentStep, totalSteps, progress]);
+    Animated.timing(animatedWidth, {
+      toValue: progress,
+      duration: 300,
+      useNativeDriver: false,
+    }).start();
+  }, [currentStep, totalSteps, progress, animatedWidth]);
 
   // Rendering the Track and Animated Bar
   return (
