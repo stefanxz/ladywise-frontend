@@ -3,22 +3,12 @@ import { ActivityIndicator, Pressable, Text } from "react-native";
 import type { LogNewPeriodButtonProps } from "./LogNewPeriodButton.types";
 
 /**
- * A simple, reusable “Log period +” button.
+ * A simple, reusable “Log period +” button
  *
- * - The button is centered by its parent container.
- * - The background color is dynamic (passed via `color`).
- * - It supports loading and disabled states.
- * - It is fully accessible and test-friendly.
- *
- * Example usage:
- * ```tsx
- * const color = user.isInCycle ? "#e11d48" : "#3b82f6";
- * 
- * <LogNewPeriodButton
- *   color={color}
- *   onPress={() => router.push("/(main)/log-period")}
- * />
- * ```
+ * - The button is centered by its parent container
+ * - The background color is dynamic (passed via `color`)
+ * - It supports loading and disabled states
+ * - It is fully accessible and test-friendly
  */
 export default function LogNewPeriodButton({
   color,
