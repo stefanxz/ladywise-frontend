@@ -1,17 +1,11 @@
-﻿import {
-  QUESTIONNAIRE_TOTAL_STEPS,
-  useQuestionnaire,
-} from "@/app/onboarding/QuestionnaireContext";
+﻿import { QuestionScreen } from "@/app/onboarding/components";
+import { useQuestionnaire } from "@/app/onboarding/QuestionnaireContext";
 import { ThemedPressable } from "@/components/ThemedPressable/ThemedPressable";
 import { ThemedTextInput } from "@/components/ThemedTextInput/ThemedTextInput";
 import { UnitInputField } from "@/components/UnitInputField/UnitInputField";
 import { useRouter } from "expo-router";
 import { useState } from "react";
-import { Platform, Pressable, Text, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-
-// Assets
-import { ProgressBar } from "@/components/ProgressBar/ProgressBar";
+import { Text, View } from "react-native";
 
 export default function Questionnaire() {
   const router = useRouter();
@@ -109,103 +103,79 @@ export default function Questionnaire() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-background items-center">
-      <View className="w-full max-w-md mt-2 px-10 pt-[71px]">
-        <View className="flex-row items-center">
-          <View className="flex-1">
-            <ProgressBar currentStep={1} totalSteps={QUESTIONNAIRE_TOTAL_STEPS} />
-          </View>
-          <View className="w-1/6">
-            <Pressable onPress={handleSkip}>
-              <Text
-                className="text-inter-regular text-right text-lightGrey"
-                style={{
-                  // Fix for Android text truncation bug
-                  paddingRight: Platform.OS === "android" ? 3 : 0,
-                }}
-              >
-                Skip
-              </Text>
-            </Pressable>
-          </View>
+    <QuestionScreen
+      step={1}
+      title="Let's start with a few basics"
+      description="Tell us a bit about yourself so we can tailor your health insights."
+      onSkip={handleSkip}
+      footer={
+        <ThemedPressable
+          label="Continue"
+          onPress={handleContinue}
+          testID="continue-button"
+        />
+      }
+    >
+      <View className="gap-y-8 w-full">
+        <View>
+          <Text className="pr-8 text-inter-regular text-regularText text-left leading-relaxed">
+            Age
+          </Text>
+          <ThemedTextInput
+            value={age}
+            onChangeText={(t: string) => {
+              setAge(t);
+              if (ageError) setAgeError(null);
+            }}
+            placeholder="Your age"
+            placeholderTextColor="lightGrey"
+            secureTextEntry={false}
+            testID="age-input"
+          />
+          {ageError ? (
+            <Text className="text-red-600 text-xs mt-1">{ageError}</Text>
+          ) : null}
         </View>
-      </View>
-      <View className="w-full max-w-md items-start mt-2 gap-y-3 px-10 pt-[71px]">
-        <Text className="text-3xl font-inter-semibold text-brand text-left">
-          {"Let's start with a few basics 💫"}
-        </Text>
 
-        <Text className="pr-8 text-inter-regular text-regularText text-left leading-relaxed">
-          {
-            "Tell us a bit about yourself so we can tailor your health insights."
-          }
-        </Text>
-        <View className="w-full mt-12">
-          <View>
-            <Text className="pr-8 text-inter-regular text-regularText text-left leading-relaxed">
-              Age
-            </Text>
-            <ThemedTextInput
-              value={age}
-              onChangeText={(t: string) => {
-                setAge(t);
-                if (ageError) setAgeError(null);
-              }}
-              placeholder="Your age"
-              placeholderTextColor="lightGrey"
-              secureTextEntry={false}
-              testID="age-input"
-            />
-            {ageError ? (
-              <Text className="text-red-600 text-xs mt-1">{ageError}</Text>
-            ) : null}
-          </View>
-          <View className="w-full mt-8">
-            <Text className="pr-8 text-inter-regular text-regularText text-left leading-relaxed">
-              Weight
-            </Text>
-            <UnitInputField
-              unit="kg"
-              value={weight}
-              onChangeText={(t: string) => {
-                setWeight(t);
-                if (weightError) setWeightError(null);
-              }}
-              placeholder="Your weight"
-              testID="weight-input"
-            />
-            {weightError ? (
-              <Text className="text-red-600 text-xs mt-1">{weightError}</Text>
-            ) : null}
-          </View>
-          <View className="w-full mt-8">
-            <Text className="pr-8 text-inter-regular text-regularText text-left leading-relaxed">
-              Height
-            </Text>
-            <UnitInputField
-              unit="cm"
-              value={height}
-              onChangeText={(t: string) => {
-                setHeight(t);
-                if (heightError) setHeightError(null);
-              }}
-              placeholder="Your height"
-              testID="height-input"
-            />
-            {heightError ? (
-              <Text className="text-red-600 text-xs mt-1">{heightError}</Text>
-            ) : null}
-          </View>
-          <View className="w-full mt-8">
-            <ThemedPressable
-              label="Continue"
-              onPress={handleContinue}
-              testID="continue-button"
-            />
-          </View>
+        <View>
+          <Text className="pr-8 text-inter-regular text-regularText text-left leading-relaxed">
+            Weight
+          </Text>
+          <UnitInputField
+            unit="kg"
+            value={weight}
+            onChangeText={(t: string) => {
+              setWeight(t);
+              if (weightError) setWeightError(null);
+            }}
+            placeholder="Your weight"
+            testID="weight-input"
+          />
+          {weightError ? (
+            <Text className="text-red-600 text-xs mt-1">{weightError}</Text>
+          ) : null}
+        </View>
+
+        <View>
+          <Text className="pr-8 text-inter-regular text-regularText text-left leading-relaxed">
+            Height
+          </Text>
+          <UnitInputField
+            unit="cm"
+            value={height}
+            onChangeText={(t: string) => {
+              setHeight(t);
+              if (heightError) setHeightError(null);
+            }}
+            placeholder="Your height"
+            testID="height-input"
+          />
+          {heightError ? (
+            <Text className="text-red-600 text-xs mt-1">{heightError}</Text>
+          ) : null}
         </View>
       </View>
-    </SafeAreaView>
+    </QuestionScreen>
   );
 }
 function isDecimal(weightNum: number) {
