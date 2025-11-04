@@ -4,7 +4,7 @@ import React from "react";
 
 it("updates progress when currentStep changes", () => {
   const { getByTestId } = render(
-    <ProgressBar currentStep={1} totalSteps={5}/>
+    <ProgressBar currentStep={1} totalSteps={5} />,
   );
 
   const progressBarFill = getByTestId("progress-bar-progress");
@@ -12,7 +12,7 @@ it("updates progress when currentStep changes", () => {
 
   // Update currentStep to 3
   const { getByTestId: getByTestIdUpdated } = render(
-    <ProgressBar currentStep={3} totalSteps={5}/>
+    <ProgressBar currentStep={3} totalSteps={5} />,
   );
 
   const updatedProgressBarFill = getByTestIdUpdated("progress-bar-progress");

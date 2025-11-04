@@ -1,9 +1,10 @@
-jest.mock("@expo/vector-icons", () => ({
-  Ionicons: "Ionicons",
-}));
 import { fireEvent, render } from "@testing-library/react-native";
 import React from "react";
 import AppBar from "./AppBarBackButton";
+
+jest.mock("@expo/vector-icons", () => ({
+  Ionicons: "Ionicons",
+}));
 
 // Mock expo-router
 jest.mock("expo-router", () => {
@@ -32,6 +33,7 @@ const getRouterMocks = () => {
   const { useRouter } = jest.requireMock("expo-router") as {
     useRouter: () => TestRouterWithHelpers;
   };
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   return useRouter().__mocks;
 };
 
@@ -40,6 +42,7 @@ const setCanGoBack = (v: boolean) => {
   const { useRouter } = jest.requireMock("expo-router") as {
     useRouter: () => TestRouterWithHelpers;
   };
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   useRouter().__setCanGoBack(v);
 };
 

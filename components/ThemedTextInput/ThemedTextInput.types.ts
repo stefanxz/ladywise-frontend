@@ -6,7 +6,7 @@ export interface ThemedTextInputProps {
   secureTextEntry?: boolean;
   disabled?: boolean;
   placeholderTextColor?: string;
-  testID?: string
+  testID?: string;
 
   // /** Tailwind classes applied directly to the ThemedTextInput */
   className?: string;

@@ -14,7 +14,7 @@ describe("PasswordField", () => {
         value=""
         onChangeText={() => {}}
         testID="password-input"
-      />
+      />,
     );
 
     const input = getByTestId("password-input");
@@ -35,7 +35,7 @@ describe("PasswordField", () => {
         value=""
         onChangeText={onChangeText}
         testID="password-input"
-      />
+      />,
     );
     fireEvent.changeText(getByTestId("password-input"), "Abcd1234");
     expect(onChangeText).toHaveBeenCalledWith("Abcd1234");
@@ -49,12 +49,12 @@ describe("PasswordField", () => {
         onChangeText={() => {}}
         error="Too weak"
         testID="password-input"
-      />
+      />,
     );
     expect(getByText("Too weak")).toBeTruthy();
     expect(getByTestId("password-input")).toHaveProp(
       "className",
-      expect.stringContaining("border-red-500")
+      expect.stringContaining("border-red-500"),
     );
   });
 });
