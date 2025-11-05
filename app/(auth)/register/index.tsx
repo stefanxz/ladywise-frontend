@@ -10,9 +10,6 @@ import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import { Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-//import { registerUser } from "./backend_register";
-
-
 //Main page for registering
 //Contains email, password, password confirmation, option for social sign up
 export default function RegisterIndex() {
