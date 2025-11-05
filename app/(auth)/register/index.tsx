@@ -3,6 +3,7 @@ import { EmailField } from "@/components/EmailField/EmailField";
 import { PasswordField } from "@/components/PasswordField/PasswordField";
 import { SocialSignOn } from "@/components/SocialSignOn/SocialSignOn";
 import { TermsConditionsCheckbox } from "@/components/TermsConditionsCheckbox/TermsConditionsCheckbox";
+import TermsConditionsPopUp from "@/components/TermsConditionsPopUp/TermsConditionsPopUp";
 import { ThemedPressable } from "@/components/ThemedPressable/ThemedPressable";
 import { isEmailValid, isPasswordValid } from "@/utils/validations";
 import { useRouter } from "expo-router";
@@ -18,6 +19,8 @@ export default function RegisterIndex() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [termsConditions, setTermsConditions] = useState(false);
   const [registering, setRegistering] = useState(false);
+
+  const [showModal, setShowModal] = useState(false);
 
   const [emailError, setEmailError] = useState<string | null>(null);
   const [passwordError, setPasswordError] = useState<string | null>(null);
@@ -61,7 +64,7 @@ export default function RegisterIndex() {
 
     if (!isPasswordValid(password)) {
       setPasswordError(
-        "Password must contain at least 8 characters, 1 upper case, 1 lower case and 1 number (and no spaces).",
+        "Password must contain at least 8 characters, 1 upper case, 1 lower case and 1 number (and no spaces)."
       );
       hasError = true;
     }
@@ -139,7 +142,7 @@ export default function RegisterIndex() {
           <TermsConditionsCheckbox
             checked={termsConditions}
             onToggle={() => setTermsConditions((v) => !v)}
-            termsUrl="https://example.com/terms"
+            onShowModal={() => setShowModal(true)}
           />
         </View>
 
@@ -169,6 +172,14 @@ export default function RegisterIndex() {
           }}
         />
       </View>
+      <TermsConditionsPopUp
+        visible={showModal}
+        onAccept={() => {
+          setShowModal(false);
+          setTermsConditions(true);
+        }}
+        onClose={() => setShowModal(false)}
+      />
     </SafeAreaView>
   );
 }
