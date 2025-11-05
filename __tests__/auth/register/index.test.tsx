@@ -192,49 +192,47 @@ describe("RegisterIndex screen", () => {
 
 });
 
-  
+it("clears specific field error when user edits that field again", async() => {
+  const { toggleTnc, pressContinue, getByText, typeEmail, typePassword, typeConfirm, queryByText } =
+    setup();
 
-  it("clears specific field error when user edits that field again", async() => {
-    const { toggleTnc, pressContinue, getByText, typeEmail, typePassword, typeConfirm, queryByText } =
-      setup();
+  toggleTnc();
+  // Trigger all errors
+  pressContinue();
+  expect(getByText("Please enter your email.")).toBeTruthy();
 
-    toggleTnc();
-    // Trigger all errors
-    pressContinue();
-    expect(getByText("Please enter your email.")).toBeTruthy();
+  // Editing email should clear email error
+  typeEmail("user@example.com");
+  mockedValidations.isEmailValid.mockReturnValue(true);
+  expect(queryByText("Please enter your email.")).toBeNull();
 
-    // Editing email should clear email error
-    typeEmail("user@example.com");
-    mockedValidations.isEmailValid.mockReturnValue(true);
-    expect(queryByText("Please enter your email.")).toBeNull();
+  // Enter invalid password → shows password error
+  typePassword("short");
+  mockedValidations.isPasswordValid.mockReturnValue(false);
+  pressContinue();
+  expect(
+    getByText(
+      "Password must contain at least 8 characters, 1 upper case, 1 lower case and 1 number (and no spaces)."
+    )
+  ).toBeTruthy();
 
-    // Enter invalid password → shows password error
-    typePassword("short");
-    mockedValidations.isPasswordValid.mockReturnValue(false);
-    pressContinue();
-    expect(
-      getByText(
-        "Password must contain at least 8 characters, 1 upper case, 1 lower case and 1 number (and no spaces)."
-      )
-    ).toBeTruthy();
+  // Edit password to a valid one → clear error on next submit
+  typePassword("Abcd1234");
+  mockedValidations.isPasswordValid.mockReturnValue(true);
+  typeConfirm("Abcd1234");
 
-    // Edit password to a valid one → clear error on next submit
-    typePassword("Abcd1234");
-    mockedValidations.isPasswordValid.mockReturnValue(true);
-    typeConfirm("Abcd1234");
-
-    // make registerUser resolve successfully so mockPush runs
-    mockedRegisterUser.mockResolvedValueOnce({
-      id: "123",
-      email: "user@example.com"
-    });
-    //mockedRegisterUser.mockResolvedValueOnce({} as any);
-    await act(async () => {
-      pressContinue();
-    });
-
-    await waitFor(() => {
-      expect(mockPush).toHaveBeenCalledWith("/(auth)/register/personal-details");
-    });
+  // make registerUser resolve successfully so mockPush runs
+  mockedRegisterUser.mockResolvedValueOnce({
+    id: "123",
+    email: "user@example.com"
   });
+  //mockedRegisterUser.mockResolvedValueOnce({} as any);
+  await act(async () => {
+    pressContinue();
+  });
+
+  await waitFor(() => {
+    expect(mockPush).toHaveBeenCalledWith("/(auth)/register/personal-details");
+  });
+});
 });
