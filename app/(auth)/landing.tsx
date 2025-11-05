@@ -1,23 +1,27 @@
 import { ThemedPressable } from "@/components/ThemedPressable/ThemedPressable";
 import { useRouter } from "expo-router";
-import React from "react";
+import React, { useState } from "react";
 import { Image, Platform, Pressable, Text, View } from "react-native";
 
 // Assets
 import logotest from "@/assets/images/Elegant-Ladybug-Woman-Logo-Design2.png";
 import backgroundPart1 from "@/assets/images/LandingPage-background-part1.png";
 import backgroundPart2 from "@/assets/images/LandingPage-background-part2.png";
+import DeleteAccountModal from "@/components/DeleteAccount/DeleteAccount";
 
 /**
  * Landing page displayed when the app launches.
  * Provides entry points to Register and Login flows.
  */
+
 export default function LandingPage() {
   const router = useRouter();
+  const [showModal, setShowModal] = useState(false);
 
   // Navigate to the registration page
   const handleGetStarted = () => {
-    router.push("/(auth)/register");
+    // router.push("/(auth)/register");
+    setShowModal(true);
   };
 
   // Navigate to the login page
@@ -92,6 +96,15 @@ export default function LandingPage() {
           </View>
         </View>
       </View>
+      <DeleteAccountModal
+        visible={showModal}
+        onCancel={() => setShowModal(false)}
+        onConfirm={async () => {
+          // simulate deleting
+          await new Promise((res) => setTimeout(res, 1500));
+          setShowModal(false);
+        }}
+      />
     </View>
   );
 }
