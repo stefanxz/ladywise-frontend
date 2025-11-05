@@ -9,6 +9,7 @@ import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { useCallback, useEffect, useState } from "react";
 import { View } from "react-native";
+import { ThemeProvider } from "@/context/ThemeContext"
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -57,8 +58,11 @@ export default function RootLayout() {
 
   // Render the app layout inside a View with the onLayout prop.
   return (
-    <View style={{ flex: 1 }} onLayout={onLayoutRootView}>
-      <Stack screenOptions={{ headerShown: false }} />
-    </View>
+    <ThemeProvider>
+      <View style={{ flex: 1 }} onLayout={onLayoutRootView}>
+        <Stack screenOptions={{ headerShown: false }} />
+      </View>
+    </ThemeProvider>
+
   );
 }
