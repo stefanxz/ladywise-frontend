@@ -1,11 +1,11 @@
-import React from "react";
-import { Linking, Pressable, Text, View } from "react-native";
 import { TermsConditionsCheckboxProps } from "@/components/TermsConditionsCheckbox/TermsConditionsCheckbox.types";
+import React from "react";
+import { Pressable, Text, View } from "react-native";
 
 export function TermsConditionsCheckbox({
   checked,
   onToggle,
-  termsUrl,
+  onShowModal,
 }: TermsConditionsCheckboxProps) {
   return (
     <View className="flex-row items-center">
@@ -23,7 +23,10 @@ export function TermsConditionsCheckbox({
 
       <Text className="ml-2 text-slate-950 text-sm">
         I agree with the{" "}
-        <Text className="font-bold" onPress={() => Linking.openURL(termsUrl)}>
+        <Text
+          className="font-bold"
+          onPress={() => onShowModal && onShowModal()}
+        >
           terms and conditions.
         </Text>
       </Text>
