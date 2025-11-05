@@ -2,11 +2,8 @@ import React, { useCallback, useState } from "react";
 import { ActivityIndicator, Modal, Pressable, Text, View } from "react-native";
 
 export interface DeleteAccountModalProps {
-  /** Controls visibility of the modal */
   visible: boolean;
-
   onCancel: () => void;
-
   onConfirm: () => Promise<void> | void; // Still need to complete
 
   title?: string; // The title (maybe will change?)
