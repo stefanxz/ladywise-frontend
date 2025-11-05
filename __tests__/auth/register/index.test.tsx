@@ -1,6 +1,8 @@
+
 import RegisterIndex from "@/app/(auth)/register/index";
+import * as api from "@/lib/api";
 import * as validations from "@/utils/validations";
-import { fireEvent, render } from "@testing-library/react-native";
+import { act, fireEvent, render, waitFor } from "@testing-library/react-native";
 import React from "react";
 
 // Mocks
@@ -45,9 +47,18 @@ jest.mock("@/utils/validations", () => ({
 }));
 const mockedValidations = jest.mocked(validations);
 
-// Grab router spies
-const { __getMocks } = jest.requireMock("expo-router");
-const router = __getMocks();
+const mockPush = jest.fn();
+jest.mock("expo-router", () => ({
+  useRouter: () => ({ push: mockPush }),
+}));
+
+// mock the registerUser call used in handleContinue
+jest.mock("@/lib/api", () => ({
+  registerUser: jest.fn(),
+}));
+const mockedRegisterUser = jest.mocked(api.registerUser);
+
+mockPush.mockClear();
 
 describe("RegisterIndex screen", () => {
   beforeEach(() => {
@@ -92,7 +103,7 @@ describe("RegisterIndex screen", () => {
     pressContinue();
 
     expect(getByText("Please enter your email.")).toBeTruthy();
-    expect(router.push).not.toHaveBeenCalled();
+    expect(mockPush).not.toHaveBeenCalled();
   });
 
   it("shows 'Email must have the format example@domain.com.' for invalid email", () => {
@@ -106,7 +117,7 @@ describe("RegisterIndex screen", () => {
     expect(
       getByText("Email must have the format example@domain.com.")
     ).toBeTruthy();
-    expect(router.push).not.toHaveBeenCalled();
+    expect(mockPush).not.toHaveBeenCalled();
   });
 
   it("shows password rules error when password invalid", () => {
@@ -127,7 +138,7 @@ describe("RegisterIndex screen", () => {
         "Password must contain at least 8 characters, 1 upper case, 1 lower case and 1 number (and no spaces)."
       )
     ).toBeTruthy();
-    expect(router.push).not.toHaveBeenCalled();
+    expect(mockPush).not.toHaveBeenCalled();
   });
 
   it("shows confirm error when confirmation is empty or mismatched", () => {
@@ -151,33 +162,39 @@ describe("RegisterIndex screen", () => {
     pressContinue();
     expect(getByText("Please make sure the passwords match.")).toBeTruthy();
 
-    expect(router.push).not.toHaveBeenCalled();
+    expect(mockPush).not.toHaveBeenCalled();
   });
 
-  it("navigates on valid inputs", () => {
-    const {
-      toggleTnc,
-      typeEmail,
-      typePassword,
-      typeConfirm,
-      pressContinue,
-    } = setup();
+  it("navigates on valid inputs", async () => {
+  const { toggleTnc, typeEmail, typePassword, typeConfirm, pressContinue } = setup();
 
-    toggleTnc();
-    typeEmail("user@example.com");
-    mockedValidations.isEmailValid.mockReturnValue(true);
+  toggleTnc();
+  typeEmail("user@example.com");
+  mockedValidations.isEmailValid.mockReturnValue(true);
 
-    typePassword("Abcd1234");
-    mockedValidations.isPasswordValid.mockReturnValue(true);
+  typePassword("Abcd1234");
+  mockedValidations.isPasswordValid.mockReturnValue(true);
+  typeConfirm("Abcd1234");
 
-    typeConfirm("Abcd1234");
-
+  // make registerUser resolve successfully so mockPush runs
+  mockedRegisterUser.mockResolvedValueOnce({
+    id: "123",
+    email: "user@example.com"
+  });
+  //mockedRegisterUser.mockResolvedValueOnce({} as any);
+  await act(async () => {
     pressContinue();
-
-    expect(router.push).toHaveBeenCalledWith("/(auth)/register/personal-details");
   });
 
-  it("clears specific field error when user edits that field again", () => {
+  await waitFor(() => {
+    expect(mockPush).toHaveBeenCalledWith("/(auth)/register/personal-details");
+  });
+
+});
+
+  
+
+  it("clears specific field error when user edits that field again", async() => {
     const { toggleTnc, pressContinue, getByText, typeEmail, typePassword, typeConfirm, queryByText } =
       setup();
 
@@ -205,8 +222,19 @@ describe("RegisterIndex screen", () => {
     typePassword("Abcd1234");
     mockedValidations.isPasswordValid.mockReturnValue(true);
     typeConfirm("Abcd1234");
-    pressContinue();
 
-    expect(router.push).toHaveBeenCalledWith("/(auth)/register/personal-details");
+    // make registerUser resolve successfully so mockPush runs
+    mockedRegisterUser.mockResolvedValueOnce({
+      id: "123",
+      email: "user@example.com"
+    });
+    //mockedRegisterUser.mockResolvedValueOnce({} as any);
+    await act(async () => {
+      pressContinue();
+    });
+
+    await waitFor(() => {
+      expect(mockPush).toHaveBeenCalledWith("/(auth)/register/personal-details");
+    });
   });
 });
