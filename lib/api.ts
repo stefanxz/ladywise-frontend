@@ -1,4 +1,10 @@
 import axios from "axios";
+import type {
+  LoginPayload,
+  LoginResponse,
+  RegisterPayload,
+  RegisterResponse,
+} from "./types";
 
 export const api = axios.create({
   baseURL: process.env.EXPO_PUBLIC_API_URL,
@@ -9,20 +15,27 @@ export const api = axios.create({
 api.interceptors.response.use(
   (res) => res,
   (error) => {
-    const message =
-      error.response?.data?.message ??
-      error.message ??
-      "Request failed.";
-    return Promise.reject(new Error(message));
+    // Preserve AxiosError details while ensuring a readable message for UI handling.
+    if (axios.isAxiosError(error)) {
+      const message =
+        error.response?.data?.message ??
+        error.message ??
+        "Request failed.";
+      error.message = message;
+    }
+    return Promise.reject(error);
   }
 );
-
-type RegisterPayload = { email: string; name: string; password: string };
-type RegisterResponse = { id: string; email: string };
 
 // register new user by sending their credentials to the backend API
 // uses the base URL from .env + '/api/auth/register'
 export async function registerUser(payload: RegisterPayload) {
   const { data } = await api.post<RegisterResponse>("/api/auth/register", payload);
+  return data;
+}
+
+// authenticate an existing user and return their auth token
+export async function loginUser(payload: LoginPayload) {
+  const { data } = await api.post<LoginResponse>("/api/auth/login", payload);
   return data;
 }
