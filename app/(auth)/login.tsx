@@ -11,7 +11,7 @@ import {
   resetFailedLoginCount,
 } from "@/utils/asyncStorageHelpers";
 import { Feather } from "@expo/vector-icons";
-import axios from "axios";
+import { isAxiosError } from "axios";
 import { useRouter } from "expo-router";
 import React, { useContext, useState } from "react";
 import {
@@ -71,7 +71,7 @@ export default function LoginScreen() {
       await incrementFailedLoginCount();
       let message = "We couldn't log you in. Please try again.";
 
-      if (axios.isAxiosError(error)) {
+      if (isAxiosError(error)) {
         // Normalize API/network failures into human-readable messages.
         const { response, code } = error;
         const status = response?.status;
@@ -83,7 +83,7 @@ export default function LoginScreen() {
         } else if (typeof response?.data === "string") {
           message = response.data;
         }
-      } 
+      }
       setFormError(message);
       console.error("Login error:", error);
     } finally {

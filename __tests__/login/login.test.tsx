@@ -6,6 +6,7 @@ import * as validation from "@/lib/validation";
 import * as asyncStorage from "@/utils/asyncStorageHelpers";
 import { fireEvent, render, waitFor } from "@testing-library/react-native";
 import React from "react";
+import { AxiosError } from "axios";
 const mockSetStatus = jest.fn();
 
 // Provide a lightweight AuthContext mock so the screen can drive setStatus without pulling in the real layout.
@@ -194,10 +195,20 @@ describe("LoginScreen", () => {
 
     it("shows an error message and increments failed login count on failed login", async () => {
       mockedValidation.isEmailValid.mockReturnValue(true);
-      mockedApi.loginUser.mockRejectedValue({
-        isAxiosError: true,
-        response: { status: 401 },
-      } as any);
+      const mockAxiosError = new AxiosError(
+        "Request failed with status code 401",
+        "401",
+        undefined,
+        undefined,
+        {
+          status: 401,
+          data: "Invalid email or password",
+          statusText: "Unauthorized",
+          headers: {},
+          config: {} as any,
+        },
+      );
+      mockedApi.loginUser.mockRejectedValue(mockAxiosError);
 
       const { typeEmail, typePassword, pressLogin, findByText } = setup();
 
