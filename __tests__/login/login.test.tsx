@@ -194,9 +194,10 @@ describe("LoginScreen", () => {
 
     it("shows an error message and increments failed login count on failed login", async () => {
       mockedValidation.isEmailValid.mockReturnValue(true);
-      mockedApi.loginUser.mockRejectedValue(
-        new Error("Invalid email or password"),
-      );
+      mockedApi.loginUser.mockRejectedValue({
+        isAxiosError: true,
+        response: { status: 401 },
+      } as any);
 
       const { typeEmail, typePassword, pressLogin, findByText } = setup();
 
