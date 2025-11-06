@@ -13,7 +13,7 @@ describe("LogNewPeriodButton", () => {
     const { getByText } = render(
       <LogNewPeriodButton color={baseColor} onPress={() => {}} />,
     );
-    expect(getByText("Log period ＋")).toBeTruthy();
+    expect(getByText("Log period＋")).toBeTruthy();
   });
 
   it("renders ActivityIndicator when loading and blocks presses", () => {
@@ -23,7 +23,7 @@ describe("LogNewPeriodButton", () => {
     );
 
     // The label should be replaced by the spinner
-    expect(queryByText("Log period ＋")).toBeNull();
+    expect(queryByText("Log period＋")).toBeNull();
 
     // Press should not trigger onPress while loading
     fireEvent.press(getByRole("button", { hidden: true }) as any);
