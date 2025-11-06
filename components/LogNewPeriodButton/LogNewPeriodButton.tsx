@@ -27,28 +27,23 @@ export default function LogNewPeriodButton({
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel}
       accessibilityState={{ disabled: blocked, busy: !!loading }}
-
       // Interaction
       onPress={onPress}
       disabled={blocked}
       testID={testID}
-
       // Layout & visuals
       className={[
         "items-center justify-center px-6 py-3 rounded-full shadow-md",
         "active:opacity-95", // visual feedback on press
         blocked ? "opacity-60" : "", // visually dimmed when blocked
       ].join(" ")}
-
       // Inline style for dynamic color — avoids NativeWind dynamic-class issues
       style={{
         backgroundColor: color,
         minHeight: 20, // ensures vertical balance
       }}
-
       // Slightly larger touch area than the visible button
       hitSlop={6}
-
       // Ripple effect for Android feedback
       android_ripple={{ color: "rgba(255,255,255,0.15)" }}
     >
@@ -58,21 +53,22 @@ export default function LogNewPeriodButton({
       ) : (
         <Text
           className="text-white font-semibold text-base"
+          style={{
+            position: "relative",
+            top: -2,
+            lineHeight: 20, // aligns text vertically in the middle
+            textAlignVertical: "center",
+          }}
+        >
+          Log period
+          <Text
+            className="text-white text-lg font-extrabold"
             style={{
-              position: "relative",
-              top: -2,
-              lineHeight: 20, // aligns text vertically in the middle
+              lineHeight: 20, // keeps the + symbol aligned with text
               textAlignVertical: "center",
+              marginLeft: 4, // add spacing between "Log period" and ＋
             }}
           >
-          Log period{" "}
-          <Text 
-            className="text-white text-lg font-extrabold"
-              style={{
-                lineHeight: 20, // keeps the + symbol aligned with text
-                textAlignVertical: "center",
-              }}
-            >
             ＋
           </Text>
         </Text>

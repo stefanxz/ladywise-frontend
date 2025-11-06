@@ -1,6 +1,6 @@
 /**
  * Props for the “Log period +” button.
- * 
+ *
  * This component takes a background color and displays
  * a centered, rounded button with a text label and optional loading spinner.
  */

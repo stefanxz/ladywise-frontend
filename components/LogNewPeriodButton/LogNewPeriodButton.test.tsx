@@ -11,7 +11,7 @@ describe("LogNewPeriodButton", () => {
 
   it("renders label when not loading", () => {
     const { getByText } = render(
-      <LogNewPeriodButton color={baseColor} onPress={() => {}} />
+      <LogNewPeriodButton color={baseColor} onPress={() => {}} />,
     );
     expect(getByText("Log period ＋")).toBeTruthy();
   });
@@ -19,7 +19,7 @@ describe("LogNewPeriodButton", () => {
   it("renders ActivityIndicator when loading and blocks presses", () => {
     const onPress = jest.fn();
     const { queryByText, getByRole } = render(
-      <LogNewPeriodButton color={baseColor} onPress={onPress} loading />
+      <LogNewPeriodButton color={baseColor} onPress={onPress} loading />,
     );
 
     // The label should be replaced by the spinner
@@ -33,7 +33,7 @@ describe("LogNewPeriodButton", () => {
   it("does not call onPress when disabled", () => {
     const onPress = jest.fn();
     const { getByRole } = render(
-      <LogNewPeriodButton color={baseColor} onPress={onPress} disabled />
+      <LogNewPeriodButton color={baseColor} onPress={onPress} disabled />,
     );
 
     fireEvent.press(getByRole("button", { hidden: true }) as any);
@@ -43,7 +43,7 @@ describe("LogNewPeriodButton", () => {
   it("calls onPress when enabled", () => {
     const onPress = jest.fn();
     const { getByRole } = render(
-      <LogNewPeriodButton color={baseColor} onPress={onPress} />
+      <LogNewPeriodButton color={baseColor} onPress={onPress} />,
     );
 
     fireEvent.press(getByRole("button", { hidden: true }) as any);
