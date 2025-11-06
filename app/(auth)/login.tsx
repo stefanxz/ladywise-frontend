@@ -1,14 +1,19 @@
+import { AuthContext } from "@/app/_layout";
 import { AppBar } from "@/components/AppBarBackButton/AppBarBackButton";
 import { SocialSignOn } from "@/components/SocialSignOn/SocialSignOn";
 import { ThemedPressable } from "@/components/ThemedPressable/ThemedPressable";
 import { ThemedTextInput } from "@/components/ThemedTextInput/ThemedTextInput";
+import { loginUser } from "@/lib/api";
+import { storeAuthData } from "@/lib/auth";
 import { isEmailValid } from "@/lib/validation";
 import {
   incrementFailedLoginCount,
   resetFailedLoginCount,
 } from "@/utils/asyncStorageHelpers";
 import { Feather } from "@expo/vector-icons";
-import React, { useState } from "react";
+import axios from "axios";
+import { useRouter } from "expo-router";
+import React, { useContext, useState } from "react";
 import {
   KeyboardAvoidingView,
   Platform,
@@ -20,16 +25,19 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function LoginScreen() {
+  const router = useRouter();
+  const { setStatus } = useContext(AuthContext);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPw, setShowPw] = useState(false);
   const [emailError, setEmailError] = useState<string | null>(null);
+  const [formError, setFormError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleLogin = async () => {
-    // Reset any existing error
     setEmailError(null);
+    setFormError(null);
 
-    // Validation checks
     if (!email.trim()) {
       setEmailError("Please enter your email.");
       return;
@@ -38,20 +46,48 @@ export default function LoginScreen() {
       setEmailError("Please enter a valid email address.");
       return;
     }
-    if (password.trim().length === 0) return;
+    if (password.trim().length === 0) {
+      setFormError("Please enter your password.");
+      return;
+    }
 
     try {
-      // TODO: Replace with actual API call later
-      const isLoginSuccessful = false; // placeholder for now
+      setIsSubmitting(true);
+      const loginResponse = await loginUser({
+        email: email.trim(),
+        password: password.trim(),
+      });
 
-      if (isLoginSuccessful) {
-        await resetFailedLoginCount();
-      } else {
-        await incrementFailedLoginCount();
-      }
+      await storeAuthData(
+        loginResponse.token,
+        loginResponse.userId,
+        loginResponse.email,
+      );
+      await resetFailedLoginCount();
+      // Update session context immediately so navigation switches to the main stack.
+      setStatus("signedIn");
+      router.replace("/(main)/home");
     } catch (error) {
       await incrementFailedLoginCount();
+      let message = "We couldn't log you in. Please try again.";
+
+      if (axios.isAxiosError(error)) {
+        // Normalize API/network failures into human-readable messages.
+        const { response, code } = error;
+        const status = response?.status;
+        if (status === 401) {
+          message = "Invalid email or password";
+        } else if (!response || code === "ERR_NETWORK" || status === 404) {
+          message =
+            "We couldn't reach the server. Please check your connection.";
+        } else if (typeof response?.data === "string") {
+          message = response.data;
+        }
+      } 
+      setFormError(message);
       console.error("Login error:", error);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -105,6 +141,7 @@ export default function LoginScreen() {
                     onChangeText={(t: string) => {
                       setEmail(t);
                       if (emailError) setEmailError(null);
+                      if (formError) setFormError(null);
                     }}
                     placeholder="Your email"
                     placeholderTextColor="gray"
@@ -130,7 +167,10 @@ export default function LoginScreen() {
                   <View className="flex-row items-center">
                     <ThemedTextInput
                       value={password}
-                      onChangeText={setPassword}
+                      onChangeText={(value: string) => {
+                        setPassword(value);
+                        if (formError) setFormError(null);
+                      }}
                       placeholder="Your password"
                       placeholderTextColor="gray"
                       secureTextEntry={!showPw}
@@ -156,13 +196,21 @@ export default function LoginScreen() {
                   </Pressable>
                 </View>
 
+                {/* Error message */}
+                {formError && (
+                  <Text className="text-red-600 text-sm">{formError}</Text>
+                )}
+
                 {/* Log In Button */}
                 <ThemedPressable
                   label="Log In"
                   onPress={handleLogin}
                   disabled={
-                    !isEmailValid(email) || password.trim().length === 0
+                    !isEmailValid(email) ||
+                    password.trim().length === 0 ||
+                    isSubmitting
                   }
+                  loading={isSubmitting}
                   className="w-full bg-[#9B4F60]"
                 />
               </View>
