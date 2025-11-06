@@ -72,7 +72,7 @@ export default function LoginScreen() {
       let message = "We couldn't log you in. Please try again.";
 
       if (axios.isAxiosError(error)) {
-        // Normalise API/network failures into human-readable messages.
+        // Normalize API/network failures into human-readable messages.
         const { response, code } = error;
         const status = response?.status;
         if (status === 401) {
@@ -83,13 +83,7 @@ export default function LoginScreen() {
         } else if (typeof response?.data === "string") {
           message = response.data;
         }
-      } else if (
-        error instanceof Error &&
-        error.message.includes("Invalid email or password")
-      ) {
-        message = "Invalid email or password";
-      }
-
+      } 
       setFormError(message);
       console.error("Login error:", error);
     } finally {

@@ -19,17 +19,18 @@ export type AuthStatus = "VALID" | "EXPIRED" | "NO_TOKEN";
 let secureStoreAvailability: boolean | null = null;
 
 async function isSecureStoreAvailable(): Promise<boolean> {
-  if (secureStoreAvailability !== null) return secureStoreAvailability;
-  if (Platform.OS === "web") {
-    secureStoreAvailability = false;
-    return false;
+  if (secureStoreAvailability === null) {
+    if (Platform.OS === "web") {
+      secureStoreAvailability = false;
+    } else {
+      try {
+        secureStoreAvailability = await SecureStore.isAvailableAsync();
+      } catch {
+        secureStoreAvailability = false;
+      }
+    }
   }
-  try {
-    secureStoreAvailability = await SecureStore.isAvailableAsync();
-  } catch {
-    secureStoreAvailability = false;
-  }
-  return secureStoreAvailability;
+  return secureStoreAvailability ?? false;
 }
 
 async function persistSet(key: string, value: string, useSecureStore: boolean) {
@@ -93,7 +94,7 @@ export function isTokenValid(authData: { token: string | null } | null): AuthSta
   try {
     const payload = decodeJwtPayload(authData.token);
     if (!payload?.exp) {
-      return "EXPIRED";
+      return "NO_TOKEN";
     }
     return payload.exp * 1000 > Date.now() ? "VALID" : "EXPIRED";
   } catch {
