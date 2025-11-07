@@ -11,6 +11,7 @@ import { Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import TermsConditionsPopUp, {
   TermsConditionsPopUpRef,
+} from "@/components/TermsConditionsPopUp/TermsConditionsPopUp";
 
 //Main page for registering
 //Contains email, password, password confirmation, option for social sign up
