@@ -5,7 +5,7 @@ import { Pressable, Text, View } from "react-native";
 export function TermsConditionsCheckbox({
   checked,
   onToggle,
-  onShowModal,
+  openSheet,
 }: TermsConditionsCheckboxProps) {
   return (
     <View className="flex-row items-center">
@@ -23,10 +23,7 @@ export function TermsConditionsCheckbox({
 
       <Text className="ml-2 text-slate-950 text-sm">
         I agree with the{" "}
-        <Text
-          className="font-bold"
-          onPress={() => onShowModal && onShowModal()}
-        >
+        <Text className="font-bold" onPress={openSheet}>
           terms and conditions.
         </Text>
       </Text>
