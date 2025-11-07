@@ -3,13 +3,14 @@ import { EmailField } from "@/components/EmailField/EmailField";
 import { PasswordField } from "@/components/PasswordField/PasswordField";
 import { SocialSignOn } from "@/components/SocialSignOn/SocialSignOn";
 import { TermsConditionsCheckbox } from "@/components/TermsConditionsCheckbox/TermsConditionsCheckbox";
-import TermsConditionsPopUp from "@/components/TermsConditionsPopUp/TermsConditionsPopUp";
 import { ThemedPressable } from "@/components/ThemedPressable/ThemedPressable";
 import { isEmailValid, isPasswordValid } from "@/utils/validations";
 import { useRouter } from "expo-router";
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import TermsConditionsPopUp, {
+  TermsConditionsPopUpRef,
 
 //Main page for registering
 //Contains email, password, password confirmation, option for social sign up
@@ -20,14 +21,14 @@ export default function RegisterIndex() {
   const [termsConditions, setTermsConditions] = useState(false);
   const [registering, setRegistering] = useState(false);
 
-  const [showModal, setShowModal] = useState(false);
-
   const [emailError, setEmailError] = useState<string | null>(null);
   const [passwordError, setPasswordError] = useState<string | null>(null);
   const [confirmPasswordError, setConfirmPasswordError] = useState<
     string | null
   >(null);
   const [formError, setFormError] = useState<string | null>(null);
+
+  const termsModalRef = useRef<TermsConditionsPopUpRef>(null);
 
   const router = useRouter();
 
@@ -64,7 +65,7 @@ export default function RegisterIndex() {
 
     if (!isPasswordValid(password)) {
       setPasswordError(
-        "Password must contain at least 8 characters, 1 upper case, 1 lower case and 1 number (and no spaces).",
+        "Password must contain at least 8 characters, 1 upper case, 1 lower case and 1 number (and no spaces)."
       );
       hasError = true;
     }
@@ -142,7 +143,9 @@ export default function RegisterIndex() {
           <TermsConditionsCheckbox
             checked={termsConditions}
             onToggle={() => setTermsConditions((v) => !v)}
-            onShowModal={() => setShowModal(true)}
+            openSheet={() => {
+              termsModalRef.current?.open();
+            }}
           />
         </View>
 
@@ -172,14 +175,7 @@ export default function RegisterIndex() {
           }}
         />
       </View>
-      <TermsConditionsPopUp
-        visible={showModal}
-        onAccept={() => {
-          setShowModal(false);
-          setTermsConditions(true);
-        }}
-        onClose={() => setShowModal(false)}
-      />
+      <TermsConditionsPopUp ref={termsModalRef} />
     </SafeAreaView>
   );
 }
