@@ -12,7 +12,7 @@ import { createContext, useEffect, useMemo, useState } from "react";
 SplashScreen.preventAutoHideAsync().catch(() => {});
 
 // Represents the UI-facing session lifecycle (distinct from raw token status).
-type SessionStatus = "loading" | "signedIn" | "signedOut";
+type SessionStatus = "loading" | "signedIn" | "signedOut" | "onboarding";
 type AuthContextValue = {
   status: SessionStatus;
   setStatus: (status: SessionStatus) => void;

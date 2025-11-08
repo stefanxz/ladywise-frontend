@@ -1,13 +1,15 @@
+import { AuthContext } from "@/app/_layout";
 import { AppBar } from "@/components/AppBarBackButton/AppBarBackButton";
 import { EmailField } from "@/components/EmailField/EmailField";
 import { PasswordField } from "@/components/PasswordField/PasswordField";
 import { SocialSignOn } from "@/components/SocialSignOn/SocialSignOn";
 import { TermsConditionsCheckbox } from "@/components/TermsConditionsCheckbox/TermsConditionsCheckbox";
 import { ThemedPressable } from "@/components/ThemedPressable/ThemedPressable";
-import { registerUser } from "@/lib/api";
+import { loginUser, registerUser } from "@/lib/api";
+import { storeAuthData } from "@/lib/auth";
 import { isEmailValid, isPasswordValid } from "@/utils/validations";
 import { useRouter } from "expo-router";
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 //Main page for registering
@@ -18,6 +20,7 @@ export default function RegisterIndex() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [termsConditions, setTermsConditions] = useState(false);
   const [registering, setRegistering] = useState(false);
+  const { setStatus } = useContext(AuthContext);
 
   const [emailError, setEmailError] = useState<string | null>(null);
   const [passwordError, setPasswordError] = useState<string | null>(null);
@@ -77,8 +80,28 @@ export default function RegisterIndex() {
 
     setRegistering(true);
     try {
-      await registerUser({ email, password });
-      router.push("/(auth)/register/personal-details");
+      // Register the user here
+      await registerUser({
+        email: email.trim(),
+        password: password.trim(),
+      });
+      // If registration is successful, call Login immediately, which will surely succeed
+      // Returned with login call is the LoginResponse, which contains token information
+      // Note: currently the RegisterResponse only has userId and email, and missing token
+      const loginResponse = await loginUser({
+        email: email.trim(),
+        password: password.trim(),
+      });
+      // Store the returned token, userId and email in loginResponse in the SecureStore
+      // so that these can be checked and used in the next screen, personal-details
+      await storeAuthData(
+        loginResponse.token,
+        loginResponse.userId,
+        loginResponse.email,
+      );
+      // Update session context immediately so navigation switches to the main stack.
+      setStatus("onboarding");
+      router.replace("/(auth)/register/personal-details");
     } catch (e) {
       setFormError(e instanceof Error ? e.message : "Registration failed.");
     } finally {

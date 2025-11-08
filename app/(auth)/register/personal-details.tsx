@@ -1,26 +1,30 @@
+import { AuthContext } from "@/app/_layout"; // <-- use context
 import { AppBar } from "@/components/AppBarBackButton/AppBarBackButton";
 import { ThemedPressable } from "@/components/ThemedPressable/ThemedPressable";
 import { ThemedTextInput } from "@/components/ThemedTextInput/ThemedTextInput";
 import { useRouter } from "expo-router";
-import { useState } from "react";
+import React, { useCallback, useContext, useState } from "react";
 import { Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function RegisterPersDetails() {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
-  const router = useRouter(); // Navigation instance
-
-  // error messages
   const [firstNameError, setFirstNameError] = useState<string | null>(null);
   const [lastNameError, setLastNameError] = useState<string | null>(null);
 
+  const router = useRouter();
+  const { setStatus } = useContext(AuthContext);
+
+  const handleBack = useCallback(() => {
+    setStatus("signedIn");
+    router.replace("/(main)/home");
+  }, [router, setStatus]);
+
   const handlePressed = async () => {
-    // reset previous errors
     setFirstNameError(null);
     setLastNameError(null);
 
-    // checks for displaying respective error messages
     let hasError = false;
     if (!firstName.trim()) {
       setFirstNameError("Please enter your first name.");
@@ -30,16 +34,14 @@ export default function RegisterPersDetails() {
       setLastNameError("Please enter your last name.");
       hasError = true;
     }
-
     if (hasError) return;
-
     router.push("/onboarding/questionnaire-intro");
   };
 
   return (
     <SafeAreaView className="flex-1 bg-gray-50">
       <View className="w-full bg-gray-50" style={{ zIndex: 10, elevation: 10 }}>
-        <AppBar />
+        <AppBar onBackPress={handleBack} />
       </View>
 
       <View className="flex-1 w-full items-center font-inter-regular">
@@ -63,7 +65,6 @@ export default function RegisterPersDetails() {
           </View>
 
           <View className="space-y-4 gap-y-10 pt-10 w-80 self-center">
-            {/* First Name input text field*/}
             <View>
               <Text className="text-gray-700 mb-1 font-extrabold">
                 First Name
@@ -86,7 +87,6 @@ export default function RegisterPersDetails() {
               ) : null}
             </View>
 
-            {/* Last Name input text field*/}
             <View>
               <Text className="text-gray-700 mb-1 font-extrabold">
                 Last Name
@@ -109,7 +109,6 @@ export default function RegisterPersDetails() {
               ) : null}
             </View>
 
-            {/* Continue button */}
             <ThemedPressable
               label="Continue"
               onPress={handlePressed}
