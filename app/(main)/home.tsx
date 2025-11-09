@@ -8,8 +8,8 @@ import CalendarStrip, {DayData,} from "@/components/CalendarStrip/CalendarStrip"
 import PhaseCard from "@/components/PhaseCard/PhaseCard";
 import {LinearGradient} from "expo-linear-gradient";
 import { useTheme } from "@/context/ThemeContext";
-import { getCycleStatus } from "@/lib/api";
-import { CycleStatusDTO } from "@/lib/types/cycle";
+import { getCycleStatus, setAuthToken } from "@/lib/api";
+import { CycleStatusDTO, CyclePhase } from "@/lib/types/cycle";
 import { useFocusEffect } from "expo-router";
 import { useAuth } from "@/context/AuthContext";
 
@@ -63,6 +63,14 @@ const generateCalendarDays = (
   return days;
 };
 
+const formatPhaseName = (phase: CyclePhase): string => {
+  if (!phase) return "Loading Phase...";
+  // "MENSTRUAL" -> "Menstrual"
+  const formatted = phase.charAt(0).toUpperCase() + phase.slice(1).toLowerCase();
+  // "Menstrual" -> "Menstrual Phase"
+  return `${formatted} Phase`;
+};
+
 
 const MOCK_USER = {
   name: "Mirela Marcu",
@@ -79,7 +87,7 @@ const fetchRiskData = (): Promise<RiskData[]> => {
 };
 
 const home = () => {
-  const { token, isLoading } = useAuth();
+  const { token, isLoading: isAuthLoading } = useAuth();
   const { theme, setPhase } = useTheme();
   const [data, setData] = useState<RiskData[]>(MOCK_INSIGHTS);
   
@@ -93,7 +101,7 @@ const home = () => {
   useFocusEffect(
     useCallback(() => {
 
-      if (isLoading || !token) {
+      if (isAuthLoading || !token) {
         console.log("Waiting for auth...");
         return;
       }
@@ -113,14 +121,19 @@ const home = () => {
           setCalendarDays(generateCalendarDays(status.periodDates));
         } catch (err: any) {
           console.error("Failed to fetch cycle status:", err);
-          setError(err.message || "Failed to load data.");
+
+          if (err.response?.status === 404) {
+            setError("No cycle data found. Please set up your cycle.");
+          } else {
+            setError(err.message || "Failed to load data.");
+          }
         } finally {
           setLoading(false);
         }
       };
 
       fetchCycleData();
-    }, [setPhase, token, isLoading])
+    }, [setPhase, token, isAuthLoading])
   );
 
   const handleLogPeriod = () => console.log("Log period pressed");
@@ -134,7 +147,7 @@ const home = () => {
         colors={[theme.gradientStart, theme.gradientEnd]}
         style={{flex: 1, justifyContent: "center", alignItems: "center"}}
       >
-        <ActivityIndicator size="large" color={theme.highlight} />
+        <ActivityIndicator size="large" color={theme.highlight} testID="loading-indicator" />
       </LinearGradient>
     )
   }
@@ -163,7 +176,7 @@ const home = () => {
       <SafeAreaView style= {{ flex: 1, backgroundColor: "transparent"}}>
 
           <View className="flex-1 justify-between">
-            <View>
+            <View className="pt-10">
               <Header 
                 name={MOCK_USER.name}
                 avatarUrl={MOCK_USER.avatarUrl}
@@ -186,7 +199,7 @@ const home = () => {
               />
 
               <PhaseCard
-                phaseName={cycleStatus.currentPhase}
+                phaseName={formatPhaseName(cycleStatus.currentPhase)}
                 dayOfPhase={`Day ${cycleStatus.currentCycleDay}`}
                 subtitle={`${cycleStatus.daysUntilNextEvent} days until ${cycleStatus.nextEvent.toLowerCase()}`}
                 theme={theme}
