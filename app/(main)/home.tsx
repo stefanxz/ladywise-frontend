@@ -1,16 +1,17 @@
 import InsightsSection from "@/components/InsightsSection/InsightsSection";
 import { RiskData } from "@/lib/types/health";
-import React, { useEffect, useState } from "react";
-import { View, Text } from "react-native";
+import React, { useCallback, useEffect, useState } from "react";
+import { View, Text, ActivityIndicator } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import Header from "@/components/MainPageHeader/Header"; // Import the new component
+import Header from "@/components/MainPageHeader/Header"; 
 import CalendarStrip, {DayData,} from "@/components/CalendarStrip/CalendarStrip";
 import PhaseCard from "@/components/PhaseCard/PhaseCard";
 import {LinearGradient} from "expo-linear-gradient";
-
-
-// Import the use theme hook
 import { useTheme } from "@/context/ThemeContext";
+import { getCycleStatus } from "@/lib/api";
+import { CycleStatusDTO } from "@/lib/types/cycle";
+import { useFocusEffect } from "expo-router";
+import { useAuth } from "@/context/AuthContext";
 
 const MOCK_INSIGHTS: RiskData[] = [
   {
@@ -27,21 +28,33 @@ const MOCK_INSIGHTS: RiskData[] = [
   },
 ];
 
-const MOCK_CALENDAR_DAYS: DayData[] = [
-  { id: '1', dayNumber: '16', dayLetter: 'F', isCurrentDay: false, isPeriodDay: true },
-  { id: '2', dayNumber: '17', dayLetter: 'S', isCurrentDay: false, isPeriodDay: true },
-  { id: '3', dayNumber: '18', dayLetter: 'S', isCurrentDay: false, isPeriodDay: true },
-  // This one matches the design
-  { id: '4', dayNumber: '19', dayLetter: 'M', isCurrentDay: true },
-  { id: '5', dayNumber: '20', dayLetter: 'T', isCurrentDay: false },
-  { id: '6', dayNumber: '21', dayLetter: 'W', isCurrentDay: false },
-  { id: '7', dayNumber: '22', dayLetter: 'T', isCurrentDay: false },
-];
 
-const MOCK_CURRENT_PHASE = {
-  name: "Ovulation Phase",
-  dayOfPhase: "Day 14",
-  subtitle: "14 days until next period",
+const generateCalendarDays = (
+  periodDates: string[] = []
+): DayData[] => {
+  const today = new Date();
+  const days: DayData[] = [];
+  const periodSet = new Set(periodDates); // For fast lookup
+
+  // Generate 7 days (e.g., 3 before, today, 3 after)
+  for (let i = -3; i <= 3; i++) {
+    const date = new Date(today);
+    date.setDate(today.getDate() + i);
+
+    const dayNumber = date.getDate().toString();
+    const dayLetter = date.toLocaleDateString("en-US", { weekday: "narrow" });
+    const isCurrentDay = i === 0;
+    const dateString = date.toISOString().split("T")[0]; // "YYYY-MM-DD"
+
+    days.push({
+      id: dateString,
+      dayNumber,
+      dayLetter,
+      isCurrentDay,
+      isPeriodDay: periodSet.has(dateString),
+    });
+  }
+  return days;
 };
 
 
@@ -60,26 +73,76 @@ const fetchRiskData = (): Promise<RiskData[]> => {
 };
 
 const home = () => {
-  useEffect(() => {}, []);
+  const { token, isLoading } = useAuth();
   const { theme, setPhase } = useTheme();
   const [data, setData] = useState<RiskData[]>(MOCK_INSIGHTS);
   
+  const [cycleStatus, setCycleStatus] = useState<CycleStatusDTO | null>(null);
+  const [calendarDays, setCalendarDays] = useState<DayData[]>(
+    generateCalendarDays()
+  );  
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleHelpPress = () => {
-    console.log("Help pressed");
+  useFocusEffect(
+    useCallback(() => {
+
+      if (isLoading || !token) {
+        return;
+      }
+      const fetchCycleData = async () => {
+        try {
+          setLoading(true);
+          setError(null);
+
+          const status = await getCycleStatus();
+          setCycleStatus(status);
+
+          // Update theme based on backend data
+          setPhase(status.currentPhase.toLowerCase() as any);
+
+          // Generate calendar days with period data
+          setCalendarDays(generateCalendarDays(status.predictedPeriodDates));
+        } catch (err: any) {
+          console.error("Failed to fetch cycle status:", err);
+          setError(err.message || "Failed to load data.");
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      fetchCycleData();
+    }, [setPhase])
+  );
+
+  const handleLogPeriod = () => console.log("Log period pressed");
+  const handleHelpPress = () => console.log("Help pressed");
+  const handleDayPress = (dayId: string) => console.log("Pressed day: ", dayId);
+  const handleCardPress = () => console.log("Phase Card Pressed");
+
+  if (loading) {
+    return (
+      <LinearGradient
+        colors={[theme.gradientStart, theme.gradientEnd]}
+        style={{flex: 1, justifyContent: "center", alignItems: "center"}}
+      >
+        <ActivityIndicator size="large" color={theme.highlight} />
+      </LinearGradient>
+    )
   }
 
-  const handleDayPress = (dayId: string) => {
-    console.log("Pressed day: ", dayId);
-  }
-
-  const handleLogPeriod = () => {
-    console.log("Log Period Pressed");
-  };
-
-  const handleCardPress = () => {
-    console.log("Phase Card Pressed");
-  };
+  if (error || !cycleStatus) {
+    return (
+      <LinearGradient
+        colors={["#FFFFFF", "#F0F0F0"]}
+        style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+      >
+        <Text className="text-lg text-red-500 font-bold mb-4">
+          Error: {error || "Could not load cycle data."}
+        </Text>
+      </LinearGradient>
+    );
+  } 
 
   return (
     
@@ -101,19 +164,23 @@ const home = () => {
               />
 
               <Text className="text-base text-gray-500 px-5 mb-5 pt-5">
-                August 19th, 2024
+                {new Date().toLocaleDateString("en-US", {
+                  month: "long",
+                  day: "numeric",
+                  year: "numeric",
+                })}
               </Text>
 
               <CalendarStrip
-                days={MOCK_CALENDAR_DAYS}
+                days={calendarDays}
                 themeColor={theme.highlight}
                 onDayPress={handleDayPress}
               />
 
               <PhaseCard
-                phaseName={MOCK_CURRENT_PHASE.name}
-                dayOfPhase={MOCK_CURRENT_PHASE.dayOfPhase}
-                subtitle={MOCK_CURRENT_PHASE.subtitle}
+                phaseName={cycleStatus.currentPhase}
+                dayOfPhase={`Day ${cycleStatus.currentCycleDay}`}
+                subtitle={`${cycleStatus.daysUntilNextEvent} days until ${cycleStatus.nextEvent}`}
                 theme={theme}
                 onLogPeriodPress={handleLogPeriod}
                 onCardPress={handleCardPress}

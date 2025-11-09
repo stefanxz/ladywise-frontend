@@ -1,11 +1,15 @@
 import { Stack, Redirect } from "expo-router";
 import { useContext } from "react";
-import { AuthContext } from "../_layout"; // adjust relative path if needed
+import { useAuth } from "@/context/AuthContext";
 
 export default function AuthLayout() {
-  const { status } = useContext(AuthContext);
+  const { token, isLoading } = useAuth();
 
-  if (status === "signedIn") {
+  if (isLoading) {
+    return null;
+  }
+
+  if (token) {
     return <Redirect href="/(main)/home" />;
   }
 

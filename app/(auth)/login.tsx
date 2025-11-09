@@ -1,10 +1,9 @@
-import { AuthContext } from "@/app/_layout";
+import { useAuth } from "@/context/AuthContext";
 import { AppBar } from "@/components/AppBarBackButton/AppBarBackButton";
 import { SocialSignOn } from "@/components/SocialSignOn/SocialSignOn";
 import { ThemedPressable } from "@/components/ThemedPressable/ThemedPressable";
 import { ThemedTextInput } from "@/components/ThemedTextInput/ThemedTextInput";
 import { loginUser } from "@/lib/api";
-import { storeAuthData } from "@/lib/auth";
 import { isEmailValid } from "@/lib/validation";
 import {
   incrementFailedLoginCount,
@@ -26,7 +25,8 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function LoginScreen() {
   const router = useRouter();
-  const { setStatus } = useContext(AuthContext);
+  const { signIn } = useAuth();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPw, setShowPw] = useState(false);
@@ -58,14 +58,15 @@ export default function LoginScreen() {
         password: password.trim(),
       });
 
-      await storeAuthData(
-        loginResponse.token,
-        loginResponse.userId,
-        loginResponse.email,
-      );
       await resetFailedLoginCount();
       // Update session context immediately so navigation switches to the main stack.
-      setStatus("signedIn");
+
+      await signIn(
+        loginResponse.token,
+        loginResponse.userId,
+        loginResponse.email
+      );
+      
       router.replace("/(main)/home");
     } catch (error) {
       await incrementFailedLoginCount();
