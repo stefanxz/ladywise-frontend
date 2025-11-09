@@ -7,7 +7,7 @@ type ThemeContextData = {
 };
 
 const ThemeContext = createContext<ThemeContextData>({
-  theme: themes.ovulation,
+  theme: themes.neutral,
   setPhase: () => {}, // Default empty function
 });
 

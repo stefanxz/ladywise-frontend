@@ -123,8 +123,13 @@ const home = () => {
           console.error("Failed to fetch cycle status:", err);
 
           if (err.response?.status === 404) {
-            setError("No cycle data found. Please set up your cycle.");
+            console.log("No cycle data found (user needs setup).");
+
+            setPhase("neutral" as any);
+
+            setCalendarDays(generateCalendarDays([]));
           } else {
+            console.error("Error fetching cycle", err)
             setError(err.message || "Failed to load data.");
           }
         } finally {
@@ -152,7 +157,7 @@ const home = () => {
     )
   }
 
-  if (error || !cycleStatus) {
+  if (error) {
     return (
       <LinearGradient
         colors={["#FFFFFF", "#F0F0F0"]}
@@ -199,12 +204,12 @@ const home = () => {
               />
 
               <PhaseCard
-                phaseName={formatPhaseName(cycleStatus.currentPhase)}
-                dayOfPhase={`Day ${cycleStatus.currentCycleDay}`}
-                subtitle={`${cycleStatus.daysUntilNextEvent} days until ${cycleStatus.nextEvent.toLowerCase()}`}
+                phaseName={cycleStatus ? formatPhaseName(cycleStatus.currentPhase) : "Hello!"}
+                dayOfPhase={cycleStatus ? `Day ${cycleStatus.currentCycleDay}` : "Ready to start?"}
+                subtitle={cycleStatus ? `${cycleStatus.daysUntilNextEvent} days until ${cycleStatus.nextEvent.toLowerCase()}` : "Log your first period to begin tracking."}
                 theme={theme}
                 onLogPeriodPress={handleLogPeriod}
-                onCardPress={handleCardPress}
+                onCardPress={() => {}}
               />
             </ View>
             <InsightsSection insights={data}></InsightsSection>
