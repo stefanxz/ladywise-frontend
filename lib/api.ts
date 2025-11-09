@@ -5,13 +5,24 @@ import type {
   RegisterPayload,
   RegisterResponse,
 } from "./types";
-import { RiskData } from "./types/health";
+import { CycleStatusDTO } from "./types/cycle";
+import { RiskData } from "./types/risks";
+import { StoredAuthData } from "./auth";
+import { ApiRiskResponse } from "./types/risks";
 
 export const api = axios.create({
   baseURL: process.env.EXPO_PUBLIC_API_URL,
   timeout: 10000,
   headers: { "Content-Type": "application/json" },
 });
+
+export const setAuthToken = (token: string | null) => {
+  if (token) {
+    api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+  } else {
+    delete api.defaults.headers.common["Authorization"];
+  }
+};
 
 api.interceptors.response.use(
   (res) => res,
@@ -27,8 +38,6 @@ api.interceptors.response.use(
     return Promise.reject(error);
   }
 );
-type UserPayload = { authToken: string, userId: string}
-
 
 // register new user by sending their credentials to the backend API
 // uses the base URL from .env + '/api/auth/register'
@@ -42,13 +51,24 @@ export async function loginUser(payload: LoginPayload) {
   const { data } = await api.post<LoginResponse>("/api/auth/login", payload);
   return data;
 }
-// get the risk indicators data
 
- export async function getRiskData(payload: UserPayload): Promise<RiskData> {
+export async function getRiskData(
+  token: string,
+  userId: string
+): Promise<ApiRiskResponse> { // <-- Use the correct response type
   const config = {
-    params: { userId: payload.userId },
-    headers: { Authorization: `Bearer ${payload.authToken}` },
+    params: { userId },
+    headers: { Authorization: `Bearer ${token}` },
   };
-  const { data } = await api.get<RiskData>("/api/getRiskData", config);
+  // Use the correct generic type
+  const { data } = await api.get<ApiRiskResponse>(
+    `/api/users/${userId}/risks`,
+    config
+  );
+  return data; // This returns: { thrombosisRisk: 1, anemiaRisk: 2 }
+}
+
+export async function getCycleStatus() {
+  const { data } = await api.get<CycleStatusDTO>("/api/cycle/status");
   return data;
- }
+}

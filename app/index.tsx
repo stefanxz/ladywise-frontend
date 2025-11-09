@@ -1,16 +1,16 @@
 import { Redirect, useRootNavigationState } from "expo-router";
 import { useContext } from "react";
-import { AuthContext } from "@/app/_layout";
+import { useAuth } from "@/context/AuthContext";
 
 export default function RootIndex() {
   const nav = useRootNavigationState();
-  const { status } = useContext(AuthContext);
+  const { token, isLoading } = useAuth();
 
-  if (!nav?.key || status === "loading") {
+  if (!nav?.key || isLoading) {
     return null;
   }
 
-  return status === "signedIn" ? (
+  return token ? (
     <Redirect href="/(main)/home" />
   ) : (
     <Redirect href="/(auth)/landing" />

@@ -1,58 +1,87 @@
-import { RiskData } from "@/lib/types/health"; // Assuming this path
-import { render, screen } from "@testing-library/react-native";
 import React from "react";
-import InsightsSection from "./InsightsSection"; // Adjust path as needed
+import { render, screen } from "@testing-library/react-native";
+import InsightsSection from "./InsightsSection";
+import { RiskData } from "@/lib/types/risks";
 
-// Mock the child component
 jest.mock("../RiskCard/RiskCard", () => {
-  // We need a mock that can be identified and inspected.
-  // Rendering the 'title' prop helps verify the correct data is passed.
+  // Use a requireActual mock to get the props but render a simple View
   const { View, Text } = require("react-native");
-  return (props: { title: string }) => (
+  return (props: any) => (
     <View testID="mock-risk-card">
       <Text>{props.title}</Text>
     </View>
   );
 });
 
-// We must define mock data. This structure is deduced from your components.
-const mockInsights: RiskData[] = [
-  { id: "1", title: "Risk 1", level: "Low", description: "Desc 1" },
-  { id: "2", title: "Risk 2", level: "Medium", description: "Desc 2" },
-  { id: "3", title: "Risk 3", level: "High", description: "Desc 3" },
+// Mock data for the success case
+const MOCK_INSIGHTS: RiskData[] = [
+  {
+    id: "1",
+    title: "Thrombosis Risk",
+    level: "Medium",
+    description: "Some factors may raise clotting risk.",
+  },
+  {
+    id: "2",
+    title: "Anemia Risk",
+    level: "Low",
+    description: "Iron levels appear sufficient.",
+  },
 ];
 
 describe("InsightsSection", () => {
-  it("should render the section title", () => {
-    render(<InsightsSection insights={[]} />);
-    expect(screen.getByText("Your insights")).toBeTruthy();
+  // Test Case 1: The new loading state
+  it("renders an ActivityIndicator when isLoading is true", () => {
+    render(<InsightsSection insights={[]} isLoading={true} />);
+
+    // Query by the testID you just added
+    expect(screen.getByTestId("loading-indicator")).toBeTruthy();
+
+    // Check that data-related elements are NOT visible
+    expect(screen.queryByText("No insights available.")).toBeNull();
+    expect(screen.queryByTestId("mock-risk-card")).toBeNull();
   });
 
-  it("should render no risk cards if insights are empty", () => {
-    render(<InsightsSection insights={[]} />);
+  // Test Case 2: The empty state (after loading)
+  it("renders the empty message when isLoading is false and insights are empty", () => {
+    render(<InsightsSection insights={[]} isLoading={false} />);
 
-    // queryAllBy... returns [] if not found, avoiding an error
-    expect(screen.queryAllByTestId("mock-risk-card")).toHaveLength(0);
+    // Check that the empty message is visible
+    expect(screen.getByText("No insights available.")).toBeTruthy();
+
+    // Update the query to match the new testID
+    expect(screen.queryByTestId("loading-indicator")).toBeNull();
+    expect(screen.queryByTestId("mock-risk-card")).toBeNull();
   });
 
-  it("should render one risk card if one insight is provided", () => {
-    render(<InsightsSection insights={[mockInsights[0]]} />);
+  // Test Case 3: The data state (after loading)
+  it("renders RiskCards when isLoading is false and insights are provided", () => {
+    render(<InsightsSection insights={MOCK_INSIGHTS} isLoading={false} />);
 
-    expect(screen.getAllByTestId("mock-risk-card")).toHaveLength(1);
-    expect(screen.getByText("Risk 1")).toBeTruthy(); // Verify correct data
-  });
-
-  // This is the key test for your slice(0, 2) logic
-  it("should render only the first two risk cards if three or more are provided", () => {
-    render(<InsightsSection insights={mockInsights} />);
-
+    // Check that the correct cards are rendered
     expect(screen.getAllByTestId("mock-risk-card")).toHaveLength(2);
+    expect(screen.getByText("Thrombosis Risk")).toBeTruthy();
+    expect(screen.getByText("Anemia Risk")).toBeTruthy();
 
-    // Verify it rendered the *correct* two
-    expect(screen.getByText("Risk 1")).toBeTruthy();
-    expect(screen.getByText("Risk 2")).toBeTruthy();
+    // Update the query to match the new testID
+    expect(screen.queryByTestId("loading-indicator")).toBeNull();
+    expect(screen.queryByText("No insights available.")).toBeNull();
+  });
 
-    // Verify the third is excluded
-    expect(screen.queryByText("Risk 3")).toBeNull();
+  it("renders only the first two insights if more are provided", () => {
+    const threeInsights: RiskData[] = [
+      ...MOCK_INSIGHTS,
+      {
+        id: "3",
+        title: "Third Risk",
+        level: "High",
+        description: "A third item.",
+      },
+    ];
+    render(<InsightsSection insights={threeInsights} isLoading={false} />);
+
+    // Your component logic has .slice(0, 2), so it should only render two.
+    expect(screen.getAllByTestId("mock-risk-card")).toHaveLength(2);
+    expect(screen.queryByText("Third Risk")).toBeNull();
   });
 });

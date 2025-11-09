@@ -1,13 +1,16 @@
-import { AuthContext } from "@/app/_layout";
-import { Colors } from "@/constants/colors";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Redirect, Tabs } from "expo-router";
-import { useContext } from "react";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { Colors } from "@/constants/colors";
+import { useAuth } from "@/context/AuthContext";
 
 export default function HomeLayout() {
-  const { status } = useContext(AuthContext);
+  const { token, isLoading } = useAuth();
 
-  if (status !== "signedIn") {
+  if (isLoading) {
+    return null;
+  }
+
+  if (!token) {
     return <Redirect href="/(auth)/landing" />;
   }
 
