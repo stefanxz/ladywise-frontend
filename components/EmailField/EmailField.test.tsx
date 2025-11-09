@@ -5,7 +5,7 @@ import { EmailField } from "@/components/EmailField/EmailField";
 import { fireEvent, render } from "@testing-library/react-native";
 import React from "react";
 
-jest.mock("@expo/vector-icons"); 
+jest.mock("@expo/vector-icons");
 
 describe("EmailField", () => {
   it("renders label and placeholder", () => {
@@ -16,7 +16,7 @@ describe("EmailField", () => {
         onChangeText={() => {}}
         placeholder="Your email"
         testID="email-input"
-      />
+      />,
     );
     expect(getByText("Email")).toBeTruthy();
     expect(getByPlaceholderText("Your email")).toBeTruthy();
@@ -31,7 +31,7 @@ describe("EmailField", () => {
         onChangeText={onChangeText}
         placeholder="Your email"
         testID="email-input"
-      />
+      />,
     );
     fireEvent.changeText(getByTestId("email-input"), "a@b.com");
     expect(onChangeText).toHaveBeenCalledWith("a@b.com");
@@ -45,13 +45,13 @@ describe("EmailField", () => {
         onChangeText={() => {}}
         error="Invalid email"
         testID="email-input"
-      />
+      />,
     );
     expect(getByText("Invalid email")).toBeTruthy();
     // RN Testing Library allows prop assertions; className is passed down.
     expect(getByTestId("email-input")).toHaveProp(
       "className",
-      expect.stringContaining("border-red-500")
+      expect.stringContaining("border-red-500"),
     );
   });
 });

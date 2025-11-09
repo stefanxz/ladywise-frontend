@@ -1,12 +1,20 @@
+import { AuthContext } from "@/app/_layout";
 import { AppBar } from "@/components/AppBarBackButton/AppBarBackButton";
+import { SocialSignOn } from "@/components/SocialSignOn/SocialSignOn";
 import { ThemedPressable } from "@/components/ThemedPressable/ThemedPressable";
 import { ThemedTextInput } from "@/components/ThemedTextInput/ThemedTextInput";
+import { loginUser } from "@/lib/api";
+import { storeAuthData } from "@/lib/auth";
 import { isEmailValid } from "@/lib/validation";
-import { Feather } from "@expo/vector-icons";
-import { Stack } from "expo-router";
-import React, { useState } from "react";
 import {
-  Image,
+  incrementFailedLoginCount,
+  resetFailedLoginCount,
+} from "@/utils/asyncStorageHelpers";
+import { Feather } from "@expo/vector-icons";
+import { isAxiosError } from "axios";
+import { useRouter } from "expo-router";
+import React, { useContext, useState } from "react";
+import {
   KeyboardAvoidingView,
   Platform,
   Pressable,
@@ -15,19 +23,21 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { SocialSignOn } from "@/components/SocialSignOn/SocialSignOn";
 
 export default function LoginScreen() {
+  const router = useRouter();
+  const { setStatus } = useContext(AuthContext);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPw, setShowPw] = useState(false);
   const [emailError, setEmailError] = useState<string | null>(null);
+  const [formError, setFormError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleLogin = () => {
-    // Reset any existing error
+  const handleLogin = async () => {
     setEmailError(null);
+    setFormError(null);
 
-    // Validation checks
     if (!email.trim()) {
       setEmailError("Please enter your email.");
       return;
@@ -36,16 +46,53 @@ export default function LoginScreen() {
       setEmailError("Please enter a valid email address.");
       return;
     }
-    if (password.trim().length === 0) return;
+    if (password.trim().length === 0) {
+      setFormError("Please enter your password.");
+      return;
+    }
 
-    // Placeholder action
-    console.log("Log in pressed");
+    try {
+      setIsSubmitting(true);
+      const loginResponse = await loginUser({
+        email: email.trim(),
+        password: password.trim(),
+      });
+
+      await storeAuthData(
+        loginResponse.token,
+        loginResponse.userId,
+        loginResponse.email,
+      );
+      await resetFailedLoginCount();
+      // Update session context immediately so navigation switches to the main stack.
+      setStatus("signedIn");
+      router.replace("/(main)/home");
+    } catch (error) {
+      await incrementFailedLoginCount();
+      let message = "We couldn't log you in. Please try again.";
+
+      if (isAxiosError(error)) {
+        // Normalize API/network failures into human-readable messages.
+        const { response, code } = error;
+        const status = response?.status;
+        if (status === 401) {
+          message = "Invalid email or password";
+        } else if (!response || code === "ERR_NETWORK" || status === 404) {
+          message =
+            "We couldn't reach the server. Please check your connection.";
+        } else if (typeof response?.data === "string") {
+          message = response.data;
+        }
+      }
+      setFormError(message);
+      console.error("Login error:", error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
     <>
-      <Stack.Screen options={{ headerShown: false, title: "Log In" }} />
-
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         className="flex-1 bg-[#FDFBFB]"
@@ -54,14 +101,17 @@ export default function LoginScreen() {
           contentContainerStyle={{ flexGrow: 1, justifyContent: "center" }}
           keyboardShouldPersistTaps="handled"
         >
-          <SafeAreaView className="flex-1 bg-background px-6">
+          <SafeAreaView className="flex-1 bg-background">
             {/* Back Button */}
-            <View className="pt-4">
+            <View
+              className="w-full bg-gray-50"
+              style={{ zIndex: 10, elevation: 10 }}
+            >
               <AppBar />
             </View>
 
             {/* Main content container */}
-            <View className="flex-1 justify-between pt-12 pb-10">
+            <View className="flex-1 justify-between pt-12 mb-5">
               {/* Welcome Section */}
               <View className="px-16">
                 <Text className="text-3xl font-bold text-brand text-left">
@@ -80,7 +130,7 @@ export default function LoginScreen() {
               </View>
 
               {/* Form Section */}
-              <View className="space-y-4 mt-6 w-full px-16 self-center">
+              <View className="gap-y-8 w-full px-16 self-center">
                 {/* Email */}
                 <View>
                   <Text className="text-gray-700 mb-1 font-extrabold">
@@ -91,6 +141,7 @@ export default function LoginScreen() {
                     onChangeText={(t: string) => {
                       setEmail(t);
                       if (emailError) setEmailError(null);
+                      if (formError) setFormError(null);
                     }}
                     placeholder="Your email"
                     placeholderTextColor="gray"
@@ -116,7 +167,10 @@ export default function LoginScreen() {
                   <View className="flex-row items-center">
                     <ThemedTextInput
                       value={password}
-                      onChangeText={setPassword}
+                      onChangeText={(value: string) => {
+                        setPassword(value);
+                        if (formError) setFormError(null);
+                      }}
                       placeholder="Your password"
                       placeholderTextColor="gray"
                       secureTextEntry={!showPw}
@@ -142,14 +196,22 @@ export default function LoginScreen() {
                   </Pressable>
                 </View>
 
+                {/* Error message */}
+                {formError && (
+                  <Text className="text-red-600 text-sm">{formError}</Text>
+                )}
+
                 {/* Log In Button */}
                 <ThemedPressable
                   label="Log In"
                   onPress={handleLogin}
                   disabled={
-                    !isEmailValid(email) || password.trim().length === 0
+                    !isEmailValid(email) ||
+                    password.trim().length === 0 ||
+                    isSubmitting
                   }
-                  className="mt-6 w-full bg-[#9B4F60]"
+                  loading={isSubmitting}
+                  className="w-full bg-[#9B4F60]"
                 />
               </View>
 
