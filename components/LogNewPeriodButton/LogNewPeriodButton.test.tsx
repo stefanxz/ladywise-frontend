@@ -1,23 +1,31 @@
-//Covers loading, disabled, and press handling
-//(ThemedPressable disables itself when disabled or loading is true, and shows ActivityIndicator when loading.)
-import { ThemedPressable } from "@/components/ThemedPressable/ThemedPressable";
+// Covers loading, disabled, and press handling
+// (LogNewPeriodButton disables itself when disabled or loading is true,
+//  and shows ActivityIndicator when loading.)
+
+import LogNewPeriodButton from "@/components/LogNewPeriodButton/LogNewPeriodButton";
 import { fireEvent, render } from "@testing-library/react-native";
 import React from "react";
 
-describe("ThemedPressable", () => {
+describe("LogNewPeriodButton", () => {
+  const baseColor = "#3b82f6";
+
   it("renders label when not loading", () => {
     const { getByText } = render(
-      <ThemedPressable label="Go" onPress={() => {}} />,
+      <LogNewPeriodButton color={baseColor} onPress={() => {}} />,
     );
-    expect(getByText("Go")).toBeTruthy();
+    expect(getByText("Log period＋")).toBeTruthy();
   });
 
   it("renders ActivityIndicator when loading and blocks presses", () => {
     const onPress = jest.fn();
     const { queryByText, getByRole } = render(
-      <ThemedPressable label="Go" onPress={onPress} loading />,
+      <LogNewPeriodButton color={baseColor} onPress={onPress} loading />,
     );
-    expect(queryByText("Go")).toBeNull();
+
+    // The label should be replaced by the spinner
+    expect(queryByText("Log period＋")).toBeNull();
+
+    // Press should not trigger onPress while loading
     fireEvent.press(getByRole("button", { hidden: true }) as any);
     expect(onPress).not.toHaveBeenCalled();
   });
@@ -25,8 +33,9 @@ describe("ThemedPressable", () => {
   it("does not call onPress when disabled", () => {
     const onPress = jest.fn();
     const { getByRole } = render(
-      <ThemedPressable label="Go" onPress={onPress} disabled />,
+      <LogNewPeriodButton color={baseColor} onPress={onPress} disabled />,
     );
+
     fireEvent.press(getByRole("button", { hidden: true }) as any);
     expect(onPress).not.toHaveBeenCalled();
   });
@@ -34,8 +43,9 @@ describe("ThemedPressable", () => {
   it("calls onPress when enabled", () => {
     const onPress = jest.fn();
     const { getByRole } = render(
-      <ThemedPressable label="Go" onPress={onPress} />,
+      <LogNewPeriodButton color={baseColor} onPress={onPress} />,
     );
+
     fireEvent.press(getByRole("button", { hidden: true }) as any);
     expect(onPress).toHaveBeenCalled();
   });
