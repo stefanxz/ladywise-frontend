@@ -38,7 +38,7 @@ const DayItem : React.FC<{
     dynamicStyles.borderWidth = 1.5; // Make the border clearly stronger
     // Apply a transparent red tint unless it's the current day (which has its own background)
     if (!isCurrent) {
-      dynamicStyles.backgroundColor = 'rgba(143, 52, 52, 0.1)'; // 10% opaque red
+      dynamicStyles.backgroundColor = 'rgba(219, 136, 136, 0.26)'; // 10% opaque red
     }
   }
 
