@@ -28,9 +28,9 @@ const MOCK_INSIGHTS: RiskData[] = [
 ];
 
 const MOCK_CALENDAR_DAYS: DayData[] = [
-  { id: '1', dayNumber: '16', dayLetter: 'F', isCurrentDay: false },
-  { id: '2', dayNumber: '17', dayLetter: 'S', isCurrentDay: false },
-  { id: '3', dayNumber: '18', dayLetter: 'S', isCurrentDay: false },
+  { id: '1', dayNumber: '16', dayLetter: 'F', isCurrentDay: false, isPeriodDay: true },
+  { id: '2', dayNumber: '17', dayLetter: 'S', isCurrentDay: false, isPeriodDay: true },
+  { id: '3', dayNumber: '18', dayLetter: 'S', isCurrentDay: false, isPeriodDay: true },
   // This one matches the design
   { id: '4', dayNumber: '19', dayLetter: 'M', isCurrentDay: true },
   { id: '5', dayNumber: '20', dayLetter: 'T', isCurrentDay: false },

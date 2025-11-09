@@ -12,7 +12,7 @@ const ThemeContext = createContext<ThemeContextData>({
 });
 
 export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
-  const [currentTheme, setCurrentTheme] = useState<Theme>(themes.follicular);
+  const [currentTheme, setCurrentTheme] = useState<Theme>(themes.ovulation);
 
   // This is the function our app will call to change the theme
   const setPhase = (

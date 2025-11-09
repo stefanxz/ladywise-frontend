@@ -31,7 +31,7 @@ export const themes: AppThemes = {
   menstrual: {
     gradientStart: '#f3c1c1ff',
     gradientEnd: '#FEEEEE', 
-    cardColor: "#f3c1c1ff",
+    cardColor: "#fac0c053",
     highlight: '#F9ACAC',
     highlightTextColor: '#000000',
     button: '#D90000',

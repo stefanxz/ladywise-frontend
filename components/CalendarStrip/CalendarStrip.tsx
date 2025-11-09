@@ -1,11 +1,13 @@
 import { View, Text, TouchableOpacity, FlatList } from 'react-native'
 import React from 'react'
+import { themes } from '@/lib/themes';
 
 export type DayData = {
     id: string;
     dayNumber: string;
     dayLetter: string;
     isCurrentDay: boolean;
+    isPeriodDay?: boolean;
 }
 
 type CalendarStripProps = {
@@ -20,10 +22,31 @@ const DayItem : React.FC<{
     onPress: () => void;
 }> = ({ item, themeColor, onPress}) => {
   const isCurrent = item.isCurrentDay;
+  const isPeriod = item.isPeriodDay;
 
-  const containerClasses = isCurrent
-      ? `rounded-xl py-2 px-3 items-center` // Current day
-      : `py-2 px-3 items-center`; // Other days (no shape)
+  const containerClasses = `rounded-xl py-2 px-3 items-center`;
+
+  const dynamicStyles: { backgroundColor: string; borderColor: string; borderWidth: number } = {
+    backgroundColor: 'transparent',
+    borderColor: 'transparent',
+    borderWidth: 0, 
+  };
+
+  // If its a period day pu t the red border and transparent red tint
+  if (isPeriod) {
+    dynamicStyles.borderColor = themes.menstrual.highlight; // Strong red border
+    dynamicStyles.borderWidth = 1.5; // Make the border clearly stronger
+    // Apply a transparent red tint unless it's the current day (which has its own background)
+    if (!isCurrent) {
+      dynamicStyles.backgroundColor = 'rgba(143, 52, 52, 0.1)'; // 10% opaque red
+    }
+  }
+
+  if (isCurrent) {
+    dynamicStyles.backgroundColor = themeColor;
+    dynamicStyles.borderColor = themeColor;
+    dynamicStyles.borderWidth = 3;
+  }
 
 
   const numberClasses = isCurrent
@@ -38,7 +61,7 @@ const DayItem : React.FC<{
     <TouchableOpacity
       onPress={onPress}
       className={containerClasses}
-      style={isCurrent ? { backgroundColor: themeColor } : {}}>
+      style={dynamicStyles}>
       <Text className={numberClasses}>{item.dayNumber}</Text>
       <Text className={`mt-0.5 ${letterClasses}`}>{item.dayLetter}</Text>
     </TouchableOpacity>
