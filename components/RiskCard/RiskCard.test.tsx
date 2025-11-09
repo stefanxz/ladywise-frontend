@@ -24,7 +24,7 @@ describe("RiskCard", () => {
     ["High", "text-red-500"],
   ])("should apply correct color for %s level", (level, expectedClass) => {
     render(
-      <RiskCard {...baseProps} level={level as "Low" | "Medium" | "High"} />
+      <RiskCard {...baseProps} level={level as "Low" | "Medium" | "High"} />,
     );
 
     const levelElement = screen.getByText(level);

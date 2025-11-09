@@ -14,24 +14,24 @@ import { View } from "react-native";
 SplashScreen.preventAutoHideAsync().catch(() => {});
 
 function AppContent() {
-   const { isLoading: isAuthLoading } = useAuth();
-   const [fontsLoaded] = useFonts({
-      Aclonica_400Regular,
-      Inter_400Regular,
-      Inter_600SemiBold,
-   })
+  const { isLoading: isAuthLoading } = useAuth();
+  const [fontsLoaded] = useFonts({
+    Aclonica_400Regular,
+    Inter_400Regular,
+    Inter_600SemiBold,
+  });
 
-   useEffect(() => {
-      if (fontsLoaded && !isAuthLoading) {
-        SplashScreen.hideAsync().catch(() => {});
-      }
-   }, [fontsLoaded, isAuthLoading]);
+  useEffect(() => {
+    if (fontsLoaded && !isAuthLoading) {
+      SplashScreen.hideAsync().catch(() => {});
+    }
+  }, [fontsLoaded, isAuthLoading]);
 
-   if (!fontsLoaded || isAuthLoading) {
-      return null;
-   }
+  if (!fontsLoaded || isAuthLoading) {
+    return null;
+  }
 
-   return <Slot />;
+  return <Slot />;
 }
 
 export default function RootLayout() {

@@ -1,35 +1,39 @@
-import { View, Text, TouchableOpacity, FlatList } from 'react-native'
-import React from 'react'
-import { themes } from '@/lib/themes';
+import { View, Text, TouchableOpacity, FlatList } from "react-native";
+import React from "react";
+import { themes } from "@/lib/themes";
 
 export type DayData = {
-    id: string;
-    dayNumber: string;
-    dayLetter: string;
-    isCurrentDay: boolean;
-    isPeriodDay?: boolean;
-}
+  id: string;
+  dayNumber: string;
+  dayLetter: string;
+  isCurrentDay: boolean;
+  isPeriodDay?: boolean;
+};
 
 type CalendarStripProps = {
-    days: DayData[];
-    themeColor: string; // highlight color for the particular day
-    onDayPress: (dayId: string) => void;
-}
+  days: DayData[];
+  themeColor: string; // highlight color for the particular day
+  onDayPress: (dayId: string) => void;
+};
 
-const DayItem : React.FC<{
-    item: DayData;
-    themeColor: string;
-    onPress: () => void;
-}> = ({ item, themeColor, onPress}) => {
+const DayItem: React.FC<{
+  item: DayData;
+  themeColor: string;
+  onPress: () => void;
+}> = ({ item, themeColor, onPress }) => {
   const isCurrent = item.isCurrentDay;
   const isPeriod = item.isPeriodDay;
 
   const containerClasses = `rounded-xl py-2 px-3 items-center`;
 
-  const dynamicStyles: { backgroundColor: string; borderColor: string; borderWidth: number } = {
-    backgroundColor: 'transparent',
-    borderColor: 'transparent',
-    borderWidth: 0, 
+  const dynamicStyles: {
+    backgroundColor: string;
+    borderColor: string;
+    borderWidth: number;
+  } = {
+    backgroundColor: "transparent",
+    borderColor: "transparent",
+    borderWidth: 0,
   };
 
   // If its a period day pu t the red border and transparent red tint
@@ -38,7 +42,7 @@ const DayItem : React.FC<{
     dynamicStyles.borderWidth = 1.5; // Make the border clearly stronger
     // Apply a transparent red tint unless it's the current day (which has its own background)
     if (!isCurrent) {
-      dynamicStyles.backgroundColor = 'rgba(219, 136, 136, 0.26)'; // 10% opaque red
+      dynamicStyles.backgroundColor = "rgba(219, 136, 136, 0.26)"; // 10% opaque red
     }
   }
 
@@ -48,20 +52,20 @@ const DayItem : React.FC<{
     dynamicStyles.borderWidth = 3;
   }
 
-
   const numberClasses = isCurrent
-    ? `text-lg font-bold text-black` 
-    : `text-lg font-bold text-gray-800`; 
+    ? `text-lg font-bold text-black`
+    : `text-lg font-bold text-gray-800`;
 
   const letterClasses = isCurrent
-    ? `text-sm text-black` 
-    : `text-sm text-gray-500`; 
+    ? `text-sm text-black`
+    : `text-sm text-gray-500`;
 
   return (
     <TouchableOpacity
       onPress={onPress}
       className={containerClasses}
-      style={dynamicStyles}>
+      style={dynamicStyles}
+    >
       <Text className={numberClasses}>{item.dayNumber}</Text>
       <Text className={`mt-0.5 ${letterClasses}`}>{item.dayLetter}</Text>
     </TouchableOpacity>
@@ -90,7 +94,7 @@ const CalendarStrip: React.FC<CalendarStripProps> = ({
         // make sure the days are spaced out
         contentContainerStyle={{
           flexGrow: 1,
-          justifyContent: 'space-around',
+          justifyContent: "space-around",
           paddingHorizontal: 20,
         }}
       />
