@@ -13,5 +13,6 @@ export interface CycleStatusDTO {
   daysUntilNextEvent: number;
   nextEventDate: string;
   periodHistory: PeriodRecord[];
+  periodDates: string[];
   predictedPeriodDates: string[]; 
 }

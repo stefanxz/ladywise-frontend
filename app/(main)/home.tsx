@@ -28,6 +28,12 @@ const MOCK_INSIGHTS: RiskData[] = [
   },
 ];
 
+const getLocalYYYYMMDD = (date: Date) => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`
+}
 
 const generateCalendarDays = (
   periodDates: string[] = []
@@ -44,7 +50,7 @@ const generateCalendarDays = (
     const dayNumber = date.getDate().toString();
     const dayLetter = date.toLocaleDateString("en-US", { weekday: "narrow" });
     const isCurrentDay = i === 0;
-    const dateString = date.toISOString().split("T")[0]; // "YYYY-MM-DD"
+    const dateString = getLocalYYYYMMDD(date); // "YYYY-MM-DD"
 
     days.push({
       id: dateString,
@@ -88,6 +94,7 @@ const home = () => {
     useCallback(() => {
 
       if (isLoading || !token) {
+        console.log("Waiting for auth...");
         return;
       }
       const fetchCycleData = async () => {
@@ -96,13 +103,14 @@ const home = () => {
           setError(null);
 
           const status = await getCycleStatus();
+
           setCycleStatus(status);
 
           // Update theme based on backend data
           setPhase(status.currentPhase.toLowerCase() as any);
 
           // Generate calendar days with period data
-          setCalendarDays(generateCalendarDays(status.predictedPeriodDates));
+          setCalendarDays(generateCalendarDays(status.periodDates));
         } catch (err: any) {
           console.error("Failed to fetch cycle status:", err);
           setError(err.message || "Failed to load data.");
@@ -112,7 +120,7 @@ const home = () => {
       };
 
       fetchCycleData();
-    }, [setPhase])
+    }, [setPhase, token, isLoading])
   );
 
   const handleLogPeriod = () => console.log("Log period pressed");
@@ -180,7 +188,7 @@ const home = () => {
               <PhaseCard
                 phaseName={cycleStatus.currentPhase}
                 dayOfPhase={`Day ${cycleStatus.currentCycleDay}`}
-                subtitle={`${cycleStatus.daysUntilNextEvent} days until ${cycleStatus.nextEvent}`}
+                subtitle={`${cycleStatus.daysUntilNextEvent} days until ${cycleStatus.nextEvent.toLowerCase()}`}
                 theme={theme}
                 onLogPeriodPress={handleLogPeriod}
                 onCardPress={handleCardPress}

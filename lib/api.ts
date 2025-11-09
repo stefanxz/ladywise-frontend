@@ -21,7 +21,6 @@ export const setAuthToken = (token: string | null) => {
   }
 };
 
-
 api.interceptors.response.use(
   (res) => res,
   (error) => {
