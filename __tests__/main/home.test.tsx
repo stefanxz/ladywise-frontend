@@ -1,7 +1,7 @@
 import Home from "@/app/(main)/home";
 import * as api from "@/lib/api";
 import { CycleStatusDTO } from "@/lib/types/cycle";
-import { render, waitFor } from "@testing-library/react-native";
+import { render, waitFor, screen } from "@testing-library/react-native";
 import React from "react";
 
 const mockUseAuth = jest.fn();
@@ -42,12 +42,13 @@ jest.mock("@/components/InsightsSection/InsightsSection", () => ({
 
 jest.mock("@/components/PhaseCard/PhaseCard", () => ({
   __esModule: true,
-  default: ({ phaseName, dayOfPhase }: any) => {
+  default: ({ phaseName, dayOfPhase, subtitle }: any) => {
     const { View, Text } = require("react-native");
     return (
       <View testID="mock-phase-card">
         <Text>{phaseName}</Text>
-        <Text>{dayOfPhase}</Text>  
+        <Text>{dayOfPhase}</Text>
+        <Text>{subtitle}</Text>
       </View>
     );
   },
@@ -122,14 +123,28 @@ describe("Home Screen", () => {
     expect(await findByText("Error: Failed to load data.")).toBeTruthy();
   });
 
-  it("shows 'No cycle data' error if API throws a 404", async () => {
+  it("shows empty state with neutral theme when API throws a 404", async () => {
     mockedApi.getCycleStatus.mockRejectedValue({
       response: { status: 404 },
     });
-    const { findByText } = render(<Home />);
-    expect(
-        await findByText("Error: No cycle data found. Please set up your cycle.")    
-    ).toBeTruthy();
+    
+    const { findByText, queryByText } = render(<Home />);
+
+    // 1. Verify the neutral theme was set
+    await waitFor(() => {
+      expect(mockSetPhase).toHaveBeenCalledWith("neutral");
+    });
+
+    // 2. Verify the correct "empty state" text is shown
+    expect(await findByText("Hello!")).toBeTruthy();
+    expect(await findByText("Log your first period to begin tracking.")).toBeTruthy();
+
+    expect(screen.getByTestId("mock-header")).toBeTruthy();
+    expect(screen.getByTestId("mock-calendar-strip")).toBeTruthy();
+    expect(screen.getByTestId("mock-insights-section")).toBeTruthy();
+
+    // 4. Verify the ERROR message is NOT present
+    expect(queryByText(/Error:/)).toBeNull();
   });
 
   it("fetches data, updates theme, and renders components on success", async () => {
