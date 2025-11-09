@@ -40,6 +40,19 @@ jest.mock("@/components/InsightsSection/InsightsSection", () => ({
   },
 }));
 
+jest.mock("@/components/PhaseCard/PhaseCard", () => ({
+  __esModule: true,
+  default: ({ phaseName, dayOfPhase }: any) => {
+    const { View, Text } = require("react-native");
+    return (
+      <View testID="mock-phase-card">
+        <Text>{phaseName}</Text>
+        <Text>{dayOfPhase}</Text>  
+      </View>
+    );
+  },
+}));
+
 jest.mock("@/components/MainPageHeader/Header", () => ({
   __esModule: true,
   default: () => {
@@ -52,13 +65,6 @@ jest.mock("@/components/CalendarStrip/CalendarStrip", () => ({
   default: () => {
     const { View } = require("react-native");
     return <View testID="mock-calendar-strip" />;
-  },
-}));
-jest.mock("@/components/PhaseCard/PhaseCard", () => ({
-  __esModule: true,
-  default: () => {
-    const { View } = require("react-native");
-    return <View testID="mock-phase-card" />;
   },
 }));
 
@@ -139,5 +145,72 @@ describe("Home Screen", () => {
     expect(await findByTestId("mock-insights-section")).toBeTruthy();
 
     expect(mockSetPhase).toHaveBeenCalledWith("ovulation");
+  });
+
+  describe("Task #642: Phase Colors and Day Calculation", () => {
+    it("correctly sets Menstrual phase color and Day 1", async () => {
+      mockedApi.getCycleStatus.mockResolvedValue({
+        ...MOCK_STATUS_DTO,
+        currentPhase: "MENSTRUAL",
+        currentCycleDay: 1,
+        daysUntilNextEvent: 13,
+        nextEvent: "NEXT_OVULATION",
+      });
+
+      const { findByText } = render(<Home />);
+
+      // Verify correct theme/color was set
+      await waitFor(() => {
+        expect(mockSetPhase).toHaveBeenCalledWith("menstrual");
+      });
+
+      // Verify correct day calculation passed to PhaseCard
+      expect(await findByText("Day 1")).toBeTruthy();
+      expect(await findByText("Menstrual Phase")).toBeTruthy();
+    });
+
+    it("correctly sets Luteal phase color and late cycle day", async () => {
+      mockedApi.getCycleStatus.mockResolvedValue({
+        ...MOCK_STATUS_DTO,
+        currentPhase: "LUTEAL",
+        currentCycleDay: 26,
+        daysUntilNextEvent: 2,
+        nextEvent: "NEXT_PERIOD",
+      });
+
+      const { findByText } = render(<Home />);
+
+      // Verify Luteal theme
+      await waitFor(() => {
+        expect(mockSetPhase).toHaveBeenCalledWith("luteal");
+      });
+
+      // Verify Day 26 calculation
+      expect(await findByText("Day 26")).toBeTruthy();
+      expect(await findByText("Luteal Phase")).toBeTruthy();
+    });
+
+    it("correctly handles new cycle wrap-around (Day 2 of next cycle)", async () => {
+      // Simulate a user who has entered a new cycle
+      mockedApi.getCycleStatus.mockResolvedValue({
+        ...MOCK_STATUS_DTO,
+        currentPhase: "MENSTRUAL",
+        currentCycleDay: 2,
+        daysUntilNextEvent: 12,
+        nextEvent: "NEXT_OVULATION",
+         // Ensure periodDates includes today for visual accuracy in calendar
+        periodDates: ["2025-11-08", "2025-11-09", "2025-11-10"],
+      });
+
+      const { findByText } = render(<Home />);
+
+      // Should be back to menstrual theme
+      await waitFor(() => {
+        expect(mockSetPhase).toHaveBeenCalledWith("menstrual");
+      });
+
+      // Verify it calculated Day 2 of the NEW cycle
+      expect(await findByText("Day 2")).toBeTruthy();
+    });
   });
 });
