@@ -1,6 +1,9 @@
 import InsightsSection from "@/components/InsightsSection/InsightsSection";
+import { getRiskData } from "@/lib/api";
+import { getAuthData } from "@/lib/auth";
 import { RiskData } from "@/lib/types/health";
 import React, { useEffect, useState } from "react";
+import { ActivityIndicator } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 const MOCK_INSIGHTS: RiskData[] = [
@@ -18,18 +21,48 @@ const MOCK_INSIGHTS: RiskData[] = [
   },
 ];
 
-const fetchRiskData = (): Promise<RiskData[]> => {
-  // function promises that it will return, at some point, a RiskData array
-  return new Promise(
-    (
-      resolve // each promise needs to be resolved, by a solver. resolve is that solver function. definition of the function is below; this is a description of the resolver rather than a definition. it just specifies what the function that will be called to resolve is named.
-    ) => setTimeout(() => resolve(MOCK_INSIGHTS), 1500) // def of solver: resolve calls the setTimeout function, that calls the resolve function. the resolve function fufills the promise by returning the specified type of data, after 1500 ms go by
-  );
-};
+async function fetchRiskData(): Promise<RiskData[]> {
+  try {
+    const payload = await getAuthData();
+    const riskData = await getRiskData(payload);
+    return [riskData]; // Success: return data
+  } catch (e) {
+    console.error("Error fetching Risk Data: ", e);
+    return []; // Failure: return empty array to prevent UI crashes
+  }
+}
 
 const home = () => {
   useEffect(() => {}, []);
-  const [data, setData] = useState<RiskData[]>(MOCK_INSIGHTS);
+  const [data, setData] = useState<RiskData[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        console.log("Current auth data: ", getAuthData());
+        const riskData = await fetchRiskData();
+        console.log(riskData);
+        setData(riskData);
+      } catch (error) {
+        console.error("[REMOVE IN PROD] error inside useEffect hook!");
+        setData([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    loadData();
+  }, []);
+
+  if (isLoading) {
+    return (
+      <SafeAreaView
+        style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+      >
+        <ActivityIndicator size="large" />
+      </SafeAreaView>
+    );
+  }
+
   return (
     <SafeAreaView>
       <InsightsSection insights={data}></InsightsSection>
