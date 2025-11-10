@@ -86,7 +86,7 @@ const fetchRiskData = (): Promise<RiskData[]> => {
   );
 };
 
-const home = () => {
+const Home = () => {
   const { token, isLoading: isAuthLoading } = useAuth();
   const { theme, setPhase } = useTheme();
   const [data, setData] = useState<RiskData[]>(MOCK_INSIGHTS);
@@ -232,4 +232,4 @@ const home = () => {
   );
 };
 
-export default home;
+export default Home;

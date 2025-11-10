@@ -1,21 +1,21 @@
-import { RiskData } from "@/lib/types/health"; // Assuming this path
+import { RiskData } from "@/lib/types/health";
 import { render, screen } from "@testing-library/react-native";
 import React from "react";
-import InsightsSection from "./InsightsSection"; // Adjust path as needed
+import InsightsSection from "./InsightsSection";
+import { View, Text } from "react-native";
 
 // Mock the child component
 jest.mock("../RiskCard/RiskCard", () => {
   // We need a mock that can be identified and inspected.
   // Rendering the 'title' prop helps verify the correct data is passed.
-  const { View, Text } = require("react-native");
-  return (props: { title: string }) => (
+  const MockRiskCard = (props: { title: string }) => (
     <View testID="mock-risk-card">
       <Text>{props.title}</Text>
     </View>
   );
 });
 
-// We must define mock data. This structure is deduced from your components.
+// Mock data
 const mockInsights: RiskData[] = [
   { id: "1", title: "Risk 1", level: "Low", description: "Desc 1" },
   { id: "2", title: "Risk 2", level: "Medium", description: "Desc 2" },
