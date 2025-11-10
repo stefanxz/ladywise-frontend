@@ -1,5 +1,4 @@
 import "@/assets/styles/main.css";
-import { getAuthData, isTokenValid } from "@/lib/auth";
 import { Aclonica_400Regular } from "@expo-google-fonts/aclonica";
 import {
   Inter_400Regular,
@@ -7,64 +6,45 @@ import {
   useFonts,
 } from "@expo-google-fonts/inter";
 import { Slot, SplashScreen } from "expo-router";
-import { createContext, useEffect, useMemo, useState } from "react";
+import { useEffect } from "react";
+import { AuthProvider, useAuth } from "@/context/AuthContext";
+import { ThemeProvider } from "@/context/ThemeContext";
+import { View } from "react-native";
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
 
-// Represents the UI-facing session lifecycle (distinct from raw token status).
-type SessionStatus = "loading" | "signedIn" | "signedOut" | "onboarding";
-type AuthContextValue = {
-  status: SessionStatus;
-  setStatus: (status: SessionStatus) => void;
-};
-
-export const AuthContext = createContext<AuthContextValue>({
-  status: "loading",
-  setStatus: () => undefined,
-});
-
-export default function RootLayout() {
+function AppContent() {
+  const { isLoading: isAuthLoading } = useAuth();
   const [fontsLoaded] = useFonts({
     Aclonica_400Regular,
     Inter_400Regular,
     Inter_600SemiBold,
   });
 
-  const [status, setStatus] = useState<SessionStatus>("loading");
-
-  // Bootstrap: resolve auth once
   useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      try {
-        const authData = await getAuthData();
-        const ok = isTokenValid(authData) === "VALID";
-        if (!cancelled) setStatus(ok ? "signedIn" : "signedOut");
-      } catch {
-        if (!cancelled) setStatus("signedOut");
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  // Hide splash when ready
-  useEffect(() => {
-    if (fontsLoaded && status !== "loading") {
+    if (fontsLoaded && !isAuthLoading) {
       SplashScreen.hideAsync().catch(() => {});
     }
-  }, [fontsLoaded, status]);
+  }, [fontsLoaded, isAuthLoading]);
 
-  const value = useMemo(() => ({ status, setStatus }), [status]);
-
-  if (!fontsLoaded || status === "loading") {
+  if (!fontsLoaded || isAuthLoading) {
     return null;
   }
 
+  return <Slot />;
+}
+
+export default function RootLayout() {
   return (
-    <AuthContext.Provider value={value}>
-      <Slot />
-    </AuthContext.Provider>
+    <AuthProvider>
+      <ThemeProvider>
+        {/* We need this View for the onLayout hack if we used it, 
+            but standard SplashScreen.hideAsync() works too. 
+            Keeping flex-1 just in case. */}
+        <View style={{ flex: 1 }}>
+          <AppContent />
+        </View>
+      </ThemeProvider>
+    </AuthProvider>
   );
 }
