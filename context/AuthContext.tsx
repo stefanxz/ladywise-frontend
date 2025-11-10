@@ -10,9 +10,8 @@ import {
   storeAuthData,
   clearAuthData,
   isTokenValid,
-  StoredAuthData,
-} from "@/lib/auth"; // <-- Your storage file
-import { setAuthToken } from "@/lib/api"; // <-- Your API file
+} from "@/lib/auth";
+import { setAuthToken } from "@/lib/api";
 
 type AuthContextType = {
   isLoading: boolean;
@@ -22,6 +21,12 @@ type AuthContextType = {
   signOut: () => Promise<void>;
 };
 
+/**
+ * Authentication context
+ *
+ * Provides authentication state and methods throughout the application. Should
+ * not be used directly: use the `useAuth()` hook.
+ */
 const AuthContext = createContext<AuthContextType>({
   isLoading: true,
   token: null,
@@ -30,10 +35,29 @@ const AuthContext = createContext<AuthContextType>({
   signOut: async () => {},
 });
 
+/**
+ * Custom hook to access authentication context.
+ *
+ * @example
+ * ```tsx
+ * const { isLoading, token, userId } = useAuth();
+ *
+ * if (isLoading) return <Loading />;
+ * ```
+ */
 export function useAuth() {
   return useContext(AuthContext);
 }
 
+/**
+ * Authentication provider
+ *
+ * Manages authentication across the application, including loading auth data
+ * from secure storage on mount, validating token expiry, persisting auth state
+ * across app restarts, and configuring API client with auth tokens.
+ *
+ * @param children
+ */
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const [token, setTokenState] = useState<string | null>(null);
@@ -47,10 +71,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         // Check if we have a token and if it hasn't expired yet
         if (data.token && isTokenValid(data) === "VALID") {
-          // 1. Update React state
           setTokenState(data.token);
           setUserIdState(data.userId);
-          // 2. Configure Axios to use this token for future requests
           setAuthToken(data.token);
         } else {
           // Token is missing or expired, clean up
@@ -68,24 +90,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signIn = useCallback(
     async (newToken: string, newUserId: string, newEmail: string) => {
-      // 1. Save to secure storage
       await storeAuthData(newToken, newUserId, newEmail);
-      // 2. Update React state
       setTokenState(newToken);
       setUserIdState(newUserId);
-      // 3. Configure Axios
       setAuthToken(newToken);
     },
-    []
+    [],
   );
 
   const signOut = useCallback(async () => {
-    // 1. Clear secure storage
     await clearAuthData();
-    // 2. Clear React state
     setTokenState(null);
     setUserIdState(null);
-    // 3. Clear Axios token
     setAuthToken(null);
   }, []);
 
