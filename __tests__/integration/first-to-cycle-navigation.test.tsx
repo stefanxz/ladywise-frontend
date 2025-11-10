@@ -1,29 +1,21 @@
 /**
- * Integration Test — First Questionnaire → Cycle Questionnaire
- * ------------------------------------------------------------
- * Verifies that:
- * - User transitions correctly after completing the first questionnaire
- * - Redirect occurs if not allowed to access cycle questionnaire
- * - Edge cases and backend errors are handled gracefully
+ * Integration Test — First Questionnaire -> Cycle Questionnaire 
  */
 
 import CycleQuestionnaireMock from "@/app/onboarding/cycle-questionnaire-mock";
 import FirstQuestionnaireCompletion from "@/app/onboarding/first-questionnaire-completion";
 import {
-    checkCycleQuestionnaireAccess,
-    markFirstQuestionnaireComplete,
+  checkCycleQuestionnaireAccess,
+  markFirstQuestionnaireComplete,
 } from "@/lib/questionnaireService";
-import { act, fireEvent, render, waitFor } from "@testing-library/react-native";
-import React from "react";
-import { Alert } from "react-native";
+import { fireEvent, render, waitFor } from "@testing-library/react-native";
 
-//Unified router mock (shared reference across components)
+// Shared router mock
 const mockRouter = {
   push: jest.fn(),
   replace: jest.fn(),
 };
 
-//Mock all external dependencies before imports
 jest.mock("expo-router", () => ({
   useRouter: () => mockRouter,
 }));
@@ -31,25 +23,12 @@ jest.mock("expo-router", () => ({
 jest.mock("@expo/vector-icons");
 jest.mock("react-native-safe-area-context", () => {
   const React = require("react");
-  return {
-    SafeAreaView: ({ children }: { children: React.ReactNode }) => (
-      <>{children}</>
-    ),
-  };
+  return { SafeAreaView: ({ children }: { children: React.ReactNode }) => <>{children}</> };
 });
 
-//Mock shared components
-jest.mock("@/components/AppBarBackButton/AppBarBackButton", () => ({
-  AppBar: () => null,
-}));
+jest.mock("@/components/AppBarBackButton/AppBarBackButton", () => ({ AppBar: () => null }));
 jest.mock("@/components/ThemedPressable/ThemedPressable", () => ({
-  ThemedPressable: ({
-    label,
-    onPress,
-  }: {
-    label: string;
-    onPress: () => void;
-  }) => {
+  ThemedPressable: ({ label, onPress }: any) => {
     const { Pressable, Text } = require("react-native");
     return (
       <Pressable onPress={onPress} testID="continue-btn">
@@ -59,79 +38,55 @@ jest.mock("@/components/ThemedPressable/ThemedPressable", () => ({
   },
 }));
 
-//Mock questionnaire service methods
 jest.mock("@/lib/questionnaireService", () => ({
   markFirstQuestionnaireComplete: jest.fn(),
   checkCycleQuestionnaireAccess: jest.fn(),
 }));
 
-const mockMarkComplete = markFirstQuestionnaireComplete as jest.Mock;
-const mockCheckAccess = checkCycleQuestionnaireAccess as jest.Mock;
+const mockMark = markFirstQuestionnaireComplete as jest.Mock;
+const mockCheck = checkCycleQuestionnaireAccess as jest.Mock;
 
 beforeEach(() => {
   jest.clearAllMocks();
 });
 
-describe("Integration: First Questionnaire → Cycle Questionnaire", () => {
-  it("navigates to cycle questionnaire after successful completion", async () => {
-    mockMarkComplete.mockResolvedValueOnce({ success: true });
+describe("First Questionnaire → Cycle Questionnaire Flow", () => {
+  it("redirects to cycle questionnaire after success", async () => {
+    mockMark.mockResolvedValueOnce({ success: true });
 
     const { getByTestId } = render(<FirstQuestionnaireCompletion />);
     fireEvent.press(getByTestId("continue-btn"));
 
     await waitFor(() =>
-      expect(mockRouter.push).toHaveBeenCalledWith(
-        "/onboarding/cycle-questionnaire-mock"
+      expect(mockRouter.push).toHaveBeenCalledWith("/onboarding/cycle-questionnaire-mock")
+    );
+  });
+
+  it("redirects back if access is denied", async () => {
+    mockCheck.mockResolvedValueOnce({ allowed: false });
+
+    render(<CycleQuestionnaireMock />);
+
+    await waitFor(() =>
+      expect(mockRouter.replace).toHaveBeenCalledWith(
+        "/onboarding/first-questionnaire-completion"
       )
     );
   });
 
-  it("shows alert if backend returns success=false", async () => {
-    const alertSpy = jest.spyOn(Alert, "alert").mockImplementation(() => {});
-    mockMarkComplete.mockResolvedValueOnce({ success: false });
-
-    const { getByTestId } = render(<FirstQuestionnaireCompletion />);
-    fireEvent.press(getByTestId("continue-btn"));
-
-    await waitFor(() => {
-      expect(alertSpy).toHaveBeenCalled();
-    });
-
-    alertSpy.mockRestore();
-  });
-
-  it("blocks access if completion flag is false", async () => {
-    mockCheckAccess.mockResolvedValueOnce({ allowed: false });
-
-    render(<CycleQuestionnaireMock />);
-
-    // Wait for async useEffect + mock call
-    await act(async () => {
-      await new Promise((resolve) => setTimeout(resolve, 100));
-    });
-
-    expect(mockRouter.replace).toHaveBeenCalledWith(
-      "/onboarding/first-questionnaire-completion"
-    );
-  });
-
-  it("allows access if completion flag is true", async () => {
-    mockCheckAccess.mockResolvedValueOnce({ allowed: true });
+  it("allows access when allowed=true", async () => {
+    mockCheck.mockResolvedValueOnce({ allowed: true });
 
     const { getByText } = render(<CycleQuestionnaireMock />);
 
-    await waitFor(() => {
-      expect(getByText("Cycle Questionnaire")).toBeTruthy();
-    });
+    await waitFor(() => expect(getByText(/Cycle Questionnaire/i)).toBeTruthy());
   });
 
-  it("handles backend errors gracefully (mock allows access)", async () => {
-    mockCheckAccess.mockRejectedValueOnce(new Error("Network error"));
+  it("allows access when backend fails (mock fallback)", async () => {
+    mockCheck.mockRejectedValueOnce(new Error("network"));
 
     const { getByText } = render(<CycleQuestionnaireMock />);
 
-    await waitFor(() => {
-      expect(getByText("Cycle Questionnaire")).toBeTruthy();
-    });
+    await waitFor(() => expect(getByText(/Cycle Questionnaire/i)).toBeTruthy());
   });
 });

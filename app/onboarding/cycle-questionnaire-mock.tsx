@@ -1,9 +1,9 @@
 import { checkCycleQuestionnaireAccess } from "@/lib/questionnaireService";
+import type { Href } from "expo-router";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import { ActivityIndicator, Text } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-
 /**
  * CycleQuestionnaireMock
  * -----------------------
@@ -21,9 +21,7 @@ export default function CycleQuestionnaireMock() {
   const [allowed, setAllowed] = useState(false);
 
   // Route to redirect to after access verification. Typed for Expo Router.
-  const [redirectTo, setRedirectTo] = useState<
-    "/onboarding/first-questionnaire-completion" | null
-  >(null);
+  const [redirectTo, setRedirectTo] = useState<Href | null>(null);
 
   useEffect(() => {
     let isMounted = true;
@@ -38,7 +36,7 @@ export default function CycleQuestionnaireMock() {
           setAllowed(true);
         } else {
           // Redirect if user hasn’t completed the first questionnaire.
-          setRedirectTo("/onboarding/first-questionnaire-completion");
+          setRedirectTo("/onboarding/first-questionnaire-completion" as Href);
         }
       } catch {
         // If backend is unavailable, allow access for testing/mocking.
