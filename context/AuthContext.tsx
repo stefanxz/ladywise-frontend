@@ -95,7 +95,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUserIdState(newUserId);
       setAuthToken(newToken);
     },
-    [],
+    []
   );
 
   const signOut = useCallback(async () => {

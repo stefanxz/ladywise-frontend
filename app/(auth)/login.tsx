@@ -22,6 +22,7 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { loadEnvFile } from "process";
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -64,7 +65,7 @@ export default function LoginScreen() {
       await signIn(
         loginResponse.token,
         loginResponse.userId,
-        loginResponse.email,
+        loginResponse.email
       );
 
       router.replace("/(main)/home");

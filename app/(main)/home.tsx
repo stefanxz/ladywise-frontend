@@ -1,5 +1,5 @@
 import InsightsSection from "@/components/InsightsSection/InsightsSection";
-import { RiskData } from "@/lib/types/health";
+import { RiskData } from "@/lib/types/risks";
 import React, { useCallback, useEffect, useState } from "react";
 import { View, Text, ActivityIndicator } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -15,6 +15,42 @@ import { CycleStatusDTO, CyclePhase } from "@/lib/types/cycle";
 import { useFocusEffect } from "expo-router";
 import { useAuth } from "@/context/AuthContext";
 import { generateCalendarDays, formatPhaseName } from "@/utils/mainPageHelpers";
+import { getRiskData } from "@/lib/api";
+import { ApiRiskResponse } from "@/lib/types/risks";
+
+type RiskLevel = "Low" | "Medium" | "High";
+const mapApiToInsights = (apiData: ApiRiskResponse): RiskData[] => {
+  // --- IMPORTANT ---
+
+  const levelMap: { [key: number]: RiskLevel } = {
+    0: "Low",
+    1: "Medium",
+    2: "High",
+  };
+
+  const titleMap: { [key: string]: string } = {
+    thrombosisRisk: "Thrombosis Risk",
+    anemiaRisk: "Anemia Risk",
+  };
+
+  const descriptionMap: { [key: string]: string } = {
+    thrombosisRisk: "Some factors may raise clotting risk.",
+    anemiaRisk: "Iron levels appear sufficient.",
+  };
+
+  // Convert object { key1: val1, key2: val2 } into array [ { ...risk1 }, { ...risk2 } ]
+  return Object.keys(apiData).map((key) => {
+    const typedKey = key as keyof ApiRiskResponse;
+    const apiLevel = apiData[typedKey];
+
+    return {
+      id: typedKey,
+      title: titleMap[typedKey] || "Unknown Risk",
+      level: levelMap[apiLevel] || "Low",
+      description: descriptionMap[typedKey] || "No description.",
+    };
+  });
+};
 
 const MOCK_INSIGHTS: RiskData[] = [
   {
@@ -36,27 +72,65 @@ const MOCK_USER = {
   avatarUrl: "",
 };
 
-const fetchRiskData = (): Promise<RiskData[]> => {
-  // function promises that it will return, at some point, a RiskData array
-  return new Promise(
-    (
-      resolve, // each promise needs to be resolved, by a solver. resolve is that solver function. definition of the function is below; this is a description of the resolver rather than a definition. it just specifies what the function that will be called to resolve is named.
-    ) => setTimeout(() => resolve(MOCK_INSIGHTS), 1500), // def of solver: resolve calls the setTimeout function, that calls the resolve function. the resolve function fufills the promise by returning the specified type of data, after 1500 ms go by
-  );
-};
+async function fetchRiskData(
+  token: string,
+  userId: string
+): Promise<RiskData[]> {
+  try {
+    // Fetch the raw API data
+    const apiResponse = await getRiskData(token, userId);
 
+    // Map the raw data to the shape your component needs
+    const mappedData = mapApiToInsights(apiResponse);
+
+    return mappedData;
+  } catch (e) {
+    console.error("Error fetching Risk Data: ", e);
+    return []; // Return empty array on failure
+  }
+}
 const Home = () => {
-  const { token, isLoading: isAuthLoading } = useAuth();
+  const { token, userId, isLoading: isAuthLoading } = useAuth();
   const { theme, setPhase } = useTheme();
   const [data, setData] = useState<RiskData[]>(MOCK_INSIGHTS);
-
+  const [isLoading, setIsLoading] = useState<boolean>(true); // For risk data
   const [cycleStatus, setCycleStatus] = useState<CycleStatusDTO | null>(null);
   const [calendarDays, setCalendarDays] = useState<DayData[]>(
-    generateCalendarDays(),
+    generateCalendarDays()
   );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Effect for fetching risk data
+  useEffect(() => {
+    const loadData = async () => {
+      // We already know token and userId are valid strings here
+      try {
+        // Pass the credentials from the context
+        const riskData = await fetchRiskData(token!, userId!);
+        setData(riskData);
+        console.log(riskData);
+      } catch (error) {
+        console.error("[REMOVE IN PROD] error inside useEffect hook!");
+        setData([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    // This is the critical guard.
+    // Do not attempt to fetch data if auth is loading or if the token is missing.
+    if (isAuthLoading || !token || !userId) {
+      setIsLoading(false); // Stop the loader, there's nothing to fetch
+      return; // Do nothing
+    }
+
+    console.log("ATTEMPTING FETCH WITH:", { token, userId });
+
+    loadData();
+  }, [token, userId, isAuthLoading]);
+
+  // Effect for fetching cycle data
   useFocusEffect(
     useCallback(() => {
       if (isAuthLoading || !token) {
@@ -96,7 +170,7 @@ const Home = () => {
       };
 
       fetchCycleData();
-    }, [setPhase, token, isAuthLoading]),
+    }, [setPhase, token, isAuthLoading])
   );
 
   const handleLogPeriod = () => console.log("Log period pressed");
@@ -184,7 +258,10 @@ const Home = () => {
               onCardPress={() => {}}
             />
           </View>
-          <InsightsSection insights={data}></InsightsSection>
+          <InsightsSection
+            isLoading={isLoading}
+            insights={data}
+          ></InsightsSection>
         </View>
       </SafeAreaView>
     </LinearGradient>

@@ -6,6 +6,9 @@ import type {
   RegisterResponse,
 } from "./types";
 import { CycleStatusDTO } from "./types/cycle";
+import { RiskData } from "./types/risks";
+import { StoredAuthData } from "./auth";
+import { ApiRiskResponse } from "./types/risks";
 
 export const api = axios.create({
   baseURL: process.env.EXPO_PUBLIC_API_URL,
@@ -47,6 +50,22 @@ export async function registerUser(payload: RegisterPayload) {
 export async function loginUser(payload: LoginPayload) {
   const { data } = await api.post<LoginResponse>("/api/auth/login", payload);
   return data;
+}
+
+export async function getRiskData(
+  token: string,
+  userId: string
+): Promise<ApiRiskResponse> { // <-- Use the correct response type
+  const config = {
+    params: { userId },
+    headers: { Authorization: `Bearer ${token}` },
+  };
+  // Use the correct generic type
+  const { data } = await api.get<ApiRiskResponse>(
+    `/api/users/${userId}/risks`,
+    config
+  );
+  return data; // This returns: { thrombosisRisk: 1, anemiaRisk: 2 }
 }
 
 export async function getCycleStatus() {
