@@ -4,11 +4,10 @@ import React from "react";
 import InsightsSection from "./InsightsSection";
 import { View, Text } from "react-native";
 
-// Mock the child component
 jest.mock("../RiskCard/RiskCard", () => {
-  // We need a mock that can be identified and inspected.
-  // Rendering the 'title' prop helps verify the correct data is passed.
-  const MockRiskCard = (props: { title: string }) => (
+  // Use a requireActual mock to get the props but render a simple View
+  const { View, Text } = require("react-native");
+  return (props: any) => (
     <View testID="mock-risk-card">
       <Text>{props.title}</Text>
     </View>
