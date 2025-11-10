@@ -1,26 +1,20 @@
 import LoginScreen from "@/app/(auth)/login";
-import { AuthContext } from "@/app/_layout";
 import * as api from "@/lib/api";
-import * as auth from "@/lib/auth";
 import * as validation from "@/lib/validation";
 import * as asyncStorage from "@/utils/asyncStorageHelpers";
 import { fireEvent, render, waitFor } from "@testing-library/react-native";
 import React from "react";
 import { AxiosError } from "axios";
-const mockSetStatus = jest.fn();
 
 // Provide a lightweight AuthContext mock so the screen can drive setStatus without pulling in the real layout.
-jest.mock("@/app/_layout", () => {
-  const React = require("react");
-  const AuthContext = React.createContext({
-    status: "signedOut",
-    setStatus: mockSetStatus,
-  });
-  return {
-    __esModule: true,
-    AuthContext,
-  };
-});
+const mockSignIn = jest.fn();
+jest.mock("@/context/AuthContext", () => ({
+  useAuth: () => ({
+    signIn: mockSignIn,
+    isLoading: false,
+    token: null,
+  })
+}))
 
 // --- Mock navigation, stack, and icons ---
 const mockRouter = { push: jest.fn(), replace: jest.fn(), back: jest.fn() };
@@ -58,12 +52,6 @@ jest.mock("@/lib/api", () => ({
   loginUser: jest.fn(),
 }));
 
-jest.mock("@/lib/auth", () => ({
-  storeAuthData: jest.fn(),
-  getAuthData: jest.fn(),
-  clearAuthData: jest.fn(),
-}));
-
 jest.mock("@/lib/validation", () => ({
   isEmailValid: jest.fn(),
 }));
@@ -75,7 +63,6 @@ jest.mock("@/utils/asyncStorageHelpers", () => ({
 }));
 
 const mockedApi = jest.mocked(api);
-const mockedAuth = jest.mocked(auth);
 const mockedValidation = jest.mocked(validation);
 const mockedAsyncStorage = jest.mocked(asyncStorage);
 
@@ -83,17 +70,14 @@ describe("LoginScreen", () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    mockSetStatus.mockClear();
+    mockSignIn.mockClear();
     mockedValidation.isEmailValid.mockImplementation(() => false);
     mockedAsyncStorage.getFailedLoginCount.mockResolvedValue(0);
   });
 
   const setup = () => {
     const utils = render(
-      // Wrap the screen with the mocked context so navigation state updates can be asserted.
-      <AuthContext.Provider value={{ status: "signedOut", setStatus: mockSetStatus }}>
         <LoginScreen />
-      </AuthContext.Provider>
     );
     const typeEmail = (v: string) =>
       fireEvent.changeText(utils.getByPlaceholderText("Your email"), v);
@@ -175,12 +159,12 @@ describe("LoginScreen", () => {
       });
 
       await waitFor(() => {
-        expect(mockedAuth.storeAuthData).toHaveBeenCalledWith(
+        expect(mockSignIn).toHaveBeenCalledWith(
           "fake-token",
           "user-123",
-          "user@example.com",
-        );
-      });
+          "user@example.com"
+        )
+      })
 
       await waitFor(() => {
         expect(mockedAsyncStorage.resetFailedLoginCount).toHaveBeenCalled();
@@ -189,11 +173,11 @@ describe("LoginScreen", () => {
       await waitFor(() => {
         expect(mockRouter.replace).toHaveBeenCalledWith("/(main)/home");
       });
-
-      expect(mockSetStatus).toHaveBeenCalledWith("signedIn");
     });
 
     it("shows an error message and increments failed login count on failed login", async () => {
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+
       mockedValidation.isEmailValid.mockReturnValue(true);
       const mockAxiosError = new AxiosError(
         "Request failed with status code 401",
@@ -219,10 +203,12 @@ describe("LoginScreen", () => {
       const errorMessage = await findByText("Invalid email or password");
       expect(errorMessage).toBeTruthy();
 
-      expect(mockedAuth.storeAuthData).not.toHaveBeenCalled();
+
       expect(mockRouter.replace).not.toHaveBeenCalled();
       expect(mockedAsyncStorage.incrementFailedLoginCount).toHaveBeenCalled();
-      expect(mockSetStatus).not.toHaveBeenCalled();
+      expect(mockSignIn).not.toHaveBeenCalled();
+
+      consoleErrorSpy.mockRestore();
     });
   });
 });
