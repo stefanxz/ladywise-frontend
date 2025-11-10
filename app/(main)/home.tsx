@@ -1,6 +1,4 @@
 import InsightsSection from "@/components/InsightsSection/InsightsSection";
-import { getRiskData } from "@/lib/api";
-import { getAuthData } from "@/lib/auth";
 import { RiskData } from "@/lib/types/risks";
 import React, { useCallback, useEffect, useState } from "react";
 import { View, Text, ActivityIndicator } from "react-native";
@@ -13,63 +11,12 @@ import PhaseCard from "@/components/PhaseCard/PhaseCard";
 import { LinearGradient } from "expo-linear-gradient";
 import { useTheme } from "@/context/ThemeContext";
 import { getCycleStatus } from "@/lib/api";
-import { CycleStatusDTO } from "@/lib/types/cycle";
+import { CycleStatusDTO, CyclePhase } from "@/lib/types/cycle";
 import { useFocusEffect } from "expo-router";
 import { useAuth } from "@/context/AuthContext";
+import { generateCalendarDays, formatPhaseName } from "@/utils/mainPageHelpers";
+import { getRiskData } from "@/lib/api";
 import { ApiRiskResponse } from "@/lib/types/risks";
-
-const MOCK_INSIGHTS: RiskData[] = [
-  {
-    id: "1",
-    title: "Thrombosis Risk",
-    level: "Medium",
-    description: "Some factors may raise clotting risk.",
-  },
-  {
-    id: "2",
-    title: "Anemia Risk",
-    level: "Low",
-    description: "Iron levels appear sufficient.",
-  },
-];
-
-const MOCK_USER = {
-  name: "Mirela Marcu",
-  avatarUrl: "",
-};
-
-const getLocalYYYYMMDD = (date: Date) => {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
-};
-
-const generateCalendarDays = (periodDates: string[] = []): DayData[] => {
-  const today = new Date();
-  const days: DayData[] = [];
-  const periodSet = new Set(periodDates); // For fast lookup
-
-  // Generate 7 days (e.g., 3 before, today, 3 after)
-  for (let i = -3; i <= 3; i++) {
-    const date = new Date(today);
-    date.setDate(today.getDate() + i);
-
-    const dayNumber = date.getDate().toString();
-    const dayLetter = date.toLocaleDateString("en-US", { weekday: "narrow" });
-    const isCurrentDay = i === 0;
-    const dateString = getLocalYYYYMMDD(date); // "YYYY-MM-DD"
-
-    days.push({
-      id: dateString,
-      dayNumber,
-      dayLetter,
-      isCurrentDay,
-      isPeriodDay: periodSet.has(dateString),
-    });
-  }
-  return days;
-};
 
 type RiskLevel = "Low" | "Medium" | "High";
 const mapApiToInsights = (apiData: ApiRiskResponse): RiskData[] => {
@@ -105,6 +52,26 @@ const mapApiToInsights = (apiData: ApiRiskResponse): RiskData[] => {
   });
 };
 
+const MOCK_INSIGHTS: RiskData[] = [
+  {
+    id: "1",
+    title: "Thrombosis Risk",
+    level: "Medium",
+    description: "Some factors may raise clotting risk.",
+  },
+  {
+    id: "2",
+    title: "Anemia Risk",
+    level: "Low",
+    description: "Iron levels appear sufficient.",
+  },
+];
+
+const MOCK_USER = {
+  name: "Mirela Marcu",
+  avatarUrl: "",
+};
+
 async function fetchRiskData(
   token: string,
   userId: string
@@ -122,18 +89,16 @@ async function fetchRiskData(
     return []; // Return empty array on failure
   }
 }
-
-const home = () => {
-  // --- ALL HOOKS MUST BE AT THE TOP ---
-  const { token, userId, isLoading: isTokenLoading } = useAuth();
+const Home = () => {
+  const { token, userId, isLoading: isAuthLoading } = useAuth();
   const { theme, setPhase } = useTheme();
-  const [data, setData] = useState<RiskData[]>([]);
+  const [data, setData] = useState<RiskData[]>(MOCK_INSIGHTS);
   const [isLoading, setIsLoading] = useState<boolean>(true); // For risk data
   const [cycleStatus, setCycleStatus] = useState<CycleStatusDTO | null>(null);
   const [calendarDays, setCalendarDays] = useState<DayData[]>(
     generateCalendarDays()
   );
-  const [loading, setLoading] = useState(true); // For cycle data
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   // Effect for fetching risk data
@@ -155,7 +120,7 @@ const home = () => {
 
     // This is the critical guard.
     // Do not attempt to fetch data if auth is loading or if the token is missing.
-    if (isTokenLoading || !token || !userId) {
+    if (isAuthLoading || !token || !userId) {
       setIsLoading(false); // Stop the loader, there's nothing to fetch
       return; // Do nothing
     }
@@ -163,19 +128,18 @@ const home = () => {
     console.log("ATTEMPTING FETCH WITH:", { token, userId });
 
     loadData();
-  }, [token, userId, isTokenLoading]);
+  }, [token, userId, isAuthLoading]);
 
   // Effect for fetching cycle data
   useFocusEffect(
     useCallback(() => {
-      // We use isTokenLoading here, as it's the auth-related loading state
-      if (isTokenLoading || !token) {
+      if (isAuthLoading || !token) {
         console.log("Waiting for auth...");
         return;
       }
       const fetchCycleData = async () => {
         try {
-          setLoading(true); // Start cycle data loading
+          setLoading(true);
           setError(null);
 
           const status = await getCycleStatus();
@@ -189,15 +153,30 @@ const home = () => {
           setCalendarDays(generateCalendarDays(status.periodDates));
         } catch (err: any) {
           console.error("Failed to fetch cycle status:", err);
-          setError(err.message || "Failed to load data.");
+
+          if (err.response?.status === 404) {
+            console.log("No cycle data found (user needs setup).");
+
+            setPhase("neutral" as any);
+
+            setCalendarDays(generateCalendarDays([]));
+          } else {
+            console.error("Error fetching cycle", err);
+            setError(err.message || "Failed to load data.");
+          }
         } finally {
-          setLoading(false); // Stop cycle data loading
+          setLoading(false);
         }
       };
 
       fetchCycleData();
-    }, [setPhase, token, isTokenLoading]) // Depend on auth loading state
+    }, [setPhase, token, isAuthLoading])
   );
+
+  const handleLogPeriod = () => console.log("Log period pressed");
+  const handleHelpPress = () => console.log("Help pressed");
+  const handleDayPress = (dayId: string) => console.log("Pressed day: ", dayId);
+  const handleCardPress = () => console.log("Phase Card Pressed");
 
   if (loading) {
     return (
@@ -205,13 +184,16 @@ const home = () => {
         colors={[theme.gradientStart, theme.gradientEnd]}
         style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
       >
-        <ActivityIndicator size="large" color={theme.highlight} />
+        <ActivityIndicator
+          size="large"
+          color={theme.highlight}
+          testID="loading-indicator"
+        />
       </LinearGradient>
     );
   }
 
-  // If cycle data fails, we can't render the main screen.
-  if (error || !cycleStatus) {
+  if (error) {
     return (
       <LinearGradient
         colors={["#FFFFFF", "#F0F0F0"]}
@@ -224,13 +206,6 @@ const home = () => {
     );
   }
 
-  // Handlers
-  const handleLogPeriod = () => console.log("Log period pressed");
-  const handleHelpPress = () => console.log("Help pressed");
-  const handleDayPress = (dayId: string) => console.log("Pressed day: ", dayId);
-  const handleCardPress = () => console.log("Phase Card Pressed");
-
-  // --- FINAL RENDER ---
   return (
     <LinearGradient
       colors={[theme.gradientStart, theme.gradientEnd]}
@@ -240,7 +215,7 @@ const home = () => {
     >
       <SafeAreaView style={{ flex: 1, backgroundColor: "transparent" }}>
         <View className="flex-1 justify-between">
-          <View>
+          <View className="pt-10">
             <Header
               name={MOCK_USER.name}
               avatarUrl={MOCK_USER.avatarUrl}
@@ -263,18 +238,29 @@ const home = () => {
             />
 
             <PhaseCard
-              phaseName={cycleStatus.currentPhase}
-              dayOfPhase={`Day ${cycleStatus.currentCycleDay}`}
-              subtitle={`${cycleStatus.daysUntilNextEvent} days until ${cycleStatus.nextEvent.toLowerCase()}`}
+              phaseName={
+                cycleStatus
+                  ? formatPhaseName(cycleStatus.currentPhase)
+                  : "Hello!"
+              }
+              dayOfPhase={
+                cycleStatus
+                  ? `Day ${cycleStatus.currentCycleDay}`
+                  : "Ready to start?"
+              }
+              subtitle={
+                cycleStatus
+                  ? `${cycleStatus.daysUntilNextEvent} days until ${cycleStatus.nextEvent.toLowerCase()}`
+                  : "Log your first period to begin tracking."
+              }
               theme={theme}
               onLogPeriodPress={handleLogPeriod}
-              onCardPress={handleCardPress}
+              onCardPress={() => {}}
             />
           </View>
-          {/* We pass the risk-data-specific loading state here */}
           <InsightsSection
-            insights={data}
             isLoading={isLoading}
+            insights={data}
           ></InsightsSection>
         </View>
       </SafeAreaView>
@@ -282,4 +268,4 @@ const home = () => {
   );
 };
 
-export default home;
+export default Home;
