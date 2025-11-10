@@ -36,7 +36,6 @@ function AppContent() {
 
 export default function RootLayout() {
   return (
-    // Wrap the app in your providers
     <AuthProvider>
       <ThemeProvider>
         {/* We need this View for the onLayout hack if we used it, 
