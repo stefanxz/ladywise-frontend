@@ -65,7 +65,7 @@ export default function LoginScreen() {
       await signIn(
         loginResponse.token,
         loginResponse.userId,
-        loginResponse.email
+        loginResponse.email,
       );
 
       router.replace("/(main)/home");

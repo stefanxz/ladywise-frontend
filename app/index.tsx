@@ -10,7 +10,7 @@ export default function RootIndex() {
     return null;
   }
 
-  return (token && !isLoading) ? (
+  return token && !isLoading ? (
     <Redirect href="/(main)/home" />
   ) : (
     <Redirect href="/(auth)/landing" />
