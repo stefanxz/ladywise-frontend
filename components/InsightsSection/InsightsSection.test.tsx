@@ -6,11 +6,12 @@ import { RiskData } from "@/lib/types/risks";
 jest.mock("../RiskCard/RiskCard", () => {
   // Use a requireActual mock to get the props but render a simple View
   const { View, Text } = require("react-native");
-  return (props: any) => (
+  const MockRiskCard = (props: any) => (
     <View testID="mock-risk-card">
       <Text>{props.title}</Text>
     </View>
   );
+  return MockRiskCard;
 });
 
 // Mock data for the success case

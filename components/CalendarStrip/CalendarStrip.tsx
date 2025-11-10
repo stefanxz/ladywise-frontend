@@ -17,8 +17,6 @@ type CalendarStripProps = {
   onDayPress: (dayId: string) => void;
 };
 
-
-
 const CalendarStrip: React.FC<CalendarStripProps> = ({
   days,
   themeColor,
