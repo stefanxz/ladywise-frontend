@@ -1,4 +1,14 @@
 import axios from "axios";
+import type {
+  LoginPayload,
+  LoginResponse,
+  RegisterPayload,
+  RegisterResponse,
+} from "./types";
+import { CycleStatusDTO } from "./types/cycle";
+import { RiskData } from "./types/risks";
+import { StoredAuthData } from "./auth";
+import { ApiRiskResponse } from "./types/risks";
 
 export const api = axios.create({
   baseURL: process.env.EXPO_PUBLIC_API_URL,
@@ -6,19 +16,28 @@ export const api = axios.create({
   headers: { "Content-Type": "application/json" },
 });
 
+export const setAuthToken = (token: string | null) => {
+  if (token) {
+    api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+  } else {
+    delete api.defaults.headers.common["Authorization"];
+  }
+};
+
 api.interceptors.response.use(
   (res) => res,
   (error) => {
-    const message =
-      error.response?.data?.message ??
-      error.message ??
-      "Request failed.";
-    return Promise.reject(new Error(message));
+    // Preserve AxiosError details while ensuring a readable message for UI handling.
+    if (axios.isAxiosError(error)) {
+      const message =
+        error.response?.data?.message ??
+        error.message ??
+        "Request failed.";
+      error.message = message;
+    }
+    return Promise.reject(error);
   }
 );
-
-type RegisterPayload = { email: string; name: string; password: string };
-type RegisterResponse = { id: string; email: string };
 
 // register new user by sending their credentials to the backend API
 // uses the base URL from .env + '/api/auth/register'
@@ -50,5 +69,32 @@ export type QuestionnaireResponse = {
 
 export async function submitQuestionnaire(payload: QuestionnairePayload) {
   const { data } = await api.post<QuestionnaireResponse>("/api/questionnaire", payload);
+  return data;
+}
+
+// authenticate an existing user and return their auth token
+export async function loginUser(payload: LoginPayload) {
+  const { data } = await api.post<LoginResponse>("/api/auth/login", payload);
+  return data;
+}
+
+export async function getRiskData(
+  token: string,
+  userId: string
+): Promise<ApiRiskResponse> { // <-- Use the correct response type
+  const config = {
+    params: { userId },
+    headers: { Authorization: `Bearer ${token}` },
+  };
+  // Use the correct generic type
+  const { data } = await api.get<ApiRiskResponse>(
+    `/api/users/${userId}/risks`,
+    config
+  );
+  return data; // This returns: { thrombosisRisk: 1, anemiaRisk: 2 }
+}
+
+export async function getCycleStatus() {
+  const { data } = await api.get<CycleStatusDTO>("/api/cycle/status");
   return data;
 }
