@@ -8,7 +8,7 @@ export default function SettingsScreen() {
   const handleLogout = () => {
     signOut();
     // auth layout should redirect automatically
-  }
+  };
   return (
     <>
       <SafeAreaView className="flex-1 bg-background p-6">

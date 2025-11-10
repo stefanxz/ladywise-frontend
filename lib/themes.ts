@@ -14,6 +14,7 @@ type AppThemes = {
   menstrual: Theme;
   luteal: Theme;
   follicular: Theme;
+  neutral: Theme;
 };
 
 // Here are all the themes from your design
@@ -56,5 +57,14 @@ export const themes: AppThemes = {
     highlightTextColor: '#000000',
     button: '#E6B800',
     buttonText: '#000000',
+  },
+  neutral: {
+    gradientStart: "#F8FAFC", // Very light cool grey
+    gradientEnd: "#FFFFFF",   // White
+    cardColor: "#E2E8F080",   // Semi-transparent light grey
+    highlight: "#CBD5E1",     // Distinct but subtle grey for 'today'
+    highlightTextColor: "#1E293B", // Dark slate for contrast
+    button: "#475569",        // Professional slate grey button
+    buttonText: "#FFFFFF",
   },
 };

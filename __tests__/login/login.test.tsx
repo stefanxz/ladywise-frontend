@@ -176,6 +176,8 @@ describe("LoginScreen", () => {
     });
 
     it("shows an error message and increments failed login count on failed login", async () => {
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+
       mockedValidation.isEmailValid.mockReturnValue(true);
       const mockAxiosError = new AxiosError(
         "Request failed with status code 401",
@@ -205,6 +207,8 @@ describe("LoginScreen", () => {
       expect(mockRouter.replace).not.toHaveBeenCalled();
       expect(mockedAsyncStorage.incrementFailedLoginCount).toHaveBeenCalled();
       expect(mockSignIn).not.toHaveBeenCalled();
+
+      consoleErrorSpy.mockRestore();
     });
   });
 });
