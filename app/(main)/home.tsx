@@ -15,6 +15,7 @@ import { CycleStatusDTO } from "@/lib/types/cycle";
 import { useFocusEffect } from "expo-router";
 import { useAuth } from "@/context/AuthContext";
 import { generateCalendarDays, formatPhaseName } from "@/utils/mainPageHelpers";
+import { FloatingAddButton } from "@/components/FloatingAddButton/FloatingAddButton";
 
 type RiskLevel = "Low" | "Medium" | "High";
 const mapApiToInsights = (apiData: ApiRiskResponse): RiskData[] => {
@@ -260,6 +261,14 @@ const Home = () => {
             isLoading={isLoading}
             insights={data}
           ></InsightsSection>
+        </View>
+
+        <View className="absolute bottom-4 right-4">
+          <FloatingAddButton
+            buttonColor={theme.button}
+            textColor={theme.buttonText}
+            onPress={() => console.log("pressed")}
+          />
         </View>
       </SafeAreaView>
     </LinearGradient>
