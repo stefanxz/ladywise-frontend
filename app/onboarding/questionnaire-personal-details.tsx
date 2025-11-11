@@ -85,7 +85,7 @@ export default function Questionnaire() {
       // Smallest woman ~62 cm
       // Tallest woman ~ 216cm
       if (heightNum < 62 || 216 < heightNum) {
-        setWeightError("Height is out of range.");
+        setHeightError("Height is out of range.");
         hasError = true;
       }
     }
