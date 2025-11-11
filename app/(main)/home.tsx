@@ -115,7 +115,6 @@ const Home = () => {
   const [error, setError] = useState<string | null>(null);
 
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
-  const snapPoints = useMemo(() => ["80%"], []);
 
   const openSheet = useCallback(() => {
     bottomSheetModalRef.current?.present();
@@ -311,8 +310,7 @@ const Home = () => {
 
       <BottomSheetModal
         ref={bottomSheetModalRef}
-        index={1}
-        snapPoints={snapPoints}
+        enableDynamicSizing
         backdropComponent={renderBackdrop}
         enablePanDownToClose
       >
