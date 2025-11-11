@@ -7,3 +7,5 @@ export type LoginResponse = {
   userId: string;
   email: string;
 };
+export type UserPayload = { id: string | null; email: string | null; firstName: string; lastName: string };
+export type UserResponse = { id: string; email: string; firstName: string; lastName: string };

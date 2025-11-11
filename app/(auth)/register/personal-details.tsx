@@ -1,25 +1,25 @@
-import { AuthContext } from "@/app/_layout"; // <-- use context
+import { useAuth } from "@/context/AuthContext";
 import { AppBar } from "@/components/AppBarBackButton/AppBarBackButton";
 import { ThemedPressable } from "@/components/ThemedPressable/ThemedPressable";
 import { ThemedTextInput } from "@/components/ThemedTextInput/ThemedTextInput";
 import { useRouter } from "expo-router";
-import React, { useCallback, useContext, useState } from "react";
+import React, { useCallback, useState } from "react";
 import { Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { updateUser } from "@/lib/api";
 
 export default function RegisterPersDetails() {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [firstNameError, setFirstNameError] = useState<string | null>(null);
   const [lastNameError, setLastNameError] = useState<string | null>(null);
-
+  const [formError, setFormError] = useState<string | null>(null);
   const router = useRouter();
-  const { setStatus } = useContext(AuthContext);
+  const { userId, email } = useAuth();
 
   const handleBack = useCallback(() => {
-    setStatus("signedIn");
     router.replace("/(main)/home");
-  }, [router, setStatus]);
+  }, [router]);
 
   const handlePressed = async () => {
     setFirstNameError(null);
@@ -35,7 +35,23 @@ export default function RegisterPersDetails() {
       hasError = true;
     }
     if (hasError) return;
-    router.push("/onboarding/questionnaire-intro");
+    try {
+      // console.log("user id = " + userId);
+      // console.log("user email = " + email);
+      // console.log("user firstName = " + firstName);
+      // console.log("user lastName = " + lastName);
+
+      await updateUser({
+        id: userId,
+        email: email,
+        firstName: firstName,
+        lastName: lastName,
+      });
+      router.push("/onboarding/questionnaire-intro");
+    } catch (e) {
+      setFormError(e instanceof Error ? e.message : "Update failed.");
+    } finally {
+    }
   };
 
   return (
@@ -108,6 +124,11 @@ export default function RegisterPersDetails() {
                 </Text>
               ) : null}
             </View>
+
+            {/* Error message */}
+            {formError && (
+              <Text className="text-red-600 text-sm">{formError}</Text>
+            )}
 
             <ThemedPressable
               label="Continue"

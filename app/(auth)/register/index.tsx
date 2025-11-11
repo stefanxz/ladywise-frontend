@@ -1,4 +1,4 @@
-import { AuthContext } from "@/app/_layout";
+import { useAuth } from "@/context/AuthContext";
 import { AppBar } from "@/components/AppBarBackButton/AppBarBackButton";
 import { EmailField } from "@/components/EmailField/EmailField";
 import { PasswordField } from "@/components/PasswordField/PasswordField";
@@ -6,21 +6,20 @@ import { SocialSignOn } from "@/components/SocialSignOn/SocialSignOn";
 import { TermsConditionsCheckbox } from "@/components/TermsConditionsCheckbox/TermsConditionsCheckbox";
 import { ThemedPressable } from "@/components/ThemedPressable/ThemedPressable";
 import { loginUser, registerUser } from "@/lib/api";
-import { storeAuthData } from "@/lib/auth";
 import { isEmailValid, isPasswordValid } from "@/utils/validations";
 import { useRouter } from "expo-router";
-import React, { useContext, useState } from "react";
+import React, { useState } from "react";
 import { Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-//Main page for registering
-//Contains email, password, password confirmation, option for social sign up
+
 export default function RegisterIndex() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [termsConditions, setTermsConditions] = useState(false);
   const [registering, setRegistering] = useState(false);
-  const { setStatus } = useContext(AuthContext);
+
+  const { signIn } = useAuth();
 
   const [emailError, setEmailError] = useState<string | null>(null);
   const [passwordError, setPasswordError] = useState<string | null>(null);
@@ -50,9 +49,6 @@ export default function RegisterIndex() {
     setPasswordError(null);
     setConfirmPasswordError(null);
 
-    {
-      /* Error handling - if validation finds error on the entered input, error flag is set*/
-    }
     let hasError = false;
     if (!email.trim()) {
       setEmailError("Please enter your email.");
@@ -73,34 +69,24 @@ export default function RegisterIndex() {
       setConfirmPasswordError("Please make sure the passwords match.");
       hasError = true;
     }
-    {
-      /* If there is error, do not route, stay on the same page */
-    }
+
     if (hasError) return;
 
     setRegistering(true);
     try {
-      // Register the user here
       await registerUser({
         email: email.trim(),
         password: password.trim(),
       });
-      // If registration is successful, call Login immediately, which will surely succeed
-      // Returned with login call is the LoginResponse, which contains token information
-      // Note: currently the RegisterResponse only has userId and email, and missing token
       const loginResponse = await loginUser({
         email: email.trim(),
         password: password.trim(),
       });
-      // Store the returned token, userId and email in loginResponse in the SecureStore
-      // so that these can be checked and used in the next screen, personal-details
-      await storeAuthData(
+      await signIn(
         loginResponse.token,
         loginResponse.userId,
         loginResponse.email,
       );
-      // Update session context immediately so navigation switches to the main stack.
-      setStatus("onboarding");
       router.replace("/(auth)/register/personal-details");
     } catch (e) {
       setFormError(e instanceof Error ? e.message : "Registration failed.");
@@ -184,9 +170,7 @@ export default function RegisterIndex() {
         {/* Social media sign on buttons */}
         <SocialSignOn
           onPress={(provider) => {
-            {
-              /*TODO: Actual social media sign on*/
-            }
+            // TODO: Actual social media sign on
             console.log("SSO pressed:", provider);
           }}
         />

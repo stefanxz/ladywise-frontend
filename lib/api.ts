@@ -4,6 +4,8 @@ import type {
   LoginResponse,
   RegisterPayload,
   RegisterResponse,
+  UserPayload,
+  UserResponse,
 } from "./types";
 import { CycleStatusDTO } from "./types/cycle";
 import { RiskData } from "./types/risks";
@@ -49,6 +51,12 @@ export async function registerUser(payload: RegisterPayload) {
 // authenticate an existing user and return their auth token
 export async function loginUser(payload: LoginPayload) {
   const { data } = await api.post<LoginResponse>("/api/auth/login", payload);
+  return data;
+}
+
+//update user data of an existing user
+export async function updateUser(payload: UserPayload) {
+  const { data } = await api.patch<UserResponse>("/api/users/updateUser", payload);
   return data;
 }
 
