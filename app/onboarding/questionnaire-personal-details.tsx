@@ -99,7 +99,7 @@ export default function Questionnaire() {
       <View className="w-full max-w-md mt-2 px-10 pt-[71px]">
         <View className="flex-row items-center">
           <View className="flex-1">
-            <ProgressBar currentStep={1} totalSteps={5} />
+            <ProgressBar currentStep={1} totalSteps={5} edgeOffset={0.08} />
           </View>
           <View className="w-1/6">
             <Pressable onPress={handleSkip}>

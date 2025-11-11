@@ -160,6 +160,8 @@ export function MultiSelectGroup({
             <Pressable
               key={option.id}
               onPress={() => onToggle(option.id)}
+              testID={`multiselect-option-${option.id}`}
+              accessibilityState={{ selected: isSelected }}
               className={cn(
                 "w-full rounded-2xl border border-transparent px-4 py-3",
                 isSelected ? "bg-brand/10 border-brand" : "bg-white",
