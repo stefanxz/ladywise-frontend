@@ -1,4 +1,12 @@
 import InsightsSection from "@/components/InsightsSection/InsightsSection";
+import { RiskData } from "@/lib/types/risks";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { RiskData, ApiRiskResponse } from "@/lib/types/risks";
 import React, { useCallback, useEffect, useState } from "react";
 import { View, Text, ActivityIndicator } from "react-native";
@@ -16,6 +24,12 @@ import { useFocusEffect } from "expo-router";
 import { useAuth } from "@/context/AuthContext";
 import { generateCalendarDays, formatPhaseName } from "@/utils/mainPageHelpers";
 import { FloatingAddButton } from "@/components/FloatingAddButton/FloatingAddButton";
+import BottomSheet, {
+  BottomSheetBackdrop,
+  BottomSheetModal,
+  BottomSheetModalProvider,
+  BottomSheetView,
+} from "@gorhom/bottom-sheet";
 
 type RiskLevel = "Low" | "Medium" | "High";
 const mapApiToInsights = (apiData: ApiRiskResponse): RiskData[] => {
@@ -99,6 +113,27 @@ const Home = () => {
   );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const bottomSheetModalRef = useRef<BottomSheetModal>(null);
+  const snapPoints = useMemo(() => ["80%"], []);
+
+  const openSheet = useCallback(() => {
+    bottomSheetModalRef.current?.present();
+  }, []);
+
+  const renderBackdrop = useCallback(
+    // TODO: fix
+    (props: any) => (
+      <BottomSheetBackdrop
+        {...props}
+        appearsOnIndex={0}
+        disappearsOnIndex={-1}
+        opacity={0.25}
+        pressBehavior="close"
+      />
+    ),
+    [],
+  );
 
   // Effect for fetching risk data
   useEffect(() => {
@@ -206,72 +241,86 @@ const Home = () => {
   }
 
   return (
-    <LinearGradient
-      colors={[theme.gradientStart, theme.gradientEnd]}
-      style={{ flex: 1 }}
-      start={{ x: 0.5, y: 0 }}
-      end={{ x: 0.5, y: 1 }}
-    >
-      <SafeAreaView style={{ flex: 1, backgroundColor: "transparent" }}>
-        <View className="flex-1 justify-between">
-          <View className="pt-10">
-            <Header
-              name={MOCK_USER.name}
-              avatarUrl={MOCK_USER.avatarUrl}
-              onHelpPress={handleHelpPress}
-              theme={theme}
-            />
+    <>
+      <LinearGradient
+        colors={[theme.gradientStart, theme.gradientEnd]}
+        style={{ flex: 1 }}
+        start={{ x: 0.5, y: 0 }}
+        end={{ x: 0.5, y: 1 }}
+      >
+        <SafeAreaView style={{ flex: 1, backgroundColor: "transparent" }}>
+          <View className="flex-1 justify-between">
+            <View className="pt-10">
+              <Header
+                name={MOCK_USER.name}
+                avatarUrl={MOCK_USER.avatarUrl}
+                onHelpPress={handleHelpPress}
+                theme={theme}
+              />
 
-            <Text className="text-base text-gray-500 px-5 mb-5 pt-5">
-              {new Date().toLocaleDateString("en-US", {
-                month: "long",
-                day: "numeric",
-                year: "numeric",
-              })}
-            </Text>
+              <Text className="text-base text-gray-500 px-5 mb-5 pt-5">
+                {new Date().toLocaleDateString("en-US", {
+                  month: "long",
+                  day: "numeric",
+                  year: "numeric",
+                })}
+              </Text>
 
-            <CalendarStrip
-              days={calendarDays}
-              themeColor={theme.highlight}
-              onDayPress={handleDayPress}
-            />
+              <CalendarStrip
+                days={calendarDays}
+                themeColor={theme.highlight}
+                onDayPress={handleDayPress}
+              />
 
-            <PhaseCard
-              phaseName={
-                cycleStatus
-                  ? formatPhaseName(cycleStatus.currentPhase)
-                  : "Hello!"
-              }
-              dayOfPhase={
-                cycleStatus
-                  ? `Day ${cycleStatus.currentCycleDay}`
-                  : "Ready to start?"
-              }
-              subtitle={
-                cycleStatus
-                  ? `${cycleStatus.daysUntilNextEvent} days until ${cycleStatus.nextEvent.toLowerCase()}`
-                  : "Log your first period to begin tracking."
-              }
-              theme={theme}
-              onLogPeriodPress={handleLogPeriod}
-              onCardPress={() => {}}
+              <PhaseCard
+                phaseName={
+                  cycleStatus
+                    ? formatPhaseName(cycleStatus.currentPhase)
+                    : "Hello!"
+                }
+                dayOfPhase={
+                  cycleStatus
+                    ? `Day ${cycleStatus.currentCycleDay}`
+                    : "Ready to start?"
+                }
+                subtitle={
+                  cycleStatus
+                    ? `${cycleStatus.daysUntilNextEvent} days until ${cycleStatus.nextEvent.toLowerCase()}`
+                    : "Log your first period to begin tracking."
+                }
+                theme={theme}
+                onLogPeriodPress={handleLogPeriod}
+                onCardPress={() => {}}
+              />
+            </View>
+            <InsightsSection
+              isLoading={isLoading}
+              insights={data}
+            ></InsightsSection>
+          </View>
+
+          <View className="absolute bottom-4 right-4">
+            <FloatingAddButton
+              buttonColor={theme.button}
+              textColor={theme.buttonText}
+              onPress={openSheet}
             />
           </View>
-          <InsightsSection
-            isLoading={isLoading}
-            insights={data}
-          ></InsightsSection>
-        </View>
+        </SafeAreaView>
+      </LinearGradient>
 
-        <View className="absolute bottom-4 right-4">
-          <FloatingAddButton
-            buttonColor={theme.button}
-            textColor={theme.buttonText}
-            onPress={() => console.log("pressed")}
-          />
-        </View>
-      </SafeAreaView>
-    </LinearGradient>
+      <BottomSheetModal
+        ref={bottomSheetModalRef}
+        index={1}
+        snapPoints={snapPoints}
+        backdropComponent={renderBackdrop}
+        enablePanDownToClose
+      >
+        <BottomSheetView>
+          <Text>test</Text>
+        </BottomSheetView>
+      </BottomSheetModal>
+    </>
   );
 };
 
