@@ -6,6 +6,7 @@ import { useQuestionnaire } from "@/app/onboarding/QuestionnaireContext";
 import { ThemedPressable } from "@/components/ThemedPressable/ThemedPressable";
 import { useRouter } from "expo-router";
 import { useMemo, useState } from "react";
+import { Text, View } from "react-native"; // Import Text and View
 
 const OPTIONS = [
   { id: "smoking", label: "Smoking" },
@@ -26,6 +27,9 @@ export default function QuestionnaireThrombosisRisk() {
       : [],
   );
 
+  // Error State
+  const [error, setError] = useState<string | null>(null);
+
   const displaySelected = useMemo(() => selected, [selected]);
 
   const toggleOption = (value: string) => {
@@ -43,6 +47,13 @@ export default function QuestionnaireThrombosisRisk() {
   };
 
   const handleContinue = () => {
+    setError(null);
+
+    if (selected.length === 0) {
+      setError("Please select at least one option.");
+      return; // Stop if there is an error
+    }
+
     const cleaned = displaySelected.includes("none") ? [] : displaySelected;
     updateAnswers({ thrombosisRiskFactors: cleaned });
     router.push("/onboarding/questionnaire-final-questions");
@@ -51,17 +62,26 @@ export default function QuestionnaireThrombosisRisk() {
   return (
     <QuestionScreen
       step={4}
-      title="Health background Thrombosis risk"
+      title="Health background Thrombosis risk 💧"
       description="Select any conditions that apply to you."
       onSkip={() => router.push("/landing")}
       footer={<ThemedPressable label="Continue" onPress={handleContinue} />}
     >
-      <MultiSelectGroup
-        question="Options"
-        options={OPTIONS}
-        selected={displaySelected}
-        onToggle={toggleOption}
-      />
+      <View>
+        <MultiSelectGroup
+          question="Options"
+          options={OPTIONS}
+          selected={displaySelected}
+          onToggle={(value) => {
+            toggleOption(value);
+            if (error) setError(null); // Clear error on change
+          }}
+        />
+        {/* Error message display */}
+        {error ? (
+          <Text className="text-red-600 text-xs mt-1 ml-2">{error}</Text>
+        ) : null}
+      </View>
     </QuestionScreen>
   );
 }
