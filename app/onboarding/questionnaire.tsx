@@ -24,7 +24,7 @@ export default function Questionnaire() {
         </Text>
 
         <Text className="text-base text-gray-700 text-center mb-8">
-          This is your first-time questionnaire. Here we'll collect a few
+          This is your first-time questionnaire. Here we’ll collect a few
           details to personalise your experience.
         </Text>
 
