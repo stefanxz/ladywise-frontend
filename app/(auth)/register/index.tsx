@@ -176,7 +176,10 @@ export default function RegisterIndex() {
           }}
         />
       </View>
-      <TermsConditionsPopUp ref={termsModalRef} />
+      <TermsConditionsPopUp
+        ref={termsModalRef}
+        onAccept={() => setTermsConditions(true)}
+      />
     </SafeAreaView>
   );
 }
