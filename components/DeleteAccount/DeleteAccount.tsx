@@ -28,7 +28,7 @@ const DeleteAccountModal: React.FC<DeleteAccountModalProps> = ({
       await onConfirm();
     } catch (e: any) {
       setError(
-        e?.message ?? "Something went wrong while deleting the account.",
+        e?.message ?? "Something went wrong while deleting the account."
       );
       return; // keep modal open to show error
     } finally {
@@ -93,7 +93,7 @@ const DeleteAccountModal: React.FC<DeleteAccountModalProps> = ({
                 accessibilityLabel="Confirm delete account"
               >
                 {loading ? (
-                  <ActivityIndicator />
+                  <ActivityIndicator testID="activity-indicator" />
                 ) : (
                   <Text className="text-sm font-semibold text-white">
                     Delete
