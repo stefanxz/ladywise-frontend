@@ -10,6 +10,7 @@ import { CycleQuestionsBottomSheetProps } from "@/components/CycleQuestionsBotto
 import { CycleQuestion } from "@/components/CycleQuestionsBottomSheet/CycleQuestion";
 import questionsData from "@/data/cycle-questions.json";
 import { Droplet } from "lucide-react-native";
+import { Colors } from "@/constants/colors";
 
 export function CycleQuestionsBottomSheet({
   bottomSheetRef,
@@ -65,6 +66,7 @@ export function CycleQuestionsBottomSheet({
       backdropComponent={renderBackdrop}
       enablePanDownToClose
       snapPoints={snapPoints}
+      backgroundStyle={{ backgroundColor: Colors.background }}
     >
       <View className="mt-4 pb-2 px-4 flex-row items-center justify-center gap-2">
         <Droplet size={24} color="#FD7577" fill="#FD7577" />
