@@ -1,4 +1,4 @@
-import termsData from "./terms-and-conditions.json";
+import termsData from "../../data/terms-and-conditions.json";
 import React, {
   forwardRef,
   useImperativeHandle,
