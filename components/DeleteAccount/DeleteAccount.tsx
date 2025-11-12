@@ -28,7 +28,7 @@ const DeleteAccountModal: React.FC<DeleteAccountModalProps> = ({
       await onConfirm();
     } catch (e: any) {
       setError(
-        e?.message ?? "Something went wrong while deleting the account."
+        e?.message ?? "Something went wrong while deleting the account.",
       );
       return; // keep modal open to show error
     } finally {
