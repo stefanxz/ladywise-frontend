@@ -111,6 +111,7 @@ export function CycleQuestionsBottomSheet({
 
       <View className="mt-4 flex-row gap-3 px-4 pb-8">
         <Pressable
+          testID="save-button"
           onPress={handleSave}
           disabled={saving}
           className={`flex-1 rounded-xl py-3 items-center justify-center ${saving ? "bg-brand opacity-60" : "bg-brand"}`}
