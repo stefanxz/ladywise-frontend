@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useState } from "react";
-import { View, Text, Pressable, ActivityIndicator } from "react-native";
+import { View, Text, Pressable } from "react-native";
 import {
   BottomSheetModal,
   BottomSheetScrollView,
@@ -9,6 +9,7 @@ import type { BottomSheetBackdropProps } from "@gorhom/bottom-sheet";
 import { CycleQuestionsBottomSheetProps } from "@/components/CycleQuestionsBottomSheet/CycleQuestionsBottomSheet.types";
 import { CycleQuestion } from "@/components/CycleQuestionsBottomSheet/CycleQuestion";
 import questionsData from "@/data/cycle-questions.json";
+import { Droplet } from "lucide-react-native";
 
 export function CycleQuestionsBottomSheet({
   bottomSheetRef,
@@ -65,7 +66,8 @@ export function CycleQuestionsBottomSheet({
       enablePanDownToClose
       snapPoints={snapPoints}
     >
-      <View className="mt-4 pb-2 px-4 flex items-center">
+      <View className="mt-4 pb-2 px-4 flex-row items-center justify-center gap-2">
+        <Droplet size={24} color="#FD7577" fill="#FD7577" />
         <Text className="text-[20px] font-inter-semibold tracking-tight">
           Daily Cycle Check-In
         </Text>
