@@ -7,7 +7,6 @@ import { Image, Platform, Pressable, Text, View } from "react-native";
 import logotest from "@/assets/images/Elegant-Ladybug-Woman-Logo-Design2.png";
 import backgroundPart1 from "@/assets/images/LandingPage-background-part1.png";
 import backgroundPart2 from "@/assets/images/LandingPage-background-part2.png";
-import DeleteAccountModal from "@/components/DeleteAccount/DeleteAccount";
 
 /**
  * Landing page displayed when the app launches.
@@ -21,7 +20,6 @@ export default function LandingPage() {
   // Navigate to the registration page
   const handleGetStarted = () => {
     router.push("/(auth)/register");
-    // setShowModal(true); THIS WAS USED FOR TESTING THE DELETE ACCOUNT MODAL
   };
 
   // Navigate to the login page
@@ -96,15 +94,6 @@ export default function LandingPage() {
           </View>
         </View>
       </View>
-      <DeleteAccountModal
-        visible={showModal}
-        onCancel={() => setShowModal(false)}
-        onConfirm={async () => {
-          // simulate deleting
-          await new Promise((res) => setTimeout(res, 1500));
-          setShowModal(false);
-        }}
-      />
     </View>
   );
 }
