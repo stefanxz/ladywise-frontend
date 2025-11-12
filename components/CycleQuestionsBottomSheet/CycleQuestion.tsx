@@ -16,8 +16,8 @@ export function CycleQuestion({
   const handleSelect = (option: string) => {
     if (multiSelect) {
       let newSelection: string[];
-      if (option === "none of the above") {
-        newSelection = ["none of the above"];
+      if (option === "None of the above") {
+        newSelection = ["None of the above"];
       } else {
         newSelection = Array.isArray(selected) ? [...selected] : [];
         if (selected?.includes("none of the above")) newSelection = [];

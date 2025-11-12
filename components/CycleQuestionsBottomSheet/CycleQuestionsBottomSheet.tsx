@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useMemo } from "react";
 import { View, Text, Pressable, Dimensions } from "react-native";
 import {
   BottomSheetModal,
@@ -10,11 +10,11 @@ import { CycleQuestionsBottomSheetProps } from "@/components/CycleQuestionsBotto
 import { CycleQuestion } from "@/components/CycleQuestionsBottomSheet/CycleQuestion";
 import questionsData from "@/data/cycle-questions.json";
 
-const screenHeight = Dimensions.get("window").height;
-
 export function CycleQuestionsBottomSheet({
   bottomSheetRef,
 }: CycleQuestionsBottomSheetProps) {
+  const snapPoints = useMemo(() => ["80%"], []);
+
   const renderBackdrop = useCallback(
     (props: BottomSheetBackdropProps) => (
       <BottomSheetBackdrop
@@ -29,10 +29,10 @@ export function CycleQuestionsBottomSheet({
   return (
     <BottomSheetModal
       ref={bottomSheetRef}
+      index={1}
       backdropComponent={renderBackdrop}
       enablePanDownToClose
-      enableDynamicSizing
-      maxDynamicContentSize={screenHeight}
+      snapPoints={snapPoints}
     >
       <View className="mt-4 pb-2 px-4 flex items-center">
         <Text className="text-[20px] font-inter-semibold tracking-tight">
