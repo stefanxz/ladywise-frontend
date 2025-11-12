@@ -6,13 +6,38 @@ import { CycleQuestionProps } from "@/components/CycleQuestionsBottomSheet/Cycle
 export function CycleQuestion({
   question,
   options,
+  multiSelect = false,
   onSelect,
 }: CycleQuestionProps) {
-  const [selected, setSelected] = useState<string | null>(null);
+  const [selected, setSelected] = useState<string[] | string | null>(
+    multiSelect ? [] : null,
+  );
 
   const handleSelect = (option: string) => {
-    setSelected(option);
-    onSelect?.(option);
+    if (multiSelect) {
+      let newSelection: string[];
+      if (option === "none of the above") {
+        newSelection = ["none of the above"];
+      } else {
+        newSelection = Array.isArray(selected) ? [...selected] : [];
+        if (selected?.includes("none of the above")) newSelection = [];
+        if (newSelection.includes(option)) {
+          newSelection = newSelection.filter((o) => o !== option);
+        } else {
+          newSelection.push(option);
+        }
+      }
+      setSelected(newSelection);
+      onSelect?.(newSelection);
+    } else {
+      setSelected(option);
+      onSelect?.(option);
+    }
+  };
+
+  const isSelected = (option: string) => {
+    if (multiSelect) return (selected as string[])?.includes(option);
+    return selected === option;
   };
 
   return (
@@ -25,7 +50,7 @@ export function CycleQuestion({
           <CycleQuestionOptionPill
             key={option}
             label={option}
-            selected={selected === option}
+            selected={isSelected(option)}
             onPress={() => handleSelect(option)}
           />
         ))}

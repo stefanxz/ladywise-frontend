@@ -8,7 +8,8 @@ export type CycleQuestionsBottomSheetProps = {
 export type CycleQuestionProps = {
   question: string;
   options: string[];
-  onSelect: (selected: string) => void;
+  multiSelect?: boolean;
+  onSelect?: (selected: string[] | string) => void;
 };
 
 export type CycleQuestionOptionPillProps = {

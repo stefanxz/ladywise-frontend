@@ -8,6 +8,7 @@ import {
 import type { BottomSheetBackdropProps } from "@gorhom/bottom-sheet";
 import { CycleQuestionsBottomSheetProps } from "@/components/CycleQuestionsBottomSheet/CycleQuestionsBottomSheet.types";
 import { CycleQuestion } from "@/components/CycleQuestionsBottomSheet/CycleQuestion";
+import questionsData from "@/data/cycle-questions.json";
 
 const screenHeight = Dimensions.get("window").height;
 
@@ -31,7 +32,7 @@ export function CycleQuestionsBottomSheet({
       backdropComponent={renderBackdrop}
       enablePanDownToClose
       enableDynamicSizing
-      maxDynamicContentSize={screenHeight * 0.95}
+      maxDynamicContentSize={screenHeight}
     >
       <View className="mt-4 pb-2 px-4 flex items-center">
         <Text className="text-[20px] font-inter-semibold tracking-tight">
@@ -53,17 +54,14 @@ export function CycleQuestionsBottomSheet({
         </Text>
 
         {/* Questions */}
-
-        <CycleQuestion
-          question="How are you feeling today?"
-          options={["Good", "Okay", "Bad"]}
-          onSelect={(value) => console.log("Selected:", value)}
-        />
-
-        {[...Array(20)].map((_, i) => (
-          <Text key={i} className="text-base text-gray-600 mb-2">
-            Content item {i + 1}
-          </Text>
+        {questionsData.map((q) => (
+          <CycleQuestion
+            key={q.id}
+            question={q.question}
+            options={q.options}
+            multiSelect={q.multiSelect}
+            onSelect={(value) => console.log("Selected:", value)}
+          />
         ))}
       </BottomSheetScrollView>
 
