@@ -1,5 +1,6 @@
 import InsightsSection from "@/components/InsightsSection/InsightsSection";
 import { RiskData } from "@/lib/types/risks";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import React, {
   useCallback,
   useEffect,
@@ -30,7 +31,11 @@ import BottomSheet, {
   BottomSheetModalProvider,
   BottomSheetView,
 } from "@gorhom/bottom-sheet";
+import { getRiskData } from "@/lib/api";
+import { ApiRiskResponse } from "@/lib/types/risks";
 import { CycleQuestionsBottomSheet } from "@/components/CycleQuestionsBottomSheet/CycleQuestionsBottomSheet";
+import { BottomSheetModal } from "@gorhom/bottom-sheet";
+import { FloatingAddButton } from "@/components/FloatingAddButton/FloatingAddButton";
 
 type RiskLevel = "Low" | "Medium" | "High";
 const mapApiToInsights = (apiData: ApiRiskResponse): RiskData[] => {
@@ -114,26 +119,13 @@ const Home = () => {
   );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
 
   const openSheet = useCallback(() => {
-    bottomSheetModalRef.current?.present();
+    if (bottomSheetModalRef.current?.present) {
+      bottomSheetModalRef.current.present();
+    }
   }, []);
-
-  const renderBackdrop = useCallback(
-    // TODO: fix
-    (props: any) => (
-      <BottomSheetBackdrop
-        {...props}
-        appearsOnIndex={0}
-        disappearsOnIndex={-1}
-        opacity={0.25}
-        pressBehavior="close"
-      />
-    ),
-    [],
-  );
 
   // Effect for fetching risk data
   useEffect(() => {

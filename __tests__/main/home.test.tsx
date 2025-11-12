@@ -3,10 +3,28 @@ import * as api from "@/lib/api";
 import { CycleStatusDTO } from "@/lib/types/cycle";
 import { render, waitFor, screen } from "@testing-library/react-native";
 import React from "react";
+import { View } from "react-native";
 
 const mockUseAuth = jest.fn();
 jest.mock("@/context/AuthContext", () => ({
   useAuth: () => mockUseAuth(),
+}));
+
+jest.mock(
+  "@/components/CycleQuestionsBottomSheet/CycleQuestionsBottomSheet",
+  () => ({
+    CycleQuestionsBottomSheet: ({ bottomSheetRef }: any) => {
+      const { View } = require("react-native");
+      return <View testID="mock-bottom-sheet" />;
+    },
+  }),
+);
+
+jest.mock("@/components/FloatingAddButton/FloatingAddButton", () => ({
+  FloatingAddButton: ({ onPress }: any) => {
+    const { View } = require("react-native");
+    return <View testID="mock-floating-button" onClick={onPress} />;
+  },
 }));
 
 const mockSetPhase = jest.fn();
@@ -117,7 +135,7 @@ describe("Home Screen", () => {
 
   it("shows an error message if API call fails", async () => {
     mockedApi.getCycleStatus.mockRejectedValue(
-      new Error("Failed to load data.")
+      new Error("Failed to load data."),
     );
     const { findByText } = render(<Home />);
     expect(await findByText("Error: Failed to load data.")).toBeTruthy();
@@ -127,7 +145,7 @@ describe("Home Screen", () => {
     mockedApi.getCycleStatus.mockRejectedValue({
       response: { status: 404 },
     });
-    
+
     const { findByText, queryByText } = render(<Home />);
 
     // 1. Verify the neutral theme was set
@@ -137,7 +155,9 @@ describe("Home Screen", () => {
 
     // 2. Verify the correct "empty state" text is shown
     expect(await findByText("Hello!")).toBeTruthy();
-    expect(await findByText("Log your first period to begin tracking.")).toBeTruthy();
+    expect(
+      await findByText("Log your first period to begin tracking."),
+    ).toBeTruthy();
 
     expect(screen.getByTestId("mock-header")).toBeTruthy();
     expect(screen.getByTestId("mock-calendar-strip")).toBeTruthy();
@@ -213,7 +233,7 @@ describe("Home Screen", () => {
         currentCycleDay: 2,
         daysUntilNextEvent: 12,
         nextEvent: "NEXT_OVULATION",
-         // Ensure periodDates includes today for visual accuracy in calendar
+        // Ensure periodDates includes today for visual accuracy in calendar
         periodDates: ["2025-11-08", "2025-11-09", "2025-11-10"],
       });
 
