@@ -3,6 +3,17 @@ import { View, Text } from "react-native";
 import { CycleQuestionOptionPill } from "./CycleQuestionOptionPill";
 import { CycleQuestionProps } from "@/components/CycleQuestionsBottomSheet/CycleQuestionsBottomSheet.types";
 
+/**
+ * Renders a single question with multiple selectable options.
+ * Supports both single-select and multi-select behavior.
+ * Multi-select questions can include a "None of the above" option that clears other selections.
+ *
+ * Props:
+ * @param question - The text of the question
+ * @param options - Array of string options for this question
+ * @param multiSelect - Whether the question allows multiple selections
+ * @param onSelect - Callback that returns the currently selected value(s)
+ */
 export function CycleQuestion({
   question,
   options,

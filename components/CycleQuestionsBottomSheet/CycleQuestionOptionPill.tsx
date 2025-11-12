@@ -1,6 +1,14 @@
 import { CycleQuestionOptionPillProps } from "@/components/CycleQuestionsBottomSheet/CycleQuestionsBottomSheet.types";
 import { Pressable, Text } from "react-native";
 
+/**
+ * A single selectable pill/button representing one answer option in a CycleQuestion.
+ *
+ * Props:
+ * @param label - The text to display inside the pill
+ * @param selected - Whether this pill is currently selected
+ * @param onPress - Callback when the pill is pressed
+ */
 export function CycleQuestionOptionPill({
   label,
   selected,
