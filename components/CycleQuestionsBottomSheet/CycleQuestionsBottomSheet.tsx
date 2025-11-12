@@ -1,23 +1,19 @@
-import React, { useMemo, useCallback } from "react";
-import { View, Text, TouchableOpacity } from "react-native";
+import React, { useCallback } from "react";
+import { View, Text, Pressable, Dimensions } from "react-native";
 import {
   BottomSheetModal,
   BottomSheetScrollView,
   BottomSheetBackdrop,
 } from "@gorhom/bottom-sheet";
 import type { BottomSheetBackdropProps } from "@gorhom/bottom-sheet";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { CycleQuestionsBottomSheetProps } from "@/components/CycleQuestionsBottomSheet/CycleQuestionsBottomSheet.types";
+import { CycleQuestion } from "@/components/CycleQuestionsBottomSheet/CycleQuestion";
 
-interface CustomBottomSheetProps {
-  bottomSheetRef: React.RefObject<BottomSheetModal | null>;
-}
+const screenHeight = Dimensions.get("window").height;
 
 export function CycleQuestionsBottomSheet({
   bottomSheetRef,
-}: CustomBottomSheetProps) {
-  const snapPoints = useMemo(() => ["75%"], []);
-  const insets = useSafeAreaInsets();
-
+}: CycleQuestionsBottomSheetProps) {
   const renderBackdrop = useCallback(
     (props: BottomSheetBackdropProps) => (
       <BottomSheetBackdrop
@@ -32,30 +28,37 @@ export function CycleQuestionsBottomSheet({
   return (
     <BottomSheetModal
       ref={bottomSheetRef}
-      snapPoints={snapPoints}
       backdropComponent={renderBackdrop}
       enablePanDownToClose
-      handleIndicatorStyle={{ backgroundColor: "#9ca3af" }}
-      topInset={insets.top}
+      enableDynamicSizing
+      maxDynamicContentSize={screenHeight * 0.95}
     >
-      <View className="px-4 pb-2">
-        <Text className="text-2xl font-bold text-gray-900">
-          Bottom Sheet Title
+      <View className="mt-4 pb-2 px-4 flex items-center">
+        <Text className="text-[20px] font-inter-semibold tracking-tight">
+          Daily Cycle Check-In
         </Text>
       </View>
 
       <BottomSheetScrollView
         contentContainerStyle={{
           paddingHorizontal: 16,
-          paddingTop: 16,
+          paddingTop: 4,
           paddingBottom: 24,
         }}
         showsVerticalScrollIndicator={false}
       >
-        <Text className="text-base text-gray-700 mb-4">
-          Your scrollable content goes here. This area will scroll vertically
-          while the bottom navigation bar stays fixed.
+        <Text className="mb-8 px-8 text-[12px] text-inactiveText flex items-center text-center">
+          Answer a few quick questions and help us track your cycle and spot any
+          important changes.
         </Text>
+
+        {/* Questions */}
+
+        <CycleQuestion
+          question="How are you feeling today?"
+          options={["Good", "Okay", "Bad"]}
+          onSelect={(value) => console.log("Selected:", value)}
+        />
 
         {[...Array(20)].map((_, i) => (
           <Text key={i} className="text-base text-gray-600 mb-2">
@@ -64,15 +67,10 @@ export function CycleQuestionsBottomSheet({
         ))}
       </BottomSheetScrollView>
 
-      <View className="border-t border-gray-200 px-4 pb-8 bg-white">
-        <TouchableOpacity
-          className="bg-blue-600 py-3 px-6 rounded-lg items-center mt-4"
-          onPress={() => console.log("Button pressed")}
-        >
-          <Text className="text-white font-semibold text-base">
-            Placeholder Button
-          </Text>
-        </TouchableOpacity>
+      <View className="mt-4 flex-row gap-3 px-4 pb-8">
+        <Pressable className="flex-1 bg-brand rounded-xl py-3 items-center">
+          <Text className="text-white font-inter-semibold">Save answers</Text>
+        </Pressable>
       </View>
     </BottomSheetModal>
   );
