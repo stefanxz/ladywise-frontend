@@ -3,7 +3,6 @@ import * as api from "@/lib/api";
 import { CycleStatusDTO } from "@/lib/types/cycle";
 import { render, waitFor, screen } from "@testing-library/react-native";
 import React from "react";
-import { View } from "react-native";
 
 const mockUseAuth = jest.fn();
 jest.mock("@/context/AuthContext", () => ({
@@ -23,7 +22,7 @@ jest.mock(
 jest.mock("@/components/FloatingAddButton/FloatingAddButton", () => ({
   FloatingAddButton: ({ onPress }: any) => {
     const { View } = require("react-native");
-    return <View testID="mock-floating-button" onClick={onPress} />;
+    return <View testID="mock-floating-button" onPress={onPress} />;
   },
 }));
 
