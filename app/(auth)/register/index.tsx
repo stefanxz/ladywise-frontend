@@ -6,9 +6,12 @@ import { TermsConditionsCheckbox } from "@/components/TermsConditionsCheckbox/Te
 import { ThemedPressable } from "@/components/ThemedPressable/ThemedPressable";
 import { isEmailValid, isPasswordValid } from "@/utils/validations";
 import { useRouter } from "expo-router";
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import TermsConditionsPopUp, {
+  TermsConditionsPopUpRef,
+} from "@/components/TermsConditionsPopUp/TermsConditionsPopUp";
 
 //Main page for registering
 //Contains email, password, password confirmation, option for social sign up
@@ -25,6 +28,8 @@ export default function RegisterIndex() {
     string | null
   >(null);
   const [formError, setFormError] = useState<string | null>(null);
+
+  const termsModalRef = useRef<TermsConditionsPopUpRef>(null);
 
   const router = useRouter();
 
@@ -139,7 +144,9 @@ export default function RegisterIndex() {
           <TermsConditionsCheckbox
             checked={termsConditions}
             onToggle={() => setTermsConditions((v) => !v)}
-            termsUrl="https://example.com/terms"
+            openSheet={() => {
+              termsModalRef.current?.open();
+            }}
           />
         </View>
 
@@ -169,6 +176,10 @@ export default function RegisterIndex() {
           }}
         />
       </View>
+      <TermsConditionsPopUp
+        ref={termsModalRef}
+        onAccept={() => setTermsConditions(true)}
+      />
     </SafeAreaView>
   );
 }

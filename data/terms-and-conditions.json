@@ -1,0 +1,219 @@
+{
+  "title": "PRIVACY POLICY",
+  "subtitle": "LifeSense Group Privacy Policy",
+  "lastUpdated": "20.10.2025",
+  "introduction": [
+    "At LifeSense Group, we believe that wearable technology empowers people to understand and work on their health independently. We fully acknowledge the great responsibility that comes with safeguarding sensitive data, such as information about your menstruation, blood conductivity. We are committed to achieving the highest standards of privacy and security, as well as to being transparent about how we process data.",
+    "We hope you will find this privacy policy clear, honest, and transparent. Do not hesitate to reach out to us at info@lifesense-group.com if you have any questions.",
+    "LifeSense Group contact address is High Tech Campus 10, 5656 AE, Eindhoven, The Netherlands. Further contact information can be found here. LifeSense Group has an appointed data protection officer, who can be contacted at info@lifesense-group.com."
+  ],
+  "sections": [
+    {
+      "number": "1",
+      "title": "How we process your personal data at LifeSense Group",
+      "content": [
+        "Data processing is at the center of everything we do at LifeSense Group, and whenever you use our services—e.g. when you use the LifeSense Group products apps (like Oopsie Heroes or Carin Pelvic Floor Trainer) or when you go on our website—some personal and non-personal data is collected, stored, and analyzed using internal and third-party tools.",
+        "Here are the three purposes for which we process data and the type of data that is processed to fulfil each purpose:"
+      ],
+      "subsections": [
+        {
+          "number": "1.1",
+          "title": "To understand your needs and improve our services",
+          "content": [
+            "When you use our apps—including use without an account—or when you go on our website LifeSense Group collects, stores, and uses some personal and non-personal data and transmits it to some third-party services.",
+            "We do this in order to understand your needs and your use of our products, to analyse bugs and fix issues, and to bring you more useful features. In a nutshell, we process this data to provide you the best and most reliable experience of our services. We do not process personal data that directly identifies you as a person (such as your first name, surname, email) or health-related data.",
+            "Here are the types of data we collect:"
+          ],
+          "dataTypes": [
+            {
+              "type": "Device data",
+              "description": "This data informs us about the device you use to access our services, such as the model, name and identifiers, device settings, the application identifier, and crash information. On our website, we collect information about your browser and browser settings, the operating system you use, and the system settings of your device."
+            },
+            {
+              "type": "Event and usage data",
+              "description": "When you use the apps or when you go to our website, our servers process data in order to understand your usage of our services—for example, which pages you visit or which tab in the app you open. We collect this information and use it as aggregate data to better understand which features are the most relevant or useful to our users as whole."
+            },
+            {
+              "type": "IP address",
+              "description": "We collect IP addresses provided by your browser or mobile device to deliver the service to your device. We also use the IP address to determine your approximate location for statistical and analytics purposes."
+            }
+          ],
+          "additionalContent": [
+            "All the data we collect at LifeSense Group is necessary for LifeSense Group to deliver the services you use. The amount we collect has been minimized wherever possible to respect your privacy.",
+            "Should you still disagree with the collection and processing of this data, we recommend you stop using our services or delete your account and uninstall the app."
+          ]
+        },
+        {
+          "number": "1.2",
+          "title": "To deliver personalized insights as your trusted health companion",
+          "content": [
+            "The data you track in LifeSense Group apps about your health and activities is considered sensitive personal data. LifeSense Group does not store sensitive personal data without your explicit permission. It is only when you give us explicit consent by creating a LifeSense Group account that we start storing all your health and sensitive data on our secured servers, alongside the personal data necessary to create an account. You can find a detailed explanation of what you consent to when creating an account with LifeSense Group in the next section of our Privacy Policy.",
+            "You can withdraw your consent at any time by simply deleting your account in the app, newsletter, etc. In this case, you can still use our apps without an account and your data will only be stored locally on your device. All future data will be only stored in your smartphone, so be sure to make regular backups to avoid the loss of your data.",
+            "Here is the type of data we collect and store when you create an account:"
+          ],
+          "dataTypes": [
+            {
+              "type": "Personal data used for account creation",
+              "description": "We need some of your personal data, such as your name, surname, and email address, in order to create your account."
+            },
+            {
+              "type": "Health and sensitive data",
+              "description": "We store health data, such as your age, gender and dates of your past and current menstruation and blood conductivity events. LifeSense Group uses this data for the purpose of providing our services to you."
+            }
+          ]
+        },
+        {
+          "number": "1.3",
+          "title": "To advance scientific research about LadyWise",
+          "content": [
+            "The vision of LifeSense Group is: seek to inspire a healthier life for everyone, everyday. LifeSense aims to empower women everyday by revolutionizing healthcare with wearable technology. Since its inception, LifeSense Group has successfully collaborated with academic researchers.",
+            "We want to make it very clear that we personally select our scientific collaborators with the utmost care and, most importantly, that we only provide data for scientific research after it has been anonymized following a strict protocol that involves the removal of any information that could be used to identify any specific user.",
+            "Finally, because we believe that research should benefit everyone, LifeSense Group strives to publish the results of our academic, clinical, or internal research in ways that are easy to read for all our users.",
+            "Once again, you can withdraw your consent to use of your data for these purposes at any time by deleting your account. If you do this, your data won't be included in any future research partnerships."
+          ]
+        }
+      ]
+    },
+    {
+      "number": "2",
+      "title": "Your consent for processing health and sensitive data",
+      "content": [
+        "If you create an account with LifeSense Group apps, your personal data—including sensitive data and data related to your health—is stored on your device and is also stored and processed on LifeSense Group servers. This is done so we can offer you the option of backing up your data and to enable additional features.",
+        "By creating an account with LifeSense Group you explicitly consent that:"
+      ],
+      "consentPoints": [
+        "LifeSense Group may store and process personal data you provide through the usage of the LifeSense Group apps and through the account creation process solely for the purpose of providing LifeSense Group services to you and to improve LifeSense Group's service features. Such LifeSense Group services may include sending you information and reminders through the LifeSense Group apps or to the email address you provided to LifeSense Group.",
+        "Personal data you provide to LifeSense Group through the account creation process includes personal data you enter into the LifeSense Group apps, such as your account data (e.g. your name and email address). Depending on the data you provide, it may also contain information about your age and gender.",
+        "LifeSense Group may use your urine loss data to create anonymized sets of data for academic and clinical research purposes. LifeSense Group's collaborators are individually selected through an internal vetting process. This anonymized research data cannot be linked to you as an individual or identify you in any way."
+      ],
+      "withdrawal": "You may withdraw your consent to this use of your data at any time by deleting your LifeSense Group apps account. If you choose to do so, you may continue using the LifeSense Group app without an account, but since a copy of your data will no longer be stored on our servers, please be sure to make regular backups of your data to avoid data loss—we are not able to retrieve lost data of users without LifeSense Group apps accounts."
+    },
+    {
+      "number": "3",
+      "title": "Your rights",
+      "content": [
+        "We believe that privacy—including data privacy—is a basic human right. At LifeSense Group we strive to ensure that your rights are respected.",
+        "Here are some key facts about your privacy that we would like you to know:"
+      ],
+      "keyFacts": [
+        "Our products and services have been designed to minimize the use of your personal data. We only collect and process your data for the purposes that have been previously outlined.",
+        "The security of our servers is routinely verified by experts to protect your data from unauthorized access. You can contact us at info@lifesense-group.com if you have any questions about the security of our services.",
+        "We do not retain your data in an identifiable format for longer than necessary to deliver our services.",
+        "LifeSense Group does not engage in any automated decision-making or profiling activities."
+      ],
+      "userRights": [
+        "Request information on your personal data processed by LifeSense Group. Upon your request, this information will be provided to you electronically.",
+        "Gain access to your information by requesting a backup of your data (as explained in the next section) in a format that is readable by other companies or organizations (data portability).",
+        "Correct your personal information and health data in the app settings and in the tracking categories available in the LifeSense Group apps.",
+        "Withdraw your consent from data processing at any time by deleting your account (as explained in the support section of the apps) and/or unsubscribing from our newsletter by clicking the link at bottom of the email or by contacting info@lifesense-group.com.",
+        "Request the complete deletion of your data, including all past data sent to third-party services used for tracking and analysis, by reaching out to info@lifesense-group.com. Your data will be deleted within 30 days.",
+        "Lodge a complaint with the relevant supervising authority if you believe LifeSense Group is processing your personal data under violation of applicable data protection regulations."
+      ]
+    },
+    {
+      "number": "4",
+      "title": "Data Security",
+      "content": [
+        "We apply security measures to protect against the misuse, loss, and/or alteration of personal information under our control. We follow industry best practices when transferring and storing your data. Though we cannot ensure or guarantee that misuse, loss or alteration of information will never occur, we use all reasonable efforts to prevent it."
+      ],
+      "subsections": [
+        {
+          "number": "4.1",
+          "title": "How LifeSense Group stores your personal data",
+          "content": [
+            "If you have an account with LifeSense Group, your personal profile data is stored separately from your urine loss tracking data and your service settings. This allows us to ensure the highest possible level of privacy for your cycle information. Your password will be stored when implemented using one-way encryption (\"hashing\" plus \"salting\") and it cannot be read by us.",
+            "Important: LifeSense Group uses servers located in the European Union to process and store your personal data.",
+            "Your data is transmitted between your device and LifeSense Group's servers using the HTTPS protocol for encryption. HTTPS is the same technology used to create secure connections for your web browser and is indicated by a padlock icon in the URL bar of your browser."
+          ]
+        },
+        {
+          "number": "4.2",
+          "title": "LifeSense Group's recommendations for protecting your data",
+          "content": [
+            "We believe the biggest threat to the security and privacy of your data is if someone—probably someone you know—gains access to any of your devices. The data you enter into LifeSense Group apps is private and it should stay that way. We have outlined some ways to keep your devices secure below."
+          ],
+          "recommendations": [
+            {
+              "category": "Protect your device",
+              "description": "Activate either PIN, TouchID (iPhone 5S-8), or FaceID (iPhone X) authentication for your device. This automatically encrypts your LifeSense Group data and prevents any person from using your device without your permission.",
+              "additionalSteps": "Set up a feature that will allow you to erase all the data from your device if it's been lost or stolen. For iOS, activating this feature is a two-step process: first, you need to Activate \"Find My iPhone\" via iCloud (see instructions on Apple Support pages) and then enable \"Erase your device\" (see instructions on Apple Support pages). For Android, download and set up Find My Device (formerly Android Device Manager) from the Google Play Store and, if needed, use the connected web interface to lock or wipe your phone remotely."
+            },
+            {
+              "category": "Recommendations for LifeSense Group users without accounts",
+              "description": "If you don't register an account with LifeSense Group, all of your data will be stored solely on your device and we won't have access to it. If you delete LifeSense Group apps or lose your device, your data in the LifeSense Group apps will also be lost. If you don't have an account with LifeSense Group, we strongly recommend that you back up your LifeSense Group data regularly."
+            },
+            {
+              "category": "Back up LifeSense Group apps data on iOS without an account",
+              "description": "Use Apple's backup solution via iTunes or iCloud. See Apple's support pages for instructions."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "number": "5",
+      "title": "Data transfer outside the EU and to third-party applications",
+      "content": [
+        "Any personal data collected from you may only be transferred to countries outside the European Union / the European Economic Area (EEA) observing applicable privacy regulations and ensuring that your privacy rights remain protected."
+      ]
+    },
+    {
+      "number": "6",
+      "title": "Cookies and tracking",
+      "content": [
+        "Our website uses cookies, which are small text files that are intended to make the site better for you to use. In general, cookies are used to retain preferences, store information for things like shopping carts, and provide tracking data to third-party applications like Google Analytics. You may, however, disable cookies on LifeSense Group's site. The most effective way to do this is to disable cookies in your browser. We suggest consulting the help section of your browser or doing your own web research on how to disable cookies.",
+        "The LifeSense Group apps and our website also use third-party analysis and tracking services to track the performance of our services, understand how you use our services, and offer you an improved and safer experience.",
+        "Information on your usage of our website or of the LifeSense Group app may be collected and processed by LifeSense Group, or a third party engaged by LifeSense Group using a unique identification number assigned to you. Such usage information will be deleted as soon as this information is no longer required for the purpose collected, and will not be shared with third parties besides those mentioned under Section 6.2 after being anonymized."
+      ],
+      "subsections": [
+        {
+          "number": "6.1",
+          "title": "Your consent for LifeSense Group tracking and analysis",
+          "content": [
+            "By using our apps and our website you consent that LifeSense Group may use cookies and third-party services, and collect your usage data under a unique identifier, for the purposes of tracking, analysis, and improvement of our website and app.",
+            "You may withdraw your consent at any time, by either disabling cookies on your device or following the instructions on how to withdraw your consent individually for each third-party provider LifeSense Group uses for its third-party tracking and analysis services.",
+            "For the purpose of tracking the performance of our services and to improve LifeSense Group services LifeSense Group uses the following third-party services:"
+          ]
+        },
+        {
+          "number": "6.2",
+          "title": "Google Analytics",
+          "content": [
+            "Our website uses Google Analytics, a web analysis service operated by Google Inc. (\"Google\"). Google Analytics uses cookies (text files) stored on your computer to allow for analysis of your visits to websites and interactions with them in order to personalize your experience and improve our services. Information produced via cookies will be transferred to and stored on a server in the USA operated by Google.",
+            "Google analyzes this information to offer reports for LifeSense Group on website usage and online usage of associated services. Google may also transfer this information to third parties either when this is required by law or when third parties are contracted by Google to process this data. Google will not allow your IP address to be linked to any other personal data. You can prevent cookies from being stored on your computer by changing your browser settings; however, if you choose to do this, your experience when visiting our website or using some of our features may be altered.",
+            "By using LifeSense Group's website, you consent to have non-personal data used and processed by Google as described above. You can withdraw consent for this use of your data at any time, but this withdrawal only applies to future activities."
+          ]
+        },
+        {
+          "number": "6.3",
+          "title": "",
+          "content": [
+            "The above-mentioned company is compliant with the EU-US Privacy Shield Framework that ensures that European data privacy requirement are met. The privacy policy of these services can be found on their respective websites.",
+            "Read more about the EU-US Privacy Shield Framework."
+          ]
+        }
+      ]
+    },
+    {
+      "number": "7",
+      "title": "Communications and newsletter activities",
+      "content": [
+        "LifeSense Group uses your personal information, such as your email address, to contact you with messages, emails, and newsletters. These include push notifications and in-app messages, informational content about health delivered to you via email, as well as occasional promotional materials that may be of interest to you, also sent via email.",
+        "Such services are only provided to you if you have signed up for the newsletter service or given your consent for these notifications. You can withdraw your consent at any time from either or both of the two—you can unsubscribe from our newsletter by clicking the unsubscribe link at the bottom of the message and disable notifications sent by LifeSense Group in your device settings.",
+        "In order to provide these services, LifeSense Group may forward information such as your email address to third-party providers in order to carry out such newsletter service or notification. These providers are the Rocket Science Group LLC (\"MailChimp\"), seated in Atlanta, USA, which may process your email address, name and usage data to send you informational and occasional commercial content via email.",
+        "The privacy policy of these services can be found on their respective websites. This company is compliant with the EU-US Privacy Shield Framework that ensures that European data privacy requirements are met."
+      ]
+    },
+    {
+      "number": "8",
+      "title": "Changes to this Privacy Policy",
+      "content": [
+        "LifeSense Group reserves the right to amend this Privacy Policy from time to time to reflect changes in the law, our data collection and data use practices, the features of LifeSense Group's services, or advances in technology. Please check this page periodically for changes. If we make a change to this Privacy Policy that, in our sole discretion, is material, we will notify you by posting notice of these changes in this Privacy Policy."
+      ]
+    }
+  ],
+  "footer": {
+    "contactNote": "If any part of our Privacy Policy was unclear or if you have further questions, get in touch at info@lifesense-group.com.",
+    "copyright": "©2025 LifeSense Group B.V."
+  }
+}

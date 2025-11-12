@@ -5,11 +5,15 @@ import {
   Inter_600SemiBold,
   useFonts,
 } from "@expo-google-fonts/inter";
-import { Slot, SplashScreen } from "expo-router";
+import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
+import { Slot } from "expo-router";
+import * as SplashScreen from "expo-splash-screen";
 import { useEffect } from "react";
+import { View } from "react-native";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 import { AuthProvider, useAuth } from "@/context/AuthContext";
 import { ThemeProvider } from "@/context/ThemeContext";
-import { View } from "react-native";
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
 
@@ -36,15 +40,16 @@ function AppContent() {
 
 export default function RootLayout() {
   return (
-    <AuthProvider>
-      <ThemeProvider>
-        {/* We need this View for the onLayout hack if we used it, 
-            but standard SplashScreen.hideAsync() works too. 
-            Keeping flex-1 just in case. */}
-        <View style={{ flex: 1 }}>
-          <AppContent />
-        </View>
-      </ThemeProvider>
-    </AuthProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <SafeAreaProvider>
+        <AuthProvider>
+          <ThemeProvider>
+            <BottomSheetModalProvider>
+              <AppContent />
+            </BottomSheetModalProvider>
+          </ThemeProvider>
+        </AuthProvider>
+      </SafeAreaProvider>
+    </GestureHandlerRootView>
   );
 }
