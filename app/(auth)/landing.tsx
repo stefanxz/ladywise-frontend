@@ -20,8 +20,8 @@ export default function LandingPage() {
 
   // Navigate to the registration page
   const handleGetStarted = () => {
-    // router.push("/(auth)/register");
-    setShowModal(true);
+    router.push("/(auth)/register");
+    // setShowModal(true); THIS WAS USED FOR TESTING THE DELETE ACCOUNT MODAL
   };
 
   // Navigate to the login page
