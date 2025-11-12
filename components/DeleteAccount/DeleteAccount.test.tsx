@@ -24,8 +24,8 @@ describe("DeleteAccountModal", () => {
     expect(screen.getByText("Delete account")).toBeOnTheScreen();
     expect(
       screen.getByText(
-        "This action is permanent. Your profile, data, and all associated content will be deleted. This cannot be undone.",
-      ),
+        "This action is permanent. Your profile, data, and all associated content will be deleted. This cannot be undone."
+      )
     ).toBeOnTheScreen();
   });
 
@@ -41,7 +41,7 @@ describe("DeleteAccountModal", () => {
         {...defaultProps}
         title="Custom Title"
         message="Custom message text"
-      />,
+      />
     );
 
     expect(screen.getByText("Custom Title")).toBeOnTheScreen();
@@ -61,7 +61,7 @@ describe("DeleteAccountModal", () => {
     render(<DeleteAccountModal {...defaultProps} />);
 
     const backdrop = screen.getByLabelText(
-      "Close delete account dialog backdrop",
+      "Close delete account dialog backdrop"
     );
     fireEvent.press(backdrop);
 
@@ -81,7 +81,7 @@ describe("DeleteAccountModal", () => {
 
   it("shows loading indicator during async onConfirm", async () => {
     const onConfirm = jest.fn(
-      (): Promise<void> => new Promise((resolve) => setTimeout(resolve, 100)),
+      (): Promise<void> => new Promise((resolve) => setTimeout(resolve, 100))
     );
     render(<DeleteAccountModal {...defaultProps} onConfirm={onConfirm} />);
 
@@ -102,7 +102,7 @@ describe("DeleteAccountModal", () => {
 
   it("disables buttons while loading", async () => {
     const onConfirm = jest.fn(
-      (): Promise<void> => new Promise((resolve) => setTimeout(resolve, 100)),
+      (): Promise<void> => new Promise((resolve) => setTimeout(resolve, 100))
     );
     render(<DeleteAccountModal {...defaultProps} onConfirm={onConfirm} />);
 
@@ -119,7 +119,7 @@ describe("DeleteAccountModal", () => {
 
   it("prevents multiple onConfirm calls when already loading", async () => {
     const onConfirm = jest.fn(
-      (): Promise<void> => new Promise((resolve) => setTimeout(resolve, 100)),
+      (): Promise<void> => new Promise((resolve) => setTimeout(resolve, 100))
     );
     render(<DeleteAccountModal {...defaultProps} onConfirm={onConfirm} />);
 
@@ -138,7 +138,7 @@ describe("DeleteAccountModal", () => {
   it("displays error message when onConfirm throws an error", async () => {
     const errorMessage = "Network error occurred";
     const onConfirm = jest.fn(
-      (): Promise<void> => Promise.reject(new Error(errorMessage)),
+      (): Promise<void> => Promise.reject(new Error(errorMessage))
     );
 
     render(<DeleteAccountModal {...defaultProps} onConfirm={onConfirm} />);
@@ -164,7 +164,7 @@ describe("DeleteAccountModal", () => {
 
     await waitFor(() => {
       expect(
-        screen.getByText("Something went wrong while deleting the account."),
+        screen.getByText("Something went wrong while deleting the account.")
       ).toBeOnTheScreen();
     });
   });
@@ -176,7 +176,7 @@ describe("DeleteAccountModal", () => {
       .mockResolvedValueOnce(undefined);
 
     const { rerender } = render(
-      <DeleteAccountModal {...defaultProps} onConfirm={onConfirm} />,
+      <DeleteAccountModal {...defaultProps} onConfirm={onConfirm} />
     );
 
     const deleteButton = screen.getByLabelText("Confirm delete account");
