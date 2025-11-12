@@ -1,4 +1,4 @@
-/** 
+/**
  * Unified Jest config (merged .ts + .js)
  * Works for Expo + React Native projects
  */
@@ -25,12 +25,9 @@ module.exports = {
   },
 
   // Which files to treat as tests
-  testMatch: [
-    "**/__tests__/**/*.[jt]s?(x)",
-    "**/?(*.)+(spec|test).[jt]s?(x)",
-  ],
+  testMatch: ["**/__tests__/**/*.[jt]s?(x)", "**/?(*.)+(spec|test).[jt]s?(x)"],
 
-  // Avoid transforming core RN and Expo packages
+  // Avoid transforming core RN and Expo packages (COMBINED into one)
   transformIgnorePatterns: [
     "node_modules/(?!(react-native" +
       "|@react-native" +
@@ -45,7 +42,9 @@ module.exports = {
       "|react-native-svg" +
       "|react-native-css-interop" +
       "|nativewind" +
-      "|@expo/vector-icons)/)",
+      "|@expo/vector-icons" +
+      "|@gorhom/bottom-sheet" +
+      "|react-native-worklets)/)",
   ],
 
   // Ignore build and system directories
