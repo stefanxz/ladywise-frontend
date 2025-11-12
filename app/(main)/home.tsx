@@ -30,6 +30,7 @@ import BottomSheet, {
   BottomSheetModalProvider,
   BottomSheetView,
 } from "@gorhom/bottom-sheet";
+import { CycleQuestionsBottomSheet } from "@/components/CycleQuestionsBottomSheet/CycleQuestionsBottomSheet";
 
 type RiskLevel = "Low" | "Medium" | "High";
 const mapApiToInsights = (apiData: ApiRiskResponse): RiskData[] => {
@@ -308,16 +309,7 @@ const Home = () => {
         </SafeAreaView>
       </LinearGradient>
 
-      <BottomSheetModal
-        ref={bottomSheetModalRef}
-        enableDynamicSizing
-        backdropComponent={renderBackdrop}
-        enablePanDownToClose
-      >
-        <BottomSheetView>
-          <Text>test</Text>
-        </BottomSheetView>
-      </BottomSheetModal>
+      <CycleQuestionsBottomSheet bottomSheetRef={bottomSheetModalRef} />
     </>
   );
 };
