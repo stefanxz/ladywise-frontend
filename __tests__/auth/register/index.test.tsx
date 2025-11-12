@@ -10,6 +10,17 @@ jest.mock("expo-router");
 jest.mock("@expo/vector-icons");
 jest.mock("react-native-safe-area-context");
 
+
+// Provide a lightweight AuthContext mock so the screen can drive setStatus without pulling in the real layout.
+const mockSignIn = jest.fn();
+jest.mock("@/context/AuthContext", () => ({
+  useAuth: () => ({
+    signIn: mockSignIn,
+    isLoading: false,
+    token: null,
+  })
+}))
+
 // Child components that aren’t the focus (just render pass-through)
 jest.mock("@/components/AppBarBackButton/AppBarBackButton", () => ({
   AppBar: () => null,
@@ -48,21 +59,29 @@ jest.mock("@/utils/validations", () => ({
 const mockedValidations = jest.mocked(validations);
 
 const mockPush = jest.fn();
+const mockReplace = jest.fn();
 jest.mock("expo-router", () => ({
-  useRouter: () => ({ push: mockPush }),
+  useRouter: () => ({ push: mockPush, replace: mockReplace }),
 }));
 
 // mock the registerUser call used in handleContinue
 jest.mock("@/lib/api", () => ({
   registerUser: jest.fn(),
+  loginUser: jest.fn(),
 }));
-const mockedRegisterUser = jest.mocked(api.registerUser);
 
-mockPush.mockClear();
+const mockedApi = jest.mocked(api);
+//const mockedRegisterUser = jest.mocked(api.registerUser);
+
+// mockPush.mockClear();
+// mockReplace.mockClear();
 
 describe("RegisterIndex screen", () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockPush.mockClear();
+    mockReplace.mockClear();
+    mockSignIn.mockClear();
     mockedValidations.isEmailValid.mockReset();
     mockedValidations.isPasswordValid.mockReset();
   });
@@ -103,7 +122,7 @@ describe("RegisterIndex screen", () => {
     pressContinue();
 
     expect(getByText("Please enter your email.")).toBeTruthy();
-    expect(mockPush).not.toHaveBeenCalled();
+    expect(mockReplace).not.toHaveBeenCalled();
   });
 
   it("shows 'Email must have the format example@domain.com.' for invalid email", () => {
@@ -117,7 +136,7 @@ describe("RegisterIndex screen", () => {
     expect(
       getByText("Email must have the format example@domain.com.")
     ).toBeTruthy();
-    expect(mockPush).not.toHaveBeenCalled();
+    expect(mockReplace).not.toHaveBeenCalled();
   });
 
   it("shows password rules error when password invalid", () => {
@@ -138,7 +157,7 @@ describe("RegisterIndex screen", () => {
         "Password must contain at least 8 characters, 1 upper case, 1 lower case and 1 number (and no spaces)."
       )
     ).toBeTruthy();
-    expect(mockPush).not.toHaveBeenCalled();
+    expect(mockReplace).not.toHaveBeenCalled();
   });
 
   it("shows confirm error when confirmation is empty or mismatched", () => {
@@ -162,37 +181,66 @@ describe("RegisterIndex screen", () => {
     pressContinue();
     expect(getByText("Please make sure the passwords match.")).toBeTruthy();
 
-    expect(mockPush).not.toHaveBeenCalled();
+    expect(mockReplace).not.toHaveBeenCalled();
   });
 
   it("navigates on valid inputs", async () => {
-  const { toggleTnc, typeEmail, typePassword, typeConfirm, pressContinue } = setup();
+    mockedApi.loginUser.mockResolvedValue({
+      token: "fake-token",
+      tokenType: "Bearer",
+      userId: "user-123",
+      email: "user@example.com",
+    });
+    const { toggleTnc, typeEmail, typePassword, typeConfirm, pressContinue } = setup();
 
-  toggleTnc();
-  typeEmail("user@example.com");
-  mockedValidations.isEmailValid.mockReturnValue(true);
+    toggleTnc();
+    typeEmail("user@example.com");
+    mockedValidations.isEmailValid.mockReturnValue(true);
 
-  typePassword("Abcd1234");
-  mockedValidations.isPasswordValid.mockReturnValue(true);
-  typeConfirm("Abcd1234");
+    typePassword("Abcd1234");
+    mockedValidations.isPasswordValid.mockReturnValue(true);
+    typeConfirm("Abcd1234");
 
-  // make registerUser resolve successfully so mockPush runs
-  mockedRegisterUser.mockResolvedValueOnce({
-    id: "123",
-    email: "user@example.com"
-  });
-  //mockedRegisterUser.mockResolvedValueOnce({} as any);
-  await act(async () => {
-    pressContinue();
-  });
+    await act(async () => {
+        pressContinue();
+      });
 
-  await waitFor(() => {
-    expect(mockPush).toHaveBeenCalledWith("/(auth)/register/personal-details");
-  });
+    // make registerUser resolve successfully so mockPush runs
+    await waitFor(() => {
+      expect(mockedApi.registerUser).toHaveBeenCalledWith({
+        email: "user@example.com",
+        password: "Abcd1234"
+      });  
+    });
+
+    await waitFor(() => {
+      expect(mockedApi.loginUser).toHaveBeenCalledWith({
+        email: "user@example.com",
+        password: "Abcd1234"
+      });
+    });
+
+    await waitFor(() => {
+      expect(mockSignIn).toHaveBeenCalledWith(
+        "fake-token",
+        "user-123",
+        "user@example.com"
+      )
+    })
+
+    await waitFor(() => {
+      expect(mockReplace).toHaveBeenCalledWith("/(auth)/register/personal-details");
+    });
 
 });
 
 it("clears specific field error when user edits that field again", async() => {
+  mockedApi.loginUser.mockResolvedValue({
+    token: "fake-token",
+    tokenType: "Bearer",
+    userId: "user-123",
+    email: "user@example.com",
+  });
   const { toggleTnc, pressContinue, getByText, typeEmail, typePassword, typeConfirm, queryByText } =
     setup();
 
@@ -221,18 +269,36 @@ it("clears specific field error when user edits that field again", async() => {
   mockedValidations.isPasswordValid.mockReturnValue(true);
   typeConfirm("Abcd1234");
 
-  // make registerUser resolve successfully so mockPush runs
-  mockedRegisterUser.mockResolvedValueOnce({
-    id: "123",
-    email: "user@example.com"
-  });
-  //mockedRegisterUser.mockResolvedValueOnce({} as any);
   await act(async () => {
     pressContinue();
   });
 
+  // make registerUser resolve successfully so mockPush runs
   await waitFor(() => {
-    expect(mockPush).toHaveBeenCalledWith("/(auth)/register/personal-details");
+    expect(mockedApi.registerUser).toHaveBeenCalledWith({
+      email: "user@example.com",
+      password: "Abcd1234"
+    });  
+  });
+
+  await waitFor(() => {
+    expect(mockedApi.loginUser).toHaveBeenCalledWith({
+      email: "user@example.com",
+      password: "Abcd1234",
+    });
+  });
+
+  await waitFor(() => {
+    expect(mockSignIn).toHaveBeenCalledWith(
+      "fake-token",
+      "user-123",
+      "user@example.com"
+    )
+  })
+  //mockedRegisterUser.mockResolvedValueOnce({} as any);
+
+  await waitFor(() => {
+    expect(mockReplace).toHaveBeenCalledWith("/(auth)/register/personal-details");
   });
 });
 });
