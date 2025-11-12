@@ -14,6 +14,7 @@ import { Colors } from "@/constants/colors";
 
 export function CycleQuestionsBottomSheet({
   bottomSheetRef,
+  onSave,
 }: CycleQuestionsBottomSheetProps) {
   const [answers, setAnswers] = useState<Record<number, string | string[]>>({});
   const [saving, setSaving] = useState(false);
@@ -38,20 +39,8 @@ export function CycleQuestionsBottomSheet({
   const handleSave = async () => {
     setSaving(true);
     try {
-      // placeholder API call: 1s timeout
-      await new Promise((res) => setTimeout(res, 1000));
-
-      // simulated payload
-      const payload = {
-        timestamp: new Date().toISOString(),
-        answers,
-      };
-
-      console.log("fake API payload:", payload);
-
+      await onSave(answers); // saving is delegated to parent
       bottomSheetRef.current?.close();
-
-      // todo handle success message
     } catch (err) {
       console.error("save failed", err);
     } finally {

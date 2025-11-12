@@ -309,7 +309,13 @@ const Home = () => {
         </SafeAreaView>
       </LinearGradient>
 
-      <CycleQuestionsBottomSheet bottomSheetRef={bottomSheetModalRef} />
+      <CycleQuestionsBottomSheet
+        bottomSheetRef={bottomSheetModalRef}
+        onSave={async (answers) => {
+          console.log(answers);
+          await new Promise((res) => setTimeout(res, 1000)); // placeholder API call
+        }}
+      />
     </>
   );
 };
