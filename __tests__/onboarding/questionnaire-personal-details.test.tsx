@@ -310,4 +310,18 @@ describe("QuestionnairePersonalDetails screen", () => {
     // Assert that navigation happened
     expect(router.push).toHaveBeenCalledWith("/onboarding/questionnaire");
   });
+
+  it("shows error messages when all inputs are out of range", () => {
+    const { pressContinue, getByText, typeAge, typeWeight, typeHeight } = setup();
+    
+    typeAge("1");
+    typeWeight("1");
+    typeHeight("1");
+    pressContinue();
+
+    expect(getByText("Age is out of range.")).toBeTruthy();
+    expect(getByText("Weight is out of range.")).toBeTruthy();
+    expect(getByText("Height is out of range.")).toBeTruthy();
+    expect(router.push).not.toHaveBeenCalled();
+  });
 });
