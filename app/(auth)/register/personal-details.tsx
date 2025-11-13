@@ -1,26 +1,30 @@
+import { useAuth } from "@/context/AuthContext";
 import { AppBar } from "@/components/AppBarBackButton/AppBarBackButton";
 import { ThemedPressable } from "@/components/ThemedPressable/ThemedPressable";
 import { ThemedTextInput } from "@/components/ThemedTextInput/ThemedTextInput";
 import { useRouter } from "expo-router";
-import { useState } from "react";
+import React, { useCallback, useState } from "react";
 import { Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { updateUser } from "@/lib/api";
 
 export default function RegisterPersDetails() {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
-  const router = useRouter(); // Navigation instance
-
-  // error messages
   const [firstNameError, setFirstNameError] = useState<string | null>(null);
   const [lastNameError, setLastNameError] = useState<string | null>(null);
+  const [formError, setFormError] = useState<string | null>(null);
+  const router = useRouter();
+  const { userId, email } = useAuth();
+
+  const handleBack = useCallback(() => {
+    router.replace("/(main)/home");
+  }, [router]);
 
   const handlePressed = async () => {
-    // reset previous errors
     setFirstNameError(null);
     setLastNameError(null);
 
-    // checks for displaying respective error messages
     let hasError = false;
     if (!firstName.trim()) {
       setFirstNameError("Please enter your first name.");
@@ -30,16 +34,30 @@ export default function RegisterPersDetails() {
       setLastNameError("Please enter your last name.");
       hasError = true;
     }
-
     if (hasError) return;
+    try {
+      // console.log("user id = " + userId);
+      // console.log("user email = " + email);
+      // console.log("user firstName = " + firstName);
+      // console.log("user lastName = " + lastName);
 
-    router.push("/onboarding/questionnaire-intro");
+      await updateUser({
+        id: userId,
+        email: email,
+        firstName: firstName,
+        lastName: lastName,
+      });
+      router.push("/onboarding/questionnaire-intro");
+    } catch (e) {
+      setFormError(e instanceof Error ? e.message : "Update failed.");
+    } finally {
+    }
   };
 
   return (
     <SafeAreaView className="flex-1 bg-gray-50">
       <View className="w-full bg-gray-50" style={{ zIndex: 10, elevation: 10 }}>
-        <AppBar />
+        <AppBar onBackPress={handleBack} />
       </View>
 
       <View className="flex-1 w-full items-center font-inter-regular">
@@ -63,7 +81,6 @@ export default function RegisterPersDetails() {
           </View>
 
           <View className="space-y-4 gap-y-10 pt-10 w-80 self-center">
-            {/* First Name input text field*/}
             <View>
               <Text className="text-gray-700 mb-1 font-extrabold">
                 First Name
@@ -86,7 +103,6 @@ export default function RegisterPersDetails() {
               ) : null}
             </View>
 
-            {/* Last Name input text field*/}
             <View>
               <Text className="text-gray-700 mb-1 font-extrabold">
                 Last Name
@@ -109,7 +125,11 @@ export default function RegisterPersDetails() {
               ) : null}
             </View>
 
-            {/* Continue button */}
+            {/* Error message */}
+            {formError && (
+              <Text className="text-red-600 text-sm">{formError}</Text>
+            )}
+
             <ThemedPressable
               label="Continue"
               onPress={handlePressed}

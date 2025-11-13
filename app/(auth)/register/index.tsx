@@ -1,17 +1,20 @@
+import { useAuth } from "@/context/AuthContext";
 import { AppBar } from "@/components/AppBarBackButton/AppBarBackButton";
 import { EmailField } from "@/components/EmailField/EmailField";
 import { PasswordField } from "@/components/PasswordField/PasswordField";
 import { SocialSignOn } from "@/components/SocialSignOn/SocialSignOn";
 import { TermsConditionsCheckbox } from "@/components/TermsConditionsCheckbox/TermsConditionsCheckbox";
 import { ThemedPressable } from "@/components/ThemedPressable/ThemedPressable";
+import { loginUser, registerUser } from "@/lib/api";
 import { isEmailValid, isPasswordValid } from "@/utils/validations";
 import { useRouter } from "expo-router";
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import TermsConditionsPopUp, {
+  TermsConditionsPopUpRef,
+} from "@/components/TermsConditionsPopUp/TermsConditionsPopUp";
 
-//Main page for registering
-//Contains email, password, password confirmation, option for social sign up
 export default function RegisterIndex() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -19,12 +22,16 @@ export default function RegisterIndex() {
   const [termsConditions, setTermsConditions] = useState(false);
   const [registering, setRegistering] = useState(false);
 
+  const { signIn } = useAuth();
+
   const [emailError, setEmailError] = useState<string | null>(null);
   const [passwordError, setPasswordError] = useState<string | null>(null);
   const [confirmPasswordError, setConfirmPasswordError] = useState<
     string | null
   >(null);
   const [formError, setFormError] = useState<string | null>(null);
+
+  const termsModalRef = useRef<TermsConditionsPopUpRef>(null);
 
   const router = useRouter();
 
@@ -47,9 +54,6 @@ export default function RegisterIndex() {
     setPasswordError(null);
     setConfirmPasswordError(null);
 
-    {
-      /* Error handling - if validation finds error on the entered input, error flag is set*/
-    }
     let hasError = false;
     if (!email.trim()) {
       setEmailError("Please enter your email.");
@@ -70,21 +74,30 @@ export default function RegisterIndex() {
       setConfirmPasswordError("Please make sure the passwords match.");
       hasError = true;
     }
-    {
-      /* If there is error, do not route, stay on the same page */
-    }
+
     if (hasError) return;
 
-    // setRegistering(true);
-    // try {
-    //   await registerUser({ email, password });
-    //   router.push("/register2");
-    // } catch (e) {
-    //   setFormError(e instanceof Error ? e.message : "Registration failed.");
-    // } finally {
-    //   setRegistering(false);
-    // }
-    router.push("/(auth)/register/personal-details");
+    setRegistering(true);
+    try {
+      await registerUser({
+        email: email.trim(),
+        password: password.trim(),
+      });
+      const loginResponse = await loginUser({
+        email: email.trim(),
+        password: password.trim(),
+      });
+      await signIn(
+        loginResponse.token,
+        loginResponse.userId,
+        loginResponse.email,
+      );
+      router.replace("/(auth)/register/personal-details");
+    } catch (e) {
+      setFormError(e instanceof Error ? e.message : "Registration failed.");
+    } finally {
+      setRegistering(false);
+    }
   };
 
   return (
@@ -139,7 +152,9 @@ export default function RegisterIndex() {
           <TermsConditionsCheckbox
             checked={termsConditions}
             onToggle={() => setTermsConditions((v) => !v)}
-            termsUrl="https://example.com/terms"
+            openSheet={() => {
+              termsModalRef.current?.open();
+            }}
           />
         </View>
 
@@ -162,13 +177,15 @@ export default function RegisterIndex() {
         {/* Social media sign on buttons */}
         <SocialSignOn
           onPress={(provider) => {
-            {
-              /*TODO: Actual social media sign on*/
-            }
+            // TODO: Actual social media sign on
             console.log("SSO pressed:", provider);
           }}
         />
       </View>
+      <TermsConditionsPopUp
+        ref={termsModalRef}
+        onAccept={() => setTermsConditions(true)}
+      />
     </SafeAreaView>
   );
 }

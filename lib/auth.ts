@@ -126,3 +126,9 @@ function normalizeBase64(input: string): string {
   const paddingNeeded = (4 - (normalized.length % 4)) % 4;
   return normalized.padEnd(normalized.length + paddingNeeded, "=");
 }
+
+export async function isAuthenticated(): Promise<boolean> {
+  const data = await getAuthData();
+  return isTokenValid(data) === "VALID" && !!data.userId && !!data.email;
+}
+

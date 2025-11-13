@@ -1,5 +1,5 @@
 import InsightsSection from "@/components/InsightsSection/InsightsSection";
-import { RiskData } from "@/lib/types/risks";
+import { RiskData, ApiRiskResponse } from "@/lib/types/risks";
 import React, { useCallback, useEffect, useState } from "react";
 import { View, Text, ActivityIndicator } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -10,13 +10,11 @@ import CalendarStrip, {
 import PhaseCard from "@/components/PhaseCard/PhaseCard";
 import { LinearGradient } from "expo-linear-gradient";
 import { useTheme } from "@/context/ThemeContext";
-import { getCycleStatus } from "@/lib/api";
-import { CycleStatusDTO, CyclePhase } from "@/lib/types/cycle";
+import { getCycleStatus, getRiskData } from "@/lib/api";
+import { CycleStatusDTO } from "@/lib/types/cycle";
 import { useFocusEffect } from "expo-router";
 import { useAuth } from "@/context/AuthContext";
 import { generateCalendarDays, formatPhaseName } from "@/utils/mainPageHelpers";
-import { getRiskData } from "@/lib/api";
-import { ApiRiskResponse } from "@/lib/types/risks";
 
 type RiskLevel = "Low" | "Medium" | "High";
 const mapApiToInsights = (apiData: ApiRiskResponse): RiskData[] => {

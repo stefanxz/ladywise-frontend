@@ -17,6 +17,7 @@ type AuthContextType = {
   isLoading: boolean;
   token: string | null;
   userId: string | null;
+  email: string | null;
   signIn: (token: string, userId: string, email: string) => Promise<void>;
   signOut: () => Promise<void>;
 };
@@ -31,6 +32,7 @@ const AuthContext = createContext<AuthContextType>({
   isLoading: true,
   token: null,
   userId: null,
+  email: null,
   signIn: async () => {},
   signOut: async () => {},
 });
@@ -62,6 +64,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const [token, setTokenState] = useState<string | null>(null);
   const [userId, setUserIdState] = useState<string | null>(null);
+  const [email, setEmail] = useState<string | null>(null);
 
   // Check storage when the app loads
   useEffect(() => {
@@ -74,6 +77,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           setTokenState(data.token);
           setUserIdState(data.userId);
           setAuthToken(data.token);
+          setEmail(data.email);
         } else {
           // Token is missing or expired, clean up
           await signOut();
@@ -94,6 +98,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setTokenState(newToken);
       setUserIdState(newUserId);
       setAuthToken(newToken);
+      setEmail(newEmail);
     },
     []
   );
@@ -103,6 +108,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setTokenState(null);
     setUserIdState(null);
     setAuthToken(null);
+    setEmail(null);
   }, []);
 
   return (
@@ -111,6 +117,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         isLoading,
         token,
         userId,
+        email,
         signIn,
         signOut,
       }}
