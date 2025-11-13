@@ -1,19 +1,18 @@
-import { AuthContext } from "@/app/_layout";
+import { useAuth } from "@/context/AuthContext";
 import { AppBar } from "@/components/AppBarBackButton/AppBarBackButton";
 import { SocialSignOn } from "@/components/SocialSignOn/SocialSignOn";
 import { ThemedPressable } from "@/components/ThemedPressable/ThemedPressable";
 import { ThemedTextInput } from "@/components/ThemedTextInput/ThemedTextInput";
 import { loginUser } from "@/lib/api";
-import { storeAuthData } from "@/lib/auth";
 import { isEmailValid } from "@/lib/validation";
 import {
   incrementFailedLoginCount,
   resetFailedLoginCount,
 } from "@/utils/asyncStorageHelpers";
 import { Feather } from "@expo/vector-icons";
-import axios from "axios";
+import { isAxiosError } from "axios";
 import { useRouter } from "expo-router";
-import React, { useContext, useState } from "react";
+import React, { useState } from "react";
 import {
   KeyboardAvoidingView,
   Platform,
@@ -26,7 +25,8 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function LoginScreen() {
   const router = useRouter();
-  const { setStatus } = useContext(AuthContext);
+  const { signIn } = useAuth();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPw, setShowPw] = useState(false);
@@ -58,20 +58,21 @@ export default function LoginScreen() {
         password: password.trim(),
       });
 
-      await storeAuthData(
+      await resetFailedLoginCount();
+      // Update session context immediately so navigation switches to the main stack.
+
+      await signIn(
         loginResponse.token,
         loginResponse.userId,
         loginResponse.email,
       );
-      await resetFailedLoginCount();
-      // Update session context immediately so navigation switches to the main stack.
-      setStatus("signedIn");
+
       router.replace("/(main)/home");
     } catch (error) {
       await incrementFailedLoginCount();
       let message = "We couldn't log you in. Please try again.";
 
-      if (axios.isAxiosError(error)) {
+      if (isAxiosError(error)) {
         // Normalize API/network failures into human-readable messages.
         const { response, code } = error;
         const status = response?.status;
@@ -83,7 +84,7 @@ export default function LoginScreen() {
         } else if (typeof response?.data === "string") {
           message = response.data;
         }
-      } 
+      }
       setFormError(message);
       console.error("Login error:", error);
     } finally {

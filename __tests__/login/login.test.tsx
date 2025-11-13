@@ -6,6 +6,16 @@ import { fireEvent, render, waitFor } from "@testing-library/react-native";
 import React from "react";
 import { AxiosError } from "axios";
 
+// Provide a lightweight AuthContext mock so the screen can drive setStatus without pulling in the real layout.
+const mockSignIn = jest.fn();
+jest.mock("@/context/AuthContext", () => ({
+  useAuth: () => ({
+    signIn: mockSignIn,
+    isLoading: false,
+    token: null,
+  }),
+}));
+
 // --- Mock navigation, stack, and icons ---
 const mockRouter = { push: jest.fn(), replace: jest.fn(), back: jest.fn() };
 jest.mock("expo-router", () => ({
@@ -56,37 +66,15 @@ const mockedApi = jest.mocked(api);
 const mockedValidation = jest.mocked(validation);
 const mockedAsyncStorage = jest.mocked(asyncStorage);
 
-// --- Define mocks for ALL context values needed ---
-const mockSetStatus = jest.fn();
-const mockSignIn = jest.fn();
-
 describe("LoginScreen", () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    mockSetStatus.mockClear();
     mockSignIn.mockClear();
-
-    // THIS IS THE FIX:
-    // We spy on React.useContext and force it to return
-    // ALL the functions our component and tests need.
-    jest.spyOn(React, "useContext").mockReturnValue({
-      setStatus: mockSetStatus,
-      signIn: mockSignIn,
-      isLoading: false,
-      token: null,
-    });
-
     mockedValidation.isEmailValid.mockImplementation(() => false);
     mockedAsyncStorage.getFailedLoginCount.mockResolvedValue(0);
   });
 
-  // Add this to clean up the spy after each test
-  afterEach(() => {
-    jest.restoreAllMocks();
-  });
-
   const setup = () => {
-    // Render the component directly, no provider needed
     const utils = render(<LoginScreen />);
     const typeEmail = (v: string) =>
       fireEvent.changeText(utils.getByPlaceholderText("Your email"), v);
@@ -94,8 +82,7 @@ describe("LoginScreen", () => {
       fireEvent.changeText(utils.getByPlaceholderText("Your password"), v);
     const pressLogin = () =>
       fireEvent.press(utils.getByRole("button", { name: "Log In" }));
-    const getLoginBtn = () =>
-      utils.getByRole("button", { name: "Log In" });
+    const getLoginBtn = () => utils.getByRole("button", { name: "Log In" });
     return { ...utils, typeEmail, typePassword, pressLogin, getLoginBtn };
   };
 
@@ -140,7 +127,7 @@ describe("LoginScreen", () => {
 
     expect(mockedValidation.isEmailValid).toHaveBeenCalledTimes(1);
     expect(mockedValidation.isEmailValid).toHaveBeenCalledWith(
-      "typed@example.com"
+      "typed@example.com",
     );
   });
 
@@ -167,12 +154,11 @@ describe("LoginScreen", () => {
         });
       });
 
-      // This test will now pass because our spy returns mockSignIn
       await waitFor(() => {
         expect(mockSignIn).toHaveBeenCalledWith(
           "fake-token",
           "user-123",
-          "user@example.com"
+          "user@example.com",
         );
       });
 
@@ -202,7 +188,7 @@ describe("LoginScreen", () => {
           statusText: "Unauthorized",
           headers: {},
           config: {} as any,
-        }
+        },
       );
       mockedApi.loginUser.mockRejectedValue(mockAxiosError);
 
