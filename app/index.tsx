@@ -1,5 +1,4 @@
 import { Redirect, useRootNavigationState } from "expo-router";
-import { useContext } from "react";
 import { useAuth } from "@/context/AuthContext";
 
 export default function RootIndex() {

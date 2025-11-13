@@ -38,7 +38,12 @@ jest.mock("@/components/ThemedPressable/ThemedPressable", () => ({
     );
   },
 }));
-
+jest.mock("@react-navigation/native", () => ({
+  useFocusEffect: jest.fn(),
+  useNavigation: jest.fn(() => ({
+    goBack: jest.fn(),
+  })),
+}));
 // --- Get router mock from expo-router ---
 const { __getMocks } = jest.requireMock("expo-router");
 const router = __getMocks();
