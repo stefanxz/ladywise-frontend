@@ -312,7 +312,7 @@ describe("QuestionnairePersonalDetails screen", () => {
   });
 
   it("shows error messages when all inputs are out of range", () => {
-    const { pressContinue, getByText, typeAge, typeWeight, typeHeight} = setup();
+    const { pressContinue, getByText, typeAge, typeWeight, typeHeight } = setup();
     
     typeAge("1");
     typeWeight("1");
