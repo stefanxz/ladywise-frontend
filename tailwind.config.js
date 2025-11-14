@@ -14,6 +14,7 @@ module.exports = {
         regularText: "#374151",
         headingText: "#111827",
         lightGrey: "#C3C3C3",
+        inactiveText: "#6B7280",
       },
     },
     fontFamily: {
