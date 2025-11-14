@@ -48,6 +48,32 @@ export async function registerUser(payload: RegisterPayload) {
   return data;
 }
 
+export type QuestionnairePayload = {
+  userId: string;
+  age: number;
+  weightKg: number;
+  heightCm: number;
+  familyHistory: {
+    anemia: boolean;
+    thrombosis: boolean;
+  };
+  anemiaRiskFactors: string[];
+  thrombosisRiskFactors: string[];
+  usesEstrogenContraception: boolean;
+  usesBiosensorCup: boolean;
+};
+
+export type QuestionnaireResponse = {
+  id: string;
+  userId: string;
+  createdAt?: string;
+};
+
+export async function submitQuestionnaire(payload: QuestionnairePayload) {
+  const { data } = await api.post<QuestionnaireResponse>("/api/questionnaire", payload);
+  return data;
+}
+
 // authenticate an existing user and return their auth token
 export async function loginUser(payload: LoginPayload) {
   const { data } = await api.post<LoginResponse>("/api/auth/login", payload);

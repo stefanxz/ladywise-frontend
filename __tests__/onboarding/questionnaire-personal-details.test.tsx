@@ -308,7 +308,7 @@ describe("QuestionnairePersonalDetails screen", () => {
     pressContinue();
 
     // Assert that navigation happened
-    expect(router.push).toHaveBeenCalledWith("/onboarding/questionnaire");
+    expect(router.push).toHaveBeenCalledWith("/onboarding/questionnaire-family-history");
   });
 
   it("shows error messages when all inputs are out of range", () => {

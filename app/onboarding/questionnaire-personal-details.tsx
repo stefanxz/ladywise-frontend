@@ -1,4 +1,4 @@
-import { ThemedPressable } from "@/components/ThemedPressable/ThemedPressable";
+﻿import { ThemedPressable } from "@/components/ThemedPressable/ThemedPressable";
 import { ThemedTextInput } from "@/components/ThemedTextInput/ThemedTextInput";
 import { UnitInputField } from "@/components/UnitInputField/UnitInputField";
 import { useRouter } from "expo-router";
@@ -91,7 +91,7 @@ export default function Questionnaire() {
     }
 
     if (hasError) return;
-    router.push("/onboarding/questionnaire");
+    router.push("/onboarding/questionnaire-family-history");
   };
 
   return (
@@ -99,7 +99,7 @@ export default function Questionnaire() {
       <View className="w-full max-w-md mt-2 px-10 pt-[71px]">
         <View className="flex-row items-center">
           <View className="flex-1">
-            <ProgressBar currentStep={1} totalSteps={5} />
+            <ProgressBar currentStep={1} totalSteps={5} edgeOffset={0.08} />
           </View>
           <View className="w-1/6">
             <Pressable onPress={handleSkip}>
