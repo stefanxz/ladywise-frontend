@@ -1,16 +1,7 @@
 import InsightsSection from "@/components/InsightsSection/InsightsSection";
-import { RiskData } from "@/lib/types/risks";
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
-import { RiskData, ApiRiskResponse } from "@/lib/types/risks";
-import React, { useCallback, useEffect, useState } from "react";
-import { View, Text, ActivityIndicator } from "react-native";
+import { ApiRiskResponse, RiskData } from "@/lib/types/risks";
+import { ActivityIndicator, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Header from "@/components/MainPageHeader/Header";
 import CalendarStrip, {
@@ -23,19 +14,10 @@ import { getCycleStatus, getRiskData } from "@/lib/api";
 import { CycleStatusDTO } from "@/lib/types/cycle";
 import { useFocusEffect } from "expo-router";
 import { useAuth } from "@/context/AuthContext";
-import { generateCalendarDays, formatPhaseName } from "@/utils/mainPageHelpers";
+import { formatPhaseName, generateCalendarDays } from "@/utils/mainPageHelpers";
 import { FloatingAddButton } from "@/components/FloatingAddButton/FloatingAddButton";
-import BottomSheet, {
-  BottomSheetBackdrop,
-  BottomSheetModal,
-  BottomSheetModalProvider,
-  BottomSheetView,
-} from "@gorhom/bottom-sheet";
-import { getRiskData } from "@/lib/api";
-import { ApiRiskResponse } from "@/lib/types/risks";
-import { CycleQuestionsBottomSheet } from "@/components/CycleQuestionsBottomSheet/CycleQuestionsBottomSheet";
 import { BottomSheetModal } from "@gorhom/bottom-sheet";
-import { FloatingAddButton } from "@/components/FloatingAddButton/FloatingAddButton";
+import { CycleQuestionsBottomSheet } from "@/components/CycleQuestionsBottomSheet/CycleQuestionsBottomSheet";
 
 type RiskLevel = "Low" | "Medium" | "High";
 const mapApiToInsights = (apiData: ApiRiskResponse): RiskData[] => {
