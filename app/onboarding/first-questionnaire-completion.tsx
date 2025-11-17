@@ -60,10 +60,10 @@ export default function FirstQuestionnaireCompletion() {
                 All set! <Text>🌼</Text>
               </Text>
 
-            <Text className="text-lg text-gray-600 text-left leading-relaxed">
+              <Text className="text-lg text-gray-600 text-left leading-relaxed">
                 Thank you for sharing your details. LadyWise will now
-              personalize your health insights based on your profile.
-            </Text>
+                personalize your health insights based on your profile.
+             </Text>
             </View>
 
             <View className="mt-10 self-center w-80">
