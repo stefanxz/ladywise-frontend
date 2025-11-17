@@ -63,7 +63,7 @@ export default function FirstQuestionnaireCompletion() {
               <Text className="text-lg text-gray-600 text-left leading-relaxed">
                 Thank you for sharing your details. LadyWise will now
                 personalize your health insights based on your profile.
-             </Text>
+              </Text>
             </View>
 
             <View className="mt-10 self-center w-80">
