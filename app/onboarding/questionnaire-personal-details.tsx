@@ -61,7 +61,7 @@ export default function Questionnaire() {
       hasError = true;
     } else if (isNaN(weightNum)) {
       setWeightError(
-        "Weight must be a positive number, using a dot (.) for decimals."
+        "Weight must be a positive number, using a dot (.) for decimals.",
       );
       hasError = true;
     } else if (!isNaN(weightNum)) {
@@ -78,7 +78,7 @@ export default function Questionnaire() {
       hasError = true;
     } else if (isNaN(heightNum)) {
       setHeightError(
-        "Height must be a positive number, using a dot (.) for decimals."
+        "Height must be a positive number, using a dot (.) for decimals.",
       );
       hasError = true;
     } else if (!isNaN(heightNum)) {
@@ -107,7 +107,7 @@ export default function Questionnaire() {
                 className="text-inter-regular text-right text-lightGrey"
                 style={{
                   // Fix for Android text truncation bug
-                  paddingRight: Platform.OS === "android" ? 3 : 0
+                  paddingRight: Platform.OS === "android" ? 3 : 0,
                 }}
               >
                 Skip
