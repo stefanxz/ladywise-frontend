@@ -61,13 +61,13 @@ export default function Questionnaire() {
       hasError = true;
     } else if (isNaN(weightNum)) {
       setWeightError(
-        "Weight must be a positive number, using a dot (.) for decimals.",
+        "Weight must be a positive number, using a dot (.) for decimals."
       );
       hasError = true;
     } else if (!isNaN(weightNum)) {
       // Lightest woman ~5 kg
       // Heaviest woman ~ 540 kg
-      if (weightNum < 5 || 540 < weightNum) {
+      if (weightNum < 5 || weightNum > 540) {
         setWeightError("Weight is out of range.");
         hasError = true;
       }
@@ -78,14 +78,14 @@ export default function Questionnaire() {
       hasError = true;
     } else if (isNaN(heightNum)) {
       setHeightError(
-        "Height must be a positive number, using a dot (.) for decimals.",
+        "Height must be a positive number, using a dot (.) for decimals."
       );
       hasError = true;
     } else if (!isNaN(heightNum)) {
       // Smallest woman ~62 cm
       // Tallest woman ~ 216cm
-      if (heightNum < 62 || 216 < heightNum) {
-        setWeightError("Height is out of range.");
+      if (heightNum < 62 || heightNum > 216) {
+        setHeightError("Height is out of range.");
         hasError = true;
       }
     }
@@ -107,7 +107,7 @@ export default function Questionnaire() {
                 className="text-inter-regular text-right text-lightGrey"
                 style={{
                   // Fix for Android text truncation bug
-                  paddingRight: Platform.OS === "android" ? 3 : 0,
+                  paddingRight: Platform.OS === "android" ? 3 : 0
                 }}
               >
                 Skip
@@ -116,6 +116,7 @@ export default function Questionnaire() {
           </View>
         </View>
       </View>
+
       <View className="w-full max-w-md items-start mt-2 gap-y-3 px-10 pt-[71px]">
         <Text className="text-3xl font-inter-semibold text-brand text-left">
           {"Let's start with a few basics 💫"}
@@ -126,6 +127,7 @@ export default function Questionnaire() {
             "Tell us a bit about yourself so we can tailor your health insights."
           }
         </Text>
+
         <View className="w-full mt-12">
           <View>
             <Text className="pr-8 text-inter-regular text-regularText text-left leading-relaxed">
@@ -146,6 +148,7 @@ export default function Questionnaire() {
               <Text className="text-red-600 text-xs mt-1">{ageError}</Text>
             ) : null}
           </View>
+
           <View className="w-full mt-8">
             <Text className="pr-8 text-inter-regular text-regularText text-left leading-relaxed">
               Weight
@@ -164,6 +167,7 @@ export default function Questionnaire() {
               <Text className="text-red-600 text-xs mt-1">{weightError}</Text>
             ) : null}
           </View>
+
           <View className="w-full mt-8">
             <Text className="pr-8 text-inter-regular text-regularText text-left leading-relaxed">
               Height
@@ -182,6 +186,7 @@ export default function Questionnaire() {
               <Text className="text-red-600 text-xs mt-1">{heightError}</Text>
             ) : null}
           </View>
+
           <View className="w-full mt-8">
             <ThemedPressable
               label="Continue"
@@ -193,7 +198,4 @@ export default function Questionnaire() {
       </View>
     </SafeAreaView>
   );
-}
-function isDecimal(weightNum: number) {
-  throw new Error("Function not implemented.");
 }
