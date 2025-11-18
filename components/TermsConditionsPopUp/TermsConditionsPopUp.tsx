@@ -29,7 +29,6 @@ const TermsConditionsPopUp = forwardRef<
   TermsConditionsPopUpRef,
   TermsConditionsPopUpProps
 >(({ onAccept }, ref) => {
-  const TERMS_VERSION = "v1.0";
   const modalRef = useRef<BottomSheetModal>(null);
   const snapPoints = useMemo(() => ["70%"], []);
   const insets = useSafeAreaInsets();
@@ -37,7 +36,7 @@ const TermsConditionsPopUp = forwardRef<
     (p: BottomSheetBackdropProps) => (
       <BottomSheetBackdrop {...p} appearsOnIndex={0} disappearsOnIndex={-1} />
     ),
-    [],
+    []
   );
   TermsConditionsPopUp.displayName = "TermsConditionsPopUp";
 

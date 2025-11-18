@@ -1,4 +1,10 @@
-export type RegisterPayload = { email: string; password: string };
+export interface RegisterPayload {
+  email: string;
+  password: string;
+  consentGiven: boolean;
+  consentVersion: string;
+  consentAt: string; // ISO string for Instant
+}
 export type RegisterResponse = { id: string; email: string };
 export type LoginPayload = { email: string; password: string };
 export type LoginResponse = {
@@ -7,5 +13,15 @@ export type LoginResponse = {
   userId: string;
   email: string;
 };
-export type UserPayload = { id: string | null; email: string | null; firstName: string; lastName: string };
-export type UserResponse = { id: string; email: string; firstName: string; lastName: string };
+export type UserPayload = {
+  id: string | null;
+  email: string | null;
+  firstName: string;
+  lastName: string;
+};
+export type UserResponse = {
+  id: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+};

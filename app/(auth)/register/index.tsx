@@ -14,6 +14,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import TermsConditionsPopUp, {
   TermsConditionsPopUpRef,
 } from "@/components/TermsConditionsPopUp/TermsConditionsPopUp";
+import termsData from "../../../data/terms-and-conditions.json";
 
 export default function RegisterIndex() {
   const [email, setEmail] = useState("");
@@ -65,7 +66,7 @@ export default function RegisterIndex() {
 
     if (!isPasswordValid(password)) {
       setPasswordError(
-        "Password must contain at least 8 characters, 1 upper case, 1 lower case and 1 number (and no spaces).",
+        "Password must contain at least 8 characters, 1 upper case, 1 lower case and 1 number (and no spaces)."
       );
       hasError = true;
     }
@@ -82,6 +83,9 @@ export default function RegisterIndex() {
       await registerUser({
         email: email.trim(),
         password: password.trim(),
+        consentGiven: termsConditions,
+        consentVersion: termsData.version,
+        consentAt: new Date().toISOString(),
       });
       const loginResponse = await loginUser({
         email: email.trim(),
@@ -90,7 +94,7 @@ export default function RegisterIndex() {
       await signIn(
         loginResponse.token,
         loginResponse.userId,
-        loginResponse.email,
+        loginResponse.email
       );
       router.replace("/(auth)/register/personal-details");
     } catch (e) {
