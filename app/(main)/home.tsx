@@ -104,9 +104,7 @@ const Home = () => {
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
 
   const openSheet = useCallback(() => {
-    if (bottomSheetModalRef.current?.present) {
-      bottomSheetModalRef.current.present();
-    }
+    bottomSheetModalRef.current?.present();
   }, []);
 
   // Effect for fetching risk data

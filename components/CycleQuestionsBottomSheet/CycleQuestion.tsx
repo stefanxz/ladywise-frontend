@@ -13,21 +13,15 @@ import { CycleQuestionProps } from "@/components/CycleQuestionsBottomSheet/Cycle
  * @param options - Array of string options for this question
  * @param multiSelect - Whether the question allows multiple selections
  * @param onSelect - Callback that returns the currently selected value(s)
+ * @param resetOption - Resets chosen answers and selects the reset option
  */
 export function CycleQuestion({
   question,
   options,
   multiSelect = false,
   onSelect,
+  resetOption = "None of the above",
 }: CycleQuestionProps) {
-  // This constant controls behavior for when the user clicks "None of the above"
-  // on a multi-select question. E.g., when multiple options are selected,
-  // selecting "None of the above" removes the selection and only toggles the
-  // "None of the above" option. Note that this assumes that all multi-selected
-  // questions also have a "None of the above" option when defined in
-  // `@/data/cycle-questions.json`.
-  const resetOption = "None of the above";
-
   const [selected, setSelected] = useState<string[] | string | null>(
     multiSelect ? [] : null,
   );
@@ -55,7 +49,7 @@ export function CycleQuestion({
   };
 
   const isSelected = (option: string) => {
-    if (multiSelect) return (selected as string[])?.includes(option);
+    if (multiSelect) return (selected as string[]).includes(option);
     return selected === option;
   };
 

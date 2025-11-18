@@ -11,6 +11,7 @@ export type CycleQuestionProps = {
   options: string[];
   multiSelect?: boolean;
   onSelect?: (selected: string[] | string) => void;
+  resetOption?: string;
 };
 
 export type CycleQuestionOptionPillProps = {
