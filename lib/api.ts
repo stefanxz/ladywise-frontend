@@ -80,3 +80,42 @@ export async function getCycleStatus() {
   const { data } = await api.get<CycleStatusDTO>("/api/cycle/status");
   return data;
 }
+
+export type QuestionnairePayload = {
+  userId: string;
+  health: {
+    personalDetails: {
+      age: number;
+      weight: number;
+      height: number;
+    };
+    familyHistory: {
+      familyHistoryAnemia: boolean;
+      familyHistoryThrombosis: boolean;
+      anemiaConditions: string[];
+      thrombosisConditions: string[];
+    };
+    estrogenPill: boolean;
+    biosensorCup: boolean;
+  };
+  history: [];
+};
+
+export type QuestionnaireResponse = {
+  id: string;
+  userId: string;
+  createdAt?: string;
+};
+
+export async function submitQuestionnaire(payload: QuestionnairePayload) {
+  if (!payload.userId) {
+    throw new Error("User ID is missing.");
+  }
+
+
+  const { data } = await api.post<QuestionnaireResponse>(
+    "/api/questionnaire",
+    payload,
+  );
+  return data;
+}

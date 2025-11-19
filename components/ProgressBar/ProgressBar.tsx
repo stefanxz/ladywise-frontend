@@ -1,40 +1,36 @@
-import React, { useEffect, useRef } from "react";
-import { Animated, View } from "react-native";
+import React from "react";
+import { View } from "react-native";
 import { ProgressBarProps } from "./ProgressBar.types";
 
-/**
- * A component that visually displays the progress between steps,
- * with optional smooth animation.
- */
+const clamp = (value: number, min: number, max: number) =>
+  Math.min(Math.max(value, min), max);
+
 export function ProgressBar({
   currentStep,
   totalSteps,
   testID = "progress-bar",
+  edgeOffset = 0,
 }: ProgressBarProps) {
-  // Animation state reference
-  const animatedWidth = useRef(new Animated.Value(0)).current;
+  const normalizedOffset = clamp(edgeOffset, 0, 0.45);
 
-  // Calculate normalized progress (0 to 1)
-  const progress = Math.min(Math.max(currentStep / totalSteps, 0), 1);
+  let fraction = 0;
+  if (totalSteps <= 1) {
+    fraction = normalizedOffset + (1 - 2 * normalizedOffset) * 0.5;
+  } else {
+    const stepIndex = clamp(currentStep, 1, totalSteps);
+    const normalized = (stepIndex - 1) / (totalSteps - 1 || 1);
+    fraction = normalizedOffset + normalized * (1 - 2 * normalizedOffset);
+  }
 
-  // Animation Effect
-  useEffect(() => {
-    animatedWidth.setValue(progress);
-  }, [currentStep, totalSteps, progress]);
+  const percentage = clamp(Math.round(fraction * 100), 0, 100);
 
-  // Rendering the Track and Animated Bar
   return (
-    <View className={`w-full flex-row items-center gap-2.5`}>
-      <View className={`flex-1 rounded-full overflow-hidden bg-lightGrey h-1`}>
-        <Animated.View
-          className={`h-full rounded-full bg-brand`}
+    <View className="w-full flex-row items-center gap-2.5">
+      <View className="flex-1 rounded-full overflow-hidden bg-lightGrey h-1">
+        <View
+          className="h-full rounded-full bg-brand"
           testID={`${testID}-progress`}
-          style={{
-            width: animatedWidth.interpolate({
-              inputRange: [0, 1],
-              outputRange: ["0%", "100%"],
-            }),
-          }}
+          style={{ width: `${percentage}%` }}
         />
       </View>
     </View>

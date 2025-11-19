@@ -5,15 +5,17 @@ import { useRouter } from "expo-router";
 import { useState } from "react";
 import { Platform, Pressable, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useQuestionnaire } from "./QuestionnaireContext";
 
 // Assets
 import { ProgressBar } from "@/components/ProgressBar/ProgressBar";
 
 export default function Questionnaire() {
   const router = useRouter();
-  const [age, setAge] = useState("");
-  const [weight, setWeight] = useState("");
-  const [height, setHeight] = useState("");
+  const { answers, updateAnswers } = useQuestionnaire();
+  const [age, setAge] = useState(answers.personal.age);
+  const [weight, setWeight] = useState(answers.personal.weight);
+  const [height, setHeight] = useState(answers.personal.height);
 
   // error messages
   const [ageError, setAgeError] = useState<string | null>(null);
@@ -91,7 +93,9 @@ export default function Questionnaire() {
     }
 
     if (hasError) return;
-    router.push("/onboarding/questionnaire");
+
+    updateAnswers({ personal: { age, weight, height } });
+    router.push("/onboarding/questionnaire-family-history");
   };
 
   return (
@@ -99,7 +103,7 @@ export default function Questionnaire() {
       <View className="w-full max-w-md mt-2 px-10 pt-[71px]">
         <View className="flex-row items-center">
           <View className="flex-1">
-            <ProgressBar currentStep={1} totalSteps={5} />
+            <ProgressBar currentStep={1} totalSteps={5} edgeOffset={0.08} />
           </View>
           <View className="w-1/6">
             <Pressable onPress={handleSkip}>
