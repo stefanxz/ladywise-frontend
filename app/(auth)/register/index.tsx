@@ -66,7 +66,7 @@ export default function RegisterIndex() {
 
     if (!isPasswordValid(password)) {
       setPasswordError(
-        "Password must contain at least 8 characters, 1 upper case, 1 lower case and 1 number (and no spaces)."
+        "Password must contain at least 8 characters, 1 upper case, 1 lower case and 1 number (and no spaces).",
       );
       hasError = true;
     }
@@ -93,7 +93,7 @@ export default function RegisterIndex() {
       await signIn(
         loginResponse.token,
         loginResponse.userId,
-        loginResponse.email
+        loginResponse.email,
       );
       router.replace("/(auth)/register/personal-details");
     } catch (e) {
