@@ -35,14 +35,14 @@ export default function FirstQuestionnaireCompletion() {
       } else {
         Alert.alert(
           "Error",
-          "Could not mark questionnaire as complete. Please try again."
+          "Could not mark questionnaire as complete. Please try again.",
         );
       }
     } catch (error: any) {
       console.error("Completion error:", error);
       Alert.alert(
         "Connection Error",
-        "We could not update your progress. Please check your internet connection."
+        "We could not update your progress. Please check your internet connection.",
       );
     } finally {
       setLoading(false);
@@ -74,8 +74,8 @@ export default function FirstQuestionnaireCompletion() {
               </Text>
 
               <Text className="text-lg text-gray-600 text-left leading-relaxed">
-                Thank you for sharing your details. LadyWise will now personalize
-                your health insights based on your profile.
+                Thank you for sharing your details. LadyWise will now
+                personalize your health insights based on your profile.
               </Text>
             </View>
 
