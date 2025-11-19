@@ -15,13 +15,11 @@ export function ProgressBar({
 
   let fraction = 0;
   if (totalSteps <= 1) {
-    fraction =
-      normalizedOffset + (1 - 2 * normalizedOffset) * 0.5;
+    fraction = normalizedOffset + (1 - 2 * normalizedOffset) * 0.5;
   } else {
     const stepIndex = clamp(currentStep, 1, totalSteps);
     const normalized = (stepIndex - 1) / (totalSteps - 1 || 1);
-    fraction =
-      normalizedOffset + normalized * (1 - 2 * normalizedOffset);
+    fraction = normalizedOffset + normalized * (1 - 2 * normalizedOffset);
   }
 
   const percentage = clamp(Math.round(fraction * 100), 0, 100);

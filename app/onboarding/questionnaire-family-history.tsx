@@ -1,4 +1,4 @@
-﻿import { BinaryChoiceGroup, QuestionScreen } from "@/app/onboarding/components";
+import { BinaryChoiceGroup, QuestionScreen } from "@/app/onboarding/components";
 import { useQuestionnaire } from "@/app/onboarding/QuestionnaireContext";
 import { ThemedPressable } from "@/components/ThemedPressable/ThemedPressable";
 import { useRouter } from "expo-router";
@@ -8,7 +8,9 @@ import { Text, View } from "react-native";
 export default function QuestionnaireFamilyHistory() {
   const router = useRouter();
   const { answers, updateAnswers } = useQuestionnaire();
-  const [familyAnemia, setFamilyAnemia] = useState(answers.familyHistory.anemia);
+  const [familyAnemia, setFamilyAnemia] = useState(
+    answers.familyHistory.anemia,
+  );
   const [familyThrombosis, setFamilyThrombosis] = useState(
     answers.familyHistory.thrombosis,
   );
@@ -50,12 +52,7 @@ export default function QuestionnaireFamilyHistory() {
       title="Family health matters 🌿"
       description="Do you have any family history of the following conditions?"
       onSkip={() => router.push("/landing")}
-      footer={
-        <ThemedPressable
-          label="Continue"
-          onPress={handleContinue}
-        />
-      }
+      footer={<ThemedPressable label="Continue" onPress={handleContinue} />}
     >
       <View>
         <BinaryChoiceGroup
@@ -83,7 +80,9 @@ export default function QuestionnaireFamilyHistory() {
           testIDPrefix="family-thrombosis"
         />
         {thrombosisError ? (
-          <Text className="text-red-600 text-xs mt-1 ml-2">{thrombosisError}</Text>
+          <Text className="text-red-600 text-xs mt-1 ml-2">
+            {thrombosisError}
+          </Text>
         ) : null}
       </View>
     </QuestionScreen>

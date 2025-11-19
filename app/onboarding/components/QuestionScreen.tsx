@@ -44,9 +44,7 @@ export function QuestionScreen({
           {showSkip ? (
             <View className="w-1/6">
               <Pressable onPress={onSkip}>
-                <Text
-                  className="text-inter-regular text-right text-lightGrey android:pr-1"
-                >
+                <Text className="text-inter-regular text-right text-lightGrey android:pr-1">
                   Skip
                 </Text>
               </Pressable>
@@ -91,7 +89,7 @@ export function BinaryChoiceGroup({
   noLabel = "No",
   testIDPrefix,
 }: BinaryChoiceGroupProps) {
-  const options: Array<{ label: string; value: boolean }> = [
+  const options: { label: string; value: boolean }[] = [
     { label: yesLabel, value: true },
     { label: noLabel, value: false },
   ];

@@ -1,7 +1,4 @@
-﻿import {
-  MultiSelectGroup,
-  QuestionScreen,
-} from "@/app/onboarding/components";
+import { MultiSelectGroup, QuestionScreen } from "@/app/onboarding/components";
 import { useQuestionnaire } from "@/app/onboarding/QuestionnaireContext";
 import { ThemedPressable } from "@/components/ThemedPressable/ThemedPressable";
 import { useRouter } from "expo-router";
@@ -22,9 +19,7 @@ export default function QuestionnaireThrombosisRisk() {
   const router = useRouter();
   const { answers, updateAnswers } = useQuestionnaire();
   const [selected, setSelected] = useState<string[]>(
-    answers.thrombosisRiskFactors.length
-      ? answers.thrombosisRiskFactors
-      : [],
+    answers.thrombosisRiskFactors.length ? answers.thrombosisRiskFactors : [],
   );
 
   // Error State

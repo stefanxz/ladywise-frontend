@@ -1,4 +1,4 @@
-﻿import { ThemedPressable } from "@/components/ThemedPressable/ThemedPressable";
+import { ThemedPressable } from "@/components/ThemedPressable/ThemedPressable";
 import { ThemedTextInput } from "@/components/ThemedTextInput/ThemedTextInput";
 import { UnitInputField } from "@/components/UnitInputField/UnitInputField";
 import { useRouter } from "expo-router";

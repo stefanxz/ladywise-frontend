@@ -1,7 +1,4 @@
-﻿import {
-  BinaryChoiceGroup,
-  QuestionScreen,
-} from "@/app/onboarding/components";
+import { BinaryChoiceGroup, QuestionScreen } from "@/app/onboarding/components";
 import { useQuestionnaire } from "@/app/onboarding/QuestionnaireContext";
 import { ThemedPressable } from "@/components/ThemedPressable/ThemedPressable";
 import { submitQuestionnaire } from "@/lib/api";
@@ -16,9 +13,7 @@ export default function QuestionnaireFinalQuestions() {
   const [usesEstrogen, setUsesEstrogen] = useState(
     answers.usesEstrogenContraception,
   );
-  const [usesBiosensor, setUsesBiosensor] = useState(
-    answers.usesBiosensorCup,
-  );
+  const [usesBiosensor, setUsesBiosensor] = useState(answers.usesBiosensorCup);
   const [submitting, setSubmitting] = useState(false);
 
   // --- Error States ---
@@ -27,7 +22,6 @@ export default function QuestionnaireFinalQuestions() {
   const [biosensorError, setBiosensorError] = useState<string | null>(null); // For field validation
 
   const handleFinish = async () => {
-
     setEstrogenError(null);
     setBiosensorError(null);
 
@@ -118,7 +112,9 @@ export default function QuestionnaireFinalQuestions() {
         />
         {/* Field validation error */}
         {estrogenError ? (
-          <Text className="text-red-600 text-xs mt-1 ml-2">{estrogenError}</Text>
+          <Text className="text-red-600 text-xs mt-1 ml-2">
+            {estrogenError}
+          </Text>
         ) : null}
       </View>
 
@@ -134,7 +130,9 @@ export default function QuestionnaireFinalQuestions() {
         />
         {/* Field validation error */}
         {biosensorError ? (
-          <Text className="text-red-600 text-xs mt-1 ml-2">{biosensorError}</Text>
+          <Text className="text-red-600 text-xs mt-1 ml-2">
+            {biosensorError}
+          </Text>
         ) : null}
       </View>
 

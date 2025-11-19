@@ -1,4 +1,4 @@
-﻿import { ThemedPressable } from "@/components/ThemedPressable/ThemedPressable";
+import { ThemedPressable } from "@/components/ThemedPressable/ThemedPressable";
 import { useQuestionnaire } from "@/app/onboarding/QuestionnaireContext";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect } from "react";

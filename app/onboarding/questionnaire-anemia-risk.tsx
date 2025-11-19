@@ -1,7 +1,4 @@
-﻿import {
-  MultiSelectGroup,
-  QuestionScreen,
-} from "@/app/onboarding/components";
+import { MultiSelectGroup, QuestionScreen } from "@/app/onboarding/components";
 import { useQuestionnaire } from "@/app/onboarding/QuestionnaireContext";
 import { ThemedPressable } from "@/components/ThemedPressable/ThemedPressable";
 import { useRouter } from "expo-router";
