@@ -5,15 +5,17 @@ import { useRouter } from "expo-router";
 import { useState } from "react";
 import { Platform, Pressable, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useQuestionnaire } from "./QuestionnaireContext";
 
 // Assets
 import { ProgressBar } from "@/components/ProgressBar/ProgressBar";
 
 export default function Questionnaire() {
   const router = useRouter();
-  const [age, setAge] = useState("");
-  const [weight, setWeight] = useState("");
-  const [height, setHeight] = useState("");
+  const { answers, updateAnswers } = useQuestionnaire();
+  const [age, setAge] = useState(answers.personal.age);
+  const [weight, setWeight] = useState(answers.personal.weight);
+  const [height, setHeight] = useState(answers.personal.height);
 
   // error messages
   const [ageError, setAgeError] = useState<string | null>(null);
@@ -91,6 +93,8 @@ export default function Questionnaire() {
     }
 
     if (hasError) return;
+
+    updateAnswers({ personal: { age, weight, height } });
     router.push("/onboarding/questionnaire-family-history");
   };
 

@@ -1,7 +1,11 @@
+import { useAuth } from "@/context/AuthContext";
 import { BinaryChoiceGroup, QuestionScreen } from "@/app/onboarding/components";
 import { useQuestionnaire } from "@/app/onboarding/QuestionnaireContext";
 import { ThemedPressable } from "@/components/ThemedPressable/ThemedPressable";
-import { submitQuestionnaire } from "@/lib/api";
+import {
+  submitQuestionnaire,
+  type QuestionnairePayload,
+} from "@/lib/api";
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import { Text, View } from "react-native"; // Import View
@@ -9,6 +13,7 @@ import { Text, View } from "react-native"; // Import View
 export default function QuestionnaireFinalQuestions() {
   const router = useRouter();
   const { answers, updateAnswers, reset } = useQuestionnaire();
+  const { userId } = useAuth();
 
   const [usesEstrogen, setUsesEstrogen] = useState(
     answers.usesEstrogenContraception,
@@ -35,40 +40,55 @@ export default function QuestionnaireFinalQuestions() {
       hasError = true;
     }
 
-    if (hasError || submitting) return;
+    if (hasError || submitting) {
+      return;
+    }
 
     setSubmitting(true);
     setApiError(null);
 
     try {
-      const updatedAnswers = {
+      // It's good practice to create the final payload in one step.
+      const finalAnswers = {
         ...answers,
         usesEstrogenContraception: usesEstrogen,
         usesBiosensorCup: usesBiosensor,
       };
 
+      // Update the context with the latest answers from this screen
       updateAnswers({
         usesEstrogenContraception: usesEstrogen,
         usesBiosensorCup: usesBiosensor,
       });
 
-      if (updatedAnswers.userId) {
-        await submitQuestionnaire({
-          userId: updatedAnswers.userId,
-          age: Number(updatedAnswers.personal.age),
-          weightKg: parseFloat(updatedAnswers.personal.weight),
-          heightCm: parseFloat(updatedAnswers.personal.height),
-          familyHistory: {
-            anemia: Boolean(updatedAnswers.familyHistory.anemia),
-            thrombosis: Boolean(updatedAnswers.familyHistory.thrombosis),
+      const payload = {
+        userId: userId,
+        health: {
+          personalDetails: {
+            age: parseInt(finalAnswers.personal.age, 10) || 0,
+            weight: parseFloat(finalAnswers.personal.weight) || 0,
+            height: parseFloat(finalAnswers.personal.height) || 0,
           },
-          anemiaRiskFactors: updatedAnswers.anemiaRiskFactors,
-          thrombosisRiskFactors: updatedAnswers.thrombosisRiskFactors,
-          usesEstrogenContraception: Boolean(
-            updatedAnswers.usesEstrogenContraception,
-          ),
-          usesBiosensorCup: Boolean(updatedAnswers.usesBiosensorCup),
-        });
+          familyHistory: {
+            familyHistoryAnemia: finalAnswers.familyHistory.anemia ?? false,
+            familyHistoryThrombosis:
+              finalAnswers.familyHistory.thrombosis ?? false,
+            anemiaConditions: finalAnswers.anemiaRiskFactors,
+            thrombosisConditions: finalAnswers.thrombosisRiskFactors,
+          },
+          estrogenPill: finalAnswers.usesEstrogenContraception ?? false,
+          biosensorCup: finalAnswers.usesBiosensorCup ?? false,
+        },
+        history: [], // Assuming history is empty for now
+      };
+
+      console.log(
+        "Final payload being sent:",
+        JSON.stringify(payload, null, 2),
+      );
+
+      if (payload.userId) {
+        await submitQuestionnaire(payload as QuestionnairePayload);
       }
 
       reset();

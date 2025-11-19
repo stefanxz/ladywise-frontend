@@ -5,6 +5,7 @@
  */
 
 import QuestionnairePersonalDetails from "@/app/onboarding/questionnaire-personal-details";
+import { QuestionnaireProvider } from "@/app/onboarding/QuestionnaireContext";
 import { fireEvent, render } from "@testing-library/react-native";
 import React from "react";
 
@@ -30,7 +31,11 @@ describe("QuestionnairePersonalDetails screen", () => {
   });
 
   const setup = () => {
-    const utils = render(<QuestionnairePersonalDetails />);
+    const utils = render(
+      <QuestionnaireProvider>
+        <QuestionnairePersonalDetails />
+      </QuestionnaireProvider>
+    );
     const pressContinue = () =>
           fireEvent.press(utils.getByTestId("continue-button"));
     const typeAge = (v: string) =>

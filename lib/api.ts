@@ -81,21 +81,24 @@ export async function getCycleStatus() {
   return data;
 }
 
-import { QuestionnaireAnswers } from "@/app/onboarding/QuestionnaireContext";
-
 export type QuestionnairePayload = {
   userId: string;
-  age: number;
-  weightKg: number;
-  heightCm: number;
-  familyHistory: {
-    anemia: boolean;
-    thrombosis: boolean;
+  health: {
+    personalDetails: {
+      age: number;
+      weight: number;
+      height: number;
+    };
+    familyHistory: {
+      familyHistoryAnemia: boolean;
+      familyHistoryThrombosis: boolean;
+      anemiaConditions: string[];
+      thrombosisConditions: string[];
+    };
+    estrogenPill: boolean;
+    biosensorCup: boolean;
   };
-  anemiaRiskFactors: string[];
-  thrombosisRiskFactors: string[];
-  usesEstrogenContraception: boolean;
-  usesBiosensorCup: boolean;
+  history: [];
 };
 
 export type QuestionnaireResponse = {
@@ -104,35 +107,11 @@ export type QuestionnaireResponse = {
   createdAt?: string;
 };
 
-export async function submitQuestionnaire(answers: QuestionnaireAnswers) {
-  if (!answers.userId) {
+export async function submitQuestionnaire(payload: QuestionnairePayload) {
+  if (!payload.userId) {
     throw new Error("User ID is missing.");
   }
 
-  const {
-    userId,
-    personal,
-    familyHistory,
-    anemiaRiskFactors,
-    thrombosisRiskFactors,
-    usesEstrogenContraception,
-    usesBiosensorCup,
-  } = answers;
-
-  const payload: QuestionnairePayload = {
-    userId,
-    age: parseInt(personal.age, 10) || 0,
-    weightKg: parseInt(personal.weight, 10) || 0,
-    heightCm: parseInt(personal.height, 10) || 0,
-    familyHistory: {
-      anemia: familyHistory.anemia ?? false,
-      thrombosis: familyHistory.thrombosis ?? false,
-    },
-    anemiaRiskFactors,
-    thrombosisRiskFactors,
-    usesEstrogenContraception: usesEstrogenContraception ?? false,
-    usesBiosensorCup: usesBiosensorCup ?? false,
-  };
 
   const { data } = await api.post<QuestionnaireResponse>(
     "/api/questionnaire",
