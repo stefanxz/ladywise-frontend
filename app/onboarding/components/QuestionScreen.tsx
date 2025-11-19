@@ -45,10 +45,7 @@ export function QuestionScreen({
             <View className="w-1/6">
               <Pressable onPress={onSkip}>
                 <Text
-                  className="text-inter-regular text-right text-lightGrey"
-                  style={{
-                    paddingRight: Platform.OS === "android" ? 3 : 0,
-                  }}
+                  className="text-inter-regular text-right text-lightGrey android:pr-1"
                 >
                   Skip
                 </Text>

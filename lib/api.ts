@@ -81,6 +81,8 @@ export async function getCycleStatus() {
   return data;
 }
 
+import { QuestionnaireAnswers } from "@/app/onboarding/QuestionnaireContext";
+
 export type QuestionnairePayload = {
   userId: string;
   age: number;
@@ -102,7 +104,39 @@ export type QuestionnaireResponse = {
   createdAt?: string;
 };
 
-export async function submitQuestionnaire(payload: QuestionnairePayload) {
-  const { data } = await api.post<QuestionnaireResponse>("/api/questionnaire", payload);
+export async function submitQuestionnaire(answers: QuestionnaireAnswers) {
+  if (!answers.userId) {
+    throw new Error("User ID is missing.");
+  }
+
+  const {
+    userId,
+    personal,
+    familyHistory,
+    anemiaRiskFactors,
+    thrombosisRiskFactors,
+    usesEstrogenContraception,
+    usesBiosensorCup,
+  } = answers;
+
+  const payload: QuestionnairePayload = {
+    userId,
+    age: parseInt(personal.age, 10) || 0,
+    weightKg: parseInt(personal.weight, 10) || 0,
+    heightCm: parseInt(personal.height, 10) || 0,
+    familyHistory: {
+      anemia: familyHistory.anemia ?? false,
+      thrombosis: familyHistory.thrombosis ?? false,
+    },
+    anemiaRiskFactors,
+    thrombosisRiskFactors,
+    usesEstrogenContraception: usesEstrogenContraception ?? false,
+    usesBiosensorCup: usesBiosensorCup ?? false,
+  };
+
+  const { data } = await api.post<QuestionnaireResponse>(
+    "/api/questionnaire",
+    payload,
+  );
   return data;
 }

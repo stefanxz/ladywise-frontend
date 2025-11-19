@@ -1,3 +1,4 @@
+import merge from "lodash.merge";
 import { createContext, useContext, useState } from "react";
 
 type BooleanAnswer = boolean | null;
@@ -52,10 +53,7 @@ export function QuestionnaireProvider({
   const [answers, setAnswers] = useState<QuestionnaireAnswers>(DEFAULT_ANSWERS);
 
   const updateAnswers = (patch: Partial<QuestionnaireAnswers>) => {
-    setAnswers((prev) => ({
-      ...prev,
-      ...patch,
-    }));
+    setAnswers((prev) => merge({}, prev, patch));
   };
 
   const setUserId = (id: string | null) => {
