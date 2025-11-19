@@ -2,10 +2,7 @@ import { useAuth } from "@/context/AuthContext";
 import { BinaryChoiceGroup, QuestionScreen } from "@/app/onboarding/components";
 import { useQuestionnaire } from "@/app/onboarding/QuestionnaireContext";
 import { ThemedPressable } from "@/components/ThemedPressable/ThemedPressable";
-import {
-  submitQuestionnaire,
-  type QuestionnairePayload,
-} from "@/lib/api";
+import { submitQuestionnaire, type QuestionnairePayload } from "@/lib/api";
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import { Text, View } from "react-native"; // Import View
