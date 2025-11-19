@@ -234,7 +234,6 @@ describe("RegisterIndex screen", () => {
           password: "Abcd1234",
           consentGiven: true,
           consentVersion: expect.any(String),
-          consentAt: expect.any(String),
         })
       );
     });
@@ -315,7 +314,6 @@ describe("RegisterIndex screen", () => {
           password: "Abcd1234",
           consentGiven: true,
           consentVersion: expect.any(String),
-          consentAt: expect.any(String),
         })
       );
     });
