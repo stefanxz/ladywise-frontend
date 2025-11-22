@@ -3,12 +3,10 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function DiagnosticsScreen() {
   return (
-    <>
-      <SafeAreaView className="flex-1 bg-background p-6">
-        <Text className="text-headingText font-inter-semibold text-2xl">
-          Diagnostics
-        </Text>
-      </SafeAreaView>
-    </>
+    <SafeAreaView className="flex-1 bg-background p-6">
+      <Text className="text-headingText font-inter-semibold text-2xl">
+        Diagnostics
+      </Text>
+    </SafeAreaView>
   );
 }
