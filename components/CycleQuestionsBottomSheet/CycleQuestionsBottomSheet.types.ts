@@ -31,4 +31,5 @@ export type DailyCycleAnswers = {
   flow: string | null;
   symptoms: string[];
   riskFactors: string[];
+  date: string; // date of the cycle questionnaire being updated, NOT the day on which the user updates it
 };
