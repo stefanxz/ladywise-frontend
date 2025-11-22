@@ -205,9 +205,8 @@ describe("RegisterIndex screen", () => {
   });
 
   it("navigates on valid inputs", async () => {
-    mockedApi.loginUser.mockResolvedValue({
+    mockedApi.registerUser.mockResolvedValue({
       token: "fake-token",
-      tokenType: "Bearer",
       userId: "user-123",
       email: "user@example.com",
     });
@@ -240,13 +239,6 @@ describe("RegisterIndex screen", () => {
     });
 
     await waitFor(() => {
-      expect(mockedApi.loginUser).toHaveBeenCalledWith({
-        email: "user@example.com",
-        password: "Abcd1234",
-      });
-    });
-
-    await waitFor(() => {
       expect(mockSignIn).toHaveBeenCalledWith(
         "fake-token",
         "user-123",
@@ -262,11 +254,10 @@ describe("RegisterIndex screen", () => {
   });
 
   it("clears specific field error when user edits that field again", async () => {
-    mockedApi.loginUser.mockResolvedValue({
-      token: "fake-token",
-      tokenType: "Bearer",
-      userId: "user-123",
-      email: "user@example.com",
+    mockedApi.registerUser.mockResolvedValue({
+        token: "fake-token",
+        userId: "user-123",
+        email: "user@example.com",
     });
     const {
       toggleTnc,
@@ -318,13 +309,6 @@ describe("RegisterIndex screen", () => {
           consentAt: expect.any(String),
         })
       );
-    });
-
-    await waitFor(() => {
-      expect(mockedApi.loginUser).toHaveBeenCalledWith({
-        email: "user@example.com",
-        password: "Abcd1234",
-      });
     });
 
     await waitFor(() => {
