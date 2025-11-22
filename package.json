@@ -24,6 +24,8 @@
     "@react-navigation/elements": "^2.6.3",
     "@react-navigation/native": "^7.1.8",
     "axios": "^1.12.2",
+    "clsx": "^2.1.1",
+    "date-fns": "^4.1.0",
     "expo": "~54.0.10",
     "expo-constants": "~18.0.9",
     "expo-font": "~14.0.8",
