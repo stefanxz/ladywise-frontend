@@ -32,7 +32,7 @@ const CalendarDay = React.memo(({ date, onPress }: CalendarDayProps) => {
       )}
       
       <Text className={clsx(
-        "text-lg font-bold", // Always bold
+        "text-xl font-bold",
         isToday 
           ? "text-red-500" // Today overrides everything
           : isWeekend(date)
