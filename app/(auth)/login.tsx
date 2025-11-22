@@ -11,7 +11,7 @@ import {
 } from "@/utils/asyncStorageHelpers";
 import { Feather } from "@expo/vector-icons";
 import { isAxiosError } from "axios";
-import { useRouter } from "expo-router";
+import { useRouter, useLocalSearchParams } from "expo-router";
 import React, { useState } from "react";
 import {
   KeyboardAvoidingView,
@@ -33,6 +33,9 @@ export default function LoginScreen() {
   const [emailError, setEmailError] = useState<string | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const { passwordReset } = useLocalSearchParams<{ passwordReset?: string }>();
+  const showPasswordResetBanner = passwordReset === "true";
 
   const handleLogin = async () => {
     setEmailError(null);
@@ -128,6 +131,14 @@ export default function LoginScreen() {
                   </Text>
                   .
                 </Text>
+
+                {showPasswordResetBanner && (
+                  <View className="mt-3">
+                    <Text className="text-green-700 text-sm">
+                      Your password has been updated. Please log in.
+                    </Text>
+                  </View>
+                )}
               </View>
 
               {/* Form Section */}
@@ -190,7 +201,11 @@ export default function LoginScreen() {
                     </Pressable>
                   </View>
 
-                  <Pressable className="self-end mt-1" hitSlop={6}>
+                  <Pressable
+                    className="self-end mt-1"
+                    hitSlop={6}
+                    onPress={() => router.push("/(auth)/password_recovery")}
+                  >
                     <Text className="text-xs font-medium text-brand">
                       Forgot password?
                     </Text>
