@@ -46,6 +46,7 @@ export function CycleQuestionsBottomSheet({
     flow: null,
     symptoms: [],
     riskFactors: [],
+    date: "",
   });
   const [saving, setSaving] = useState(false);
 
