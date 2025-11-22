@@ -5,7 +5,11 @@ export type RegisterPayload = {
   consentVersion: string;
   consentAt: string; // ISO string for Instant (e.g.; '2025-01-15T10:30:00.000Z')
 };
-export type RegisterResponse = { id: string; email: string };
+export type RegisterResponse = { 
+  token: string;
+  userId: string;
+  email: string; 
+};
 export type LoginPayload = { email: string; password: string };
 export type LoginResponse = {
   token: string;

@@ -80,29 +80,26 @@ export default function RegisterIndex() {
 
     setRegistering(true);
     try {
-      await registerUser({
+      const loginResponse = await registerUser({
         email: email.trim(),
         password: password.trim(),
         consentGiven: termsConditions,
         consentVersion: termsData.version,
         consentAt: new Date().toISOString(),
       });
-      const loginResponse = await loginUser({
-        email: email.trim(),
-        password: password.trim(),
-      });
+
       await signIn(
         loginResponse.token,
         loginResponse.userId,
         loginResponse.email,
       );
       router.replace("/(auth)/register/personal-details");
-    } catch (e) {
+      } catch (e) {
       setFormError(e instanceof Error ? e.message : "Registration failed.");
-    } finally {
+      } finally {
       setRegistering(false);
     }
-  };
+  }
 
   return (
     <SafeAreaView className="flex-1 bg-background">
