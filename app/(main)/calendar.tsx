@@ -37,17 +37,13 @@ export default function CalendarScreen() {
   // Load Previous Months (Scroll Up)
   const loadMorePast = useCallback(() => {
     if (isLoadingPast || months.length === 0) return;
-
     setIsLoadingPast(true);
 
     // Small delay to allow UI to show spinner (feels more responsive)
     setTimeout(() => {
-      setMonths((currentMonths) => {
-        const firstMonthDate = currentMonths[0].date;
-        const newStartDate = subMonths(firstMonthDate, BATCH_SIZE);
-        const newMonths = generateMonths(newStartDate, BATCH_SIZE);
-        
-        return [...newMonths, ...currentMonths];
+      setMonths((currentMonths) => {        
+        return [...generateMonths(subMonths(currentMonths[0].date, BATCH_SIZE),
+        BATCH_SIZE), ...currentMonths];
       });
       setIsLoadingPast(false);
     }, 500);
@@ -61,12 +57,8 @@ export default function CalendarScreen() {
 
     setTimeout(() => {
       setMonths((currentMonths) => {
-        const lastMonthDate = currentMonths[currentMonths.length - 1].date;
-        // Start generating from the month *after* the last one
-        const nextMonthDate = addMonths(lastMonthDate, 1);
-        const newMonths = generateMonths(nextMonthDate, BATCH_SIZE);
-        
-        return [...currentMonths, ...newMonths];
+        return [...currentMonths,
+        ...generateMonths(addMonths(currentMonths[currentMonths.length - 1].date, 1), BATCH_SIZE)];
       });
       setIsLoadingFuture(false);
     }, 500);
@@ -74,9 +66,9 @@ export default function CalendarScreen() {
   
   // Helper for rendering the months
   const renderMonth = useCallback(({ item }: any) => (
-    <View className="mb-8 px-4"> 
-      <View className="flex-row items-center justify-center mb-6 mt-2 space-x-2">
-        <Feather name="calendar" size={20} color="black" />
+    <View className="mb-0 px-4"> 
+      <View className="flex-row items-center justify-center mb-2 mt-2 space-x-2">
+        <Feather name="calendar" size={18} color="#44403C" />
         <View className="flex-row items-baseline ml-2">
           <Text className="text-stone-900 text-lg font-bold mr-1">
             {item.titleMonth}
@@ -87,7 +79,7 @@ export default function CalendarScreen() {
         </View>
       </View>
       
-      <View className="flex-row flex-wrap mx-4">
+      <View className="flex-row flex-wrap mx-2">
         {item.days.map((date: Date | null, index: number) => (
           <CalendarDay 
             key={date ? date.toISOString() : `empty-${item.id}-${index}`}
