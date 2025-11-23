@@ -8,7 +8,7 @@ import { generateMonths } from '@/utils/calendarHelpers';
 import CalendarDay from '@/components/Calendar/CalendarDay';
 import CalendarHeader from '@/components/Calendar/CalendarHeader';
 import LogNewPeriodButton from '@/components/LogNewPeriodButton/LogNewPeriodButton';
-import { addMonths, isWithinInterval, parseISO, startOfDay, subMonths } from 'date-fns';
+import { addMonths, endOfDay, isWithinInterval, parseISO, startOfDay, subMonths } from 'date-fns';
 import { useTheme } from '@/context/ThemeContext';
 import { getCycleStatus, getPeriodHistory } from '@/lib/api';
 import { useAuth } from "@/context/AuthContext";
@@ -49,9 +49,9 @@ export default function CalendarScreen() {
         const history = await getPeriodHistory();
 
         const parsedPeriods = history.map(p => ({
-          start: parseISO(p.startDate),
+          start: startOfDay(parseISO(p.startDate)),
           // If end date is null (ongoing), use today as temp for visual rendering
-          end: p.endDate ? parseISO(p.endDate) : startOfDay(new Date())
+          end: p.endDate ? endOfDay(parseISO(p.endDate)) : endOfDay(new Date())
         }));
 
         setPeriods(parsedPeriods);
@@ -164,6 +164,7 @@ export default function CalendarScreen() {
           data={months}
           keyExtractor={(item) => item.id}
           renderItem={renderMonth}
+          extraData={periods}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{ paddingBottom: 160 }} 
           

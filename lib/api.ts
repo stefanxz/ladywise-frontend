@@ -84,5 +84,6 @@ export async function getCycleStatus() {
 
 export async function getPeriodHistory() {
   const { data } = await api.get<PeriodLogResponse[]>("/api/cycle/history");
+  console.log(data);
   return data;
 }
