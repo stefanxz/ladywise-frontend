@@ -14,7 +14,7 @@ import { ApiRiskResponse } from "./types/risks";
 import { PersonalDetailsPayload, PersonalDetailsResponse } from "./types/health";
 
 export const api = axios.create({
-  baseURL: "http://10.0.2.2:8080",
+  baseURL: "process.env.EXPO_PUBLIC_API_URL",
   timeout: 10000,
   headers: { "Content-Type": "application/json" },
 });
