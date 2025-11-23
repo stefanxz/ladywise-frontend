@@ -8,18 +8,46 @@ import { generateMonths } from '@/utils/calendarHelpers';
 import CalendarDay from '@/components/Calendar/CalendarDay';
 import CalendarHeader from '@/components/Calendar/CalendarHeader';
 import LogNewPeriodButton from '@/components/LogNewPeriodButton/LogNewPeriodButton';
-import { addMonths, subMonths } from 'date-fns';
+import { addMonths, isWithinInterval, subMonths } from 'date-fns';
+import { useTheme } from '@/context/ThemeContext';
+import { getCycleStatus } from '@/lib/api';
+import { useAuth } from "@/context/AuthContext";
 
 // Configuration
 const PRELOAD_PAST_MONTHS = 6;
 const PRELOAD_FUTURE_MONTHS = 12;
 const BATCH_SIZE = 10; // How many months to load at a time
 
+const MOCK_PERIODS = [
+  { start: new Date(2025, 10, 5), end: new Date(2025, 10, 9) }, 
+  { start: new Date(2025, 9, 8), end: new Date(2025, 9, 12) }, 
+];
+
 export default function CalendarScreen() {
   const insets = useSafeAreaInsets(); // Used to get precise safe area dimensions
+  const { theme, setPhase } = useTheme();
+  const { token, isLoading: isAuthLoading } = useAuth();
+
   const [months, setMonths] = useState<any[]>([]);
   const [isLoadingPast, setIsLoadingPast] = useState(false);
   const [isLoadingFuture, setIsLoadingFuture] = useState(false);
+
+  useEffect(() => {
+    const fetchCycleData = async () => {
+      if (isAuthLoading || !token) return;
+      try {
+        const status = await getCycleStatus();
+
+        // Update the tehme context so we have the correct theme.highlight
+        if (status?.currentPhase) {
+          setPhase(status.currentPhase.toLowerCase() as any);
+        }
+      } catch (err) {
+        console.error("Failed to fetch cycle status for calendar: " + err);
+      }
+    };
+    fetchCycleData();
+  }, [token, isAuthLoading, setPhase]);
 
   // Initial Load
   useEffect(() => {
@@ -28,6 +56,12 @@ export default function CalendarScreen() {
     const totalMonths = PRELOAD_PAST_MONTHS + PRELOAD_FUTURE_MONTHS;
     setMonths(generateMonths(start, totalMonths));
   }, []);
+
+  const checkIsPeriod = useCallback((date: Date) => {
+    return MOCK_PERIODS.some(period =>
+      isWithinInterval(date, { start: period.start, end: period.end})
+    );
+  }, [])
 
   // Placeholder handler for future logic
   const handleDatePress = useCallback((date: Date) => {
@@ -80,13 +114,19 @@ export default function CalendarScreen() {
       </View>
       
       <View className="flex-row flex-wrap mx-2">
-        {item.days.map((date: Date | null, index: number) => (
-          <CalendarDay 
-            key={date ? date.toISOString() : `empty-${item.id}-${index}`}
-            date={date}
-            onPress={handleDatePress}
-          />
-        ))}
+        {item.days.map((date: Date | null, index: number) => {
+          const isPeriodDay = date ? checkIsPeriod(date) : false;
+          
+          return (
+            <CalendarDay 
+              key={date ? date.toISOString() : `empty-${item.id}-${index}`}
+              date={date}
+              isPeriod={isPeriodDay}
+              themeColor={theme.highlight}
+              onPress={handleDatePress}
+            />
+          );
+        })}
       </View>
     </View>
   ), [handleDatePress]);
