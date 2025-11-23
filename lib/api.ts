@@ -12,8 +12,8 @@ import type {
   UserResponse,
 } from "./types";
 import { CycleStatusDTO } from "./types/cycle";
-import { RiskData, ApiRiskResponse } from "./types/risks";
-import { StoredAuthData } from "./auth";
+import { ApiRiskResponse } from "./types/risks";
+import { DailyLogRequest } from "@/lib/types/period";
 import { getAuthData } from "./auth";
 
 export const api = axios.create({
@@ -89,6 +89,14 @@ export async function getCycleStatus() {
   return data;
 }
 
+export async function logDailyEntry(
+  periodId: string,
+  payload: DailyLogRequest,
+) {
+  const { data } = await api.put(`/api/periods/${periodId}/entries`, payload);
+  return data;
+}
+
 export async function requestPasswordReset(
   payload: PasswordResetRequestPayload,
 ) {
@@ -143,7 +151,7 @@ export async function checkCycleQuestionnaireAccess(): Promise<{ allowed: boolea
     return data;
   } catch (error) {
     console.warn("Error in checkCycleQuestionnaireAccess:", error);
-    
+
     if (axios.isAxiosError(error) && !error.response) {
       console.warn("Backend not reachable, returning mock allowed=true");
       return { allowed: true };

@@ -10,7 +10,7 @@ import CalendarStrip, {
 import PhaseCard from "@/components/PhaseCard/PhaseCard";
 import { LinearGradient } from "expo-linear-gradient";
 import { useTheme } from "@/context/ThemeContext";
-import { getCycleStatus, getRiskData } from "@/lib/api";
+import { getCycleStatus, getRiskData, logDailyEntry } from "@/lib/api";
 import { CycleStatusDTO } from "@/lib/types/cycle";
 import { useFocusEffect } from "expo-router";
 import { useAuth } from "@/context/AuthContext";
@@ -18,6 +18,8 @@ import { formatPhaseName, generateCalendarDays } from "@/utils/mainPageHelpers";
 import { FloatingAddButton } from "@/components/FloatingAddButton/FloatingAddButton";
 import { BottomSheetModal } from "@gorhom/bottom-sheet";
 import { CycleQuestionsBottomSheet } from "@/components/CycleQuestionsBottomSheet/CycleQuestionsBottomSheet";
+import { DailyCycleAnswers } from "@/components/CycleQuestionsBottomSheet/CycleQuestionsBottomSheet.types";
+import { mapAnswersToPayload } from "@/utils/helpers";
 
 type RiskLevel = "Low" | "Medium" | "High";
 const mapApiToInsights = (apiData: ApiRiskResponse): RiskData[] => {
@@ -184,6 +186,19 @@ const Home = () => {
   const handleDayPress = (dayId: string) => console.log("Pressed day: ", dayId);
   const handleCardPress = () => console.log("Phase Card Pressed");
 
+  const handleAddDailyEntry = async (answers: DailyCycleAnswers) => {
+    const periodId = "f1c3f9a1-5c0e-4e09-8ad5-31bfffe23e33";
+    const payload = mapAnswersToPayload({
+      ...answers,
+      date: new Date().toISOString().split("T")[0],
+    });
+    try {
+      await logDailyEntry(periodId, payload);
+    } catch (error: any) {
+      setError(error.message ?? "Could not save daily answer entry.");
+    }
+  };
+
   if (loading) {
     return (
       <LinearGradient
@@ -283,10 +298,7 @@ const Home = () => {
 
       <CycleQuestionsBottomSheet
         bottomSheetRef={bottomSheetModalRef}
-        onSave={async (answers) => {
-          console.log(answers);
-          await new Promise((res) => setTimeout(res, 1000)); // placeholder API call
-        }}
+        onSave={handleAddDailyEntry}
       />
     </>
   );

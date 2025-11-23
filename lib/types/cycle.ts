@@ -2,7 +2,7 @@ export type CyclePhase = "MENSTRUAL" | "FOLLICULAR" | "OVULATION" | "LUTEAL";
 export type CycleEvent = "NEXT_OVULATION" | "NEXT_PERIOD";
 
 export interface PeriodRecord {
-  startDate: string; 
+  startDate: string;
   endDate: string;
 }
 
@@ -14,5 +14,5 @@ export interface CycleStatusDTO {
   nextEventDate: string;
   periodHistory: PeriodRecord[];
   periodDates: string[];
-  predictedPeriodDates: string[]; 
+  predictedPeriodDates: string[];
 }
