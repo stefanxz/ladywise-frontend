@@ -90,9 +90,16 @@ export async function getCycleStatus() {
   return data;
 }
 
-export async function logDailyEntry(
-  periodId: string,
+export async function getDailyEntry(date: string): Promise<DailyLogResponse> {
+  const { data } = await api.get<DailyLogResponse>(
+    `/api/periods/entries/${date}`,
+  );
+  return data;
+}
+
+export async function updateDailyEntry(
   payload: DailyLogRequest,
+  periodId?: string,
 ) {
   const { data } = await api.put(`/api/periods/${periodId}/entries`, payload);
   return data;

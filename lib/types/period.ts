@@ -19,3 +19,10 @@ export type DailyLogRequest = {
   symptoms: Symptom[];
   riskFactors: RiskFactor[];
 };
+
+export type DailyLogResponse = {
+  date: string; // "YYYY-MM-DD"
+  flow: FlowLevel;
+  symptoms: Symptom[];
+  riskFactors: RiskFactor[];
+};
