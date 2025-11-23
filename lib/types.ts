@@ -4,11 +4,6 @@ export type RegisterPayload = {
   consentGiven: boolean;
   consentVersion: string;
 };
-export type RegisterResponse = { 
-  token: string;
-  userId: string;
-  email: string; 
-};
 export type LoginPayload = { email: string; password: string };
 export type LoginResponse = {
   token: string;
