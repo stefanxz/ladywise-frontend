@@ -8,9 +8,9 @@ import { generateMonths } from '@/utils/calendarHelpers';
 import CalendarDay from '@/components/Calendar/CalendarDay';
 import CalendarHeader from '@/components/Calendar/CalendarHeader';
 import LogNewPeriodButton from '@/components/LogNewPeriodButton/LogNewPeriodButton';
-import { addMonths, isWithinInterval, subMonths } from 'date-fns';
+import { addMonths, isWithinInterval, parseISO, startOfDay, subMonths } from 'date-fns';
 import { useTheme } from '@/context/ThemeContext';
-import { getCycleStatus } from '@/lib/api';
+import { getCycleStatus, getPeriodHistory } from '@/lib/api';
 import { useAuth } from "@/context/AuthContext";
 
 // Configuration
@@ -18,10 +18,10 @@ const PRELOAD_PAST_MONTHS = 6;
 const PRELOAD_FUTURE_MONTHS = 12;
 const BATCH_SIZE = 10; // How many months to load at a time
 
-const MOCK_PERIODS = [
-  { start: new Date(2025, 10, 5), end: new Date(2025, 10, 9) }, 
-  { start: new Date(2025, 9, 8), end: new Date(2025, 9, 12) }, 
-];
+type ParsedPeriod = {
+  start: Date,
+  end: Date,
+};
 
 export default function CalendarScreen() {
   const insets = useSafeAreaInsets(); // Used to get precise safe area dimensions
@@ -29,24 +29,37 @@ export default function CalendarScreen() {
   const { token, isLoading: isAuthLoading } = useAuth();
 
   const [months, setMonths] = useState<any[]>([]);
+  const [periods, setPeriods] = useState<ParsedPeriod[]>([]);
   const [isLoadingPast, setIsLoadingPast] = useState(false);
   const [isLoadingFuture, setIsLoadingFuture] = useState(false);
 
+  // Fetch data
   useEffect(() => {
-    const fetchCycleData = async () => {
+    const fetchData = async () => {
       if (isAuthLoading || !token) return;
       try {
+        // For theme color
         const status = await getCycleStatus();
-
         // Update the tehme context so we have the correct theme.highlight
         if (status?.currentPhase) {
           setPhase(status.currentPhase.toLowerCase() as any);
         }
+
+        // Fetch period history 
+        const history = await getPeriodHistory();
+
+        const parsedPeriods = history.map(p => ({
+          start: parseISO(p.startDate),
+          // If end date is null (ongoing), use today as temp for visual rendering
+          end: p.endDate ? parseISO(p.endDate) : startOfDay(new Date())
+        }));
+
+        setPeriods(parsedPeriods);
       } catch (err) {
-        console.error("Failed to fetch cycle status for calendar: " + err);
+        console.error("Failed to fetch cycle calendar data: " + err);
       }
     };
-    fetchCycleData();
+    fetchData();
   }, [token, isAuthLoading, setPhase]);
 
   // Initial Load
@@ -58,10 +71,10 @@ export default function CalendarScreen() {
   }, []);
 
   const checkIsPeriod = useCallback((date: Date) => {
-    return MOCK_PERIODS.some(period =>
+    return periods.some(period =>
       isWithinInterval(date, { start: period.start, end: period.end})
     );
-  }, [])
+  }, [periods])
 
   // Placeholder handler for future logic
   const handleDatePress = useCallback((date: Date) => {

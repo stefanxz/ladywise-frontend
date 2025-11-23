@@ -42,7 +42,7 @@ const CalendarDay = React.memo(({ date, onPress, isPeriod = false, themeColor }:
 
       // If it's today apply transparent red tint
       if (!isToday) {
-        styles.backgroundColor = "rgba(219, 136, 136, 0.26)";
+        styles.backgroundColor = "rgba(219, 136, 136, 0.12)";
       }
     }
 
@@ -59,7 +59,7 @@ const CalendarDay = React.memo(({ date, onPress, isPeriod = false, themeColor }:
   }, [isPeriod, isToday, themeColor]);
 
   const textClasses = clsx(
-    "text-lg font-bold",
+    "text-xl font-bold",
     {
       "text-black": isToday,
       "text-stone-800": !isToday && !isWeekend(date),
@@ -72,7 +72,7 @@ const CalendarDay = React.memo(({ date, onPress, isPeriod = false, themeColor }:
       <TouchableOpacity 
         onPress={() => onPress?.(date)}
         activeOpacity={0.7}
-        className="w-full h-full items-center justify-center rounded-xl"
+        className="w-[88%] h-[88%] items-center justify-center rounded-xl"
         style={dynamicStyles}
       >
         <Text className={textClasses}>
