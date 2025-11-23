@@ -11,9 +11,10 @@ import { CycleStatusDTO } from "./types/cycle";
 import { RiskData } from "./types/risks";
 import { StoredAuthData } from "./auth";
 import { ApiRiskResponse } from "./types/risks";
+import { PersonalDetailsPayload, PersonalDetailsResponse } from "./types/health";
 
 export const api = axios.create({
-  baseURL: process.env.EXPO_PUBLIC_API_URL,
+  baseURL: "http://10.0.2.2:8080",
   timeout: 10000,
   headers: { "Content-Type": "application/json" },
 });
@@ -57,6 +58,23 @@ export async function loginUser(payload: LoginPayload) {
 //update user data of an existing user
 export async function updateUser(payload: UserPayload) {
   const { data } = await api.patch<UserResponse>("/api/users/updateUser", payload);
+  return data;
+}
+
+//Add personal details to health data
+export async function personalDetials(
+  token: string,
+  payload: PersonalDetailsPayload
+) {
+  const { data } = await api.post<PersonalDetailsResponse>(
+    "/api/firstQuestionnaire/personal-details", 
+    payload,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    }
+  );
   return data;
 }
 

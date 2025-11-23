@@ -8,6 +8,8 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 // Assets
 import { ProgressBar } from "@/components/ProgressBar/ProgressBar";
+import { personalDetials } from "@/lib/api";
+import { useAuth } from "@/context/AuthContext";
 
 export default function Questionnaire() {
   const router = useRouter();
@@ -19,6 +21,8 @@ export default function Questionnaire() {
   const [ageError, setAgeError] = useState<string | null>(null);
   const [weightError, setWeightError] = useState<string | null>(null);
   const [heightError, setHeightError] = useState<string | null>(null);
+
+  const { token, userId, isLoading: isAuthLoading } = useAuth();
 
   // Navigate to the main page
   // Main page does not exist yet so naviagtion is to langing page
@@ -91,7 +95,29 @@ export default function Questionnaire() {
     }
 
     if (hasError) return;
-    router.push("/onboarding/questionnaire");
+
+    if (!token) {
+      // Handle the unexpected case: log an error, redirect to login, or throw.
+      console.error("Token is missing, cannot submit details.");
+      setFormError("Authentication required.");
+      return; // Stop execution
+    }
+    try {
+      const payload = {
+          age: ageNum,
+          weigth: weightNum,
+          height: heightNum,
+      };
+
+      await personalDetials(
+        token,
+        payload
+      );
+      router.push("/(main)/home");
+      } catch (e) {
+        setFormError(e instanceof Error ? e.message : "Sending details failed.");
+      } finally {
+    }
   };
 
   return (
@@ -197,3 +223,7 @@ export default function Questionnaire() {
 function isDecimal(weightNum: number) {
   throw new Error("Function not implemented.");
 }
+function setFormError(arg0: string) {
+  throw new Error("Function not implemented.");
+}
+
