@@ -10,7 +10,7 @@ import CalendarStrip, {
 import PhaseCard from "@/components/PhaseCard/PhaseCard";
 import { LinearGradient } from "expo-linear-gradient";
 import { useTheme } from "@/context/ThemeContext";
-import { getCycleStatus, getRiskData, logDailyEntry } from "@/lib/api";
+import { createDailyEntry, getCycleStatus, getRiskData } from "@/lib/api";
 import { CycleStatusDTO } from "@/lib/types/cycle";
 import { useFocusEffect } from "expo-router";
 import { useAuth } from "@/context/AuthContext";
@@ -92,6 +92,7 @@ async function fetchRiskData(
     return []; // Return empty array on failure
   }
 }
+
 const Home = () => {
   const { token, userId, isLoading: isAuthLoading } = useAuth();
   const { theme, setPhase } = useTheme();
@@ -186,14 +187,19 @@ const Home = () => {
   const handleDayPress = (dayId: string) => console.log("Pressed day: ", dayId);
   const handleCardPress = () => console.log("Phase Card Pressed");
 
+  /**
+   * Called when the user clicks 'Save answers' on the cycle questionnaire bottom sheet.
+   * First maps answers to the payload that the backend expects, then creates the new
+   * daily entry.
+   * @param answers {DailyCycleAnswers} - user's answers to the cycle questionnaire
+   */
   const handleAddDailyEntry = async (answers: DailyCycleAnswers) => {
-    const periodId = "f1c3f9a1-5c0e-4e09-8ad5-31bfffe23e33";
     const payload = mapAnswersToPayload({
       ...answers,
-      date: new Date().toISOString().split("T")[0],
+      date: new Date().toISOString().split("T")[0], // today
     });
     try {
-      await logDailyEntry(periodId, payload);
+      await createDailyEntry(payload);
     } catch (error: any) {
       setError(error.message ?? "Could not save daily answer entry.");
     }

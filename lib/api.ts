@@ -72,6 +72,7 @@ export async function getRiskData(
   token: string,
   userId: string,
 ): Promise<ApiRiskResponse> {
+  // <-- Use the correct response type
   const config = {
     params: { userId },
     headers: { Authorization: `Bearer ${token}` },
@@ -94,6 +95,11 @@ export async function logDailyEntry(
   payload: DailyLogRequest,
 ) {
   const { data } = await api.put(`/api/periods/${periodId}/entries`, payload);
+  return data;
+}
+
+export async function createDailyEntry(payload: DailyLogRequest) {
+  const { data } = await api.post("/api/periods/entries", payload);
   return data;
 }
 
