@@ -85,7 +85,6 @@ export default function RegisterIndex() {
         password: password.trim(),
         consentGiven: termsConditions,
         consentVersion: termsData.version,
-        consentAt: new Date().toISOString(),
       });
 
       await signIn(

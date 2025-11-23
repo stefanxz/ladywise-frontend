@@ -3,7 +3,6 @@ export type RegisterPayload = {
   password: string;
   consentGiven: boolean;
   consentVersion: string;
-  consentAt: string; // ISO string for Instant (e.g.; '2025-01-15T10:30:00.000Z')
 };
 export type RegisterResponse = { 
   token: string;
