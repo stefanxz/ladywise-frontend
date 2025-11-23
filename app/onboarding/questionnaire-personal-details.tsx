@@ -105,7 +105,7 @@ export default function Questionnaire() {
     try {
       const payload = {
           age: ageNum,
-          weigth: weightNum,
+          weight: weightNum,
           height: heightNum,
       };
 

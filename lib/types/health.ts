@@ -1,10 +1,10 @@
 export type PersonalDetailsPayload = {
   age: number;
-  weigth: number;
+  weight: number;
   height: number;
 };
 export type PersonalDetailsResponse = { 
   age: number;
-  weigth: number;
+  weight: number;
   height: number;
 };
