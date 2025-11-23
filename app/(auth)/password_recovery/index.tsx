@@ -46,9 +46,7 @@ export default function PasswordRecovery() {
 
     try {
       setIsSubmitting(true);
-      console.log("----------sending request to backend----------");
       await requestPasswordReset({ email: email.trim() });
-      console.log("----------sending request to backend----------");
       router.push("/(auth)/password_recovery/mail-sent-info");
     } catch (err) {
       console.error("Recovery error:", err);

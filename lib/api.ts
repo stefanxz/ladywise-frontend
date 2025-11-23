@@ -2,8 +2,10 @@ import axios from "axios";
 import type {
   LoginPayload,
   LoginResponse,
+  PasswordResetRequestPayload,
   RegisterPayload,
   RegisterResponse,
+  ResetPasswordPayload,
   UserPayload,
   UserResponse,
 } from "./types";
@@ -67,7 +69,6 @@ export async function getRiskData(
   token: string,
   userId: string,
 ): Promise<ApiRiskResponse> {
-  // <-- Use the correct response type
   const config = {
     params: { userId },
     headers: { Authorization: `Bearer ${token}` },
@@ -85,20 +86,11 @@ export async function getCycleStatus() {
   return data;
 }
 
-export interface PasswordResetRequestPayload {
-  email: string;
-}
-
 export async function requestPasswordReset(
   payload: PasswordResetRequestPayload,
 ) {
   const { data } = await api.post("/api/auth/password-reset-request", payload);
   return data;
-}
-
-export interface ResetPasswordPayload {
-  token: string;
-  newPassword: string;
 }
 
 export async function resetPassword(payload: ResetPasswordPayload) {
