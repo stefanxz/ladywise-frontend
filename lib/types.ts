@@ -24,3 +24,12 @@ export type UserResponse = {
   firstName: string;
   lastName: string;
 };
+
+export interface PasswordResetRequestPayload {
+  email: string;
+}
+
+export interface ResetPasswordPayload {
+  token: string;
+  newPassword: string;
+}

@@ -2,15 +2,16 @@ import axios from "axios";
 import type {
   LoginPayload,
   LoginResponse,
+  PasswordResetRequestPayload,
   RegisterPayload,
   RegisterResponse,
+  ResetPasswordPayload,
   UserPayload,
   UserResponse,
 } from "./types";
 import { CycleStatusDTO } from "./types/cycle";
-import { RiskData } from "./types/risks";
+import { RiskData, ApiRiskResponse } from "./types/risks";
 import { StoredAuthData } from "./auth";
-import { ApiRiskResponse } from "./types/risks";
 
 export const api = axios.create({
   baseURL: process.env.EXPO_PUBLIC_API_URL,
@@ -32,19 +33,20 @@ api.interceptors.response.use(
     // Preserve AxiosError details while ensuring a readable message for UI handling.
     if (axios.isAxiosError(error)) {
       const message =
-        error.response?.data?.message ??
-        error.message ??
-        "Request failed.";
+        error.response?.data?.message ?? error.message ?? "Request failed.";
       error.message = message;
     }
     return Promise.reject(error);
-  }
+  },
 );
 
 // register new user by sending their credentials to the backend API
 // uses the base URL from .env + '/api/auth/register'
 export async function registerUser(payload: RegisterPayload) {
-  const { data } = await api.post<RegisterResponse>("/api/auth/register", payload);
+  const { data } = await api.post<RegisterResponse>(
+    "/api/auth/register",
+    payload,
+  );
   return data;
 }
 
@@ -56,14 +58,17 @@ export async function loginUser(payload: LoginPayload) {
 
 //update user data of an existing user
 export async function updateUser(payload: UserPayload) {
-  const { data } = await api.patch<UserResponse>("/api/users/updateUser", payload);
+  const { data } = await api.patch<UserResponse>(
+    "/api/users/updateUser",
+    payload,
+  );
   return data;
 }
 
 export async function getRiskData(
   token: string,
-  userId: string
-): Promise<ApiRiskResponse> { // <-- Use the correct response type
+  userId: string,
+): Promise<ApiRiskResponse> {
   const config = {
     params: { userId },
     headers: { Authorization: `Bearer ${token}` },
@@ -71,12 +76,24 @@ export async function getRiskData(
   // Use the correct generic type
   const { data } = await api.get<ApiRiskResponse>(
     `/api/users/${userId}/risks`,
-    config
+    config,
   );
   return data; // This returns: { thrombosisRisk: 1, anemiaRisk: 2 }
 }
 
 export async function getCycleStatus() {
   const { data } = await api.get<CycleStatusDTO>("/api/cycle/status");
+  return data;
+}
+
+export async function requestPasswordReset(
+  payload: PasswordResetRequestPayload,
+) {
+  const { data } = await api.post("/api/auth/password-reset-request", payload);
+  return data;
+}
+
+export async function resetPassword(payload: ResetPasswordPayload) {
+  const { data } = await api.post("/api/auth/password-reset", payload);
   return data;
 }
