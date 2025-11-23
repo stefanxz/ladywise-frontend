@@ -142,7 +142,7 @@ export default function CalendarScreen() {
         })}
       </View>
     </View>
-  ), [handleDatePress]);
+  ), [handleDatePress, checkIsPeriod, theme]);
 
   return (
     <View 
