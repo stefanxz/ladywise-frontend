@@ -3,11 +3,13 @@ import { FactorCardProps } from "./types";
 
 /**
  * Transforms backend API response into UI-ready Factor objects.
- * Requirement: URF-12.5 (Structured list of relevant data) [cite: 498]
+ * Requirement: URF-12.5 (Structured list of relevant data)
  * * @param backendData - Object with keys (factor IDs) and values (boolean/string).
  * Example: { "estrogen_pill": true, "flow": "Heavy", "dizziness": false }
  */
-export function mapBackendToFactors(backendData: Record<string, any> | null): FactorCardProps[] {
+export function mapBackendToFactors(
+  backendData: Record<string, any> | null,
+): FactorCardProps[] {
   const activeFactors: FactorCardProps[] = [];
 
   if (!backendData) return [];
@@ -25,12 +27,13 @@ export function mapBackendToFactors(backendData: Record<string, any> | null): Fa
       const def = FACTORS_REGISTRY[key];
       activeFactors.push({
         title: def.title,
-        // If backend sends a specific string (like "< 6 Months"), use it. 
+        // If backend sends a specific string (like "< 6 Months"), use it.
         // Otherwise use the default (like "Present").
-        value: typeof backendValue === 'string' ? backendValue : def.defaultValue,
+        value:
+          typeof backendValue === "string" ? backendValue : def.defaultValue,
         description: def.description,
         icon: def.icon,
-        variant: 'default'
+        variant: "default",
       });
     }
   });
@@ -38,19 +41,20 @@ export function mapBackendToFactors(backendData: Record<string, any> | null): Fa
   // SCENARIO B: Special "Flow" Handling (Cycle Questionnaire)
   // Backend sends { flow: "Heavy" }, but registry key is "flow_heavy"
   if (backendData.flow) {
-    const flowValue = typeof backendData.flow === 'string' ? backendData.flow : '';
+    const flowValue =
+      typeof backendData.flow === "string" ? backendData.flow : "";
     // Construct the registry key: "flow_" + "heavy" -> "flow_heavy"
     const registryKey = `flow_${flowValue.toLowerCase()}`;
-    
+
     const def = FACTORS_REGISTRY[registryKey];
-    
+
     if (def) {
       activeFactors.push({
         title: def.title,
         value: flowValue, // "Heavy"
         description: def.description,
         icon: def.icon,
-        variant: 'flow' 
+        variant: "flow",
       });
     }
   }

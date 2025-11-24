@@ -23,5 +23,5 @@ export interface FactorCardProps {
   description: string;
   icon: ImageSourcePropType;
   /** Optional: Used for flow charts or different visual styles */
-  variant?: 'default' | 'flow'; 
+  variant?: "default" | "flow";
 }

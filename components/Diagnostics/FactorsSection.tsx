@@ -1,7 +1,7 @@
-import React from 'react';
-import { View, Text } from 'react-native';
-import FactorCard from './FactorCard';
-import { mapBackendToFactors } from './mapBackendToFactors';
+import React from "react";
+import { View, Text } from "react-native";
+import FactorCard from "./FactorCard";
+import { mapBackendToFactors } from "./mapBackendToFactors";
 
 interface FactorsSectionProps {
   /** The raw data object from your API / Context */
@@ -28,11 +28,11 @@ export default function FactorsSection({ data }: FactorsSectionProps) {
       <Text className="text-[16px] font-inter-bold text-headingText mb-3">
         Factors
       </Text>
-      
+
       {/* Grid Layout Container */}
       <View className="flex-row flex-wrap justify-between">
         {activeFactors.map((factor, index) => (
-          <FactorCard 
+          <FactorCard
             key={`${factor.title}-${index}`} // Unique key
             {...factor} // Spreads: title, value, description, icon, variant
           />

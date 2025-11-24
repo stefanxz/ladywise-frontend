@@ -4,26 +4,21 @@ import { FactorCardProps } from "./types";
 
 /**
  * Renders a single factor card displaying contributing medical data.
- * Requirement: URF-12.5 (Structured list of contributing data) [cite: 498]
+ * Requirement: URF-12.5 (Structured list of contributing data)
  */
-export default function FactorCard({ 
-  title, 
-  value, 
-  description, 
+export default function FactorCard({
+  title,
+  value,
+  description,
   icon,
-  variant = 'default' 
+  variant = "default",
 }: FactorCardProps) {
   return (
     // w-[48%] creates the 2-column grid effect with a small gap
     <View className="w-[48%] bg-white rounded-2xl p-4 border border-gray-100 shadow-sm mb-3 flex flex-col items-center justify-center">
-      
       {/* Icon Area */}
       <View className="mb-3 flex-row items-center justify-center w-full">
-        <Image
-          source={icon}
-          className="w-8 h-8" 
-          resizeMode="contain"
-        />
+        <Image source={icon} className="w-8 h-8" resizeMode="contain" />
       </View>
 
       {/* Title (e.g., "Estrogen Pill") */}

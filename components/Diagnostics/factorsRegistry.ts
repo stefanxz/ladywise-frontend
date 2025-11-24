@@ -1,7 +1,7 @@
 import { FactorDefinition } from "./types";
 
 // Fix for "require" error: tells TypeScript this global function exists
-declare var require: any;
+declare const require: any;
 
 /**
  * FACTORS_REGISTRY
@@ -14,7 +14,7 @@ export const FACTORS_REGISTRY: Record<string, FactorDefinition> = {
   // SECTION: MEDICAL RISK FACTORS
   // Derived from Baseline & Cycle Questionnaires
   // =================================================================
-  
+
   estrogen_pill: {
     id: "estrogen_pill",
     title: "Estrogen Pill",
