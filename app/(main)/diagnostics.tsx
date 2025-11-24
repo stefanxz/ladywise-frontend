@@ -190,121 +190,123 @@ export default function DiagnosticsScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-background">
-      <ScrollView className="px-4 pt-10">
-        <Text className="text-3xl font-bold text-headingText mb-6">
-          Diagnostics
-        </Text>
-
-        {/* --- Thrombosis Card --- */}
-        <View className="bg-white rounded-2xl shadow-sm p-4 mb-6">
-          <Text className="text-lg font-semibold text-headingText mb-3">
-            Thrombosis Risk
+      <ScrollView>
+        <View className="px-4 pt-10">
+          <Text className="text-3xl font-bold text-headingText mb-6">
+            Diagnostics
           </Text>
 
-          <View className="flex-row justify-between items-center mb-4">
-            <View>
-              <Text className="text-xs text-inactiveText">Current Risk</Text>
-              <Text
-                className="text-xl font-semibold"
-                style={{ color: riskColors[latestThrombosis] }}
-              >
-                {riskLabels[latestThrombosis]}
+          {/* --- Thrombosis Card --- */}
+          <View className="bg-white rounded-2xl shadow-sm p-4 mb-6">
+            <Text className="text-lg font-semibold text-headingText mb-3">
+              Thrombosis Risk
+            </Text>
+
+            <View className="flex-row justify-between items-center mb-4">
+              <View>
+                <Text className="text-xs text-inactiveText">Current Risk</Text>
+                <Text
+                  className="text-xl font-semibold"
+                  style={{ color: riskColors[latestThrombosis] }}
+                >
+                  {riskLabels[latestThrombosis]}
+                </Text>
+              </View>
+              {/* placeholder for "same as last month" etc. */}
+              <Text className="text-xs text-inactiveText">
+                latest measurement
               </Text>
             </View>
-            {/* placeholder for "same as last month" etc. */}
-            <Text className="text-xs text-inactiveText">
-              latest measurement
-            </Text>
+
+            <LineChart
+              data={{
+                labels,
+                datasets: [{ data: thrombosisData }],
+              }}
+              width={screenWidth}
+              height={220}
+              chartConfig={chartConfig}
+              bezier
+              fromZero
+              withShadow={false}
+              segments={2} // 0,1,2 → Low,Medium,High
+              formatYLabel={formatRiskTick}
+            />
           </View>
 
-          <LineChart
-            data={{
-              labels,
-              datasets: [{ data: thrombosisData }],
-            }}
-            width={screenWidth}
-            height={220}
-            chartConfig={chartConfig}
-            bezier
-            fromZero
-            withShadow={false}
-            segments={2} // 0,1,2 → Low,Medium,High
-            formatYLabel={formatRiskTick}
-          />
-        </View>
+          {/* --- Anemia Card --- */}
+          <View className="bg-white rounded-2xl shadow-sm p-4 mb-6">
+            <Text className="text-lg font-semibold text-headingText mb-3">
+              Anemia Risk
+            </Text>
 
-        {/* --- Anemia Card --- */}
-        <View className="bg-white rounded-2xl shadow-sm p-4 mb-6">
-          <Text className="text-lg font-semibold text-headingText mb-3">
-            Anemia Risk
-          </Text>
-
-          <View className="flex-row justify-between items-center mb-4">
-            <View>
-              <Text className="text-xs text-inactiveText">Current Risk</Text>
-              <Text
-                className="text-xl font-semibold"
-                style={{ color: riskColors[latestAnemia] }}
-              >
-                {riskLabels[latestAnemia]}
+            <View className="flex-row justify-between items-center mb-4">
+              <View>
+                <Text className="text-xs text-inactiveText">Current Risk</Text>
+                <Text
+                  className="text-xl font-semibold"
+                  style={{ color: riskColors[latestAnemia] }}
+                >
+                  {riskLabels[latestAnemia]}
+                </Text>
+              </View>
+              <Text className="text-xs text-inactiveText">
+                latest measurement
               </Text>
             </View>
-            <Text className="text-xs text-inactiveText">
-              latest measurement
-            </Text>
+
+            <LineChart
+              data={{
+                labels,
+                datasets: [{ data: anemiaData }],
+              }}
+              width={screenWidth}
+              height={220}
+              chartConfig={chartConfig}
+              bezier
+              fromZero
+              withShadow={false}
+              segments={2}
+              formatYLabel={formatRiskTick}
+            />
           </View>
 
-          <LineChart
-            data={{
-              labels,
-              datasets: [{ data: anemiaData }],
-            }}
-            width={screenWidth}
-            height={220}
-            chartConfig={chartConfig}
-            bezier
-            fromZero
-            withShadow={false}
-            segments={2}
-            formatYLabel={formatRiskTick}
-          />
-        </View>
+          {/* --- Flow Card --- */}
+          <View className="bg-white rounded-2xl shadow-sm p-4 mb-10">
+            <Text className="text-lg font-semibold text-headingText mb-3">
+              Menstrual Flow
+            </Text>
 
-        {/* --- Flow Card --- */}
-        <View className="bg-white rounded-2xl shadow-sm p-4 mb-10">
-          <Text className="text-lg font-semibold text-headingText mb-3">
-            Menstrual Flow
-          </Text>
-
-          <View className="flex-row justify-between items-center mb-4">
-            <View>
-              <Text className="text-xs text-inactiveText">Current Level</Text>
-              <Text
-                className="text-xl font-semibold"
-                style={{ color: flowColors[latestFlow] }}
-              >
-                {flowLabels[latestFlow]}
+            <View className="flex-row justify-between items-center mb-4">
+              <View>
+                <Text className="text-xs text-inactiveText">Current Level</Text>
+                <Text
+                  className="text-xl font-semibold"
+                  style={{ color: flowColors[latestFlow] }}
+                >
+                  {flowLabels[latestFlow]}
+                </Text>
+              </View>
+              <Text className="text-xs text-inactiveText">
+                latest measurement
               </Text>
             </View>
-            <Text className="text-xs text-inactiveText">
-              latest measurement
-            </Text>
-          </View>
 
-          <LineChart
-            data={{
-              labels,
-              datasets: [{ data: flowData }],
-            }}
-            width={screenWidth}
-            height={220}
-            chartConfig={chartConfig}
-            bezier
-            fromZero
-            withShadow={false}
-            segments={3} // 0..3 → None,Light,Normal,Heavy
-            formatYLabel={formatFlowTick}
-          />
+            <LineChart
+              data={{
+                labels,
+                datasets: [{ data: flowData }],
+              }}
+              width={screenWidth}
+              height={220}
+              chartConfig={chartConfig}
+              bezier
+              fromZero
+              withShadow={false}
+              segments={3} // 0..3 → None,Light,Normal,Heavy
+              formatYLabel={formatFlowTick}
+            />
+          </View>
         </View>
       </ScrollView>
     </SafeAreaView>
