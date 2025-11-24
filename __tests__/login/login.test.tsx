@@ -5,6 +5,7 @@ import * as asyncStorage from "@/utils/asyncStorageHelpers";
 import { fireEvent, render, waitFor } from "@testing-library/react-native";
 import React from "react";
 import { AxiosError } from "axios";
+import { useLocalSearchParams } from "expo-router";
 
 // Provide a lightweight AuthContext mock so the screen can drive setStatus without pulling in the real layout.
 const mockSignIn = jest.fn();
@@ -13,14 +14,15 @@ jest.mock("@/context/AuthContext", () => ({
     signIn: mockSignIn,
     isLoading: false,
     token: null,
-  })
-}))
+  }),
+}));
 
 // --- Mock navigation, stack, and icons ---
 const mockRouter = { push: jest.fn(), replace: jest.fn(), back: jest.fn() };
 jest.mock("expo-router", () => ({
   Stack: { Screen: () => null },
   useRouter: () => mockRouter,
+  useLocalSearchParams: jest.fn(() => ({})),
 }));
 
 jest.mock("@expo/vector-icons", () => ({
@@ -67,7 +69,6 @@ const mockedValidation = jest.mocked(validation);
 const mockedAsyncStorage = jest.mocked(asyncStorage);
 
 describe("LoginScreen", () => {
-
   beforeEach(() => {
     jest.clearAllMocks();
     mockSignIn.mockClear();
@@ -76,17 +77,14 @@ describe("LoginScreen", () => {
   });
 
   const setup = () => {
-    const utils = render(
-        <LoginScreen />
-    );
+    const utils = render(<LoginScreen />);
     const typeEmail = (v: string) =>
       fireEvent.changeText(utils.getByPlaceholderText("Your email"), v);
     const typePassword = (v: string) =>
       fireEvent.changeText(utils.getByPlaceholderText("Your password"), v);
     const pressLogin = () =>
       fireEvent.press(utils.getByRole("button", { name: "Log In" }));
-    const getLoginBtn = () =>
-      utils.getByRole("button", { name: "Log In" });
+    const getLoginBtn = () => utils.getByRole("button", { name: "Log In" });
     return { ...utils, typeEmail, typePassword, pressLogin, getLoginBtn };
   };
 
@@ -135,6 +133,16 @@ describe("LoginScreen", () => {
     );
   });
 
+  it("shows banner when passwordReset=true", () => {
+    (useLocalSearchParams as jest.Mock).mockReturnValue({
+      passwordReset: "true",
+    });
+    const { getByText } = setup();
+    expect(
+      getByText("Your password has been updated. Please log in."),
+    ).toBeTruthy();
+  });
+
   describe("API Calls", () => {
     it("calls loginUser, stores token, resets failed count, and navigates on successful login", async () => {
       mockedValidation.isEmailValid.mockReturnValue(true);
@@ -162,9 +170,9 @@ describe("LoginScreen", () => {
         expect(mockSignIn).toHaveBeenCalledWith(
           "fake-token",
           "user-123",
-          "user@example.com"
-        )
-      })
+          "user@example.com",
+        );
+      });
 
       await waitFor(() => {
         expect(mockedAsyncStorage.resetFailedLoginCount).toHaveBeenCalled();
@@ -176,7 +184,9 @@ describe("LoginScreen", () => {
     });
 
     it("shows an error message and increments failed login count on failed login", async () => {
-      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+      const consoleErrorSpy = jest
+        .spyOn(console, "error")
+        .mockImplementation(() => { });
 
       mockedValidation.isEmailValid.mockReturnValue(true);
       const mockAxiosError = new AxiosError(
@@ -202,7 +212,6 @@ describe("LoginScreen", () => {
 
       const errorMessage = await findByText("Invalid email or password");
       expect(errorMessage).toBeTruthy();
-
 
       expect(mockRouter.replace).not.toHaveBeenCalled();
       expect(mockedAsyncStorage.incrementFailedLoginCount).toHaveBeenCalled();

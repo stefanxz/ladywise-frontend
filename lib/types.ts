@@ -3,7 +3,6 @@ export type RegisterPayload = {
   password: string;
   consentGiven: boolean;
   consentVersion: string;
-  consentAt: string; // ISO string for Instant (e.g.; '2025-01-15T10:30:00.000Z')
 };
 export type RegisterResponse = { id: string; email: string };
 export type LoginPayload = { email: string; password: string };
@@ -25,6 +24,15 @@ export type UserResponse = {
   firstName: string;
   lastName: string;
 };
+
+export interface PasswordResetRequestPayload {
+  email: string;
+}
+
+export interface ResetPasswordPayload {
+  token: string;
+  newPassword: string;
+}
 
 export type QuestionnairePayload = {
   userId: string;
