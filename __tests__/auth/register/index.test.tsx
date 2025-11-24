@@ -207,6 +207,7 @@ describe("RegisterIndex screen", () => {
   it("navigates on valid inputs", async () => {
     mockedApi.registerUser.mockResolvedValue({
       token: "fake-token",
+      tokenType: "Bearer",
       userId: "user-123",
       email: "user@example.com",
     });
@@ -222,7 +223,7 @@ describe("RegisterIndex screen", () => {
     typeConfirm("Abcd1234");
 
     await act(async () => {
-      pressContinue();
+      await pressContinue();
     });
 
     // make registerUser resolve successfully so mockPush runs
@@ -254,9 +255,10 @@ describe("RegisterIndex screen", () => {
 
   it("clears specific field error when user edits that field again", async () => {
     mockedApi.registerUser.mockResolvedValue({
-        token: "fake-token",
-        userId: "user-123",
-        email: "user@example.com",
+      token: "fake-token",
+      tokenType: "Bearer",
+      userId: "user-123",
+      email: "user@example.com",
     });
     const {
       toggleTnc,
