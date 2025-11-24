@@ -47,6 +47,8 @@ const flowColors: Record<FlowNum, string> = {
   3: "#dc2626", // heavy = red
 };
 
+//TODO: When backend is properly implemented for keeping track of risk history remove this and change the
+//useEffect so that it doesnt fall back on the mock data.
 const mockHistory: RiskHistoryPoint[] = [
   {
     recordedAt: "2025-10-28T10:00:00Z",
@@ -80,40 +82,56 @@ const mockHistory: RiskHistoryPoint[] = [
   },
 ];
 
-export default function DiagnosticsScreen() {
+type DiagnosticsScreenProps = {
+  history?: RiskHistoryPoint[];
+};
+
+export default function DiagnosticsScreen({
+  history: historyProp,
+}: DiagnosticsScreenProps) {
   const { token, userId } = useAuth();
 
-  // you can swap initialValue to [] once you hook backend
-  const [history, setHistory] = useState<RiskHistoryPoint[]>(mockHistory);
-  const [loading, setLoading] = useState(false); // true when you enable effect
+  const [history, setHistory] = useState<RiskHistoryPoint[]>(historyProp ?? []);
+  const [loading, setLoading] = useState(!historyProp);
   const [error, setError] = useState<string | null>(null);
 
-  //TODO: After the data is properly handeled in the backend we have to remove the mock data(mockHistory) and add this commented part below.
-  /*
   useEffect(() => {
-    if (!token || !userId) return;
+    if (historyProp) return; // Don't fetch if history is passed as a prop
+
+    if (!token || !userId) {
+      // Not logged in, but for development purposes, show mock data.
+      setHistory(mockHistory);
+      setLoading(false);
+      return;
+    }
 
     const load = async () => {
       try {
         setLoading(true);
         setError(null);
-
         const data = await getRiskHistory(token, userId);
-        setHistory(data);
+        if (data && data.length > 0) {
+          setHistory(data);
+        } else {
+          // If API returns no data, fallback to mock data for development
+          setHistory(mockHistory);
+        }
       } catch (err: unknown) {
         console.error("Failed to load risk history", err);
+
+        // Fallback to mock data if API fails, as requested for development
+        setHistory(mockHistory);
 
         if (isAxiosError(err)) {
           const status = err.response?.status;
           if (status === 401) {
             setError("Your session has expired. Please log in again.");
-          } else if (status === 404) {
-            setError("We couldn’t find any diagnostic history yet.");
           } else {
-            setError("We couldn’t load your diagnostic data.");
+            // Don't show a "not found" error, just use mock data for now.
+            setError(null);
           }
         } else {
-          setError("We couldn’t load your diagnostic data.");
+          setError(null); // Or a generic error message
         }
       } finally {
         setLoading(false);
@@ -121,8 +139,7 @@ export default function DiagnosticsScreen() {
     };
 
     load();
-  }, [token, userId]);
-  */
+  }, [token, userId, historyProp]);
 
   const formatRiskTick = (value: string) => {
     const rounded = Math.round(Number(value)) as RiskNum;
@@ -191,7 +208,7 @@ export default function DiagnosticsScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-background">
-      <ScrollView>
+      <ScrollView testID="diagnostics-scroll-view">
         <View className="px-4 pt-10">
           <Text className="text-3xl font-bold text-headingText mb-6">
             Diagnostics
