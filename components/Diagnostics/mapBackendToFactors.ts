@@ -1,33 +1,59 @@
-import { factorsRegistry } from "./factorsRegistry";
+import { FACTORS_REGISTRY } from "./factorsRegistry";
+import { FactorCardProps } from "./types";
 
-export function mapBackendToFactors(backend: any) {
-  // 1. Clone ALL default factor definitions
-  const output: any = {};
+/**
+ * Transforms backend API response into UI-ready Factor objects.
+ * Requirement: URF-12.5 (Structured list of relevant data) [cite: 498]
+ * * @param backendData - Object with keys (factor IDs) and values (boolean/string).
+ * Example: { "estrogen_pill": true, "flow": "Heavy", "dizziness": false }
+ */
+export function mapBackendToFactors(backendData: Record<string, any> | null): FactorCardProps[] {
+  const activeFactors: FactorCardProps[] = [];
 
-  Object.entries(factorsRegistry).forEach(([id, def]) => {
-    output[id] = {
-      id,
-      title: def.title,
-      description: def.description,
-      icon: def.icon,
-      present: false,
-      value: null,
-    };
+  if (!backendData) return [];
+
+  // 1. Iterate through the raw backend keys
+  Object.keys(backendData).forEach((key) => {
+    const backendValue = backendData[key];
+
+    // SKIP if the value is false, null, or undefined (Factor not present)
+    if (!backendValue) return;
+
+    // SCENARIO A: Direct Match (e.g., estrogen_pill: true)
+    // The key in backend matches the key in our registry
+    if (FACTORS_REGISTRY[key]) {
+      const def = FACTORS_REGISTRY[key];
+      activeFactors.push({
+        title: def.title,
+        // If backend sends a specific string (like "< 6 Months"), use it. 
+        // Otherwise use the default (like "Present").
+        value: typeof backendValue === 'string' ? backendValue : def.defaultValue,
+        description: def.description,
+        icon: def.icon,
+        variant: 'default'
+      });
+    }
   });
 
-  // 2. Apply backend data safely
-  if (backend) {
-    Object.entries(backend).forEach(([key, value]) => {
-      if (!output[key]) return;
-
-      if (typeof value === "boolean") {
-        output[key].present = value;
-      } else if (typeof value === "string") {
-        output[key].present = true;
-        output[key].value = value;
-      }
-    });
+  // SCENARIO B: Special "Flow" Handling (Cycle Questionnaire)
+  // Backend sends { flow: "Heavy" }, but registry key is "flow_heavy"
+  if (backendData.flow) {
+    const flowValue = typeof backendData.flow === 'string' ? backendData.flow : '';
+    // Construct the registry key: "flow_" + "heavy" -> "flow_heavy"
+    const registryKey = `flow_${flowValue.toLowerCase()}`;
+    
+    const def = FACTORS_REGISTRY[registryKey];
+    
+    if (def) {
+      activeFactors.push({
+        title: def.title,
+        value: flowValue, // "Heavy"
+        description: def.description,
+        icon: def.icon,
+        variant: 'flow' 
+      });
+    }
   }
 
-  return output;
+  return activeFactors;
 }
