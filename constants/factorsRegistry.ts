@@ -1,4 +1,4 @@
-import { FactorDefinition } from "./types";
+import { FactorDefinition } from "../components/Diagnostics/types";
 
 // Fix for "require" error: tells TypeScript this global function exists
 declare const require: any;

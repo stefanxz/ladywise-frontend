@@ -1,6 +1,5 @@
-import { FACTORS_REGISTRY } from "./factorsRegistry";
-import { FactorCardProps } from "./types";
-
+import { FACTORS_REGISTRY } from "@/constants/factorsRegistry";
+import { FactorCardProps } from "@/components/Diagnostics/types";
 /**
  * Transforms backend API response into UI-ready Factor objects.
  * Requirement: URF-12.5 (Structured list of relevant data)
