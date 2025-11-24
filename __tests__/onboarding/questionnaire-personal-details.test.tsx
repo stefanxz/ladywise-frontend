@@ -57,7 +57,7 @@ describe("QuestionnairePersonalDetails screen", () => {
     expect(getByText("Weight")).toBeTruthy();
     expect(getByText("Height")).toBeTruthy();
     expect(getByText("Continue")).toBeTruthy();
-    expect(getByText("Skip")).toBeTruthy();
+
   });
 
   it("shows 'Please enter your age.' when age is empty", () => {
@@ -313,7 +313,7 @@ describe("QuestionnairePersonalDetails screen", () => {
     pressContinue();
 
     // Assert that navigation happened
-    expect(router.push).toHaveBeenCalledWith("/onboarding/questionnaire-family-history");
+    expect(router.push).toHaveBeenCalledWith("./questionnaire-family-history");
   });
 
   it("shows error messages when all inputs are out of range", () => {

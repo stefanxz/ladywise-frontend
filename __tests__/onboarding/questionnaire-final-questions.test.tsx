@@ -146,7 +146,7 @@ describe("QuestionnaireFinalQuestions", () => {
     });
   });
 
-  it("shows error messages if finish is pressed without answers", async () => {
+  it("submits with null values if finish is pressed without answers", async () => {
     const updateAnswers = jest.fn();
     const reset = jest.fn();
     (useQuestionnaire as jest.Mock).mockReturnValue({
@@ -165,24 +165,17 @@ describe("QuestionnaireFinalQuestions", () => {
     render(<QuestionnaireFinalQuestions />);
 
     const finishButton = screen.getByText("Finish");
-
-    fireEvent.press(finishButton);
-
-    expect(screen.getAllByText("Please select an answer.")).toHaveLength(2);
-    expect(submitQuestionnaire).not.toHaveBeenCalled();
-
-    fireEvent.press(screen.getByTestId("estrogen-yes"));
-
-    expect(screen.queryAllByText("Please select an answer.")).toHaveLength(1);
-
-    fireEvent.press(screen.getByTestId("biosensor-no"));
-
-    expect(screen.queryByText("Please select an answer.")).toBeNull();
-
     fireEvent.press(finishButton);
 
     await waitFor(() => {
-      expect(submitQuestionnaire).toHaveBeenCalled();
+      expect(submitQuestionnaire).toHaveBeenCalledWith(
+        expect.objectContaining({
+          health: expect.not.objectContaining({
+            estrogenPill: expect.anything(),
+            biosensorCup: expect.anything(),
+          }),
+        }),
+      );
     });
   });
 });

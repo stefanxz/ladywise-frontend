@@ -52,11 +52,11 @@ describe("QuestionnaireFamilyHistory", () => {
       },
     });
     expect(mockPush).toHaveBeenCalledWith(
-      "/onboarding/questionnaire-anemia-risk",
+      "./questionnaire-anemia-risk",
     );
   });
 
-  it("shows error messages if continue is pressed without answers", () => {
+  it("disables continue until an answer is given", () => {
     const updateAnswers = jest.fn();
     (useQuestionnaire as jest.Mock).mockReturnValue({
       answers: { familyHistory: { anemia: null, thrombosis: null } },
@@ -65,29 +65,13 @@ describe("QuestionnaireFamilyHistory", () => {
     render(<QuestionnaireFamilyHistory />);
 
     const continueButton = screen.getByTestId("themed-pressable");
-
-    fireEvent.press(continueButton);
-
-    expect(screen.getByText("Please select an answer for Anemia.")).toBeTruthy();
-    expect(
-      screen.getByText("Please select an answer for Thrombosis."),
-    ).toBeTruthy();
-    expect(updateAnswers).not.toHaveBeenCalled();
+    expect(continueButton.props.accessibilityState.disabled).toBe(true);
 
     fireEvent.press(screen.getByTestId("family-anemia-yes"));
-
-    expect(screen.queryByText("Please select an answer for Anemia.")).toBeNull();
-    expect(
-      screen.getByText("Please select an answer for Thrombosis."),
-    ).toBeTruthy();
-
-    fireEvent.press(screen.getByTestId("family-thrombosis-no"));
-
-    expect(
-      screen.queryByText("Please select an answer for Thrombosis."),
-    ).toBeNull();
+    expect(continueButton.props.accessibilityState.disabled).toBe(false);
 
     fireEvent.press(continueButton);
     expect(updateAnswers).toHaveBeenCalled();
+    expect(mockPush).toHaveBeenCalledWith("./questionnaire-anemia-risk");
   });
 });

@@ -75,11 +75,11 @@ describe("QuestionnaireAnemiaRisk", () => {
       anemiaRiskFactors: ["iron-deficiency"],
     });
     expect(mockPush).toHaveBeenCalledWith(
-      "/onboarding/questionnaire-thrombosis-risk",
+      "./questionnaire-thrombosis-risk",
     );
   });
 
-  it("shows error message if continue is pressed without selection", () => {
+  it("disables continue until an option is selected", () => {
     const updateAnswers = jest.fn();
     (useQuestionnaire as jest.Mock).mockReturnValue({
       answers: { anemiaRiskFactors: [] },
@@ -87,14 +87,11 @@ describe("QuestionnaireAnemiaRisk", () => {
     });
     render(<QuestionnaireAnemiaRisk />);
 
-    fireEvent.press(screen.getByText("Continue"));
-
-    expect(screen.getByText("Please select at least one option.")).toBeTruthy();
-    expect(updateAnswers).not.toHaveBeenCalled();
+    const continueButton = screen.getByTestId("themed-pressable");
+    expect(continueButton.props.accessibilityState.disabled).toBe(true);
 
     fireEvent.press(screen.getByTestId("multiselect-option-iron-deficiency"));
-
-    expect(screen.queryByText("Please select at least one option.")).toBeNull();
+    expect(continueButton.props.accessibilityState.disabled).toBe(false);
 
     fireEvent.press(screen.getByText("Continue"));
     expect(updateAnswers).toHaveBeenCalled();
