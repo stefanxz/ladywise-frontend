@@ -88,6 +88,7 @@ export default function DiagnosticsScreen() {
   const [loading, setLoading] = useState(false); // true when you enable effect
   const [error, setError] = useState<string | null>(null);
 
+  //TODO: After the data is properly handeled in the backend we have to remove the mock data(mockHistory) and add this commented part below.
   /*
   useEffect(() => {
     if (!token || !userId) return;
