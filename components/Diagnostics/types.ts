@@ -1,4 +1,4 @@
-import { ImageSourcePropType } from "react-native";
+import { LucideIcon } from "lucide-react-native";
 
 /**
  * Represents the static definition of a risk factor.
@@ -8,7 +8,7 @@ export interface FactorDefinition {
   id: string;
   title: string;
   description: string;
-  icon: ImageSourcePropType;
+  icon: LucideIcon;
   /** The default value to display if the backend doesn't provide a specific override */
   defaultValue: string;
 }
@@ -21,7 +21,7 @@ export interface FactorCardProps {
   title: string;
   value: string;
   description: string;
-  icon: ImageSourcePropType;
+  icon: LucideIcon;
   /** Optional: Used for flow charts or different visual styles */
   variant?: "default" | "flow";
 }

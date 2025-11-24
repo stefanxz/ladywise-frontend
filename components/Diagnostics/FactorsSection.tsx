@@ -4,7 +4,7 @@ import FactorCard from "./FactorCard";
 import { mapBackendToFactors } from "@/utils/mapBackendToFactors";
 
 interface FactorsSectionProps {
-  data: Record<string, any>;
+  data: Record<string, boolean | string | null | undefined>;
 }
 
 export default function FactorsSection({ data }: FactorsSectionProps) {

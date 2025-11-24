@@ -1,7 +1,16 @@
-import { FactorDefinition } from "../components/Diagnostics/types";
-
-// Fix for "require" error: tells TypeScript this global function exists
-declare const require: any;
+import { FactorDefinition } from "@/components/Diagnostics/types";
+import {
+  Pill,
+  Bandage,
+  Droplet,
+  Baby,
+  HeartCrack,
+  Activity,
+  Wind,
+  Expand,
+  RotateCw,
+  Waves,
+} from "lucide-react-native";
 
 /**
  * FACTORS_REGISTRY
@@ -12,7 +21,6 @@ declare const require: any;
 export const FACTORS_REGISTRY: Record<string, FactorDefinition> = {
   // =================================================================
   // SECTION: MEDICAL RISK FACTORS
-  // Derived from Baseline & Cycle Questionnaires
   // =================================================================
 
   estrogen_pill: {
@@ -20,7 +28,7 @@ export const FACTORS_REGISTRY: Record<string, FactorDefinition> = {
     title: "Estrogen Pill",
     defaultValue: "Present",
     description: "Hormonal therapy currently in use",
-    icon: require("@/assets/images/estrogen-pill-icon.png"),
+    icon: Pill,
   },
 
   surgery_injury: {
@@ -28,7 +36,7 @@ export const FACTORS_REGISTRY: Record<string, FactorDefinition> = {
     title: "Surgery or Severe Injury",
     defaultValue: "Present",
     description: "Recent operation or major trauma",
-    icon: require("@/assets/images/surgery-severe-injury-icon.png"),
+    icon: Bandage,
   },
 
   blood_clot: {
@@ -36,7 +44,7 @@ export const FACTORS_REGISTRY: Record<string, FactorDefinition> = {
     title: "Blood Clot",
     defaultValue: "Present",
     description: "Active or past clotting event noted",
-    icon: require("@/assets/images/blood-clot-icon.png"),
+    icon: Droplet,
   },
 
   postpartum: {
@@ -44,12 +52,11 @@ export const FACTORS_REGISTRY: Record<string, FactorDefinition> = {
     title: "Postpartum",
     defaultValue: "< 6 Months",
     description: "Elevated physiological risk period",
-    icon: require("@/assets/images/postpartum-icon.png"),
+    icon: Baby,
   },
 
   // =================================================================
   // SECTION: SYMPTOMS
-  // Self-reported daily symptoms
   // =================================================================
 
   chest_pain: {
@@ -57,7 +64,7 @@ export const FACTORS_REGISTRY: Record<string, FactorDefinition> = {
     title: "Chest Pain",
     defaultValue: "Present",
     description: "Symptomatic chest discomfort",
-    icon: require("@/assets/images/chestpain-icon.png"),
+    icon: HeartCrack,
   },
 
   unilateral_leg_pain: {
@@ -65,7 +72,7 @@ export const FACTORS_REGISTRY: Record<string, FactorDefinition> = {
     title: "Unilateral Leg Pain",
     defaultValue: "Present",
     description: "Localized limb discomfort",
-    icon: require("@/assets/images/leg-pain-icon.png"),
+    icon: Activity,
   },
 
   shortness_breath: {
@@ -73,7 +80,7 @@ export const FACTORS_REGISTRY: Record<string, FactorDefinition> = {
     title: "Shortness of Breath",
     defaultValue: "Present",
     description: "Breathing difficulty noted",
-    icon: require("@/assets/images/shortness-breath-icon.png"),
+    icon: Wind,
   },
 
   swelling: {
@@ -81,7 +88,7 @@ export const FACTORS_REGISTRY: Record<string, FactorDefinition> = {
     title: "Swelling",
     defaultValue: "Present",
     description: "Localized or general swelling",
-    icon: require("@/assets/images/swelling-icon.png"),
+    icon: Expand,
   },
 
   dizziness: {
@@ -89,12 +96,11 @@ export const FACTORS_REGISTRY: Record<string, FactorDefinition> = {
     title: "Dizziness",
     defaultValue: "Present",
     description: "Reported episodes of dizziness",
-    icon: require("@/assets/images/dizziness-icon.png"),
+    icon: RotateCw,
   },
 
   // =================================================================
   // SECTION: FLOW CHARACTERISTICS
-  // Mapped dynamically in mapBackendToFactors.ts
   // =================================================================
 
   flow_light: {
@@ -102,7 +108,7 @@ export const FACTORS_REGISTRY: Record<string, FactorDefinition> = {
     title: "Flow Characteristics",
     defaultValue: "Light",
     description: "Low menstrual volume",
-    icon: require("@/assets/images/light-flow-icon.png"),
+    icon: Waves,
   },
 
   flow_moderate: {
@@ -110,7 +116,7 @@ export const FACTORS_REGISTRY: Record<string, FactorDefinition> = {
     title: "Flow Characteristics",
     defaultValue: "Moderate",
     description: "Typical menstrual volume",
-    icon: require("@/assets/images/moderate-flow-icon.png"),
+    icon: Waves,
   },
 
   flow_heavy: {
@@ -118,6 +124,6 @@ export const FACTORS_REGISTRY: Record<string, FactorDefinition> = {
     title: "Flow Characteristics",
     defaultValue: "Heavy",
     description: "High menstrual volume",
-    icon: require("@/assets/images/heavy-flow-icon.png"),
+    icon: Waves,
   },
 };

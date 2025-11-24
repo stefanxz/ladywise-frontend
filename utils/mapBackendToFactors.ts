@@ -1,5 +1,11 @@
 import { FACTORS_REGISTRY } from "@/constants/factorsRegistry";
 import { FactorCardProps } from "@/components/Diagnostics/types";
+
+export type BackendRiskData = Record<
+  string,
+  boolean | string | null | undefined
+>;
+
 /**
  * Transforms backend API response into UI-ready Factor objects.
  * Requirement: URF-12.5 (Structured list of relevant data)
@@ -7,7 +13,7 @@ import { FactorCardProps } from "@/components/Diagnostics/types";
  * Example: { "estrogen_pill": true, "flow": "Heavy", "dizziness": false }
  */
 export function mapBackendToFactors(
-  backendData: Record<string, any> | null,
+  backendData: BackendRiskData | null,
 ): FactorCardProps[] {
   const activeFactors: FactorCardProps[] = [];
 
