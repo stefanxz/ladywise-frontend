@@ -10,23 +10,24 @@ jest.mock("expo-router", () => ({
     useRouter: jest.fn(),
 }));
 
-// API mock (we won't assert on it anymore, but we keep it mocked so no real call happens)
+// API mock
 jest.mock("@/lib/api", () => ({
     resetPassword: jest.fn(),
 }));
 
+//AppBarBackButton mock
 jest.mock("@/components/AppBarBackButton/AppBarBackButton", () => ({
     AppBar: () => null,
 }));
 
 
-// Mock password validation so tests don't depend on the real regex
+// Mock password validation to prevent tests from depending on real regex
 jest.mock("@/utils/validations", () => ({
     isPasswordValid: (password: string) =>
         /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[^\s]{8,}$/.test(password),
 }));
 
-// Local mock for AppBar so this screen test doesn't depend on its internals
+// Local mock for AppBar to prevent test from depending on its internals
 jest.mock("@/components/AppBarBackButton/AppBarBackButton", () => ({
     AppBar: () => null,
 }));
@@ -99,8 +100,6 @@ describe("ResetPasswordScreen", () => {
         fillPasswords(getByTestId, "StrongPass1", "StrongPass1");
         fireEvent.press(getByTestId("reset-password-button"));
 
-        // We don't care about the exact timing of the API call here, just that
-        // the happy-path navigation happens.
         await waitFor(() => {
             // No validation errors
             expect(
@@ -115,7 +114,7 @@ describe("ResetPasswordScreen", () => {
                 queryByText("Invalid or missing reset token. Please request a new link."),
             ).toBeNull();
 
-            // Navigation to login with passwordReset flag
+            // Navigate to login with passwordReset set to true
             expect(replaceMock).toHaveBeenCalledWith({
                 pathname: "/(auth)/login",
                 params: { passwordReset: "true" },
