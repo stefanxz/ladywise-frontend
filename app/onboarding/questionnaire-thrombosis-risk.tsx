@@ -1,19 +1,13 @@
-import { MultiSelectGroup, QuestionScreen } from "@/app/onboarding/components";
+import { THROMBOSIS_RISK_OPTIONS as OPTIONS } from "@/data/thrombosis-risk-options";
+import {
+  MultiSelectGroup,
+  QuestionScreen,
+} from "@/app/onboarding/components/QuestionScreen";
 import { useQuestionnaire } from "@/app/onboarding/QuestionnaireContext";
 import { ThemedPressable } from "@/components/ThemedPressable/ThemedPressable";
 import { useRouter } from "expo-router";
 import { useMemo, useState } from "react";
-import { Text, View } from "react-native"; // Import Text and View
-
-const OPTIONS = [
-  { id: "smoking", label: "Smoking" },
-  { id: "obesity", label: "Obesity" },
-  { id: "immobility", label: "Prolonged immobility" },
-  { id: "pregnancy-postpartum", label: "Pregnancy or postpartum" },
-  { id: "hormonal-therapy", label: "Hormonal therapy" },
-  { id: "inherited-clotting", label: "Inherited clotting disorder" },
-  { id: "none", label: "None of the above" },
-];
+import { Text, View } from "react-native";
 
 export default function QuestionnaireThrombosisRisk() {
   const router = useRouter();
@@ -21,9 +15,6 @@ export default function QuestionnaireThrombosisRisk() {
   const [selected, setSelected] = useState<string[]>(
     answers.thrombosisRiskFactors.length ? answers.thrombosisRiskFactors : [],
   );
-
-  // Error State
-  const [error, setError] = useState<string | null>(null);
 
   const displaySelected = useMemo(() => selected, [selected]);
 
@@ -42,16 +33,14 @@ export default function QuestionnaireThrombosisRisk() {
   };
 
   const handleContinue = () => {
-    setError(null);
-
-    if (selected.length === 0) {
-      setError("Please select at least one option.");
-      return; // Stop if there is an error
-    }
-
     const cleaned = displaySelected.includes("none") ? [] : displaySelected;
     updateAnswers({ thrombosisRiskFactors: cleaned });
-    router.push("/onboarding/questionnaire-final-questions");
+    router.push("./questionnaire-final-questions");
+  };
+
+  const handleSkip = () => {
+    updateAnswers({ thrombosisRiskFactors: [] });
+    router.push("./questionnaire-final-questions");
   };
 
   return (
@@ -59,23 +48,22 @@ export default function QuestionnaireThrombosisRisk() {
       step={4}
       title="Health background Thrombosis risk 💧"
       description="Select any conditions that apply to you."
-      onSkip={() => router.push("/landing")}
-      footer={<ThemedPressable label="Continue" onPress={handleContinue} />}
+      onSkip={handleSkip}
+      footer={
+        <ThemedPressable
+          label="Continue"
+          onPress={handleContinue}
+          disabled={selected.length === 0}
+        />
+      }
     >
       <View>
         <MultiSelectGroup
           question="Options"
           options={OPTIONS}
           selected={displaySelected}
-          onToggle={(value) => {
-            toggleOption(value);
-            if (error) setError(null); // Clear error on change
-          }}
+          onToggle={toggleOption}
         />
-        {/* Error message display */}
-        {error ? (
-          <Text className="text-red-600 text-xs mt-1 ml-2">{error}</Text>
-        ) : null}
       </View>
     </QuestionScreen>
   );

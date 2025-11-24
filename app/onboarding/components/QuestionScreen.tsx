@@ -49,7 +49,9 @@ export function QuestionScreen({
                 </Text>
               </Pressable>
             </View>
-          ) : null}
+          ) : (
+            <View className="w-1/6"></View>
+          )}
         </View>
       </View>
 

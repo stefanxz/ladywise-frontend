@@ -22,12 +22,6 @@ export default function Questionnaire() {
   const [weightError, setWeightError] = useState<string | null>(null);
   const [heightError, setHeightError] = useState<string | null>(null);
 
-  // Navigate to the main page
-  // Main page does not exist yet so naviagtion is to langing page
-  const handleSkip = () => {
-    router.push("/landing");
-  };
-
   // navigation to the next screen of first time questionnaire
   // Only go to the next page of the questionair when all fiels are inputed correctly
   const handleContinue = async () => {
@@ -95,7 +89,7 @@ export default function Questionnaire() {
     if (hasError) return;
 
     updateAnswers({ personal: { age, weight, height } });
-    router.push("/onboarding/questionnaire-family-history");
+    router.push("./questionnaire-family-history");
   };
 
   return (
@@ -105,19 +99,7 @@ export default function Questionnaire() {
           <View className="flex-1">
             <ProgressBar currentStep={1} totalSteps={5} edgeOffset={0.08} />
           </View>
-          <View className="w-1/6">
-            <Pressable onPress={handleSkip}>
-              <Text
-                className="text-inter-regular text-right text-lightGrey"
-                style={{
-                  // Fix for Android text truncation bug
-                  paddingRight: Platform.OS === "android" ? 3 : 0,
-                }}
-              >
-                Skip
-              </Text>
-            </Pressable>
-          </View>
+          <View className="w-1/6" />
         </View>
       </View>
       <View className="w-full max-w-md items-start mt-2 gap-y-3 px-10 pt-[71px]">
@@ -197,7 +179,4 @@ export default function Questionnaire() {
       </View>
     </SafeAreaView>
   );
-}
-function isDecimal(weightNum: number) {
-  throw new Error("Function not implemented.");
 }

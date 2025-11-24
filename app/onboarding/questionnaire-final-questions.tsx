@@ -1,11 +1,15 @@
 import { useAuth } from "@/context/AuthContext";
-import { BinaryChoiceGroup, QuestionScreen } from "@/app/onboarding/components";
+import {
+  BinaryChoiceGroup,
+  QuestionScreen,
+} from "@/app/onboarding/components/QuestionScreen";
 import { useQuestionnaire } from "@/app/onboarding/QuestionnaireContext";
 import { ThemedPressable } from "@/components/ThemedPressable/ThemedPressable";
-import { submitQuestionnaire, type QuestionnairePayload } from "@/lib/api";
+import { submitQuestionnaire } from "@/lib/api";
+import { QuestionnairePayload } from "@/lib/types";
 import { useRouter } from "expo-router";
 import { useState } from "react";
-import { Text, View } from "react-native"; // Import View
+import { Text, View } from "react-native";
 
 export default function QuestionnaireFinalQuestions() {
   const router = useRouter();
@@ -20,69 +24,54 @@ export default function QuestionnaireFinalQuestions() {
 
   // --- Error States ---
   const [apiError, setApiError] = useState<string | null>(null); // For submission errors
-  const [estrogenError, setEstrogenError] = useState<string | null>(null); // For field validation
-  const [biosensorError, setBiosensorError] = useState<string | null>(null); // For field validation
 
-  const handleFinish = async () => {
-    setEstrogenError(null);
-    setBiosensorError(null);
-
-    let hasError = false;
-    if (usesEstrogen === null) {
-      setEstrogenError("Please select an answer.");
-      hasError = true;
-    }
-    if (usesBiosensor === null) {
-      setBiosensorError("Please select an answer.");
-      hasError = true;
-    }
-
-    if (hasError || submitting) {
-      return;
-    }
-
+  const submit = async (
+    estrogen: boolean | null,
+    biosensor: boolean | null,
+  ) => {
+    if (submitting) return;
     setSubmitting(true);
     setApiError(null);
 
+    updateAnswers({
+      usesEstrogenContraception: estrogen,
+      usesBiosensorCup: biosensor,
+    });
+
     try {
-      // It's good practice to create the final payload in one step.
       const finalAnswers = {
         ...answers,
-        usesEstrogenContraception: usesEstrogen,
-        usesBiosensorCup: usesBiosensor,
+        usesEstrogenContraception: estrogen,
+        usesBiosensorCup: biosensor,
       };
 
-      // Update the context with the latest answers from this screen
-      updateAnswers({
-        usesEstrogenContraception: usesEstrogen,
-        usesBiosensorCup: usesBiosensor,
-      });
+      const health: QuestionnairePayload["health"] = {
+        personalDetails: {
+          age: parseInt(finalAnswers.personal.age, 10) || 0,
+          weight: parseFloat(finalAnswers.personal.weight) || 0,
+          height: parseFloat(finalAnswers.personal.height) || 0,
+        },
+        familyHistory: {
+          familyHistoryAnemia: finalAnswers.familyHistory.anemia ?? undefined,
+          familyHistoryThrombosis:
+            finalAnswers.familyHistory.thrombosis ?? undefined,
+          anemiaConditions: finalAnswers.anemiaRiskFactors,
+          thrombosisConditions: finalAnswers.thrombosisRiskFactors,
+        },
+      };
+
+      if (finalAnswers.usesEstrogenContraception !== null) {
+        health.estrogenPill = finalAnswers.usesEstrogenContraception;
+      }
+      if (finalAnswers.usesBiosensorCup !== null) {
+        health.biosensorCup = finalAnswers.usesBiosensorCup;
+      }
 
       const payload = {
         userId: userId,
-        health: {
-          personalDetails: {
-            age: parseInt(finalAnswers.personal.age, 10) || 0,
-            weight: parseFloat(finalAnswers.personal.weight) || 0,
-            height: parseFloat(finalAnswers.personal.height) || 0,
-          },
-          familyHistory: {
-            familyHistoryAnemia: finalAnswers.familyHistory.anemia ?? false,
-            familyHistoryThrombosis:
-              finalAnswers.familyHistory.thrombosis ?? false,
-            anemiaConditions: finalAnswers.anemiaRiskFactors,
-            thrombosisConditions: finalAnswers.thrombosisRiskFactors,
-          },
-          estrogenPill: finalAnswers.usesEstrogenContraception ?? false,
-          biosensorCup: finalAnswers.usesBiosensorCup ?? false,
-        },
-        history: [], // Assuming history is empty for now
+        health: health,
+        history: [],
       };
-
-      console.log(
-        "Final payload being sent:",
-        JSON.stringify(payload, null, 2),
-      );
 
       if (payload.userId) {
         await submitQuestionnaire(payload as QuestionnairePayload);
@@ -102,18 +91,19 @@ export default function QuestionnaireFinalQuestions() {
     }
   };
 
+  const handleFinish = () => submit(usesEstrogen, usesBiosensor);
+
   return (
     <QuestionScreen
       step={5}
       title="A few final questions ✨"
       description="These help us fine-tune your results and recommendations."
-      onSkip={() => router.push("/landing")}
+      showSkip={false}
       footer={
         <ThemedPressable
           label="Finish"
           onPress={handleFinish}
           loading={submitting}
-          // The 'disabled' prop is removed to allow validation to run on press
         />
       }
     >
@@ -121,36 +111,18 @@ export default function QuestionnaireFinalQuestions() {
         <BinaryChoiceGroup
           question="Do you use contraception that contains estrogen?"
           value={usesEstrogen}
-          onChange={(value) => {
-            setUsesEstrogen(value);
-            if (estrogenError) setEstrogenError(null); // Clear error on change
-          }}
+          onChange={setUsesEstrogen}
           testIDPrefix="estrogen"
         />
-        {/* Field validation error */}
-        {estrogenError ? (
-          <Text className="text-red-600 text-xs mt-1 ml-2">
-            {estrogenError}
-          </Text>
-        ) : null}
       </View>
 
       <View className="mt-4">
         <BinaryChoiceGroup
           question="Do you use the biosensor-integrated menstrual cup?"
           value={usesBiosensor}
-          onChange={(value) => {
-            setUsesBiosensor(value);
-            if (biosensorError) setBiosensorError(null); // Clear error on change
-          }}
+          onChange={setUsesBiosensor}
           testIDPrefix="biosensor"
         />
-        {/* Field validation error */}
-        {biosensorError ? (
-          <Text className="text-red-600 text-xs mt-1 ml-2">
-            {biosensorError}
-          </Text>
-        ) : null}
       </View>
 
       {/* API submission error */}

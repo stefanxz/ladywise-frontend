@@ -1,4 +1,7 @@
-import { BinaryChoiceGroup, QuestionScreen } from "@/app/onboarding/components";
+import {
+  BinaryChoiceGroup,
+  QuestionScreen,
+} from "@/app/onboarding/components/QuestionScreen";
 import { useQuestionnaire } from "@/app/onboarding/QuestionnaireContext";
 import { ThemedPressable } from "@/components/ThemedPressable/ThemedPressable";
 import { useRouter } from "expo-router";
@@ -15,35 +18,24 @@ export default function QuestionnaireFamilyHistory() {
     answers.familyHistory.thrombosis,
   );
 
-  // Error States
-  const [anemiaError, setAnemiaError] = useState<string | null>(null);
-  const [thrombosisError, setThrombosisError] = useState<string | null>(null);
-
   const handleContinue = () => {
-    setAnemiaError(null);
-    setThrombosisError(null);
-
-    let hasError = false;
-
-    if (familyAnemia === null) {
-      setAnemiaError("Please select an answer for Anemia.");
-      hasError = true;
-    }
-
-    if (familyThrombosis === null) {
-      setThrombosisError("Please select an answer for Thrombosis.");
-      hasError = true;
-    }
-
-    if (hasError) return;
-
     updateAnswers({
       familyHistory: {
         anemia: familyAnemia,
         thrombosis: familyThrombosis,
       },
     });
-    router.push("/onboarding/questionnaire-anemia-risk");
+    router.push("./questionnaire-anemia-risk");
+  };
+
+  const handleSkip = () => {
+    updateAnswers({
+      familyHistory: {
+        anemia: null,
+        thrombosis: null,
+      },
+    });
+    router.push("./questionnaire-anemia-risk");
   };
 
   return (
@@ -51,8 +43,14 @@ export default function QuestionnaireFamilyHistory() {
       step={2}
       title="Family health matters 🌿"
       description="Do you have any family history of the following conditions?"
-      onSkip={() => router.push("/landing")}
-      footer={<ThemedPressable label="Continue" onPress={handleContinue} />}
+      onSkip={handleSkip}
+      footer={
+        <ThemedPressable
+          label="Continue"
+          onPress={handleContinue}
+          disabled={familyAnemia === null && familyThrombosis === null}
+        />
+      }
     >
       <View>
         <BinaryChoiceGroup
@@ -60,13 +58,9 @@ export default function QuestionnaireFamilyHistory() {
           value={familyAnemia}
           onChange={(value) => {
             setFamilyAnemia(value);
-            if (anemiaError) setAnemiaError(null);
           }}
           testIDPrefix="family-anemia"
         />
-        {anemiaError ? (
-          <Text className="text-red-600 text-xs mt-1 ml-2">{anemiaError}</Text>
-        ) : null}
       </View>
 
       <View className="mt-4">
@@ -75,15 +69,9 @@ export default function QuestionnaireFamilyHistory() {
           value={familyThrombosis}
           onChange={(value) => {
             setFamilyThrombosis(value);
-            if (thrombosisError) setThrombosisError(null);
           }}
           testIDPrefix="family-thrombosis"
         />
-        {thrombosisError ? (
-          <Text className="text-red-600 text-xs mt-1 ml-2">
-            {thrombosisError}
-          </Text>
-        ) : null}
       </View>
     </QuestionScreen>
   );

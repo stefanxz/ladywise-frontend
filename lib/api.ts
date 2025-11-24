@@ -2,6 +2,8 @@ import axios from "axios";
 import type {
   LoginPayload,
   LoginResponse,
+  QuestionnairePayload,
+  QuestionnaireResponse,
   RegisterPayload,
   RegisterResponse,
   UserPayload,
@@ -80,32 +82,6 @@ export async function getCycleStatus() {
   const { data } = await api.get<CycleStatusDTO>("/api/cycle/status");
   return data;
 }
-
-export type QuestionnairePayload = {
-  userId: string;
-  health: {
-    personalDetails: {
-      age: number;
-      weight: number;
-      height: number;
-    };
-    familyHistory: {
-      familyHistoryAnemia: boolean;
-      familyHistoryThrombosis: boolean;
-      anemiaConditions: string[];
-      thrombosisConditions: string[];
-    };
-    estrogenPill: boolean;
-    biosensorCup: boolean;
-  };
-  history: [];
-};
-
-export type QuestionnaireResponse = {
-  id: string;
-  userId: string;
-  createdAt?: string;
-};
 
 export async function submitQuestionnaire(payload: QuestionnairePayload) {
   if (!payload.userId) {
