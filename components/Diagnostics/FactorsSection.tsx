@@ -1,10 +1,9 @@
 import React from "react";
 import { View, Text } from "react-native";
 import FactorCard from "./FactorCard";
-import { mapBackendToFactors } from "./mapBackendToFactors";
+import { mapBackendToFactors } from "@/utils/mapBackendToFactors";
 
 interface FactorsSectionProps {
-  /** The raw data object from your API / Context */
   data: Record<string, any>;
 }
 

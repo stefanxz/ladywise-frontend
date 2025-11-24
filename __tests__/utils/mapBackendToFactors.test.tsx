@@ -1,4 +1,4 @@
-import { mapBackendToFactors } from "@/components/Diagnostics/mapBackendToFactors";
+import { mapBackendToFactors } from "@/utils/mapBackendToFactors";
 
 // We rely on the real registry for this test to ensure data integrity
 describe("mapBackendToFactors", () => {
