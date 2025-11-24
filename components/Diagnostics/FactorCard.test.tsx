@@ -1,13 +1,17 @@
 import React from "react";
 import { render } from "@testing-library/react-native";
-import FactorCard from "@/components/Diagnostics/FactorCard";
+import { View } from "react-native";
+import FactorCard from "./FactorCard";
 
 describe("FactorCard Component", () => {
+  // Create a dummy component to mock the Vector Icon
+  const MockIcon = () => <View testID="mock-icon" />;
+
   const mockProps = {
     title: "Test Factor",
     value: "High Risk",
     description: "This is a test description",
-    icon: { uri: "mock-icon-url" }, // Mock image source
+    icon: MockIcon, // Pass the component, NOT an object
     variant: "default" as const,
   };
 
