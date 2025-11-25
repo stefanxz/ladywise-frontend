@@ -24,3 +24,38 @@ export type UserResponse = {
   firstName: string;
   lastName: string;
 };
+
+export interface PasswordResetRequestPayload {
+  email: string;
+}
+
+export interface ResetPasswordPayload {
+  token: string;
+  newPassword: string;
+}
+
+export type QuestionnairePayload = {
+  userId: string;
+  health: {
+    personalDetails: {
+      age: number;
+      weight: number;
+      height: number;
+    };
+    familyHistory: {
+      familyHistoryAnemia?: boolean;
+      familyHistoryThrombosis?: boolean;
+      anemiaConditions?: string[];
+      thrombosisConditions?: string[];
+    };
+    estrogenPill?: boolean;
+    biosensorCup?: boolean;
+  };
+  history?: [];
+};
+
+export type QuestionnaireResponse = {
+  id: string;
+  userId: string;
+  createdAt?: string;
+};

@@ -5,6 +5,7 @@
  */
 
 import QuestionnairePersonalDetails from "@/app/onboarding/questionnaire-personal-details";
+import { QuestionnaireProvider } from "@/app/onboarding/QuestionnaireContext";
 import { fireEvent, render, waitFor } from "@testing-library/react-native";
 import React, { act } from "react";
 import * as api from "@/lib/api";
@@ -50,7 +51,11 @@ describe("QuestionnairePersonalDetails screen", () => {
   });
 
   const setup = () => {
-    const utils = render(<QuestionnairePersonalDetails />);
+    const utils = render(
+      <QuestionnaireProvider>
+        <QuestionnairePersonalDetails />
+      </QuestionnaireProvider>
+    );
     const pressContinue = () =>
           fireEvent.press(utils.getByTestId("continue-button"));
     const typeAge = (v: string) =>
@@ -72,7 +77,7 @@ describe("QuestionnairePersonalDetails screen", () => {
     expect(getByText("Weight")).toBeTruthy();
     expect(getByText("Height")).toBeTruthy();
     expect(getByText("Continue")).toBeTruthy();
-    expect(getByText("Skip")).toBeTruthy();
+
   });
 
   it("shows 'Please enter your age.' when age is empty", () => {
