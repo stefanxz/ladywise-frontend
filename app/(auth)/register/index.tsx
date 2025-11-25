@@ -93,12 +93,12 @@ export default function RegisterIndex() {
         loginResponse.email,
       );
       router.replace("/(auth)/register/personal-details");
-      } catch (e) {
+    } catch (e) {
       setFormError(e instanceof Error ? e.message : "Registration failed.");
-      } finally {
+    } finally {
       setRegistering(false);
     }
-  }
+  };
 
   return (
     <SafeAreaView className="flex-1 bg-background">
