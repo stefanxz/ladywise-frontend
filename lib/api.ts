@@ -3,6 +3,8 @@ import type {
   LoginPayload,
   LoginResponse,
   PasswordResetRequestPayload,
+  QuestionnairePayload,
+  QuestionnaireResponse,
   RegisterPayload,
   RegisterResponse,
   ResetPasswordPayload,
@@ -95,5 +97,18 @@ export async function requestPasswordReset(
 
 export async function resetPassword(payload: ResetPasswordPayload) {
   const { data } = await api.post("/api/auth/password-reset", payload);
+  return data;
+}
+
+export async function submitQuestionnaire(payload: QuestionnairePayload) {
+  if (!payload.userId) {
+    throw new Error("User ID is missing.");
+  }
+
+
+  const { data } = await api.post<QuestionnaireResponse>(
+    "/api/questionnaire",
+    payload,
+  );
   return data;
 }
