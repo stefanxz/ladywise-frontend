@@ -15,19 +15,7 @@ jest.mock("@/lib/api", () => ({
     resetPassword: jest.fn(),
 }));
 
-//AppBarBackButton mock
-jest.mock("@/components/AppBarBackButton/AppBarBackButton", () => ({
-    AppBar: () => null,
-}));
-
-
-// Mock password validation to prevent tests from depending on real regex
-jest.mock("@/utils/validations", () => ({
-    isPasswordValid: (password: string) =>
-        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[^\s]{8,}$/.test(password),
-}));
-
-// Local mock for AppBar to prevent test from depending on its internals
+// AppBarBackButton mock
 jest.mock("@/components/AppBarBackButton/AppBarBackButton", () => ({
     AppBar: () => null,
 }));
@@ -36,9 +24,9 @@ describe("ResetPasswordScreen", () => {
     const replaceMock = jest.fn();
 
     beforeEach(() => {
+        jest.clearAllMocks();
         (useRouter as jest.Mock).mockReturnValue({ replace: replaceMock });
         (useLocalSearchParams as jest.Mock).mockReturnValue({ token: "token123" });
-        jest.clearAllMocks();
     });
 
     const fillPasswords = (getByTestId: any, p1: string, p2: string) => {
@@ -47,7 +35,7 @@ describe("ResetPasswordScreen", () => {
     };
 
     it("shows error when token is missing", async () => {
-        (useLocalSearchParams as jest.Mock).mockReturnValue({}); // no token
+        (useLocalSearchParams as jest.Mock).mockReturnValue({});
         const { getByTestId, getByText } = render(<ResetPasswordScreen />);
 
         fillPasswords(getByTestId, "StrongPass1", "StrongPass1");
@@ -101,6 +89,13 @@ describe("ResetPasswordScreen", () => {
         fireEvent.press(getByTestId("reset-password-button"));
 
         await waitFor(() => {
+
+            expect(api.resetPassword).toHaveBeenCalledTimes(1);
+            expect(api.resetPassword).toHaveBeenCalledWith({
+                token: "token123",
+                newPassword: "StrongPass1",
+            });
+
             // No validation errors
             expect(
                 queryByText(
