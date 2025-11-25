@@ -115,7 +115,7 @@ export default function Questionnaire() {
         token,
         payload
       );
-      router.push("/(main)/home");
+      router.push("./questionnaire-family-history");
       } catch (e) {
         setFormError(e instanceof Error ? e.message : "Sending details failed.");
       } finally {

@@ -355,7 +355,7 @@ describe("QuestionnairePersonalDetails screen", () => {
     });
 
     await waitFor(() => {
-      expect(router.push).toHaveBeenCalledWith("/(main)/home");
+      expect(router.push).toHaveBeenCalledWith("./questionnaire-family-history");
     });
   });
 
