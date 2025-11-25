@@ -11,7 +11,7 @@ import { CycleStatusDTO } from "./types/cycle";
 import { RiskData } from "./types/risks";
 import { StoredAuthData } from "./auth";
 import { ApiRiskResponse } from "./types/risks";
-import { PeriodLogResponse } from "./types/period";
+import { PeriodLogResponse, PeriodLogRequest } from "./types/period";
 
 export const api = axios.create({
   baseURL: process.env.EXPO_PUBLIC_API_URL,
@@ -77,6 +77,7 @@ export async function getRiskData(
   return data; // This returns: { thrombosisRisk: 1, anemiaRisk: 2 }
 }
 
+// Cycle and Periods
 export async function getCycleStatus() {
   const { data } = await api.get<CycleStatusDTO>("/api/cycle/status");
   return data;
@@ -84,5 +85,10 @@ export async function getCycleStatus() {
 
 export async function getPeriodHistory() {
   const { data } = await api.get<PeriodLogResponse[]>("/api/cycle/history");
+  return data;
+}
+
+export async function logNewPeriod(payload: PeriodLogRequest) {
+  const { data } = await api.post<PeriodLogResponse>("/api/periods", payload);
   return data;
 }
