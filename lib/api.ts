@@ -4,7 +4,6 @@ import type {
   LoginResponse,
   PasswordResetRequestPayload,
   RegisterPayload,
-  RegisterResponse,
   ResetPasswordPayload,
   UserPayload,
   UserResponse,
