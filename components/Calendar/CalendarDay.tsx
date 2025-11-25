@@ -15,6 +15,7 @@ interface CalendarDayProps {
   isInRange?: boolean;
   isSelectionStart?: boolean; 
   isSelectionEnd?: boolean;
+  isPrediction?: boolean;
   themeColor: string;
 }
 
@@ -26,7 +27,7 @@ const CalendarDay = React.memo(({
   isInRange = false,
   isSelectionStart = false,
   isSelectionEnd = false,
-  themeColor 
+  isPrediction = false, themeColor 
 }: CalendarDayProps) => {
   // Handle empty days (padding at start of month)
   if (!date) {
@@ -44,10 +45,12 @@ const CalendarDay = React.memo(({
       backgroundColor: string;
       borderColor: string;
       borderWidth: number;
+      borderStyle?: 'solid' | 'dotted' | 'dashed';
     } = {
       backgroundColor: "transparent",
       borderColor: "transparent",
       borderWidth: 0,
+      borderStyle: 'solid',
     };
 
     // Period styling 
@@ -55,9 +58,17 @@ const CalendarDay = React.memo(({
       styles.borderColor = themes.menstrual.highlight;
       styles.borderWidth = 1.5;
 
-      // If it's today apply transparent red tint
+      // If it's not today apply transparent red tint
       if (!isToday) {
         styles.backgroundColor = "rgba(219, 136, 136, 0.12)";
+      }
+      // Prediction styling
+    } else if (isPrediction) {
+      styles.borderColor = themes.menstrual.highlight;
+      styles.borderWidth = 1.5;
+      styles.borderStyle = 'dashed'; // Dashed border for predictions
+      if (!isToday) {
+        styles.backgroundColor = "rgba(219, 136, 136, 0.05)"; // Very faint tint
       }
     }
 
@@ -74,16 +85,18 @@ const CalendarDay = React.memo(({
 
     // Today styling
     if (isToday) {
-      // If it's selected, we don't keep the themeColor as background
-      if (!isSelected && !isInRange) {
-        styles.backgroundColor = themeColor;
+      styles.backgroundColor = themeColor;
+      // If it's selected, period, or prediction, we don't keep the standard today border
+      if (!isSelected && !isInRange && !isPeriod && !isPrediction) {
+        // Standard today style
+        styles.borderColor = themeColor;
+        styles.borderWidth = 3;
+        styles.borderStyle = 'solid';
       }
-      styles.borderColor = themeColor;
-      styles.borderWidth = 3;
     }
 
     return styles;
-  }, [isPeriod, isToday, isSelected, isInRange, themeColor]);
+  }, [isPeriod, isPrediction, isToday, isSelected, isInRange, themeColor]);
 
   // Rounding logic for selection days
   let borderRadiusClass = "rounded-full"; // Default circle for single-day selections

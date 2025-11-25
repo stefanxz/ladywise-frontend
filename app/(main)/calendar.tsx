@@ -1,4 +1,4 @@
-import React, { useCallback, useState, useEffect } from 'react';
+import React, { useCallback, useState, useEffect, useMemo } from 'react';
 import { View, Text, TouchableOpacity, FlatList, StatusBar, ActivityIndicator, Pressable, Alert } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Calendar as CalendarIcon } from 'lucide-react-native';
@@ -8,16 +8,16 @@ import { generateMonths } from '@/utils/calendarHelpers';
 import CalendarDay from '@/components/Calendar/CalendarDay';
 import CalendarHeader from '@/components/Calendar/CalendarHeader';
 import LogNewPeriodButton from '@/components/LogNewPeriodButton/LogNewPeriodButton';
-import { addDays, addMonths, areIntervalsOverlapping, format, isAfter, isBefore, isSameDay, isWithinInterval, parseISO, startOfDay, subDays, subMonths } from 'date-fns';
+import { addDays, addMonths, eachDayOfInterval, endOfDay, areIntervalsOverlapping, format, isAfter, isBefore, isSameDay, isWithinInterval, parse, parseISO, startOfDay, subDays, subMonths } from 'date-fns';
 import { useTheme } from '@/context/ThemeContext';
-import { getCycleStatus, getPeriodHistory, logNewPeriod } from '@/lib/api';
+import { getCycleStatus, getPeriodHistory, getPredictions, logNewPeriod } from '@/lib/api';
 import { useAuth } from "@/context/AuthContext";
 import { PeriodLogRequest } from '@/lib/types/period';
 
 // Configuration
 const PRELOAD_PAST_MONTHS = 6;
 const PRELOAD_FUTURE_MONTHS = 12;
-const BATCH_SIZE = 10; // How many months to load at a time
+const BATCH_SIZE = 4; // How many months to load at a time
 
 type ParsedPeriod = {
   start: Date,
@@ -33,6 +33,7 @@ export default function CalendarScreen() {
 
   const [months, setMonths] = useState<any[]>([]);
   const [periods, setPeriods] = useState<ParsedPeriod[]>([]);
+  const [predictions, setPredictions] = useState<ParsedPeriod[]>([]);
   const [isLoadingPast, setIsLoadingPast] = useState(false);
   const [isLoadingFuture, setIsLoadingFuture] = useState(false);
 
@@ -53,19 +54,28 @@ export default function CalendarScreen() {
         setPhase(status.currentPhase.toLowerCase() as any);
       }
 
-      // Fetch period history 
-      const history = await getPeriodHistory();
+        // Fetch period history 
+        const history = await getPeriodHistory();
+        const parsedPeriods = history.map(p => ({
+          start: startOfDay(parseISO(p.startDate)),
+          // If end date is null (ongoing), use today as temp for visual rendering
+          end: p.endDate ? endOfDay(parseISO(p.endDate)) : today
+        }));
 
-      const parsedPeriods = history.map(p => ({
-        start: parseISO(p.startDate),
-        // If end date is null (ongoing), use today as temp for visual rendering
-        end: p.endDate ? parseISO(p.endDate) : today
-      }));
+        setPeriods(parsedPeriods);
 
-      setPeriods(parsedPeriods);
-    } catch (err) {
-      console.error("Failed to fetch cycle calendar data: " + err);
-    }
+        // Predictions, fetch 3-6 months
+        const predictionData = await getPredictions(6);
+
+        const parsedPredictions = predictionData.map(p => ({
+          start: startOfDay(parseISO(p.startDate)),
+          end: endOfDay(parseISO(p.endDate)),
+        }));
+        setPredictions(parsedPredictions);
+
+      } catch (err) {
+        console.error("Failed to fetch cycle calendar data: " + err);
+      }
   }, [token, isAuthLoading, setPhase]);
 
   useEffect(() => {
@@ -80,11 +90,45 @@ export default function CalendarScreen() {
     setMonths(generateMonths(start, totalMonths));
   }, []);
 
-  const checkIsPeriod = useCallback((date: Date) => {
-    return periods.some(period =>
-      isWithinInterval(date, { start: period.start, end: period.end})
-    );
+  // Optimize by putting period dates into a set for O(1) lookup
+  const periodDateSet = useMemo(() => {
+    const set = new Set<string>();
+
+    periods.forEach(p => {
+      try {
+        const days = eachDayOfInterval({start: p.start, end: p.end});
+        days.forEach(d => set.add(format(d, 'yyyy-MM-dd')));
+      } catch (e) {
+        console.warn("Invalid interval skipped", p);
+      }
+    });
+
+    return set;
   }, [periods])
+
+  // Same for predictions
+  const predictionDateSet = useMemo(() => {
+    const set = new Set<string>();
+    predictions.forEach(p => {
+      try {
+        const days = eachDayOfInterval({ start: p.start, end: p.end });
+        days.forEach(d => set.add(format(d, 'yyyy-MM-dd')));
+      } catch (e) {
+        console.warn("Invalid prediction interval skipped", p);
+      }
+    });
+    return set;
+  }, [predictions]);
+
+  // Helper check if its in period
+  const checkIsPeriod = useCallback((date: Date) => {
+    return periodDateSet.has(format(date, 'yyyy-MM-dd'));
+  }, [periodDateSet])
+
+  // Helper check if its a prediction
+  const checkIsPrediction = useCallback((date: Date) => {
+    return predictionDateSet.has(format(date, 'yyyy-MM-dd'));
+  }, [predictionDateSet]);
 
   // Logging new period
   const handleLogPeriodStart = () => {
@@ -267,6 +311,7 @@ export default function CalendarScreen() {
         {item.days.map((date: Date | null, index: number) => {
           // Existing Period Check
           const isPeriodDay = date ? checkIsPeriod(date) : false;
+          const isPredictionDay = date && !isPeriodDay ? checkIsPrediction(date) : false;
           
           // Selection Checks
           let isSelected = false;
@@ -291,6 +336,7 @@ export default function CalendarScreen() {
               key={date ? date.toISOString() : `empty-${item.id}-${index}`}
               date={date}
               isPeriod={isPeriodDay}
+              isPrediction={isPredictionDay}
               isSelected={isSelected}
               isInRange={isInRange}
               isSelectionStart={isSelectionStart}
@@ -302,7 +348,7 @@ export default function CalendarScreen() {
         })}
       </View>
     </View>
-  ), [checkIsPeriod, handleDatePress, isLogMode, selection, theme.highlight]);
+  ), [handleDatePress, checkIsPeriod, checkIsPrediction, theme, isLogMode, selection, theme.highlight]);
 
 
   return (
@@ -325,6 +371,7 @@ export default function CalendarScreen() {
           data={months}
           keyExtractor={(item) => item.id}
           renderItem={renderMonth}
+          extraData={periods}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{ paddingBottom: 160 }} 
           
@@ -346,7 +393,7 @@ export default function CalendarScreen() {
           }
 
           initialNumToRender={3}
-          maxToRenderPerBatch={5}
+          maxToRenderPerBatch={3}
           windowSize={5}
         />
 

@@ -35,6 +35,12 @@ export interface PeriodLogResponse {
   dailyEntries: DailyEntryDTO[];
 }
 
+export interface PredictedPeriodDTO {
+  startDate: string;
+  endDate: string;
+  cycleLengthUsed: number;
+}
+
 export interface PeriodLogRequest {
   startDate: string; // YYYY-MM-DD
   endDate: string | null;
