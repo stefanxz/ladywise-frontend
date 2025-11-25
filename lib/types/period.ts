@@ -34,3 +34,9 @@ export interface PeriodLogResponse {
   endDate: string | null; // Null if ongoing
   dailyEntries: DailyEntryDTO[];
 }
+
+export interface PredictedPeriodDTO {
+  startDate: string;
+  endDate: string;
+  cycleLengthUsed: number;
+}

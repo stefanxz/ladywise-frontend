@@ -9,10 +9,11 @@ interface CalendarDayProps {
   date: Date | null;
   onPress?: (date: Date) => void;
   isPeriod?: boolean;
+  isPrediction?: boolean;
   themeColor: string;
 }
 
-const CalendarDay = React.memo(({ date, onPress, isPeriod = false, themeColor }: CalendarDayProps) => {
+const CalendarDay = React.memo(({ date, onPress, isPeriod = false, isPrediction = false, themeColor }: CalendarDayProps) => {
   // Handle empty days (padding at start of month)
   if (!date) {
     return <View className="w-[14.28%] aspect-square" />;
@@ -29,10 +30,12 @@ const CalendarDay = React.memo(({ date, onPress, isPeriod = false, themeColor }:
       backgroundColor: string;
       borderColor: string;
       borderWidth: number;
+      borderStyle?: 'solid' | 'dotted' | 'dashed';
     } = {
       backgroundColor: "transparent",
       borderColor: "transparent",
       borderWidth: 0,
+      borderStyle: 'solid',
     };
 
     // Period styling 
@@ -46,17 +49,33 @@ const CalendarDay = React.memo(({ date, onPress, isPeriod = false, themeColor }:
       }
     }
 
+    else if (isPrediction) {
+      styles.borderColor = themes.menstrual.highlight;
+      styles.borderWidth = 1.5;
+      styles.borderStyle = 'dashed'; // Dashed border for predictions
+      if (!isToday) {
+        styles.backgroundColor = "rgba(219, 136, 136, 0.05)"; // Very faint tint
+      }
+    }
+
     // Today styling
     if (isToday) {
       styles.backgroundColor = themeColor;
-      styles.borderColor = themeColor;
-      styles.borderWidth = 3;
+
+      if (isPeriod || isPrediction) {
+        // keep the styles set in block 1 or 2 :D
+      } else {
+        // standard today look
+        styles.borderColor = themeColor;
+        styles.borderWidth = 3;
+        styles.borderStyle = 'solid';
+      }
     }
 
     return styles;
 
 
-  }, [isPeriod, isToday, themeColor]);
+  }, [isPeriod, isPrediction, isToday, themeColor]);
 
   const textClasses = clsx(
     "text-xl font-bold",

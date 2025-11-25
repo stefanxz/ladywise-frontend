@@ -1,4 +1,4 @@
-import React, { useCallback, useState, useEffect } from 'react';
+import React, { useCallback, useState, useEffect, useMemo } from 'react';
 import { View, Text, TouchableOpacity, FlatList, StatusBar, ActivityIndicator } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Calendar as CalendarIcon } from 'lucide-react-native';
@@ -8,15 +8,15 @@ import { generateMonths } from '@/utils/calendarHelpers';
 import CalendarDay from '@/components/Calendar/CalendarDay';
 import CalendarHeader from '@/components/Calendar/CalendarHeader';
 import LogNewPeriodButton from '@/components/LogNewPeriodButton/LogNewPeriodButton';
-import { addMonths, endOfDay, isWithinInterval, parseISO, startOfDay, subMonths } from 'date-fns';
+import { addMonths, eachDayOfInterval, endOfDay, format, isWithinInterval, parse, parseISO, startOfDay, subMonths } from 'date-fns';
 import { useTheme } from '@/context/ThemeContext';
-import { getCycleStatus, getPeriodHistory } from '@/lib/api';
+import { getCycleStatus, getPeriodHistory, getPredictions } from '@/lib/api';
 import { useAuth } from "@/context/AuthContext";
 
 // Configuration
 const PRELOAD_PAST_MONTHS = 6;
 const PRELOAD_FUTURE_MONTHS = 12;
-const BATCH_SIZE = 10; // How many months to load at a time
+const BATCH_SIZE = 4; // How many months to load at a time
 
 type ParsedPeriod = {
   start: Date,
@@ -30,6 +30,7 @@ export default function CalendarScreen() {
 
   const [months, setMonths] = useState<any[]>([]);
   const [periods, setPeriods] = useState<ParsedPeriod[]>([]);
+  const [predictions, setPredictions] = useState<ParsedPeriod[]>([]);
   const [isLoadingPast, setIsLoadingPast] = useState(false);
   const [isLoadingFuture, setIsLoadingFuture] = useState(false);
 
@@ -47,7 +48,6 @@ export default function CalendarScreen() {
 
         // Fetch period history 
         const history = await getPeriodHistory();
-
         const parsedPeriods = history.map(p => ({
           start: startOfDay(parseISO(p.startDate)),
           // If end date is null (ongoing), use today as temp for visual rendering
@@ -55,6 +55,16 @@ export default function CalendarScreen() {
         }));
 
         setPeriods(parsedPeriods);
+
+        // Predictions, fetch 3-6 months
+        const predictionData = await getPredictions(6);
+
+        const parsedPredictions = predictionData.map(p => ({
+          start: startOfDay(parseISO(p.startDate)),
+          end: endOfDay(parseISO(p.endDate)),
+        }));
+        setPredictions(parsedPredictions);
+
       } catch (err) {
         console.error("Failed to fetch cycle calendar data: " + err);
       }
@@ -70,11 +80,46 @@ export default function CalendarScreen() {
     setMonths(generateMonths(start, totalMonths));
   }, []);
 
-  const checkIsPeriod = useCallback((date: Date) => {
-    return periods.some(period =>
-      isWithinInterval(date, { start: period.start, end: period.end})
-    );
+  // Optimize by putting period dates into a set for O(1) lookup, like a boss
+  const periodDateSet = useMemo(() => {
+    const set = new Set<string>();
+
+    periods.forEach(p => {
+      try {
+        const days = eachDayOfInterval({start: p.start, end: p.end});
+        days.forEach(d => set.add(format(d, 'yyyy-MM-dd')));
+      } catch (e) {
+        console.warn("Invalid interval skipped", p);
+      }
+    });
+
+    return set;
   }, [periods])
+
+  // Same for predictions
+  const predictionDateSet = useMemo(() => {
+    const set = new Set<string>();
+    predictions.forEach(p => {
+      try {
+        const days = eachDayOfInterval({ start: p.start, end: p.end });
+        days.forEach(d => set.add(format(d, 'yyyy-MM-dd')));
+      } catch (e) {
+        console.warn("Invalid prediction interval skipped", p);
+      }
+    });
+    return set;
+  }, [predictions]);
+
+  // Helper check if its in period
+  const checkIsPeriod = useCallback((date: Date) => {
+    return periodDateSet.has(format(date, 'yyyy-MM-dd'));
+  }, [periodDateSet])
+
+  // Helper check if its a prediction
+  const checkIsPrediction = useCallback((date: Date) => {
+    return predictionDateSet.has(format(date, 'yyyy-MM-dd'));
+  }, [predictionDateSet]);
+
 
   // Placeholder handler for future logic
   const handleDatePress = useCallback((date: Date) => {
@@ -129,12 +174,14 @@ export default function CalendarScreen() {
       <View className="flex-row flex-wrap mx-2">
         {item.days.map((date: Date | null, index: number) => {
           const isPeriodDay = date ? checkIsPeriod(date) : false;
+          const isPredictionDay = date && !isPeriodDay ? checkIsPrediction(date) : false;
           
           return (
             <CalendarDay 
               key={date ? date.toISOString() : `empty-${item.id}-${index}`}
               date={date}
               isPeriod={isPeriodDay}
+              isPrediction={isPredictionDay}
               themeColor={theme.highlight}
               onPress={handleDatePress}
             />
@@ -142,7 +189,7 @@ export default function CalendarScreen() {
         })}
       </View>
     </View>
-  ), [handleDatePress, checkIsPeriod, theme]);
+  ), [handleDatePress, checkIsPeriod, checkIsPrediction, theme]);
 
   return (
     <View 
@@ -186,7 +233,7 @@ export default function CalendarScreen() {
           }
 
           initialNumToRender={3}
-          maxToRenderPerBatch={5}
+          maxToRenderPerBatch={3}
           windowSize={5}
         />
 
@@ -198,9 +245,9 @@ export default function CalendarScreen() {
             className="absolute w-full h-full"
           />
 
-          <View className="pb-8 px-8 items-center z-10 w-full">
+          <View className="pb-1 px-8 items-center z-10 w-full">
             <LogNewPeriodButton 
-              color="#FCA5A5" 
+              color={theme.highlight}
               onPress={() => console.log("Log period clicked")}
             />
             <View className="h-8" />

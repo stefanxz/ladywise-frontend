@@ -11,7 +11,7 @@ import { CycleStatusDTO } from "./types/cycle";
 import { RiskData } from "./types/risks";
 import { StoredAuthData } from "./auth";
 import { ApiRiskResponse } from "./types/risks";
-import { PeriodLogResponse } from "./types/period";
+import { PeriodLogResponse, PredictedPeriodDTO } from "./types/period";
 
 export const api = axios.create({
   baseURL: process.env.EXPO_PUBLIC_API_URL,
@@ -41,6 +41,9 @@ api.interceptors.response.use(
     return Promise.reject(error);
   }
 );
+
+
+
 
 // register new user by sending their credentials to the backend API
 // uses the base URL from .env + '/api/auth/register'
@@ -84,6 +87,14 @@ export async function getCycleStatus() {
 
 export async function getPeriodHistory() {
   const { data } = await api.get<PeriodLogResponse[]>("/api/cycle/history");
-  console.log(data);
+  return data;
+}
+
+export async function getPredictions(cycles: number = 6) {
+  const { data } = await api.get<PredictedPeriodDTO[]>("/api/cycle/predictions", {
+    params: { cycles },
+  })
+  console.log("Predictions are: " + JSON.stringify(data));
+
   return data;
 }

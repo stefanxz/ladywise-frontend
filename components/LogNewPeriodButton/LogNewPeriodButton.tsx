@@ -52,7 +52,7 @@ export default function LogNewPeriodButton({
         <ActivityIndicator color="#ffffff" />
       ) : (
         <Text
-          className="text-white font-semibold text-base"
+          className="text-black font-semibold text-base"
           style={{
             position: "relative",
             top: -2,
@@ -62,7 +62,7 @@ export default function LogNewPeriodButton({
         >
           Log period
           <Text
-            className="text-white text-lg font-extrabold"
+            className="text-black text-lg font-extrabold"
             style={{
               lineHeight: 20, // keeps the + symbol aligned with text
               textAlignVertical: "center",
