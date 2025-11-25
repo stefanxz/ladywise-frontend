@@ -115,7 +115,8 @@ export default function Questionnaire() {
       router.push("./questionnaire-family-history");
     } catch (e) {
       setFormError(e instanceof Error ? e.message : "Sending details failed.");
-    } finally {}
+    } finally {
+    }
   };
 
   return (
@@ -212,4 +213,3 @@ function isDecimal(weightNum: number) {
 function setFormError(arg0: string) {
   throw new Error("Function not implemented.");
 }
-
