@@ -92,6 +92,12 @@ export async function getCycleStatus() {
   return data;
 }
 
+/**
+ * Retrieves a daily cycle entry for a specific date.
+ *
+ * @param date {string} - The date to fetch the entry for, in YYYY-MM-DD format
+ * @returns A promise that resolves to the daily log data for the passed date
+ */
 export async function getDailyEntry(date: string): Promise<DailyLogResponse> {
   const { data } = await api.get<DailyLogResponse>(
     `/api/periods/entries/${date}`,
@@ -99,6 +105,16 @@ export async function getDailyEntry(date: string): Promise<DailyLogResponse> {
   return data;
 }
 
+/**
+ * Updates an existing daily entry within a specified period.
+ *
+ * Use this when modifying an entry that already exists, and you know which period
+ * it belongs to.
+ *
+ * @param payload {DailyLogRequest} - The daily log data to update
+ * @param periodId {string} - Optional id of the period this entry belongs to
+ * @returns A promise that resolves to the updated entry data
+ */
 export async function updateDailyEntry(
   payload: DailyLogRequest,
   periodId?: string,
@@ -107,6 +123,15 @@ export async function updateDailyEntry(
   return data;
 }
 
+/**
+ * Creates a new daily entry.
+ *
+ * Use this when logging cycle data for the first time on a given date. The
+ * backend automatically associates this entry with its appropriate period.
+ *
+ * @param payload {DailyLogRequest} - The daily log data to create
+ * @returns A promise that resolves to the newly created entry data.
+ */
 export async function createDailyEntry(payload: DailyLogRequest) {
   const { data } = await api.post("/api/periods/entries", payload);
   return data;
