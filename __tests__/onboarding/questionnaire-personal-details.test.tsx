@@ -5,8 +5,14 @@
  */
 
 import QuestionnairePersonalDetails from "@/app/onboarding/questionnaire-personal-details";
-import { fireEvent, render } from "@testing-library/react-native";
-import React from "react";
+import { fireEvent, render, waitFor } from "@testing-library/react-native";
+import React, { act } from "react";
+import * as api from "@/lib/api";
+
+jest.mock("@/lib/api", () => ({
+  registerUser: jest.fn(),
+  personalDetials: jest.fn(),
+}));
 
 // --- Mock dependencies ---
 jest.mock("expo-router");
@@ -20,9 +26,23 @@ jest.mock("react-native-safe-area-context", () => {
   };
 });
 
-// --- Get router mock from expo-router ---
+
+
+const mockReplace = jest.fn();
+
+
 const { __getMocks } = jest.requireMock("expo-router");
 const router = __getMocks();
+const mockedApi = jest.mocked(api);
+
+jest.mock("@/context/AuthContext", () => ({
+  // Mock the useAuth hook to return a valid token by default
+  useAuth: jest.fn(() => ({
+    token: "MOCK_AUTH_TOKEN_123", // Provide a non-null token
+    userId: "mock-user-id",
+    isLoading: false,
+  })),
+}));
 
 describe("QuestionnairePersonalDetails screen", () => {
   beforeEach(() => {
@@ -298,17 +318,40 @@ describe("QuestionnairePersonalDetails screen", () => {
     expect(getByText("Height is out of range.")).toBeTruthy();
   });
 
-  it("navigates successfully when all fields are valid", () => {
+  it("navigates successfully when all fields are valid", async () => {
+    
+    mockedApi.personalDetials.mockResolvedValue({
+      age: 25,
+      weight: 70,
+      height: 175,
+    });
+
     const { pressContinue, typeAge, typeWeight, typeHeight } = setup();
 
     // Fill in all fields with valid-looking data
     typeAge("25");
     typeWeight("70");
     typeHeight("175");
-    pressContinue();
 
-    // Assert that navigation happened
-    expect(router.push).toHaveBeenCalledWith("/onboarding/questionnaire");
+    await act(async () => {
+      pressContinue();
+    });
+
+    // make registerUser resolve successfully so mockPush runs
+    await waitFor(() => {
+      expect(mockedApi.personalDetials).toHaveBeenCalledWith(
+        expect.any(String),
+        expect.objectContaining({ 
+          age: 25,
+          weight: 70,
+          height: 175,
+        })
+      );
+    });
+
+    await waitFor(() => {
+      expect(router.push).toHaveBeenCalledWith("/(main)/home");
+    });
   });
 
   it("shows error messages when all inputs are out of range", () => {
