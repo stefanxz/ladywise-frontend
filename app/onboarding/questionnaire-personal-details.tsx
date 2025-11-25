@@ -106,19 +106,18 @@ export default function Questionnaire() {
     }
     try {
       const payload = {
-          age: ageNum,
-          weight: weightNum,
-          height: heightNum,
+        age: ageNum,
+        weight: weightNum,
+        height: heightNum,
       };
 
       await personalDetials(
-        token,
-        payload
+        token, payload
       );
       router.push("./questionnaire-family-history");
-      } catch (e) {
-        setFormError(e instanceof Error ? e.message : "Sending details failed.");
-      } finally {
+    } catch (e) {
+      setFormError(e instanceof Error ? e.message : "Sending details failed.");
+    } finally {
     }
   };
 
