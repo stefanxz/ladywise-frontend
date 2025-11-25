@@ -15,6 +15,8 @@ import { CycleStatusDTO } from "./types/cycle";
 import { ApiRiskResponse } from "./types/risks";
 import { DailyLogRequest } from "@/lib/types/period";
 import { getAuthData } from "./auth";
+import { ApiRiskResponse } from "./types/risks";
+import { DailyLogRequest, DailyLogResponse } from "@/lib/types/period";
 
 export const api = axios.create({
   baseURL: process.env.EXPO_PUBLIC_API_URL,
