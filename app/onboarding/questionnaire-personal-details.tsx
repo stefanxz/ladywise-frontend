@@ -111,14 +111,11 @@ export default function Questionnaire() {
         height: heightNum,
       };
 
-      await personalDetials(
-        token, payload
-      );
+      await personalDetials(token, payload);
       router.push("./questionnaire-family-history");
     } catch (e) {
       setFormError(e instanceof Error ? e.message : "Sending details failed.");
-    } finally {
-    }
+    } finally {}
   };
 
   return (
