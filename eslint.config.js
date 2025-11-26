@@ -6,11 +6,28 @@ const globals = require("globals");
 
 module.exports = defineConfig([
   expoConfig,
+
   eslintPluginPrettierRecommended,
+
+  {
+    settings: {
+      react: {
+        version: "detect",
+      },
+    },
+    rules: {
+      "react/react-in-jsx-scope": "off",
+
+      "react-native/no-inline-styles": "off",
+
+      "@typescript-eslint/no-explicit-any": "off",
+    },
+  },
+
   {
     ignores: ["dist/*"],
   },
-  // Jest/Test overrides
+
   {
     files: ["**/*.test.ts", "**/*.test.tsx", "**/*.spec.ts", "**/*.spec.tsx"],
     languageOptions: {
@@ -19,7 +36,6 @@ module.exports = defineConfig([
       },
     },
     rules: {
-      // Allow devDependencies in tests
       "import/no-extraneous-dependencies": ["error", { devDependencies: true }],
     },
   },
