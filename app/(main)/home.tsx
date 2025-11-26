@@ -1,7 +1,7 @@
 import InsightsSection from "@/components/InsightsSection/InsightsSection";
-import { RiskData, ApiRiskResponse } from "@/lib/types/risks";
-import React, { useCallback, useEffect, useState } from "react";
-import { View, Text, ActivityIndicator } from "react-native";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import { ApiRiskResponse, RiskData } from "@/lib/types/risks";
+import { ActivityIndicator, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Header from "@/components/MainPageHeader/Header";
 import CalendarStrip, {
@@ -14,7 +14,10 @@ import { getCycleStatus, getRiskData } from "@/lib/api";
 import { CycleStatusDTO } from "@/lib/types/cycle";
 import { useFocusEffect } from "expo-router";
 import { useAuth } from "@/context/AuthContext";
-import { generateCalendarDays, formatPhaseName } from "@/utils/mainPageHelpers";
+import { formatPhaseName, generateCalendarDays } from "@/utils/mainPageHelpers";
+import { FloatingAddButton } from "@/components/FloatingAddButton/FloatingAddButton";
+import { BottomSheetModal } from "@gorhom/bottom-sheet";
+import { CycleQuestionsBottomSheet } from "@/components/CycleQuestionsBottomSheet/CycleQuestionsBottomSheet";
 
 type RiskLevel = "Low" | "Medium" | "High";
 const mapApiToInsights = (apiData: ApiRiskResponse): RiskData[] => {
@@ -98,6 +101,11 @@ const Home = () => {
   );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const bottomSheetModalRef = useRef<BottomSheetModal>(null);
+
+  const openSheet = useCallback(() => {
+    bottomSheetModalRef.current?.present();
+  }, []);
 
   // Effect for fetching risk data
   useEffect(() => {
@@ -205,64 +213,82 @@ const Home = () => {
   }
 
   return (
-    <LinearGradient
-      colors={[theme.gradientStart, theme.gradientEnd]}
-      style={{ flex: 1 }}
-      start={{ x: 0.5, y: 0 }}
-      end={{ x: 0.5, y: 1 }}
-    >
-      <SafeAreaView style={{ flex: 1, backgroundColor: "transparent" }}>
-        <View className="flex-1 justify-between">
-          <View className="pt-10">
-            <Header
-              name={MOCK_USER.name}
-              avatarUrl={MOCK_USER.avatarUrl}
-              onHelpPress={handleHelpPress}
-              theme={theme}
-            />
+    <>
+      <LinearGradient
+        colors={[theme.gradientStart, theme.gradientEnd]}
+        style={{ flex: 1 }}
+        start={{ x: 0.5, y: 0 }}
+        end={{ x: 0.5, y: 1 }}
+      >
+        <SafeAreaView style={{ flex: 1, backgroundColor: "transparent" }}>
+          <View className="flex-1 justify-between">
+            <View className="pt-10">
+              <Header
+                name={MOCK_USER.name}
+                avatarUrl={MOCK_USER.avatarUrl}
+                onHelpPress={handleHelpPress}
+                theme={theme}
+              />
 
-            <Text className="text-base text-gray-500 px-5 mb-5 pt-5">
-              {new Date().toLocaleDateString("en-US", {
-                month: "long",
-                day: "numeric",
-                year: "numeric",
-              })}
-            </Text>
+              <Text className="text-base text-gray-500 px-5 mb-5 pt-5">
+                {new Date().toLocaleDateString("en-US", {
+                  month: "long",
+                  day: "numeric",
+                  year: "numeric",
+                })}
+              </Text>
 
-            <CalendarStrip
-              days={calendarDays}
-              themeColor={theme.highlight}
-              onDayPress={handleDayPress}
-            />
+              <CalendarStrip
+                days={calendarDays}
+                themeColor={theme.highlight}
+                onDayPress={handleDayPress}
+              />
 
-            <PhaseCard
-              phaseName={
-                cycleStatus
-                  ? formatPhaseName(cycleStatus.currentPhase)
-                  : "Hello!"
-              }
-              dayOfPhase={
-                cycleStatus
-                  ? `Day ${cycleStatus.currentCycleDay}`
-                  : "Ready to start?"
-              }
-              subtitle={
-                cycleStatus
-                  ? `${cycleStatus.daysUntilNextEvent} days until ${cycleStatus.nextEvent.toLowerCase()}`
-                  : "Log your first period to begin tracking."
-              }
-              theme={theme}
-              onLogPeriodPress={handleLogPeriod}
-              onCardPress={() => {}}
+              <PhaseCard
+                phaseName={
+                  cycleStatus
+                    ? formatPhaseName(cycleStatus.currentPhase)
+                    : "Hello!"
+                }
+                dayOfPhase={
+                  cycleStatus
+                    ? `Day ${cycleStatus.currentCycleDay}`
+                    : "Ready to start?"
+                }
+                subtitle={
+                  cycleStatus
+                    ? `${cycleStatus.daysUntilNextEvent} days until ${cycleStatus.nextEvent.toLowerCase()}`
+                    : "Log your first period to begin tracking."
+                }
+                theme={theme}
+                onLogPeriodPress={handleLogPeriod}
+                onCardPress={() => {}}
+              />
+            </View>
+            <InsightsSection
+              isLoading={isLoading}
+              insights={data}
+            ></InsightsSection>
+          </View>
+
+          <View className="absolute bottom-4 right-4">
+            <FloatingAddButton
+              buttonColor={theme.button}
+              textColor={theme.buttonText}
+              onPress={openSheet}
             />
           </View>
-          <InsightsSection
-            isLoading={isLoading}
-            insights={data}
-          ></InsightsSection>
-        </View>
-      </SafeAreaView>
-    </LinearGradient>
+        </SafeAreaView>
+      </LinearGradient>
+
+      <CycleQuestionsBottomSheet
+        bottomSheetRef={bottomSheetModalRef}
+        onSave={async (answers) => {
+          console.log(answers);
+          await new Promise((res) => setTimeout(res, 1000)); // placeholder API call
+        }}
+      />
+    </>
   );
 };
 

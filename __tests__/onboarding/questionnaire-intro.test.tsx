@@ -64,6 +64,8 @@ describe("QuestionnaireIntro screen", () => {
   it("navigates to the questionnaire screen on Continue", () => {
     const { getByTestId } = render(<QuestionnaireIntro />);
     fireEvent.press(getByTestId("continue-button"));
-    expect(router.push).toHaveBeenCalledWith("/onboarding/questionnaire");
+    expect(router.push).toHaveBeenCalledWith(
+      "/onboarding/questionnaire-personal-details",
+    );
   });
 });

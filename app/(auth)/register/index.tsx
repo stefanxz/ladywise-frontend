@@ -14,6 +14,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import TermsConditionsPopUp, {
   TermsConditionsPopUpRef,
 } from "@/components/TermsConditionsPopUp/TermsConditionsPopUp";
+import termsData from "../../../data/terms-and-conditions.json";
 
 export default function RegisterIndex() {
   const [email, setEmail] = useState("");
@@ -82,6 +83,8 @@ export default function RegisterIndex() {
       await registerUser({
         email: email.trim(),
         password: password.trim(),
+        consentGiven: termsConditions,
+        consentVersion: termsData.version,
       });
       const loginResponse = await loginUser({
         email: email.trim(),

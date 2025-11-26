@@ -1,4 +1,3 @@
-
 import RegisterIndex from "@/app/(auth)/register/index";
 import * as api from "@/lib/api";
 import * as validations from "@/utils/validations";
@@ -10,7 +9,6 @@ jest.mock("expo-router");
 jest.mock("@expo/vector-icons");
 jest.mock("react-native-safe-area-context");
 
-
 // Provide a lightweight AuthContext mock so the screen can drive setStatus without pulling in the real layout.
 const mockSignIn = jest.fn();
 jest.mock("@/context/AuthContext", () => ({
@@ -18,8 +16,8 @@ jest.mock("@/context/AuthContext", () => ({
     signIn: mockSignIn,
     isLoading: false,
     token: null,
-  })
-}))
+  }),
+}));
 
 // Child components that aren’t the focus (just render pass-through)
 jest.mock("@/components/AppBarBackButton/AppBarBackButton", () => ({
@@ -30,26 +28,29 @@ jest.mock("@/components/SocialSignOn/SocialSignOn", () => ({
 }));
 
 // Fully controllable checkbox to flip T&C state.
-jest.mock("@/components/TermsConditionsCheckbox/TermsConditionsCheckbox", () => {
-  const React = require("react");
-  const { Pressable, Text, View } = require("react-native");
-  return {
-    TermsConditionsCheckbox: ({
-      checked,
-      onToggle,
-    }: {
-      checked: boolean;
-      onToggle: () => void;
-    }) => (
-      <View>
-        <Text testID="tnc-state">{checked ? "checked" : "unchecked"}</Text>
-        <Pressable onPress={onToggle} testID="tnc-toggle">
-          <Text>toggle</Text>
-        </Pressable>
-      </View>
-    ),
-  };
-});
+jest.mock(
+  "@/components/TermsConditionsCheckbox/TermsConditionsCheckbox",
+  () => {
+    const React = require("react");
+    const { Pressable, Text, View } = require("react-native");
+    return {
+      TermsConditionsCheckbox: ({
+        checked,
+        onToggle,
+      }: {
+        checked: boolean;
+        onToggle: () => void;
+      }) => (
+        <View>
+          <Text testID="tnc-state">{checked ? "checked" : "unchecked"}</Text>
+          <Pressable onPress={onToggle} testID="tnc-toggle">
+            <Text>toggle</Text>
+          </Pressable>
+        </View>
+      ),
+    };
+  }
+);
 
 //Mock validations
 jest.mock("@/utils/validations", () => ({
@@ -98,7 +99,14 @@ describe("RegisterIndex screen", () => {
     const typeConfirm = (v: string) =>
       fireEvent.changeText(utils.getByTestId("confirm-password-input"), v);
 
-    return { ...utils, toggleTnc, pressContinue, typeEmail, typePassword, typeConfirm };
+    return {
+      ...utils,
+      toggleTnc,
+      pressContinue,
+      typeEmail,
+      typePassword,
+      typeConfirm,
+    };
   };
 
   it("Continue is disabled until Terms & Conditions is checked", () => {
@@ -140,8 +148,14 @@ describe("RegisterIndex screen", () => {
   });
 
   it("shows password rules error when password invalid", () => {
-    const { toggleTnc, typeEmail, typePassword, typeConfirm, pressContinue, getByText } =
-      setup();
+    const {
+      toggleTnc,
+      typeEmail,
+      typePassword,
+      typeConfirm,
+      pressContinue,
+      getByText,
+    } = setup();
     toggleTnc();
     typeEmail("user@example.com");
     mockedValidations.isEmailValid.mockReturnValue(true);
@@ -161,8 +175,14 @@ describe("RegisterIndex screen", () => {
   });
 
   it("shows confirm error when confirmation is empty or mismatched", () => {
-    const { toggleTnc, typeEmail, typePassword, typeConfirm, pressContinue, getByText } =
-      setup();
+    const {
+      toggleTnc,
+      typeEmail,
+      typePassword,
+      typeConfirm,
+      pressContinue,
+      getByText,
+    } = setup();
 
     toggleTnc();
     typeEmail("user@example.com");
@@ -191,7 +211,8 @@ describe("RegisterIndex screen", () => {
       userId: "user-123",
       email: "user@example.com",
     });
-    const { toggleTnc, typeEmail, typePassword, typeConfirm, pressContinue } = setup();
+    const { toggleTnc, typeEmail, typePassword, typeConfirm, pressContinue } =
+      setup();
 
     toggleTnc();
     typeEmail("user@example.com");
@@ -202,21 +223,25 @@ describe("RegisterIndex screen", () => {
     typeConfirm("Abcd1234");
 
     await act(async () => {
-        pressContinue();
-      });
+      pressContinue();
+    });
 
     // make registerUser resolve successfully so mockPush runs
     await waitFor(() => {
-      expect(mockedApi.registerUser).toHaveBeenCalledWith({
-        email: "user@example.com",
-        password: "Abcd1234"
-      });  
+      expect(mockedApi.registerUser).toHaveBeenCalledWith(
+        expect.objectContaining({
+          email: "user@example.com",
+          password: "Abcd1234",
+          consentGiven: true,
+          consentVersion: expect.any(String),
+        })
+      );
     });
 
     await waitFor(() => {
       expect(mockedApi.loginUser).toHaveBeenCalledWith({
         email: "user@example.com",
-        password: "Abcd1234"
+        password: "Abcd1234",
       });
     });
 
@@ -225,80 +250,94 @@ describe("RegisterIndex screen", () => {
         "fake-token",
         "user-123",
         "user@example.com"
-      )
-    })
+      );
+    });
 
     await waitFor(() => {
-      expect(mockReplace).toHaveBeenCalledWith("/(auth)/register/personal-details");
+      expect(mockReplace).toHaveBeenCalledWith(
+        "/(auth)/register/personal-details"
+      );
     });
-
-});
-
-it("clears specific field error when user edits that field again", async() => {
-  mockedApi.loginUser.mockResolvedValue({
-    token: "fake-token",
-    tokenType: "Bearer",
-    userId: "user-123",
-    email: "user@example.com",
   });
-  const { toggleTnc, pressContinue, getByText, typeEmail, typePassword, typeConfirm, queryByText } =
-    setup();
 
-  toggleTnc();
-  // Trigger all errors
-  pressContinue();
-  expect(getByText("Please enter your email.")).toBeTruthy();
+  it("clears specific field error when user edits that field again", async () => {
+    mockedApi.loginUser.mockResolvedValue({
+      token: "fake-token",
+      tokenType: "Bearer",
+      userId: "user-123",
+      email: "user@example.com",
+    });
+    const {
+      toggleTnc,
+      pressContinue,
+      getByText,
+      typeEmail,
+      typePassword,
+      typeConfirm,
+      queryByText,
+    } = setup();
 
-  // Editing email should clear email error
-  typeEmail("user@example.com");
-  mockedValidations.isEmailValid.mockReturnValue(true);
-  expect(queryByText("Please enter your email.")).toBeNull();
-
-  // Enter invalid password → shows password error
-  typePassword("short");
-  mockedValidations.isPasswordValid.mockReturnValue(false);
-  pressContinue();
-  expect(
-    getByText(
-      "Password must contain at least 8 characters, 1 upper case, 1 lower case and 1 number (and no spaces)."
-    )
-  ).toBeTruthy();
-
-  // Edit password to a valid one → clear error on next submit
-  typePassword("Abcd1234");
-  mockedValidations.isPasswordValid.mockReturnValue(true);
-  typeConfirm("Abcd1234");
-
-  await act(async () => {
+    toggleTnc();
+    // Trigger all errors
     pressContinue();
-  });
+    expect(getByText("Please enter your email.")).toBeTruthy();
 
-  // make registerUser resolve successfully so mockPush runs
-  await waitFor(() => {
-    expect(mockedApi.registerUser).toHaveBeenCalledWith({
-      email: "user@example.com",
-      password: "Abcd1234"
-    });  
-  });
+    // Editing email should clear email error
+    typeEmail("user@example.com");
+    mockedValidations.isEmailValid.mockReturnValue(true);
+    expect(queryByText("Please enter your email.")).toBeNull();
 
-  await waitFor(() => {
-    expect(mockedApi.loginUser).toHaveBeenCalledWith({
-      email: "user@example.com",
-      password: "Abcd1234",
+    // Enter invalid password → shows password error
+    typePassword("short");
+    mockedValidations.isPasswordValid.mockReturnValue(false);
+    pressContinue();
+    expect(
+      getByText(
+        "Password must contain at least 8 characters, 1 upper case, 1 lower case and 1 number (and no spaces)."
+      )
+    ).toBeTruthy();
+
+    // Edit password to a valid one → clear error on next submit
+    typePassword("Abcd1234");
+    mockedValidations.isPasswordValid.mockReturnValue(true);
+    typeConfirm("Abcd1234");
+
+    await act(async () => {
+      pressContinue();
+    });
+
+    // make registerUser resolve successfully so mockPush runs
+    await waitFor(() => {
+      expect(mockedApi.registerUser).toHaveBeenCalledWith(
+        expect.objectContaining({
+          email: "user@example.com",
+          password: "Abcd1234",
+          consentGiven: true,
+          consentVersion: expect.any(String),
+        })
+      );
+    });
+
+    await waitFor(() => {
+      expect(mockedApi.loginUser).toHaveBeenCalledWith({
+        email: "user@example.com",
+        password: "Abcd1234",
+      });
+    });
+
+    await waitFor(() => {
+      expect(mockSignIn).toHaveBeenCalledWith(
+        "fake-token",
+        "user-123",
+        "user@example.com"
+      );
+    });
+    //mockedRegisterUser.mockResolvedValueOnce({} as any);
+
+    await waitFor(() => {
+      expect(mockReplace).toHaveBeenCalledWith(
+        "/(auth)/register/personal-details"
+      );
     });
   });
-
-  await waitFor(() => {
-    expect(mockSignIn).toHaveBeenCalledWith(
-      "fake-token",
-      "user-123",
-      "user@example.com"
-    )
-  })
-  //mockedRegisterUser.mockResolvedValueOnce({} as any);
-
-  await waitFor(() => {
-    expect(mockReplace).toHaveBeenCalledWith("/(auth)/register/personal-details");
-  });
-});
 });

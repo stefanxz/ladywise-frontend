@@ -1,0 +1,34 @@
+[
+  {
+    "id": 1,
+    "question": "How was your flow today?",
+    "options": ["None", "Light", "Normal", "Heavy"],
+    "multiSelect": false
+  },
+  {
+    "id": 2,
+    "question": "How are you feeling today?",
+    "options": [
+      "Shortness of breath",
+      "Swelling",
+      "Tired",
+      "Chest Pain",
+      "One-sided leg pain",
+      "Dizzy",
+      "None of the above"
+    ],
+    "multiSelect": true
+  },
+  {
+    "id": 3,
+    "question": "Have you had any of these risk factors in the past 2 weeks?",
+    "options": [
+      "Estrogen pill",
+      "Surgery or severe injury",
+      "Post/current blood clot",
+      "<6 months postpartum",
+      "None of the above"
+    ],
+    "multiSelect": true
+  }
+]
