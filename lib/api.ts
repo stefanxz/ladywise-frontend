@@ -12,7 +12,7 @@ import type {
   UserResponse,
 } from "./types";
 import { CycleStatusDTO } from "./types/cycle";
-import { RiskData, ApiRiskResponse } from "./types/risks";
+import { RiskData, ApiRiskResponse, RiskHistoryPoint } from "./types/risks";
 import { StoredAuthData } from "./auth";
 
 export const api = axios.create({
@@ -81,6 +81,23 @@ export async function getRiskData(
     config,
   );
   return data; // This returns: { thrombosisRisk: 1, anemiaRisk: 2 }
+}
+
+export async function getRiskHistory(
+  token: string,
+  userId: string,
+): Promise<RiskHistoryPoint[]> {
+  const config = {
+    params: { userId },
+    headers: { Authorization: `Bearer ${token}` },
+  };
+
+  const { data } = await api.get<RiskHistoryPoint[]>(
+    `/api/users/${userId}/risks/history`,
+    config,
+  );
+
+  return data;
 }
 
 export async function getCycleStatus() {
