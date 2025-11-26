@@ -5,7 +5,7 @@ import { clsx } from 'clsx';
 import { themes } from "@/lib/themes";
 
 // Fixed darker red for selection endpoints
-const SELECTION_RED = "#E11D48";
+const SELECTION_RED = "rgba(205, 22, 61, 0.9)";
 
 interface CalendarDayProps {
   date: Date | null;
@@ -60,7 +60,7 @@ const CalendarDay = React.memo(({
 
       // If it's not today apply transparent red tint
       if (!isToday) {
-        styles.backgroundColor = "rgba(219, 136, 136, 0.12)";
+        styles.backgroundColor = "rgba(225, 29, 72, 0.15)";
       }
       // Prediction styling
     } else if (isPrediction) {
