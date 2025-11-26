@@ -69,6 +69,7 @@ const mockedValidation = jest.mocked(validation);
 const mockedAsyncStorage = jest.mocked(asyncStorage);
 
 describe("LoginScreen", () => {
+
   beforeEach(() => {
     jest.clearAllMocks();
     mockSignIn.mockClear();
@@ -186,7 +187,7 @@ describe("LoginScreen", () => {
     it("shows an error message and increments failed login count on failed login", async () => {
       const consoleErrorSpy = jest
         .spyOn(console, "error")
-        .mockImplementation(() => { });
+        .mockImplementation(() => {});
 
       mockedValidation.isEmailValid.mockReturnValue(true);
       const mockAxiosError = new AxiosError(
@@ -212,6 +213,7 @@ describe("LoginScreen", () => {
 
       const errorMessage = await findByText("Invalid email or password");
       expect(errorMessage).toBeTruthy();
+
 
       expect(mockRouter.replace).not.toHaveBeenCalled();
       expect(mockedAsyncStorage.incrementFailedLoginCount).toHaveBeenCalled();
