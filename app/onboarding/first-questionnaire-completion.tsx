@@ -27,17 +27,19 @@ export default function FirstQuestionnaireCompletion() {
     try {
       setLoading(true);
 
-      const result = await markFirstQuestionnaireComplete();
-
-      if (result.success) {
-        // Replace navigation stack so user cannot go back to onboarding
-        router.replace("/main/home");
-      } else {
-        Alert.alert(
-          "Error",
-          "Could not mark questionnaire as complete. Please try again.",
-        );
-      }
+      // TODO: uncomment this once this functionality exists on backend
+      // const result = await markFirstQuestionnaireComplete();
+      //
+      // if (result.success) {
+      //   // Replace navigation stack so user cannot go back to onboarding
+      //   router.replace("/(main)/home");
+      // } else {
+      //   Alert.alert(
+      //     "Error",
+      //     "Could not mark questionnaire as complete. Please try again.",
+      //   );
+      // }
+      router.replace("/(main)/home");
     } catch (error: any) {
       console.error("Completion error:", error);
       Alert.alert(
