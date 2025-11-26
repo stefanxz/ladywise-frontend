@@ -14,6 +14,7 @@ import type {
 import { CycleStatusDTO } from "./types/cycle";
 import { RiskData, ApiRiskResponse, RiskHistoryPoint } from "./types/risks";
 import { StoredAuthData } from "./auth";
+import { PeriodLogResponse, PredictedPeriodDTO, PeriodLogRequest } from "./types/period";
 
 export const api = axios.create({
   baseURL: process.env.EXPO_PUBLIC_API_URL,
@@ -41,6 +42,9 @@ api.interceptors.response.use(
     return Promise.reject(error);
   },
 );
+
+
+
 
 // register new user by sending their credentials to the backend API
 // uses the base URL from .env + '/api/auth/register'
@@ -83,6 +87,7 @@ export async function getRiskData(
   return data; // This returns: { thrombosisRisk: 1, anemiaRisk: 2 }
 }
 
+// Cycle and Periods
 export async function getRiskHistory(
   token: string,
   userId: string,
@@ -127,5 +132,24 @@ export async function submitQuestionnaire(payload: QuestionnairePayload) {
     "/api/questionnaire",
     payload,
   );
+  return data;
+}
+
+export async function getPeriodHistory() {
+  const { data } = await api.get<PeriodLogResponse[]>("/api/cycle/history");
+  return data;
+}
+
+export async function getPredictions(cycles: number = 6) {
+  const { data } = await api.get<PredictedPeriodDTO[]>("/api/cycle/predictions", {
+    params: { cycles },
+  })
+  console.log("Predictions are: " + JSON.stringify(data));
+
+  return data;
+}
+
+export async function logNewPeriod(payload: PeriodLogRequest) {
+  const { data } = await api.post<PeriodLogResponse>("/api/periods", payload);
   return data;
 }
