@@ -21,6 +21,7 @@ module.exports = {
 
   // Resolve @/ aliases
   moduleNameMapper: {
+    "\\.css$": "identity-obj-proxy",
     "^@/(.*)$": "<rootDir>/$1",
   },
 
@@ -44,7 +45,8 @@ module.exports = {
       "|nativewind" +
       "|@expo/vector-icons" +
       "|@gorhom/bottom-sheet" +
-      "|react-native-worklets)/)",
+      "|react-native-worklets" +
+      "|@expo-google-fonts/.*)/)",
   ],
 
   // Ignore build and system directories
