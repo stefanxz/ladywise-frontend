@@ -1,6 +1,6 @@
 import { AppBar } from "@/components/AppBarBackButton/AppBarBackButton";
 import { ThemedPressable } from "@/components/ThemedPressable/ThemedPressable";
-import { markFirstQuestionnaireComplete } from "@/lib/questionnaireService";
+import { markFirstQuestionnaireComplete } from "@/lib/api";
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import { ActivityIndicator, Alert, Image, Text, View } from "react-native";

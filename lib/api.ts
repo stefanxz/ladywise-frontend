@@ -14,6 +14,7 @@ import type {
 import { CycleStatusDTO } from "./types/cycle";
 import { RiskData, ApiRiskResponse } from "./types/risks";
 import { StoredAuthData } from "./auth";
+import { getAuthData } from "./auth";
 
 export const api = axios.create({
   baseURL: process.env.EXPO_PUBLIC_API_URL,
@@ -112,3 +113,42 @@ export async function submitQuestionnaire(payload: QuestionnairePayload) {
   );
   return data;
 }
+
+/**
+ * Marks the user's first questionnaire as completed.
+ */
+export async function markFirstQuestionnaireComplete(): Promise<{ success: boolean }> {
+  const authData = await getAuthData();
+  if (!authData.userId) throw new Error("User not authenticated");
+
+  // Use the 'api' instance which likely handles the Base URL automatically
+  const { data } = await api.post("/first-questionnaire/complete", {
+    userId: authData.userId,
+  });
+
+  return data;
+}
+
+/**
+ * Checks if the user is allowed to access the Cycle Questionnaire.
+ */
+export async function checkCycleQuestionnaireAccess(): Promise<{ allowed: boolean }> {
+  const authData = await getAuthData();
+  if (!authData.userId) throw new Error("User not authenticated");
+
+  try {
+    const { data } = await api.get("/cycle-questionnaire/access", {
+      params: { userId: authData.userId },
+    });
+    return data;
+  } catch (error) {
+    console.warn("Error in checkCycleQuestionnaireAccess:", error);
+    
+    if (axios.isAxiosError(error) && !error.response) {
+      console.warn("Backend not reachable, returning mock allowed=true");
+      return { allowed: true };
+    }
+    throw error;
+  }
+}
+

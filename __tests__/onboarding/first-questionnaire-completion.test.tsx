@@ -5,9 +5,8 @@
  */
 
 import FirstQuestionnaireCompletion from "@/app/onboarding/first-questionnaire-completion";
-import { markFirstQuestionnaireComplete } from "@/lib/questionnaireService";
+import { markFirstQuestionnaireComplete } from "@/lib/api";
 import { fireEvent, render, waitFor } from "@testing-library/react-native";
-
 
 jest.mock("@expo/vector-icons", () => ({
   Ionicons: () => null,
@@ -22,7 +21,7 @@ jest.mock("expo-router", () => ({
   useRouter: () => mockRouter,
 }));
 
-jest.mock("@/lib/questionnaireService", () => ({
+jest.mock("@/lib/api", () => ({
   markFirstQuestionnaireComplete: jest.fn(),
 }));
 
