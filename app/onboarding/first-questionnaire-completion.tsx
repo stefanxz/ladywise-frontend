@@ -27,17 +27,11 @@ export default function FirstQuestionnaireCompletion() {
     try {
       setLoading(true);
 
-      const result = await markFirstQuestionnaireComplete();
+      // wait 1 second instead of calling the API
+      await new Promise((resolve) => setTimeout(resolve, 1000));
 
-      if (result.success) {
-        // Replace navigation stack so user cannot go back to onboarding
-        router.replace("/main/home");
-      } else {
-        Alert.alert(
-          "Error",
-          "Could not mark questionnaire as complete. Please try again.",
-        );
-      }
+      // assume success
+      router.replace("/(main)/home");
     } catch (error: any) {
       console.error("Completion error:", error);
       Alert.alert(

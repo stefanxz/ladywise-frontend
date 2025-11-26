@@ -78,8 +78,7 @@ export default function QuestionnaireFinalQuestions() {
       }
 
       reset();
-      //TODO: Add this when the completion is merged aswell
-      //router.replace("/onboarding/first-questionnaire-completion");
+      router.replace("/onboarding/first-questionnaire-completion");
     } catch (err) {
       const message =
         err instanceof Error
