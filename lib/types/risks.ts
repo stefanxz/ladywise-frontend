@@ -1,12 +1,13 @@
-export interface RiskData {
+export type RiskLevel = "Low" | "Medium" | "High";
+
+export type RiskData = {
   id: string;
   title: string;
-  level: 'Low' | 'Medium' | 'High';
+  level: RiskLevel;
   description: string;
-}
+};
 
 export type ApiRiskResponse = {
   thrombosisRisk: number;
   anemiaRisk: number;
-  
 };
