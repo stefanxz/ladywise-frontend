@@ -12,8 +12,6 @@ import type {
   UserResponse,
 } from "./types";
 import { CycleStatusDTO } from "./types/cycle";
-import { ApiRiskResponse } from "./types/risks";
-import { DailyLogRequest } from "@/lib/types/period";
 import { getAuthData } from "./auth";
 import { ApiRiskResponse } from "./types/risks";
 import { DailyLogRequest, DailyLogResponse } from "@/lib/types/period";
@@ -154,7 +152,6 @@ export async function submitQuestionnaire(payload: QuestionnairePayload) {
     throw new Error("User ID is missing.");
   }
 
-
   const { data } = await api.post<QuestionnaireResponse>(
     "/api/questionnaire",
     payload,
@@ -165,7 +162,9 @@ export async function submitQuestionnaire(payload: QuestionnairePayload) {
 /**
  * Marks the user's first questionnaire as completed.
  */
-export async function markFirstQuestionnaireComplete(): Promise<{ success: boolean }> {
+export async function markFirstQuestionnaireComplete(): Promise<{
+  success: boolean;
+}> {
   const authData = await getAuthData();
   if (!authData.userId) throw new Error("User not authenticated");
 
@@ -180,7 +179,9 @@ export async function markFirstQuestionnaireComplete(): Promise<{ success: boole
 /**
  * Checks if the user is allowed to access the Cycle Questionnaire.
  */
-export async function checkCycleQuestionnaireAccess(): Promise<{ allowed: boolean }> {
+export async function checkCycleQuestionnaireAccess(): Promise<{
+  allowed: boolean;
+}> {
   const authData = await getAuthData();
   if (!authData.userId) throw new Error("User not authenticated");
 
@@ -199,4 +200,3 @@ export async function checkCycleQuestionnaireAccess(): Promise<{ allowed: boolea
     throw error;
   }
 }
-
