@@ -205,7 +205,7 @@ describe("RegisterIndex screen", () => {
   });
 
   it("navigates on valid inputs", async () => {
-    mockedApi.loginUser.mockResolvedValue({
+    mockedApi.registerUser.mockResolvedValue({
       token: "fake-token",
       tokenType: "Bearer",
       userId: "user-123",
@@ -223,7 +223,7 @@ describe("RegisterIndex screen", () => {
     typeConfirm("Abcd1234");
 
     await act(async () => {
-      pressContinue();
+      await pressContinue();
     });
 
     // make registerUser resolve successfully so mockPush runs
@@ -236,13 +236,6 @@ describe("RegisterIndex screen", () => {
           consentVersion: expect.any(String),
         })
       );
-    });
-
-    await waitFor(() => {
-      expect(mockedApi.loginUser).toHaveBeenCalledWith({
-        email: "user@example.com",
-        password: "Abcd1234",
-      });
     });
 
     await waitFor(() => {
@@ -261,7 +254,7 @@ describe("RegisterIndex screen", () => {
   });
 
   it("clears specific field error when user edits that field again", async () => {
-    mockedApi.loginUser.mockResolvedValue({
+    mockedApi.registerUser.mockResolvedValue({
       token: "fake-token",
       tokenType: "Bearer",
       userId: "user-123",
@@ -316,13 +309,6 @@ describe("RegisterIndex screen", () => {
           consentVersion: expect.any(String),
         })
       );
-    });
-
-    await waitFor(() => {
-      expect(mockedApi.loginUser).toHaveBeenCalledWith({
-        email: "user@example.com",
-        password: "Abcd1234",
-      });
     });
 
     await waitFor(() => {

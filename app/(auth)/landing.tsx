@@ -15,7 +15,6 @@ import backgroundPart2 from "@/assets/images/LandingPage-background-part2.png";
 
 export default function LandingPage() {
   const router = useRouter();
-  const [showModal, setShowModal] = useState(false);
 
   // Navigate to the registration page
   const handleGetStarted = () => {
@@ -29,7 +28,7 @@ export default function LandingPage() {
 
   return (
     <View className="flex-1 flex-col bg-background">
-      {/* ---------- Top Section: Logo & Text ---------- */}
+      {/* Top Section */}
       <View className="flex-[0.55] justify-center items-center px-6">
         <Image
           source={logotest}
@@ -57,7 +56,7 @@ export default function LandingPage() {
         </Text>
       </View>
 
-      {/* ---------- Bottom Section: Background & Buttons ---------- */}
+      {/* Bottom Section */}
       <View className="flex-[0.45] w-full justify-center">
         <Image
           source={backgroundPart1}

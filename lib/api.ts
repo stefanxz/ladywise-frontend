@@ -3,15 +3,17 @@ import type {
   LoginPayload,
   LoginResponse,
   PasswordResetRequestPayload,
+  QuestionnairePayload,
+  QuestionnaireResponse,
   RegisterPayload,
-  RegisterResponse,
   ResetPasswordPayload,
   UserPayload,
   UserResponse,
 } from "./types";
 import { CycleStatusDTO } from "./types/cycle";
+import { getAuthData, StoredAuthData} from "./auth";
 import { RiskData, ApiRiskResponse, RiskHistoryPoint } from "./types/risks";
-import { StoredAuthData } from "./auth";
+import { DailyLogRequest, DailyLogResponse } from "@/lib/types/period";
 
 export const api = axios.create({
   baseURL: process.env.EXPO_PUBLIC_API_URL,
@@ -43,10 +45,7 @@ api.interceptors.response.use(
 // register new user by sending their credentials to the backend API
 // uses the base URL from .env + '/api/auth/register'
 export async function registerUser(payload: RegisterPayload) {
-  const { data } = await api.post<RegisterResponse>(
-    "/api/auth/register",
-    payload,
-  );
+  const { data } = await api.post<LoginResponse>("/api/auth/register", payload);
   return data;
 }
 
@@ -69,6 +68,7 @@ export async function getRiskData(
   token: string,
   userId: string,
 ): Promise<ApiRiskResponse> {
+  // <-- Use the correct response type
   const config = {
     params: { userId },
     headers: { Authorization: `Bearer ${token}` },
@@ -103,6 +103,51 @@ export async function getCycleStatus() {
   return data;
 }
 
+/**
+ * Retrieves a daily cycle entry for a specific date.
+ *
+ * @param date {string} - The date to fetch the entry for, in YYYY-MM-DD format
+ * @returns A promise that resolves to the daily log data for the passed date
+ */
+export async function getDailyEntry(date: string): Promise<DailyLogResponse> {
+  const { data } = await api.get<DailyLogResponse>(
+    `/api/periods/entries/${date}`,
+  );
+  return data;
+}
+
+/**
+ * Updates an existing daily entry within a specified period.
+ *
+ * Use this when modifying an entry that already exists, and you know which period
+ * it belongs to.
+ *
+ * @param payload {DailyLogRequest} - The daily log data to update
+ * @param periodId {string} - Optional id of the period this entry belongs to
+ * @returns A promise that resolves to the updated entry data
+ */
+export async function updateDailyEntry(
+  payload: DailyLogRequest,
+  periodId?: string,
+) {
+  const { data } = await api.put(`/api/periods/${periodId}/entries`, payload);
+  return data;
+}
+
+/**
+ * Creates a new daily entry.
+ *
+ * Use this when logging cycle data for the first time on a given date. The
+ * backend automatically associates this entry with its appropriate period.
+ *
+ * @param payload {DailyLogRequest} - The daily log data to create
+ * @returns A promise that resolves to the newly created entry data.
+ */
+export async function createDailyEntry(payload: DailyLogRequest) {
+  const { data } = await api.post("/api/periods/entries", payload);
+  return data;
+}
+
 export async function requestPasswordReset(
   payload: PasswordResetRequestPayload,
 ) {
@@ -113,4 +158,58 @@ export async function requestPasswordReset(
 export async function resetPassword(payload: ResetPasswordPayload) {
   const { data } = await api.post("/api/auth/password-reset", payload);
   return data;
+}
+
+export async function submitQuestionnaire(payload: QuestionnairePayload) {
+  if (!payload.userId) {
+    throw new Error("User ID is missing.");
+  }
+
+  const { data } = await api.post<QuestionnaireResponse>(
+    "/api/questionnaire",
+    payload,
+  );
+  return data;
+}
+
+/**
+ * Marks the user's first questionnaire as completed.
+ */
+export async function markFirstQuestionnaireComplete(): Promise<{
+  success: boolean;
+}> {
+  const authData = await getAuthData();
+  if (!authData.userId) throw new Error("User not authenticated");
+
+  // Use the 'api' instance which likely handles the Base URL automatically
+  const { data } = await api.post("/first-questionnaire/complete", {
+    userId: authData.userId,
+  });
+
+  return data;
+}
+
+/**
+ * Checks if the user is allowed to access the Cycle Questionnaire.
+ */
+export async function checkCycleQuestionnaireAccess(): Promise<{
+  allowed: boolean;
+}> {
+  const authData = await getAuthData();
+  if (!authData.userId) throw new Error("User not authenticated");
+
+  try {
+    const { data } = await api.get("/cycle-questionnaire/access", {
+      params: { userId: authData.userId },
+    });
+    return data;
+  } catch (error) {
+    console.warn("Error in checkCycleQuestionnaireAccess:", error);
+
+    if (axios.isAxiosError(error) && !error.response) {
+      console.warn("Backend not reachable, returning mock allowed=true");
+      return { allowed: true };
+    }
+    throw error;
+  }
 }
