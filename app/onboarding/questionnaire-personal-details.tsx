@@ -3,7 +3,7 @@ import { ThemedTextInput } from "@/components/ThemedTextInput/ThemedTextInput";
 import { UnitInputField } from "@/components/UnitInputField/UnitInputField";
 import { useRouter } from "expo-router";
 import { useState } from "react";
-import { Platform, Pressable, Text, View } from "react-native";
+import { Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useQuestionnaire } from "./QuestionnaireContext";
 

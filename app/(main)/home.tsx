@@ -1,6 +1,6 @@
 import InsightsSection from "@/components/InsightsSection/InsightsSection";
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { ApiRiskResponse, RiskData } from "@/lib/types/risks";
+import { RiskData } from "@/lib/types/risks";
 import { ActivityIndicator, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Header from "@/components/MainPageHeader/Header";
@@ -19,61 +19,8 @@ import { FloatingAddButton } from "@/components/FloatingAddButton/FloatingAddBut
 import { BottomSheetModal } from "@gorhom/bottom-sheet";
 import { CycleQuestionsBottomSheet } from "@/components/CycleQuestionsBottomSheet/CycleQuestionsBottomSheet";
 import { DailyCycleAnswers } from "@/components/CycleQuestionsBottomSheet/CycleQuestionsBottomSheet.types";
-import { mapAnswersToPayload } from "@/utils/helpers";
-
-type RiskLevel = "Low" | "Medium" | "High";
-const mapApiToInsights = (apiData: ApiRiskResponse): RiskData[] => {
-  // --- IMPORTANT ---
-
-  const levelMap: { [key: number]: RiskLevel } = {
-    0: "Low",
-    1: "Medium",
-    2: "High",
-  };
-
-  const titleMap: { [key: string]: string } = {
-    thrombosisRisk: "Thrombosis Risk",
-    anemiaRisk: "Anemia Risk",
-  };
-
-  const descriptionMap: { [key: string]: string } = {
-    thrombosisRisk: "Some factors may raise clotting risk.",
-    anemiaRisk: "Iron levels appear sufficient.",
-  };
-
-  // Convert object { key1: val1, key2: val2 } into array [ { ...risk1 }, { ...risk2 } ]
-  return Object.keys(apiData).map((key) => {
-    const typedKey = key as keyof ApiRiskResponse;
-    const apiLevel = apiData[typedKey];
-
-    return {
-      id: typedKey,
-      title: titleMap[typedKey] || "Unknown Risk",
-      level: levelMap[apiLevel] || "Low",
-      description: descriptionMap[typedKey] || "No description.",
-    };
-  });
-};
-
-const MOCK_INSIGHTS: RiskData[] = [
-  {
-    id: "1",
-    title: "Thrombosis Risk",
-    level: "Medium",
-    description: "Some factors may raise clotting risk.",
-  },
-  {
-    id: "2",
-    title: "Anemia Risk",
-    level: "Low",
-    description: "Iron levels appear sufficient.",
-  },
-];
-
-const MOCK_USER = {
-  name: "Mirela Marcu",
-  avatarUrl: "",
-};
+import { mapAnswersToPayload, mapApiToInsights } from "@/utils/helpers";
+import { MOCK_USER, MOCK_INSIGHTS } from "@/constants/mock-data";
 
 async function fetchRiskData(
   token: string,

@@ -2,7 +2,7 @@ import { QUESTIONNAIRE_TOTAL_STEPS } from "@/app/onboarding/QuestionnaireContext
 import { ProgressBar } from "@/components/ProgressBar/ProgressBar";
 import { cn } from "@/utils/helpers";
 import { ReactNode } from "react";
-import { Platform, Pressable, Text, View } from "react-native";
+import { Pressable, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 const DEFAULT_EDGE_OFFSET = 0.08;
