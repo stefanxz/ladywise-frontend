@@ -76,7 +76,12 @@ export function CycleQuestionsBottomSheet({
   const handleSave = async () => {
     setSaving(true);
     try {
-      await onSave(answers); // saving is delegated to parent
+      const answersWithDate = {
+        ...answers,
+        date: new Date().toISOString().split("T")[0], // today
+      };
+
+      await onSave(answersWithDate); // saving is delegated to parent
       bottomSheetRef.current?.close();
     } catch (err) {
       console.error("save failed", err);

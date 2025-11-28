@@ -194,10 +194,7 @@ const Home = () => {
    * @param answers {DailyCycleAnswers} - user's answers to the cycle questionnaire
    */
   const handleAddDailyEntry = async (answers: DailyCycleAnswers) => {
-    const payload = mapAnswersToPayload({
-      ...answers,
-      date: new Date().toISOString().split("T")[0], // today
-    });
+    const payload = mapAnswersToPayload(answers);
     try {
       await createDailyEntry(payload);
     } catch (error: any) {
