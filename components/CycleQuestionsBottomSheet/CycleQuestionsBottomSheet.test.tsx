@@ -105,7 +105,7 @@ describe("CycleQuestionsBottomSheet Integration", () => {
     expect(mockOnSave).toHaveBeenCalledTimes(1);
     expect(mockOnSave).toHaveBeenCalledWith({
       ...expectedEmptyState,
-      date: "",
+      date: new Date().toISOString().split("T")[0],
       flow: "Light",
       symptoms: ["Headache", "Cramps"],
     });
