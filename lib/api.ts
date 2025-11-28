@@ -6,7 +6,6 @@ import type {
   QuestionnairePayload,
   QuestionnaireResponse,
   RegisterPayload,
-  RegisterResponse,
   ResetPasswordPayload,
   UserPayload,
   UserResponse,
@@ -46,10 +45,7 @@ api.interceptors.response.use(
 // register new user by sending their credentials to the backend API
 // uses the base URL from .env + '/api/auth/register'
 export async function registerUser(payload: RegisterPayload) {
-  const { data } = await api.post<RegisterResponse>(
-    "/api/auth/register",
-    payload,
-  );
+  const { data } = await api.post<LoginResponse>("/api/auth/register", payload);
   return data;
 }
 
