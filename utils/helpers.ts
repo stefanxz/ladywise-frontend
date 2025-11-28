@@ -8,7 +8,10 @@ export const cn = (...xs: Array<string | false | undefined | null>) =>
 export const mapAnswersToPayload = (
   answers: DailyCycleAnswers,
 ): DailyLogRequest => {
-  const mappedFlow = answers.flow ? FLOW_MAP[answers.flow] || null : null;
+  const mappedFlow =
+    answers.flow && answers.flow !== ""
+      ? (FLOW_MAP[answers.flow] ?? null)
+      : null;
 
   const mappedSymptoms = answers.symptoms
     .filter((s) => s !== "None of the above")
