@@ -1,24 +1,14 @@
 import React, { useEffect, useState } from "react";
-import {
-  View,
-  Text,
-  ActivityIndicator,
-  ScrollView,
-  Dimensions,
-} from "react-native";
+import { View, Text, ActivityIndicator, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { LineChart } from "react-native-chart-kit";
 import { isAxiosError } from "axios";
 
+import { RiskLineChart } from "@/components/charts/RiskLineChart";
 import { useAuth } from "@/context/AuthContext";
 import { getRiskHistory } from "@/lib/api";
 import type { RiskHistoryPoint } from "@/lib/types/risks";
-import { Colors } from "@/constants/colors";
-
-const screenWidth = Dimensions.get("window").width - 32;
-
-type RiskNum = 0 | 1 | 2;
-type FlowNum = 0 | 1 | 2 | 3;
+import { Colors, riskColors, flowColors } from "@/constants/colors";
+import type { RiskNum, FlowNum } from "@/lib/types/diagnostics";
 
 const riskLabels: Record<RiskNum, string> = {
   0: "Low",
@@ -31,20 +21,6 @@ const flowLabels: Record<FlowNum, string> = {
   1: "Light",
   2: "Normal",
   3: "Heavy",
-};
-
-// colors for text (and later, maybe dots) per level
-const riskColors: Record<RiskNum, string> = {
-  0: "#16a34a", // green
-  1: "#eab308", // yellow
-  2: "#dc2626", // red
-};
-
-const flowColors: Record<FlowNum, string> = {
-  0: "#6B7280", // grey for "None"
-  1: "#22c55e", // light-ish green
-  2: Colors.brand, // normal = brand
-  3: "#dc2626", // heavy = red
 };
 
 //TODO: When backend is properly implemented for keeping track of risk history remove this and change the
@@ -193,19 +169,6 @@ export default function DiagnosticsScreen({
   const latestAnemia = latest.anemiaRisk as RiskNum;
   const latestFlow = latest.menstrualFlow as FlowNum;
 
-  const chartConfig = {
-    backgroundGradientFrom: "#ffffff",
-    backgroundGradientTo: "#ffffff",
-    color: (opacity = 1) => `rgba(164, 90, 107, ${opacity})`,
-    labelColor: () => "#374151",
-    propsForDots: {
-      r: "4",
-      strokeWidth: "2",
-      stroke: Colors.brand,
-      fill: Colors.brand,
-    },
-  };
-
   return (
     <SafeAreaView className="flex-1 bg-background">
       <ScrollView testID="diagnostics-scroll-view">
@@ -236,18 +199,10 @@ export default function DiagnosticsScreen({
               </Text>
             </View>
 
-            <LineChart
-              data={{
-                labels,
-                datasets: [{ data: thrombosisData }],
-              }}
-              width={screenWidth}
-              height={220}
-              chartConfig={chartConfig}
-              bezier
-              fromZero
-              withShadow={false}
-              segments={2} // 0,1,2 → Low,Medium,High
+            <RiskLineChart
+              labels={labels}
+              data={thrombosisData}
+              segments={2}
               formatYLabel={formatRiskTick}
             />
           </View>
@@ -273,17 +228,9 @@ export default function DiagnosticsScreen({
               </Text>
             </View>
 
-            <LineChart
-              data={{
-                labels,
-                datasets: [{ data: anemiaData }],
-              }}
-              width={screenWidth}
-              height={220}
-              chartConfig={chartConfig}
-              bezier
-              fromZero
-              withShadow={false}
+            <RiskLineChart
+              labels={labels}
+              data={anemiaData}
               segments={2}
               formatYLabel={formatRiskTick}
             />
@@ -310,18 +257,10 @@ export default function DiagnosticsScreen({
               </Text>
             </View>
 
-            <LineChart
-              data={{
-                labels,
-                datasets: [{ data: flowData }],
-              }}
-              width={screenWidth}
-              height={220}
-              chartConfig={chartConfig}
-              bezier
-              fromZero
-              withShadow={false}
-              segments={3} // 0..3 → None,Light,Normal,Heavy
+            <RiskLineChart
+              labels={labels}
+              data={flowData}
+              segments={3}
               formatYLabel={formatFlowTick}
             />
           </View>
