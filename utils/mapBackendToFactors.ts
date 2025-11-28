@@ -1,68 +1,75 @@
 import { FACTORS_REGISTRY } from "@/constants/factorsRegistry";
 import { FactorCardProps } from "@/components/Diagnostics/types";
 
-export type BackendRiskData = Record<
-  string,
-  boolean | string | null | undefined
->;
+// 1. The Translator: Backend String -> Frontend Registry ID
+const BACKEND_TO_FRONTEND_MAP: Record<string, string> = {
+  // Risk Factors (Backend sends UPPERCASE)
+  "ESTROGEN_PILL": "estrogen_pill",
+  "SURGERY_OR_INJURY": "surgery_injury",
+  "BLOOD_CLOT": "blood_clot",
+  "POSTPARTUM_UNDER_6_MONTHS": "postpartum", 
+
+  // Symptoms (Backend sends UPPERCASE)
+  "TIRED": "tired",
+  "CHEST_PAIN": "chest_pain",
+  "SHORTNESS_OF_BREATH": "shortness_breath",
+  "DIZZY": "dizziness", 
+  "SWELLING": "swelling",
+  "ONE_SIDED_LEG_PAIN": "unilateral_leg_pain", 
+
+  // specific strings found in SymptomService.java
+  "Family history of anemia": "family_history_anemia",
+  "Family history of thrombosis": "family_history_thrombosis"
+};
 
 /**
- * Transforms backend API response into UI-ready Factor objects.
- * Requirement: URF-12.5 (Structured list of relevant data)
- * * @param backendData - Object with keys (factor IDs) and values (boolean/string).
- * Example: { "estrogen_pill": true, "flow": "Heavy", "dizziness": false }
+ * Transforms a list of backend strings into UI-ready Factor Objects.
+ * [cite_start]Requirement: URF-12.5 [cite: 501]
+ * @param backendList - Array of strings (e.g. ["TIRED", "flow_heavy", "ESTROGEN_PILL"])
  */
-export function mapBackendToFactors(
-  backendData: BackendRiskData | null,
-): FactorCardProps[] {
+export function mapBackendListToFactors(backendList: string[] | null | undefined): FactorCardProps[] {
   const activeFactors: FactorCardProps[] = [];
 
-  if (!backendData) return [];
+  if (!backendList || !Array.isArray(backendList)) return [];
 
-  // 1. Iterate through the raw backend keys
-  Object.keys(backendData).forEach((key) => {
-    const backendValue = backendData[key];
+  backendList.forEach((rawItem) => {
+    // SCENARIO A: Flow Handling (Backend sends "flow_heavy", "flow_normal")
+    if (rawItem.startsWith("flow_")) {
+        let flowKey = rawItem.toLowerCase(); 
+        
+        // Fix: Map backend "normal" to frontend "moderate" if needed
+        if (flowKey === "flow_normal") flowKey = "flow_moderate";
+        if (flowKey === "flow_none") return; // Don't show card for no flow
 
-    // SKIP if the value is false, null, or undefined (Factor not present)
-    if (!backendValue) return;
+        const def = FACTORS_REGISTRY[flowKey];
+        if (def) {
+            activeFactors.push({
+                title: def.title,
+                value: def.defaultValue, 
+                description: def.description,
+                icon: def.icon,
+                variant: "flow"
+            });
+        }
+        return;
+    }
 
-    // SCENARIO A: Direct Match (e.g., estrogen_pill: true)
-    // The key in backend matches the key in our registry
-    if (FACTORS_REGISTRY[key]) {
-      const def = FACTORS_REGISTRY[key];
+    // SCENARIO B: Standard Mapping using the Translator
+    // 1. Try exact match in Map
+    // 2. If not in Map, try lowercase version (fallback)
+    const registryKey = BACKEND_TO_FRONTEND_MAP[rawItem] || rawItem.toLowerCase();
+    
+    const def = FACTORS_REGISTRY[registryKey];
+    if (def) {
       activeFactors.push({
         title: def.title,
-        // If backend sends a specific string (like "< 6 Months"), use it.
-        // Otherwise use the default (like "Present").
-        value:
-          typeof backendValue === "string" ? backendValue : def.defaultValue,
+        value: def.defaultValue,
         description: def.description,
         icon: def.icon,
         variant: "default",
       });
     }
   });
-
-  // SCENARIO B: Special "Flow" Handling (Cycle Questionnaire)
-  // Backend sends { flow: "Heavy" }, but registry key is "flow_heavy"
-  if (backendData.flow) {
-    const flowValue =
-      typeof backendData.flow === "string" ? backendData.flow : "";
-    // Construct the registry key: "flow_" + "heavy" -> "flow_heavy"
-    const registryKey = `flow_${flowValue.toLowerCase()}`;
-
-    const def = FACTORS_REGISTRY[registryKey];
-
-    if (def) {
-      activeFactors.push({
-        title: def.title,
-        value: flowValue, // "Heavy"
-        description: def.description,
-        icon: def.icon,
-        variant: "flow",
-      });
-    }
-  }
 
   return activeFactors;
 }

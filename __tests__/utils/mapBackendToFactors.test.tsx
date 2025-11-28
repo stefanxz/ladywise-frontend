@@ -1,71 +1,72 @@
-import { mapBackendToFactors } from "@/utils/mapBackendToFactors";
+import { mapBackendListToFactors } from "@/utils/mapBackendToFactors";
 
-// We rely on the real registry for this test to ensure data integrity
-describe("mapBackendToFactors", () => {
-  it("returns an empty array when input is null or empty", () => {
-    expect(mapBackendToFactors(null)).toEqual([]);
-    expect(mapBackendToFactors({})).toEqual([]);
+describe("mapBackendListToFactors", () => {
+  it("returns an empty array when input is null, undefined, or not an array", () => {
+    expect(mapBackendListToFactors(null)).toEqual([]);
+    expect(mapBackendListToFactors(undefined)).toEqual([]);
+    // @ts-ignore - testing invalid input safety
+    expect(mapBackendListToFactors({})).toEqual([]);
   });
 
-  it("maps a standard boolean factor (Estrogen Pill) correctly", () => {
-    const backendData = { estrogen_pill: true };
-    const result = mapBackendToFactors(backendData);
+  it("maps standard UPPERCASE backend enums (ESTROGEN_PILL) correctly", () => {
+    const backendList = ["ESTROGEN_PILL"];
+    const result = mapBackendListToFactors(backendList);
 
     expect(result).toHaveLength(1);
     expect(result[0]).toEqual(
       expect.objectContaining({
         title: "Estrogen Pill",
-        value: "Present", // Default value from registry
+        value: "Present", 
         variant: "default",
       }),
     );
   });
 
-  it("maps the special Flow logic (Heavy -> flow_heavy)", () => {
-    const backendData = { flow: "Heavy" };
-    const result = mapBackendToFactors(backendData);
+  it("maps special sentence strings (Family History) correctly", () => {
+    const backendList = ["Family history of anemia"];
+    const result = mapBackendListToFactors(backendList);
+
+    expect(result).toHaveLength(1);
+    expect(result[0]).toEqual(
+      expect.objectContaining({
+        title: "Family History",
+        value: "Anemia", 
+      }),
+    );
+  });
+
+  it("maps backend flow_normal to frontend flow_moderate", () => {
+    const backendList = ["flow_normal"];
+    const result = mapBackendListToFactors(backendList);
 
     expect(result).toHaveLength(1);
     expect(result[0]).toEqual(
       expect.objectContaining({
         title: "Flow Characteristics",
-        value: "Heavy", // Should use the string from backend
+        value: "Moderate", // Verified mapping
         variant: "flow",
       }),
     );
   });
 
-  it("handles multiple concurrent factors", () => {
-    const backendData = {
-      estrogen_pill: true,
-      dizziness: true,
-      flow: "Light",
-    };
-    const result = mapBackendToFactors(backendData);
+  it("handles a complex mixed list", () => {
+    const backendList = [
+      "TIRED",           // Should map to Fatigue
+      "flow_heavy",      // Should map to Heavy Flow
+      "BLOOD_CLOT",      // Should map to Blood Clot
+      "UNKNOWN_FACTOR"   // Should be ignored
+    ];
+    const result = mapBackendListToFactors(backendList);
 
     expect(result).toHaveLength(3);
-    // Verify specific items exist
+    
+    // Check for Fatigue (mapped from TIRED)
     expect(result).toEqual(
       expect.arrayContaining([
-        expect.objectContaining({ title: "Estrogen Pill" }),
-        expect.objectContaining({ title: "Dizziness" }),
-        expect.objectContaining({
-          title: "Flow Characteristics",
-          value: "Light",
-        }),
-      ]),
+        expect.objectContaining({ title: "Fatigue" }),
+        expect.objectContaining({ title: "Flow Characteristics", value: "Heavy" }),
+        expect.objectContaining({ title: "Blood Clot" }),
+      ])
     );
-  });
-
-  it("ignores false or undefined values", () => {
-    const backendData = {
-      estrogen_pill: true,
-      blood_clot: false, // Should be ignored
-      swelling: undefined, // Should be ignored
-    };
-    const result = mapBackendToFactors(backendData);
-
-    expect(result).toHaveLength(1);
-    expect(result[0].title).toBe("Estrogen Pill");
   });
 });
