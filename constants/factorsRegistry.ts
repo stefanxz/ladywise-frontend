@@ -10,6 +10,8 @@ import {
   Expand,
   RotateCw,
   Waves,
+  Dna,
+  Battery,
 } from "lucide-react-native";
 
 /**
@@ -22,6 +24,22 @@ export const FACTORS_REGISTRY: Record<string, FactorDefinition> = {
   // =================================================================
   // SECTION: MEDICAL RISK FACTORS
   // =================================================================
+
+  family_history_anemia: {
+    id: "family_history_anemia",
+    title: "Family History",
+    defaultValue: "Anemia",
+    description: "Genetic predisposition recorded",
+    icon: Dna, 
+  },
+
+  family_history_thrombosis: {
+    id: "family_history_thrombosis",
+    title: "Family History",
+    defaultValue: "Thrombosis",
+    description: "Genetic predisposition recorded",
+    icon: Dna,
+  },
 
   estrogen_pill: {
     id: "estrogen_pill",
@@ -97,6 +115,14 @@ export const FACTORS_REGISTRY: Record<string, FactorDefinition> = {
     defaultValue: "Present",
     description: "Reported episodes of dizziness",
     icon: RotateCw,
+  },
+
+  tired: {
+    id: "tired",
+    title: "Fatigue",
+    defaultValue: "Present",
+    description: "Unusual tiredness reported",
+    icon: Battery,
   },
 
   // =================================================================
