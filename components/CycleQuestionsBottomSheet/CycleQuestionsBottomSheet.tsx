@@ -6,7 +6,11 @@ import {
   BottomSheetBackdrop,
 } from "@gorhom/bottom-sheet";
 import type { BottomSheetBackdropProps } from "@gorhom/bottom-sheet";
-import { CycleQuestionsBottomSheetProps } from "@/components/CycleQuestionsBottomSheet/CycleQuestionsBottomSheet.types";
+import {
+  CycleQuestionsBottomSheetProps,
+  DailyCycleAnswers,
+  QuestionConfig,
+} from "@/components/CycleQuestionsBottomSheet/CycleQuestionsBottomSheet.types";
 import { CycleQuestion } from "@/components/CycleQuestionsBottomSheet/CycleQuestion";
 import questionsData from "@/data/cycle-questions.json";
 import { Droplet } from "lucide-react-native";
@@ -36,7 +40,14 @@ export function CycleQuestionsBottomSheet({
   bottomSheetRef,
   onSave,
 }: CycleQuestionsBottomSheetProps) {
-  const [answers, setAnswers] = useState<Record<number, string | string[]>>({});
+  const questions = questionsData as unknown as QuestionConfig[];
+
+  const [answers, setAnswers] = useState<DailyCycleAnswers>({
+    flow: null,
+    symptoms: [],
+    riskFactors: [],
+    date: "",
+  });
   const [saving, setSaving] = useState(false);
 
   const snapPoints = useMemo(() => ["80%"], []);
@@ -52,14 +63,25 @@ export function CycleQuestionsBottomSheet({
     [],
   );
 
-  const handleSelect = (id: number) => (value: string | string[]) => {
-    setAnswers((prev) => ({ ...prev, [id]: value }));
+  const handleSelect = (
+    key: keyof DailyCycleAnswers,
+    value: string | string[],
+  ) => {
+    setAnswers((prev) => ({
+      ...prev,
+      [key]: value,
+    }));
   };
 
   const handleSave = async () => {
     setSaving(true);
     try {
-      await onSave(answers); // saving is delegated to parent
+      const answersWithDate = {
+        ...answers,
+        date: new Date().toISOString().split("T")[0], // today
+      };
+
+      await onSave(answersWithDate); // saving is delegated to parent
       bottomSheetRef.current?.close();
     } catch (err) {
       console.error("save failed", err);
@@ -98,13 +120,13 @@ export function CycleQuestionsBottomSheet({
         </Text>
 
         {/* Questions */}
-        {questionsData.map((q) => (
+        {questions.map((q) => (
           <CycleQuestion
-            key={q.id}
+            key={q.key}
             question={q.question}
             options={q.options}
             multiSelect={q.multiSelect}
-            onSelect={(value) => handleSelect(q.id)(value)}
+            onSelect={(value) => handleSelect(q.key, value)}
           />
         ))}
       </BottomSheetScrollView>

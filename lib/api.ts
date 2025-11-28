@@ -12,9 +12,9 @@ import type {
   UserResponse,
 } from "./types";
 import { CycleStatusDTO } from "./types/cycle";
-import { RiskData, ApiRiskResponse } from "./types/risks";
-import { StoredAuthData } from "./auth";
 import { getAuthData } from "./auth";
+import { ApiRiskResponse } from "./types/risks";
+import { DailyLogRequest, DailyLogResponse } from "@/lib/types/period";
 
 export const api = axios.create({
   baseURL: process.env.EXPO_PUBLIC_API_URL,
@@ -72,6 +72,7 @@ export async function getRiskData(
   token: string,
   userId: string,
 ): Promise<ApiRiskResponse> {
+  // <-- Use the correct response type
   const config = {
     params: { userId },
     headers: { Authorization: `Bearer ${token}` },
@@ -86,6 +87,51 @@ export async function getRiskData(
 
 export async function getCycleStatus() {
   const { data } = await api.get<CycleStatusDTO>("/api/cycle/status");
+  return data;
+}
+
+/**
+ * Retrieves a daily cycle entry for a specific date.
+ *
+ * @param date {string} - The date to fetch the entry for, in YYYY-MM-DD format
+ * @returns A promise that resolves to the daily log data for the passed date
+ */
+export async function getDailyEntry(date: string): Promise<DailyLogResponse> {
+  const { data } = await api.get<DailyLogResponse>(
+    `/api/periods/entries/${date}`,
+  );
+  return data;
+}
+
+/**
+ * Updates an existing daily entry within a specified period.
+ *
+ * Use this when modifying an entry that already exists, and you know which period
+ * it belongs to.
+ *
+ * @param payload {DailyLogRequest} - The daily log data to update
+ * @param periodId {string} - Optional id of the period this entry belongs to
+ * @returns A promise that resolves to the updated entry data
+ */
+export async function updateDailyEntry(
+  payload: DailyLogRequest,
+  periodId?: string,
+) {
+  const { data } = await api.put(`/api/periods/${periodId}/entries`, payload);
+  return data;
+}
+
+/**
+ * Creates a new daily entry.
+ *
+ * Use this when logging cycle data for the first time on a given date. The
+ * backend automatically associates this entry with its appropriate period.
+ *
+ * @param payload {DailyLogRequest} - The daily log data to create
+ * @returns A promise that resolves to the newly created entry data.
+ */
+export async function createDailyEntry(payload: DailyLogRequest) {
+  const { data } = await api.post("/api/periods/entries", payload);
   return data;
 }
 
@@ -106,7 +152,6 @@ export async function submitQuestionnaire(payload: QuestionnairePayload) {
     throw new Error("User ID is missing.");
   }
 
-
   const { data } = await api.post<QuestionnaireResponse>(
     "/api/questionnaire",
     payload,
@@ -117,7 +162,9 @@ export async function submitQuestionnaire(payload: QuestionnairePayload) {
 /**
  * Marks the user's first questionnaire as completed.
  */
-export async function markFirstQuestionnaireComplete(): Promise<{ success: boolean }> {
+export async function markFirstQuestionnaireComplete(): Promise<{
+  success: boolean;
+}> {
   const authData = await getAuthData();
   if (!authData.userId) throw new Error("User not authenticated");
 
@@ -132,7 +179,9 @@ export async function markFirstQuestionnaireComplete(): Promise<{ success: boole
 /**
  * Checks if the user is allowed to access the Cycle Questionnaire.
  */
-export async function checkCycleQuestionnaireAccess(): Promise<{ allowed: boolean }> {
+export async function checkCycleQuestionnaireAccess(): Promise<{
+  allowed: boolean;
+}> {
   const authData = await getAuthData();
   if (!authData.userId) throw new Error("User not authenticated");
 
@@ -143,7 +192,7 @@ export async function checkCycleQuestionnaireAccess(): Promise<{ allowed: boolea
     return data;
   } catch (error) {
     console.warn("Error in checkCycleQuestionnaireAccess:", error);
-    
+
     if (axios.isAxiosError(error) && !error.response) {
       console.warn("Backend not reachable, returning mock allowed=true");
       return { allowed: true };
@@ -151,4 +200,3 @@ export async function checkCycleQuestionnaireAccess(): Promise<{ allowed: boolea
     throw error;
   }
 }
-

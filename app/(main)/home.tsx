@@ -10,7 +10,7 @@ import CalendarStrip, {
 import PhaseCard from "@/components/PhaseCard/PhaseCard";
 import { LinearGradient } from "expo-linear-gradient";
 import { useTheme } from "@/context/ThemeContext";
-import { getCycleStatus, getRiskData } from "@/lib/api";
+import { createDailyEntry, getCycleStatus, getRiskData } from "@/lib/api";
 import { CycleStatusDTO } from "@/lib/types/cycle";
 import { useFocusEffect } from "expo-router";
 import { useAuth } from "@/context/AuthContext";
@@ -18,6 +18,8 @@ import { formatPhaseName, generateCalendarDays } from "@/utils/mainPageHelpers";
 import { FloatingAddButton } from "@/components/FloatingAddButton/FloatingAddButton";
 import { BottomSheetModal } from "@gorhom/bottom-sheet";
 import { CycleQuestionsBottomSheet } from "@/components/CycleQuestionsBottomSheet/CycleQuestionsBottomSheet";
+import { DailyCycleAnswers } from "@/components/CycleQuestionsBottomSheet/CycleQuestionsBottomSheet.types";
+import { mapAnswersToPayload } from "@/utils/helpers";
 
 type RiskLevel = "Low" | "Medium" | "High";
 const mapApiToInsights = (apiData: ApiRiskResponse): RiskData[] => {
@@ -90,6 +92,7 @@ async function fetchRiskData(
     return []; // Return empty array on failure
   }
 }
+
 const Home = () => {
   const { token, userId, isLoading: isAuthLoading } = useAuth();
   const { theme, setPhase } = useTheme();
@@ -183,6 +186,21 @@ const Home = () => {
   const handleHelpPress = () => console.log("Help pressed");
   const handleDayPress = (dayId: string) => console.log("Pressed day: ", dayId);
   const handleCardPress = () => console.log("Phase Card Pressed");
+
+  /**
+   * Called when the user clicks 'Save answers' on the cycle questionnaire bottom sheet.
+   * First maps answers to the payload that the backend expects, then creates the new
+   * daily entry.
+   * @param answers {DailyCycleAnswers} - user's answers to the cycle questionnaire
+   */
+  const handleAddDailyEntry = async (answers: DailyCycleAnswers) => {
+    const payload = mapAnswersToPayload(answers);
+    try {
+      await createDailyEntry(payload);
+    } catch (error: any) {
+      setError(error.message ?? "Could not save daily answer entry.");
+    }
+  };
 
   if (loading) {
     return (
@@ -283,10 +301,7 @@ const Home = () => {
 
       <CycleQuestionsBottomSheet
         bottomSheetRef={bottomSheetModalRef}
-        onSave={async (answers) => {
-          console.log(answers);
-          await new Promise((res) => setTimeout(res, 1000)); // placeholder API call
-        }}
+        onSave={handleAddDailyEntry}
       />
     </>
   );
