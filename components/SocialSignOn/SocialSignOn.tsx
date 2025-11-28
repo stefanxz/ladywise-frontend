@@ -1,10 +1,7 @@
 import { DividerText } from "@/components/DividerText";
 import React from "react";
 import { Image, Pressable, View } from "react-native";
-import type {
-  Provider,
-  SocialSignOnProps,
-} from "@/components/SocialSignOn/SocialSignOn.types";
+import type { SocialSignOnProps } from "@/components/SocialSignOn/SocialSignOn.types";
 
 export function SocialSignOn({ onPress }: SocialSignOnProps) {
   return (

@@ -2,7 +2,6 @@ import React from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { type Theme } from "@/lib/themes";
-import { LinearGradient } from "expo-linear-gradient";
 
 type PhaseCardProps = {
   phaseName: string;

@@ -1,6 +1,6 @@
 import InsightsSection from "@/components/InsightsSection/InsightsSection";
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { ApiRiskResponse, RiskData } from "@/lib/types/risks";
+import { RiskData } from "@/lib/types/risks";
 import { ActivityIndicator, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Header from "@/components/MainPageHeader/Header";
@@ -10,7 +10,7 @@ import CalendarStrip, {
 import PhaseCard from "@/components/PhaseCard/PhaseCard";
 import { LinearGradient } from "expo-linear-gradient";
 import { useTheme } from "@/context/ThemeContext";
-import { getCycleStatus, getRiskData } from "@/lib/api";
+import { createDailyEntry, getCycleStatus, getRiskData } from "@/lib/api";
 import { CycleStatusDTO } from "@/lib/types/cycle";
 import { useFocusEffect } from "expo-router";
 import { useAuth } from "@/context/AuthContext";
@@ -18,60 +18,9 @@ import { formatPhaseName, generateCalendarDays } from "@/utils/mainPageHelpers";
 import { FloatingAddButton } from "@/components/FloatingAddButton/FloatingAddButton";
 import { BottomSheetModal } from "@gorhom/bottom-sheet";
 import { CycleQuestionsBottomSheet } from "@/components/CycleQuestionsBottomSheet/CycleQuestionsBottomSheet";
-
-type RiskLevel = "Low" | "Medium" | "High";
-const mapApiToInsights = (apiData: ApiRiskResponse): RiskData[] => {
-  // --- IMPORTANT ---
-
-  const levelMap: { [key: number]: RiskLevel } = {
-    0: "Low",
-    1: "Medium",
-    2: "High",
-  };
-
-  const titleMap: { [key: string]: string } = {
-    thrombosisRisk: "Thrombosis Risk",
-    anemiaRisk: "Anemia Risk",
-  };
-
-  const descriptionMap: { [key: string]: string } = {
-    thrombosisRisk: "Some factors may raise clotting risk.",
-    anemiaRisk: "Iron levels appear sufficient.",
-  };
-
-  // Convert object { key1: val1, key2: val2 } into array [ { ...risk1 }, { ...risk2 } ]
-  return Object.keys(apiData).map((key) => {
-    const typedKey = key as keyof ApiRiskResponse;
-    const apiLevel = apiData[typedKey];
-
-    return {
-      id: typedKey,
-      title: titleMap[typedKey] || "Unknown Risk",
-      level: levelMap[apiLevel] || "Low",
-      description: descriptionMap[typedKey] || "No description.",
-    };
-  });
-};
-
-const MOCK_INSIGHTS: RiskData[] = [
-  {
-    id: "1",
-    title: "Thrombosis Risk",
-    level: "Medium",
-    description: "Some factors may raise clotting risk.",
-  },
-  {
-    id: "2",
-    title: "Anemia Risk",
-    level: "Low",
-    description: "Iron levels appear sufficient.",
-  },
-];
-
-const MOCK_USER = {
-  name: "Mirela Marcu",
-  avatarUrl: "",
-};
+import { DailyCycleAnswers } from "@/components/CycleQuestionsBottomSheet/CycleQuestionsBottomSheet.types";
+import { mapAnswersToPayload, mapApiToInsights } from "@/utils/helpers";
+import { MOCK_USER, MOCK_INSIGHTS } from "@/constants/mock-data";
 
 async function fetchRiskData(
   token: string,
@@ -90,6 +39,7 @@ async function fetchRiskData(
     return []; // Return empty array on failure
   }
 }
+
 const Home = () => {
   const { token, userId, isLoading: isAuthLoading } = useAuth();
   const { theme, setPhase } = useTheme();
@@ -183,6 +133,21 @@ const Home = () => {
   const handleHelpPress = () => console.log("Help pressed");
   const handleDayPress = (dayId: string) => console.log("Pressed day: ", dayId);
   const handleCardPress = () => console.log("Phase Card Pressed");
+
+  /**
+   * Called when the user clicks 'Save answers' on the cycle questionnaire bottom sheet.
+   * First maps answers to the payload that the backend expects, then creates the new
+   * daily entry.
+   * @param answers {DailyCycleAnswers} - user's answers to the cycle questionnaire
+   */
+  const handleAddDailyEntry = async (answers: DailyCycleAnswers) => {
+    const payload = mapAnswersToPayload(answers);
+    try {
+      await createDailyEntry(payload);
+    } catch (error: any) {
+      setError(error.message ?? "Could not save daily answer entry.");
+    }
+  };
 
   if (loading) {
     return (
@@ -283,10 +248,7 @@ const Home = () => {
 
       <CycleQuestionsBottomSheet
         bottomSheetRef={bottomSheetModalRef}
-        onSave={async (answers) => {
-          console.log(answers);
-          await new Promise((res) => setTimeout(res, 1000)); // placeholder API call
-        }}
+        onSave={handleAddDailyEntry}
       />
     </>
   );

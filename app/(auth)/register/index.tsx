@@ -80,16 +80,13 @@ export default function RegisterIndex() {
 
     setRegistering(true);
     try {
-      await registerUser({
+      const loginResponse = await registerUser({
         email: email.trim(),
         password: password.trim(),
         consentGiven: termsConditions,
         consentVersion: termsData.version,
       });
-      const loginResponse = await loginUser({
-        email: email.trim(),
-        password: password.trim(),
-      });
+
       await signIn(
         loginResponse.token,
         loginResponse.userId,

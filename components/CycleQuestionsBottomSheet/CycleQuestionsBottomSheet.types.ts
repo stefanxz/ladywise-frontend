@@ -3,7 +3,7 @@ import { BottomSheetModal } from "@gorhom/bottom-sheet";
 
 export type CycleQuestionsBottomSheetProps = {
   bottomSheetRef: React.RefObject<BottomSheetModal | null>;
-  onSave: (answers: Record<number, string | string[]>) => Promise<void>;
+  onSave: (answers: DailyCycleAnswers) => Promise<void>;
 };
 
 export type CycleQuestionProps = {
@@ -18,4 +18,18 @@ export type CycleQuestionOptionPillProps = {
   label: string;
   selected: boolean;
   onPress: () => void;
+};
+
+export type QuestionConfig = {
+  key: keyof DailyCycleAnswers;
+  question: string;
+  options: string[];
+  multiSelect?: boolean;
+};
+
+export type DailyCycleAnswers = {
+  flow: string | null;
+  symptoms: string[];
+  riskFactors: string[];
+  date: string; // date of the cycle questionnaire being updated, NOT the day on which the user updates it
 };

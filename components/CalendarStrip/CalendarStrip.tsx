@@ -1,6 +1,5 @@
-import { View, Text, TouchableOpacity, FlatList } from "react-native";
+import { View, FlatList } from "react-native";
 import React from "react";
-import { themes } from "@/lib/themes";
 import { DayItem } from "./DayItem";
 
 export type DayData = {

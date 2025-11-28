@@ -60,7 +60,7 @@ export default function RegisterQuestIntro() {
   );
 
   const handleContinue = () => {
-    router.push("/onboarding/questionnaire");
+    router.push("/onboarding/questionnaire-personal-details");
   };
 
   return (

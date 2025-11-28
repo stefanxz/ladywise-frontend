@@ -9,7 +9,6 @@ import React, {
 import {
   BottomSheetModal,
   BottomSheetBackdrop,
-  BottomSheetView,
   BottomSheetScrollView,
 } from "@gorhom/bottom-sheet";
 

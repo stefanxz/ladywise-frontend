@@ -4,7 +4,6 @@ export type RegisterPayload = {
   consentGiven: boolean;
   consentVersion: string;
 };
-export type RegisterResponse = { id: string; email: string };
 export type LoginPayload = { email: string; password: string };
 export type LoginResponse = {
   token: string;
@@ -33,3 +32,29 @@ export interface ResetPasswordPayload {
   token: string;
   newPassword: string;
 }
+
+export type QuestionnairePayload = {
+  userId: string;
+  health: {
+    personalDetails: {
+      age: number;
+      weight: number;
+      height: number;
+    };
+    familyHistory: {
+      familyHistoryAnemia?: boolean;
+      familyHistoryThrombosis?: boolean;
+      anemiaConditions?: string[];
+      thrombosisConditions?: string[];
+    };
+    estrogenPill?: boolean;
+    biosensorCup?: boolean;
+  };
+  history?: [];
+};
+
+export type QuestionnaireResponse = {
+  id: string;
+  userId: string;
+  createdAt?: string;
+};

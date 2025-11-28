@@ -3,28 +3,24 @@ import { ThemedTextInput } from "@/components/ThemedTextInput/ThemedTextInput";
 import { UnitInputField } from "@/components/UnitInputField/UnitInputField";
 import { useRouter } from "expo-router";
 import { useState } from "react";
-import { Platform, Pressable, Text, View } from "react-native";
+import { Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useQuestionnaire } from "./QuestionnaireContext";
 
 // Assets
 import { ProgressBar } from "@/components/ProgressBar/ProgressBar";
 
 export default function Questionnaire() {
   const router = useRouter();
-  const [age, setAge] = useState("");
-  const [weight, setWeight] = useState("");
-  const [height, setHeight] = useState("");
+  const { answers, updateAnswers } = useQuestionnaire();
+  const [age, setAge] = useState(answers.personal.age);
+  const [weight, setWeight] = useState(answers.personal.weight);
+  const [height, setHeight] = useState(answers.personal.height);
 
   // error messages
   const [ageError, setAgeError] = useState<string | null>(null);
   const [weightError, setWeightError] = useState<string | null>(null);
   const [heightError, setHeightError] = useState<string | null>(null);
-
-  // Navigate to the main page
-  // Main page does not exist yet so naviagtion is to langing page
-  const handleSkip = () => {
-    router.push("/landing");
-  };
 
   // navigation to the next screen of first time questionnaire
   // Only go to the next page of the questionair when all fiels are inputed correctly
@@ -67,7 +63,7 @@ export default function Questionnaire() {
     } else if (!isNaN(weightNum)) {
       // Lightest woman ~5 kg
       // Heaviest woman ~ 540 kg
-      if (weightNum < 5 || 540 < weightNum) {
+      if (weightNum < 5 || weightNum > 540) {
         setWeightError("Weight is out of range.");
         hasError = true;
       }
@@ -91,7 +87,9 @@ export default function Questionnaire() {
     }
 
     if (hasError) return;
-    router.push("/onboarding/questionnaire");
+
+    updateAnswers({ personal: { age, weight, height } });
+    router.push("./questionnaire-family-history");
   };
 
   return (
@@ -99,23 +97,12 @@ export default function Questionnaire() {
       <View className="w-full max-w-md mt-2 px-10 pt-[71px]">
         <View className="flex-row items-center">
           <View className="flex-1">
-            <ProgressBar currentStep={1} totalSteps={5} />
+            <ProgressBar currentStep={1} totalSteps={5} edgeOffset={0.08} />
           </View>
-          <View className="w-1/6">
-            <Pressable onPress={handleSkip}>
-              <Text
-                className="text-inter-regular text-right text-lightGrey"
-                style={{
-                  // Fix for Android text truncation bug
-                  paddingRight: Platform.OS === "android" ? 3 : 0,
-                }}
-              >
-                Skip
-              </Text>
-            </Pressable>
-          </View>
+          <View className="w-1/6" />
         </View>
       </View>
+
       <View className="w-full max-w-md items-start mt-2 gap-y-3 px-10 pt-[71px]">
         <Text className="text-3xl font-inter-semibold text-brand text-left">
           {"Let's start with a few basics 💫"}
@@ -126,6 +113,7 @@ export default function Questionnaire() {
             "Tell us a bit about yourself so we can tailor your health insights."
           }
         </Text>
+
         <View className="w-full mt-12">
           <View>
             <Text className="pr-8 text-inter-regular text-regularText text-left leading-relaxed">
@@ -146,6 +134,7 @@ export default function Questionnaire() {
               <Text className="text-red-600 text-xs mt-1">{ageError}</Text>
             ) : null}
           </View>
+
           <View className="w-full mt-8">
             <Text className="pr-8 text-inter-regular text-regularText text-left leading-relaxed">
               Weight
@@ -164,6 +153,7 @@ export default function Questionnaire() {
               <Text className="text-red-600 text-xs mt-1">{weightError}</Text>
             ) : null}
           </View>
+
           <View className="w-full mt-8">
             <Text className="pr-8 text-inter-regular text-regularText text-left leading-relaxed">
               Height
@@ -182,6 +172,7 @@ export default function Questionnaire() {
               <Text className="text-red-600 text-xs mt-1">{heightError}</Text>
             ) : null}
           </View>
+
           <View className="w-full mt-8">
             <ThemedPressable
               label="Continue"
@@ -193,7 +184,4 @@ export default function Questionnaire() {
       </View>
     </SafeAreaView>
   );
-}
-function isDecimal(weightNum: number) {
-  throw new Error("Function not implemented.");
 }
