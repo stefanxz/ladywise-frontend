@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import {
   KeyboardAvoidingView,
   Platform,
@@ -7,20 +7,12 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { useLocalSearchParams } from "expo-router";
 
 import { AppBar } from "@/components/AppBarBackButton/AppBarBackButton";
-import { ThemedPressable } from "@/components/ThemedPressable/ThemedPressable";
-import { ThemedTextInput } from "@/components/ThemedTextInput/ThemedTextInput";
 
 export default function PasswordRecoveryCodeScreen() {
-  const router = useRouter();
   const params = useLocalSearchParams<{ email?: string }>();
-
-  const [code, setCode] = useState("");
-  const [codeError, setCodeError] = useState<string | null>(null);
-  const [formError, setFormError] = useState<string | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   return (
     <KeyboardAvoidingView
