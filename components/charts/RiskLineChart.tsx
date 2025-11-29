@@ -3,7 +3,7 @@ import { Dimensions } from "react-native";
 import { LineChart } from "react-native-chart-kit";
 import { Colors } from "@/constants/colors";
 
-const screenWidth = Dimensions.get("window").width - 80;
+const screenWidth = Dimensions.get("window").width - 90;
 
 type RiskLineChartProps = {
   data: number[];

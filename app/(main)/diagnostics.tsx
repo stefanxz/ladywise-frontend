@@ -89,8 +89,11 @@ export default function DiagnosticsScreen({
         if (data && data.length > 0) {
           setHistory(data);
         } else {
-          // If API returns no data, fallback to mock data for development
+          // If API returns no data, fallback to mock data as requested
           setHistory(mockHistory);
+          setError(
+            "No history data was found. Showing sample data for demonstration.",
+          );
         }
       } catch (err: unknown) {
         console.error("Failed to load risk history", err);
@@ -103,11 +106,16 @@ export default function DiagnosticsScreen({
           if (status === 401) {
             setError("Your session has expired. Please log in again.");
           } else {
-            // Don't show a "not found" error, just use mock data for now.
-            setError(null);
+            setError(
+              `We couldn't load your data. Showing sample data. Error: ${err.message}`,
+            );
           }
+        } else if (err instanceof Error) {
+          setError(
+            `An unexpected error occurred: ${err.message}. Showing sample data.`,
+          );
         } else {
-          setError(null); // Or a generic error message
+          setError("An unexpected error occurred. Showing sample data.");
         }
       } finally {
         setLoading(false);
@@ -130,12 +138,16 @@ export default function DiagnosticsScreen({
   if (loading) {
     return (
       <View className="flex-1 justify-center items-center bg-background">
-        <ActivityIndicator size="large" color={Colors.brand} />
+        <ActivityIndicator
+          size="large"
+          color={Colors.brand}
+          testID="loading-indicator"
+        />
       </View>
     );
   }
 
-  if (error) {
+  if (error && error.includes("session has expired")) {
     return (
       <View className="flex-1 justify-center items-center bg-background px-6">
         <Text className="text-lg text-regularText text-center">{error}</Text>
@@ -176,6 +188,10 @@ export default function DiagnosticsScreen({
           <Text className="text-3xl font-bold text-headingText mb-6">
             Diagnostics
           </Text>
+
+          {error && (
+            <Text className="text-center text-red-500 mb-4">{error}</Text>
+          )}
 
           {/* --- Thrombosis Card --- */}
           <View className="bg-white rounded-2xl shadow-sm p-4 mb-6">
