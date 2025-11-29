@@ -8,6 +8,7 @@ import { useAuth } from "@/context/AuthContext";
 import { getRiskHistory } from "@/lib/api";
 import type { RiskHistoryPoint } from "@/lib/types/risks";
 import { Colors, riskColors, flowColors } from "@/constants/colors";
+import { mockHistory } from "@/constants/mock-data";
 import type { RiskNum, FlowNum } from "@/lib/types/diagnostics";
 
 const riskLabels: Record<RiskNum, string> = {
@@ -22,41 +23,6 @@ const flowLabels: Record<FlowNum, string> = {
   2: "Normal",
   3: "Heavy",
 };
-
-//TODO: When backend is properly implemented for keeping track of risk history remove this and change the
-//useEffect so that it doesnt fall back on the mock data.
-const mockHistory: RiskHistoryPoint[] = [
-  {
-    recordedAt: "2025-10-28T10:00:00Z",
-    anemiaRisk: 1,
-    thrombosisRisk: 0,
-    menstrualFlow: 2,
-  },
-  {
-    recordedAt: "2025-10-29T10:00:00Z",
-    anemiaRisk: 1,
-    thrombosisRisk: 1,
-    menstrualFlow: 3,
-  },
-  {
-    recordedAt: "2025-10-30T10:00:00Z",
-    anemiaRisk: 2,
-    thrombosisRisk: 1,
-    menstrualFlow: 2,
-  },
-  {
-    recordedAt: "2025-10-31T10:00:00Z",
-    anemiaRisk: 1,
-    thrombosisRisk: 2,
-    menstrualFlow: 1,
-  },
-  {
-    recordedAt: "2025-11-01T10:00:00Z",
-    anemiaRisk: 0,
-    thrombosisRisk: 1,
-    menstrualFlow: 0,
-  },
-];
 
 type DiagnosticsScreenProps = {
   history?: RiskHistoryPoint[];
