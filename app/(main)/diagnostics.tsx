@@ -182,7 +182,7 @@ export default function DiagnosticsScreen({
   const latestFlow = latest.menstrualFlow as FlowNum;
 
   return (
-    <SafeAreaView className="flex-1 bg-background">
+    <SafeAreaView className="flex-1 bg-background" edges={["top"]}>
       <ScrollView testID="diagnostics-scroll-view">
         <View className="px-4 pt-10">
           <Text className="text-3xl font-bold text-headingText mb-6">
