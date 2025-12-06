@@ -134,7 +134,6 @@ export default function AccountSettings() {
         </View>
       </View>
 
-      {/* --- Delete Account Section --- */}
       <View className="bg-white rounded-2xl shadow-sm px-4 py-6 mb-6">
         <Text className="text-lg font-bold text-red-600 mb-2">
           Delete Account
