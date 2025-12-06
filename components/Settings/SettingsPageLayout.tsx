@@ -1,31 +1,10 @@
 import { ScrollView, View, Text, TouchableOpacity } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import React from "react";
 import { Feather } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { SettingsPageLayoutProps } from "@/components/Settings/SettingsPageLayout.types";
 import { Colors } from "@/constants/colors";
 
-/**
- * Reusable layout component for settings page that provides a consistent design
- * with a back button, title card, and content area.
- *
- * @example
- * ```tsx
- *<SettingsPageLayout
- *    title="Profile"
- *    description="Manage your personal information and preferences."
- * >
- *    <View className="bg-white rounded-2xl shadow-sm px-4">
- *      <Text>Settings go here</Text>
- *    </View>
- * </SettingsPageLayout>
- * ```
- *
- * @param title - The title displayed in the header card
- * @param description - A brief description shown below the title
- * @param children - The settings content to display below the title header
- */
 export function SettingsPageLayout({
   title,
   description,
@@ -34,19 +13,17 @@ export function SettingsPageLayout({
   const router = useRouter();
 
   return (
-    <SafeAreaView
-      className="flex-1 bg-background"
-      edges={["top", "bottom"]}
-      testID="settings-page-layout"
-    >
-      {/* Back to settings page navigation - outside ScrollView */}
-      <View className="px-4 pt-10 pb-6">
+    <View className="flex-1 bg-background" testID="settings-page-layout">
+      <View
+        className="absolute top-10 left-0 w-full z-10 px-4 pt-10 pb-6"
+        pointerEvents="box-none"
+      >
         <View
-          className="w-10 h-10 rounded-full bg-gray-100 justify-center items-center"
+          className="w-10 h-10 rounded-full bg-gray-100 justify-center items-center shadow-sm"
           testID="back-button-container"
         >
           <TouchableOpacity
-            onPress={() => router.push("/settings")}
+            onPress={() => router.back()}
             className="flex-row items-center"
             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
             testID="back-button"
@@ -68,6 +45,10 @@ export function SettingsPageLayout({
         className="flex-1 px-4 w-full"
         testID="settings-page-scroll-view"
       >
+        <View className="pt-10 pb-6" aria-hidden={true}>
+          <View className="h-20" />
+        </View>
+
         {/* Title and Description Card */}
         <View
           className="bg-white rounded-2xl shadow-sm px-4 mb-6"
@@ -95,6 +76,6 @@ export function SettingsPageLayout({
           {children}
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
