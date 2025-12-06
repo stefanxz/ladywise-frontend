@@ -2,11 +2,11 @@ import { Text } from "react-native";
 import React from "react";
 import { SettingsPageLayout } from "@/components/Settings/SettingsPageLayout";
 
-export default function ProfileSettings() {
+export default function AccountSettings() {
   return (
     <SettingsPageLayout
-      title="Profile"
-      description="Manage your personal information."
+      title="Account"
+      description="Manage your account settings."
     >
       {/* Settings Options Card */}
       <Text>Placeholder</Text>

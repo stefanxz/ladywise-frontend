@@ -28,7 +28,9 @@ export const otherSettings: SettingItem[] = [
   {
     name: "Privacy Policy",
     icon: "book-open",
-    route: "/settings/privacy" as Href,
+    onPress: () => {
+      console.log("Privacy Policy");
+    },
   },
   { name: "Rate Us", icon: "star", onPress: () => console.log("Rate us") },
 ];

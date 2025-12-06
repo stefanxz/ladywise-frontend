@@ -3,7 +3,6 @@ import { ScrollView, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ThemedPressable } from "@/components/ThemedPressable/ThemedPressable";
 import React from "react";
-import { useRouter } from "expo-router";
 import { accountSettings, otherSettings } from "@/constants/settings";
 import { SettingItem } from "@/components/Settings/SettingItem";
 
