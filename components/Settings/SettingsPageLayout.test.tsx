@@ -26,6 +26,7 @@ jest.mock("react-native-safe-area-context", () => {
 
 describe("SettingsPageLayout", () => {
   const mockPush = jest.fn();
+  const mockBack = jest.fn();
   const defaultProps = {
     title: "Test Settings",
     description: "This is a test description for the settings page.",
@@ -35,6 +36,7 @@ describe("SettingsPageLayout", () => {
     jest.clearAllMocks();
     (useRouter as jest.Mock).mockReturnValue({
       push: mockPush,
+      back: mockBack,
     });
   });
 
@@ -137,8 +139,7 @@ describe("SettingsPageLayout", () => {
       const backButton = getByTestId("back-button");
       fireEvent.press(backButton);
 
-      expect(mockPush).toHaveBeenCalledTimes(1);
-      expect(mockPush).toHaveBeenCalledWith("/settings");
+      expect(mockBack).toHaveBeenCalledTimes(1);
     });
 
     it("should only call navigation once on multiple rapid presses", () => {
@@ -155,7 +156,7 @@ describe("SettingsPageLayout", () => {
 
       // Note: In real implementation, you might want to debounce this
       // For now, we're just testing that each press calls the function
-      expect(mockPush).toHaveBeenCalledTimes(3);
+      expect(mockBack).toHaveBeenCalledTimes(3);
     });
   });
 
