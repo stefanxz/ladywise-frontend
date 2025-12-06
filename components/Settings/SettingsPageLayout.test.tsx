@@ -42,7 +42,7 @@ describe("SettingsPageLayout", () => {
 
   describe("Rendering", () => {
     it("should render correctly with all props", () => {
-      const { getByTestId, getByText } = render(
+      const { getByTestId } = render(
         <SettingsPageLayout {...defaultProps}>
           <Text testID="test-child">Test Content</Text>
         </SettingsPageLayout>,
