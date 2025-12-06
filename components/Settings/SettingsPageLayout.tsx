@@ -39,27 +39,29 @@ export function SettingsPageLayout({
       edges={["top", "bottom"]}
       testID="settings-page-layout"
     >
-      {/* Back to settings page navigation */}
-      <View
-        className="w-10 h-10 rounded-full bg-gray-100 justify-center items-center ml-4 mt-10 mb-6"
-        testID="back-button-container"
-      >
-        <TouchableOpacity
-          onPress={() => router.push("/settings")}
-          className="flex-row items-center"
-          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-          testID="back-button"
-          accessibilityLabel="Back to Settings"
-          accessibilityRole="button"
-          accessibilityHint="Navigate back to the main settings page"
+      {/* Back to settings page navigation - outside ScrollView */}
+      <View className="px-4 pt-10 pb-6">
+        <View
+          className="w-10 h-10 rounded-full bg-gray-100 justify-center items-center"
+          testID="back-button-container"
         >
-          <Feather
-            name="chevron-left"
-            size={28}
-            color={Colors.textHeading}
-            testID="back-button-icon"
-          />
-        </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => router.push("/settings")}
+            className="flex-row items-center"
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+            testID="back-button"
+            accessibilityLabel="Back to Settings"
+            accessibilityRole="button"
+            accessibilityHint="Navigate back to the main settings page"
+          >
+            <Feather
+              name="chevron-left"
+              size={28}
+              color={Colors.textHeading}
+              testID="back-button-icon"
+            />
+          </TouchableOpacity>
+        </View>
       </View>
 
       <ScrollView
