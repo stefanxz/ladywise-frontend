@@ -160,8 +160,8 @@ export default function AccountSettings() {
               Are you absolutely sure?
             </Text>
             <Text className="text-red-600 text-sm mb-4">
-              You are about to delete your account. This is irrelevant to your
-              current subscription status.
+              You are about to delete your account. This action cannot be
+              reversed.
             </Text>
 
             <View className="gap-y-3">
