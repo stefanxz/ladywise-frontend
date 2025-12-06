@@ -3,7 +3,7 @@ import { View, Text } from "react-native";
 import { SettingsPageLayout } from "@/components/Settings/SettingsPageLayout";
 import { PasswordField } from "@/components/PasswordField/PasswordField";
 import { ThemedPressable } from "@/components/ThemedPressable/ThemedPressable";
-import { isPasswordValid } from "@/utils/validations"; // Assuming this exists based on your example
+import { isPasswordValid } from "@/utils/validations";
 import { useAuth } from "@/context/AuthContext";
 
 export default function AccountSettings() {
