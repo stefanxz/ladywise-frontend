@@ -149,8 +149,6 @@ export default function AccountSettings() {
             label="Delete Account"
             onPress={() => setShowDeleteConfirm(true)}
             testID="initiate-delete-btn"
-            // Start with a simpler/outline style or just standard branding,
-            // usually distinct from primary actions
             className="bg-gray-200"
             textClassName="text-headingText"
           />
