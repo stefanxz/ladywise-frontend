@@ -21,7 +21,7 @@ import { Colors } from "@/constants/colors";
  * ```
  *
  * @param title - The heading text displayed at the top of the settings page
- * @param description - Descriptive text shown below the titl
+ * @param description - Descriptive text shown below the title
  * @param children - The main content of the settings page
  *
  */
