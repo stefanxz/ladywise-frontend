@@ -10,6 +10,9 @@ export default function SettingsLayout() {
     >
       <Stack.Screen name="index" />
       <Stack.Screen name="profile" />
+      <Stack.Screen name="account" />
+      <Stack.Screen name="notifications" />
+      <Stack.Screen name="questions" />
     </Stack>
   );
 }
