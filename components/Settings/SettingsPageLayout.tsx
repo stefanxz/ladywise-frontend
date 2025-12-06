@@ -5,6 +5,26 @@ import { useRouter } from "expo-router";
 import { SettingsPageLayoutProps } from "@/components/Settings/SettingsPageLayout.types";
 import { Colors } from "@/constants/colors";
 
+/**
+ * Reusable Layout component for settings pages. This layout provides a
+ * consistent structure with a back button, title, description, and
+ * content area.
+ *
+ * @example
+ * ```tsx
+ * <SettingsPageLayout
+ *    title="Notifications"
+ *    description="Manage your notification preferences and alert settings"
+ * >
+ *    <NotificationSettings />
+ * </SettingsPageLayout>
+ * ```
+ *
+ * @param title - The heading text displayed at the top of the settings page
+ * @param description - Descriptive text shown below the titl
+ * @param children - The main content of the settings page
+ *
+ */
 export function SettingsPageLayout({
   title,
   description,
