@@ -1,5 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, ActivityIndicator, ScrollView } from "react-native";
+import {
+  View,
+  Text,
+  ActivityIndicator,
+  ScrollView,
+  TouchableOpacity,
+} from "react-native";
+import { useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { isAxiosError } from "axios";
 
@@ -31,6 +38,7 @@ type DiagnosticsScreenProps = {
 export default function DiagnosticsScreen({
   history: historyProp,
 }: DiagnosticsScreenProps) {
+  const router = useRouter();
   const { token, userId } = useAuth();
 
   const [history, setHistory] = useState<RiskHistoryPoint[]>(historyProp ?? []);
@@ -160,7 +168,23 @@ export default function DiagnosticsScreen({
           )}
 
           {/* --- Thrombosis Card --- */}
-          <View className="bg-white rounded-2xl shadow-sm p-4 mb-6">
+          <TouchableOpacity
+            onPress={() =>
+              router.push({
+                pathname: "/(main)/extended-diagnostics",
+                params: {
+                  conditionId: "thrombosis",
+                  title: "Thrombosis Risk",
+                  graphData: JSON.stringify({
+                    labels,
+                    data: thrombosisData,
+                  }),
+                  currentRisk: riskLabels[latestThrombosis],
+                },
+              })
+            }
+            className="bg-white rounded-2xl shadow-sm p-4 mb-6"
+          >
             <Text className="text-lg font-semibold text-headingText mb-3">
               Thrombosis Risk
             </Text>
@@ -186,11 +210,28 @@ export default function DiagnosticsScreen({
               data={thrombosisData}
               segments={2}
               formatYLabel={formatRiskTick}
+              isInteractive
             />
-          </View>
+          </TouchableOpacity>
 
           {/* --- Anemia Card --- */}
-          <View className="bg-white rounded-2xl shadow-sm p-4 mb-6">
+          <TouchableOpacity
+            onPress={() =>
+              router.push({
+                pathname: "/(main)/extended-diagnostics",
+                params: {
+                  conditionId: "anemia",
+                  title: "Anemia Risk",
+                  graphData: JSON.stringify({
+                    labels,
+                    data: anemiaData,
+                  }),
+                  currentRisk: riskLabels[latestAnemia],
+                },
+              })
+            }
+            className="bg-white rounded-2xl shadow-sm p-4 mb-6"
+          >
             <Text className="text-lg font-semibold text-headingText mb-3">
               Anemia Risk
             </Text>
@@ -215,8 +256,9 @@ export default function DiagnosticsScreen({
               data={anemiaData}
               segments={2}
               formatYLabel={formatRiskTick}
+              isInteractive
             />
-          </View>
+          </TouchableOpacity>
 
           {/* --- Flow Card --- */}
           <View className="bg-white rounded-2xl shadow-sm p-4 mb-10">

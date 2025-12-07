@@ -1,15 +1,19 @@
 import React from "react";
-import { Dimensions } from "react-native";
+import { Dimensions, View, ViewStyle } from "react-native";
 import { LineChart } from "react-native-chart-kit";
 import { Colors } from "@/constants/colors";
 
-const screenWidth = Dimensions.get("window").width - 80;
+const screenWidth = Dimensions.get("window").width;
 
 type RiskLineChartProps = {
   data: number[];
   labels: string[];
   segments: number;
   formatYLabel: (value: string) => string;
+  width?: number;
+  height?: number;
+  isInteractive?: boolean;
+  verticalLabelRotation?: number;
 };
 
 const chartConfig = {
@@ -30,21 +34,33 @@ export function RiskLineChart({
   labels,
   segments,
   formatYLabel,
+  width = screenWidth - 80,
+  height = 220,
+  isInteractive = false,
+  verticalLabelRotation,
 }: RiskLineChartProps) {
+  const containerStyle: ViewStyle = {
+    borderRadius: 16,
+    padding: isInteractive ? 2 : 0,
+  };
+
   return (
-    <LineChart
-      data={{
-        labels,
-        datasets: [{ data }],
-      }}
-      width={screenWidth}
-      height={220}
-      chartConfig={chartConfig}
-      bezier
-      fromZero
-      withShadow={false}
-      segments={segments}
-      formatYLabel={formatYLabel}
-    />
+    <View style={containerStyle}>
+      <LineChart
+        data={{
+          labels,
+          datasets: [{ data }],
+        }}
+        width={width}
+        height={height}
+        chartConfig={chartConfig}
+        bezier
+        fromZero
+        withShadow={false}
+        segments={segments}
+        formatYLabel={formatYLabel}
+        verticalLabelRotation={verticalLabelRotation}
+      />
+    </View>
   );
 }
