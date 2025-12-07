@@ -9,7 +9,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  Keyboard
+  Keyboard,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useQuestionnaire } from "./QuestionnaireContext";
@@ -140,7 +140,7 @@ export default function Questionnaire() {
           contentContainerStyle={{
             flexGrow: 1,
             paddingBottom: bottomPadding,
-            alignItems: "center"
+            alignItems: "center",
           }}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
