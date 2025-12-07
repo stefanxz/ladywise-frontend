@@ -5,6 +5,8 @@ import { PasswordField } from "@/components/PasswordField/PasswordField";
 import { ThemedPressable } from "@/components/ThemedPressable/ThemedPressable";
 import { isPasswordValid } from "@/utils/validations";
 import { useAuth } from "@/context/AuthContext";
+import { changePassword } from "@/lib/api";
+import axios from "axios";
 
 export default function AccountSettings() {
   const { signOut } = useAuth();
@@ -30,15 +32,17 @@ export default function AccountSettings() {
     setPasswordSuccessMsg(null);
   };
 
-  const handleUpdatePassword = () => {
+  const handleUpdatePassword = async () => {
     clearErrors();
     let hasError = false;
 
+    // Validate current password is provided
     if (!currentPassword) {
       setCurrentPwError("Please enter your current password.");
       hasError = true;
     }
 
+    // Validate new password meets requirements
     if (!isPasswordValid(newPassword)) {
       setNewPwError(
         "Password must contain at least 8 characters, 1 upper case, 1 lower case and 1 number (and no spaces).",
@@ -46,6 +50,7 @@ export default function AccountSettings() {
       hasError = true;
     }
 
+    // Validate passwords match
     if (newPassword !== confirmPassword) {
       setConfirmPwError("Passwords do not match.");
       hasError = true;
@@ -53,15 +58,39 @@ export default function AccountSettings() {
 
     if (hasError) return;
 
-    // TODO: change mock to actual impl
     setIsUpdatingPassword(true);
-    setTimeout(() => {
-      setIsUpdatingPassword(false);
-      setPasswordSuccessMsg("Password updated successfully.");
+
+    try {
+      await changePassword({
+        currentPassword,
+        newPassword,
+      });
+
       setCurrentPassword("");
       setNewPassword("");
       setConfirmPassword("");
-    }, 1500);
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        const status = error.response?.status;
+        const message = error.response?.data?.message || error.message;
+
+        if (status === 401) {
+          // Invalid current password
+          setCurrentPwError("Current password is incorrect.");
+        } else if (status === 400) {
+          // Validation error (e.g., new password same as current)
+          setNewPwError(message);
+        } else {
+          // Generic error
+          setCurrentPwError("Failed to update password. Please try again.");
+        }
+      } else {
+        // Non-Axios error
+        setCurrentPwError("An unexpected error occurred. Please try again.");
+      }
+    } finally {
+      setIsUpdatingPassword(false);
+    }
   };
 
   const handleDeleteAccount = () => {
@@ -79,7 +108,7 @@ export default function AccountSettings() {
       title="Account"
       description="Manage your security and account preferences."
     >
-      {/* --- Change Password Section --- */}
+      {/* Change Password Section */}
       <View className="bg-white rounded-2xl shadow-sm px-4 py-6 mb-6">
         <Text className="text-lg font-bold text-headingText mb-4">
           Change Password

@@ -68,3 +68,12 @@ export interface RiskSymptomsResponse {
   flowLevel: string | null; // e.g. "flow_heavy" or null
   riskFactors: string[]; // e.g. ["ESTROGEN_PILL"]
 }
+
+export type ChangePasswordPayload = {
+  currentPassword: string;
+  newPassword: string;
+};
+
+export type ChangePasswordResponse = {
+  changedAt: string; // ISO timestamp
+};
