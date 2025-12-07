@@ -15,22 +15,17 @@ import {
 } from "lucide-react-native";
 
 /**
- * FACTORS_REGISTRY
- * ------------------------------------------------
- * This registry serves as the Single Source of Truth (SSOT) for all
+ * This registry serves as the Single Source of Truth for all
  * potential risk factors and symptoms displayed in the application.
  */
 export const FACTORS_REGISTRY: Record<string, FactorDefinition> = {
-  // =================================================================
-  // SECTION: MEDICAL RISK FACTORS
-  // =================================================================
-
+  // Medical risk factors
   family_history_anemia: {
     id: "family_history_anemia",
     title: "Family History",
     defaultValue: "Anemia",
     description: "Genetic predisposition recorded",
-    icon: Dna, 
+    icon: Dna,
   },
 
   family_history_thrombosis: {
@@ -73,10 +68,7 @@ export const FACTORS_REGISTRY: Record<string, FactorDefinition> = {
     icon: Baby,
   },
 
-  // =================================================================
-  // SECTION: SYMPTOMS
-  // =================================================================
-
+  // Symptoms
   chest_pain: {
     id: "chest_pain",
     title: "Chest Pain",
@@ -125,10 +117,7 @@ export const FACTORS_REGISTRY: Record<string, FactorDefinition> = {
     icon: Battery,
   },
 
-  // =================================================================
-  // SECTION: FLOW CHARACTERISTICS
-  // =================================================================
-
+  // Flow characteristics
   flow_light: {
     id: "flow_light",
     title: "Flow Characteristics",

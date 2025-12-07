@@ -58,3 +58,14 @@ export type QuestionnaireResponse = {
   userId: string;
   createdAt?: string;
 };
+
+/**
+ * Response from GET /api/symptoms/risk
+ * Matches backend DTO: nl.tue.ladywise_backend.symptom.dto.RiskSymptomsDto
+ */
+export interface RiskSymptomsResponse {
+  anemiaSymptoms: string[]; // e.g. ["TIRED", "Family history of anemia"]
+  thrombosisSymptoms: string[]; // e.g. ["SWELLING"]
+  flowLevel: string | null; // e.g. "flow_heavy" or null
+  riskFactors: string[]; // e.g. ["ESTROGEN_PILL"]
+}
