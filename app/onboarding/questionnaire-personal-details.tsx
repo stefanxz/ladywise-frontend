@@ -2,8 +2,8 @@ import { ThemedPressable } from "@/components/ThemedPressable/ThemedPressable";
 import { ThemedTextInput } from "@/components/ThemedTextInput/ThemedTextInput";
 import { UnitInputField } from "@/components/UnitInputField/UnitInputField";
 import { useRouter } from "expo-router";
-import { useState } from "react";
-import { Text, View, KeyboardAvoidingView, Platform, ScrollView } from "react-native";
+import { useState, useEffect } from "react";
+import { Text, View, KeyboardAvoidingView, Platform, ScrollView, Keyboard } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useQuestionnaire } from "./QuestionnaireContext";
 
@@ -21,6 +21,36 @@ export default function Questionnaire() {
   const [ageError, setAgeError] = useState<string | null>(null);
   const [weightError, setWeightError] = useState<string | null>(null);
   const [heightError, setHeightError] = useState<string | null>(null);
+
+  // State to track keyboard visibility
+  const [isKeyboardVisible, setKeyboardVisible] = useState(false);
+
+  useEffect(() => {
+    // 1. Subscribe to keyboard show/hide events
+    const keyboardDidShowListener = Keyboard.addListener(
+      'keyboardDidShow',
+      () => {
+        setKeyboardVisible(true); // Keyboard is open
+      },
+    );
+    const keyboardDidHideListener = Keyboard.addListener(
+      'keyboardDidHide',
+      () => {
+        setKeyboardVisible(false); // Keyboard is closed
+      },
+    );
+
+    // 2. Clean up listeners on component unmount
+    return () => {
+      keyboardDidHideListener.remove();
+      keyboardDidShowListener.remove();
+    };
+  }, []); // Empty dependency array means this runs once on mount and once on unmount
+
+  // Calculate dynamic padding
+  // Only apply the large padding (e.g., 400) when the keyboard is visible.
+  // When the keyboard is hidden, use a small, standard padding (e.g., 50 or 0).
+  const bottomPadding = isKeyboardVisible ? 400 : 50;
 
   // navigation to the next screen of first time questionnaire
   // Only go to the next page of the questionair when all fiels are inputed correctly
@@ -100,7 +130,7 @@ export default function Questionnaire() {
         keyboardVerticalOffset={Platform.OS === "ios" ? 0 : -50}
       >
         <ScrollView 
-          contentContainerStyle={{ flexGrow: 1, paddingBottom: 400, alignItems: "center"}}
+          contentContainerStyle={{ flexGrow: 1, paddingBottom: bottomPadding, alignItems: "center"}}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
