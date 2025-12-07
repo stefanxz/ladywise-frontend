@@ -1,5 +1,7 @@
 import axios from "axios";
 import type {
+  ChangePasswordPayload,
+  ChangePasswordResponse,
   LoginPayload,
   LoginResponse,
   PasswordResetRequestPayload,
@@ -85,6 +87,23 @@ export async function loginUser(payload: LoginPayload) {
 export async function updateUser(payload: UserPayload) {
   const { data } = await api.patch<UserResponse>(
     "/api/users/updateUser",
+    payload,
+  );
+  return data;
+}
+
+/**
+ * Changes the password for the authenticated user.
+ *
+ * Requires the user to be authenticated and provide their current password for
+ * verification. The new password must meet validation requirements and be
+ * different from the current password.
+ *
+ * @param payload - Object containing the currentPassword and newPassword
+ */
+export async function changePassword(payload: ChangePasswordPayload) {
+  const { data } = await api.post<ChangePasswordResponse>(
+    "/api/auth/change-password",
     payload,
   );
   return data;

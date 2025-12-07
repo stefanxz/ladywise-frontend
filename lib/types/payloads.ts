@@ -103,3 +103,12 @@ export interface RiskSymptomsResponse {
   flowLevel: string | null;
   riskFactors: string[];
 }
+
+export type ChangePasswordPayload = {
+  currentPassword: string;
+  newPassword: string;
+};
+
+export type ChangePasswordResponse = {
+  changedAt: string; // ISO timestamp
+};
