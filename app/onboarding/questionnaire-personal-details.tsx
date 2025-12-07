@@ -3,7 +3,7 @@ import { ThemedTextInput } from "@/components/ThemedTextInput/ThemedTextInput";
 import { UnitInputField } from "@/components/UnitInputField/UnitInputField";
 import { useRouter } from "expo-router";
 import { useState } from "react";
-import { Text, View } from "react-native";
+import { Text, View, KeyboardAvoidingView, Platform, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useQuestionnaire } from "./QuestionnaireContext";
 
@@ -94,7 +94,18 @@ export default function Questionnaire() {
 
   return (
     <SafeAreaView className="flex-1 bg-background items-center">
-      <View className="w-full max-w-md mt-2 px-10 pt-[71px]">
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"} // Use 'padding' for iOS and 'height' for Android
+        className="flex-1 bg-background" // Use flex-1 to take up the whole screen
+        keyboardVerticalOffset={Platform.OS === "ios" ? 0 : -50}
+      >
+        <ScrollView 
+          contentContainerStyle={{ flexGrow: 1, paddingBottom: 400, alignItems: "center"}}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+        >
+
+        <View className="w-full max-w-md mt-2 px-10 pt-[71px]">
         <View className="flex-row items-center">
           <View className="flex-1">
             <ProgressBar currentStep={1} totalSteps={5} edgeOffset={0.08} />
@@ -182,6 +193,8 @@ export default function Questionnaire() {
           </View>
         </View>
       </View>
+      </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
