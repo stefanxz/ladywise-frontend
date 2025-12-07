@@ -126,7 +126,7 @@ const ExtendedDiagnosticsScreen = () => {
               labels={parsedGraphData.labels}
               data={parsedGraphData.data}
               width={chartWidth}
-              height={220} // Increased height for rotated labels
+              height={250} // Increased height for rotated labels
               segments={2}
               formatYLabel={formatRiskTick}
               verticalLabelRotation={30}
