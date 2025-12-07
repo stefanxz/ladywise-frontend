@@ -13,8 +13,6 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useQuestionnaire } from "./QuestionnaireContext";
-
-// Assets
 import { ProgressBar } from "@/components/ProgressBar/ProgressBar";
 
 export default function Questionnaire() {
@@ -33,7 +31,6 @@ export default function Questionnaire() {
   const [isKeyboardVisible, setKeyboardVisible] = useState(false);
 
   useEffect(() => {
-    // 1. Subscribe to keyboard show/hide events
     const keyboardDidShowListener = Keyboard.addListener(
       "keyboardDidShow",
       () => {
@@ -47,20 +44,19 @@ export default function Questionnaire() {
       },
     );
 
-    // 2. Clean up listeners on component unmount
     return () => {
       keyboardDidHideListener.remove();
       keyboardDidShowListener.remove();
     };
-  }, []); // Empty dependency array means this runs once on mount and once on unmount
+  }, []);
 
   // Calculate dynamic padding
   // Only apply the large padding (e.g., 400) when the keyboard is visible.
-  // When the keyboard is hidden, use a small, standard padding (e.g., 50 or 0).
+  // When the keyboard is hidden, we use a small, standard padding
   const bottomPadding = isKeyboardVisible ? 400 : 50;
 
   // navigation to the next screen of first time questionnaire
-  // Only go to the next page of the questionair when all fiels are inputed correctly
+  // Only go to the next page of the questionnaire when all fields are inputted correctly
   const handleContinue = async () => {
     setAgeError(null);
     setWeightError(null);
@@ -82,7 +78,7 @@ export default function Questionnaire() {
         setAgeError("Age must be a whole positive number.");
         hasError = true;
         // Earliest age with menstrual flow = 8
-        // Latest age with menstirual flow = 56
+        // Latest age with menstrual flow = 56
       } else if (Number.isInteger(ageNum) && (ageNum < 8 || ageNum > 56)) {
         setAgeError("Age is out of range.");
         hasError = true;
@@ -132,8 +128,8 @@ export default function Questionnaire() {
   return (
     <SafeAreaView className="flex-1 bg-background items-center">
       <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"} // Use 'padding' for iOS and 'height' for Android
-        className="flex-1 bg-background" // Use flex-1 to take up the whole screen
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        className="flex-1 bg-background"
         keyboardVerticalOffset={Platform.OS === "ios" ? 0 : -50}
       >
         <ScrollView
