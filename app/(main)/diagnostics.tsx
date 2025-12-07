@@ -3,7 +3,6 @@ import { View, Text, ActivityIndicator, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { isAxiosError } from "axios";
 
-<<<<<<< HEAD
 import { RiskLineChart } from "@/components/charts/RiskLineChart";
 import { useAuth } from "@/context/AuthContext";
 import { getRiskHistory } from "@/lib/api";
@@ -249,14 +248,6 @@ export default function DiagnosticsScreen({
           </View>
         </View>
       </ScrollView>
-=======
-export default function DiagnosticsScreen() {
-  return (
-    <SafeAreaView className="flex-1 bg-background p-6">
-      <Text className="text-headingText font-inter-semibold text-2xl">
-        Diagnostics
-      </Text>
->>>>>>> 0d9b4c7 (feat(diagnostics): add contributing data UI)
     </SafeAreaView>
   );
 }
