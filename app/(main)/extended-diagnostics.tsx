@@ -101,6 +101,7 @@ const ExtendedDiagnosticsScreen = () => {
 
       <View style={styles.headerContainer}>
         <TouchableOpacity
+          testID="back-button"
           onPress={() => router.push("/(main)/diagnostics")}
           style={styles.backButton}
         >
@@ -142,6 +143,7 @@ const ExtendedDiagnosticsScreen = () => {
         <Text style={styles.cardTitle}>Insights</Text>
         {loading ? (
           <ActivityIndicator
+            testID="loading-indicator"
             size="large"
             color={Colors.brand}
             style={styles.loader}
