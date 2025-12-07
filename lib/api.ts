@@ -11,7 +11,7 @@ import type {
   UserResponse,
 } from "./types";
 import { CycleStatusDTO } from "./types/cycle";
-import { getAuthData, StoredAuthData} from "./auth";
+import { getAuthData, StoredAuthData } from "./auth";
 import { RiskData, ApiRiskResponse, RiskHistoryPoint } from "./types/risks";
 import { DailyLogRequest, DailyLogResponse } from "@/lib/types/period";
 
