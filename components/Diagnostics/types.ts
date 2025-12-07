@@ -25,3 +25,10 @@ export interface FactorCardProps {
   /** Optional: Used for flow charts or different visual styles */
   variant?: "default" | "flow";
 }
+
+/**
+ * Props passed to the FactorsSection component.
+ */
+export interface FactorsSectionProps {
+  data: string[];
+}

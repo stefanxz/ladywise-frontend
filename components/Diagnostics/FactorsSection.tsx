@@ -2,11 +2,18 @@ import React from "react";
 import { View, Text } from "react-native";
 import FactorCard from "./FactorCard";
 import { mapBackendListToFactors } from "@/utils/mapBackendToFactors";
+import { FactorsSectionProps } from "@/components/Diagnostics/types";
 
-interface FactorsSectionProps {
-  data: string[];
-}
-
+/**
+ * Displays a grid of risk factor cards based on backend data. Shows a message
+ * when no factors are present.
+ * @param data - Raw backend data containing risk factors
+ *
+ * @example
+ * ```tsx
+ * <FactorsSection data={diagnosticsData} />
+ * ```
+ */
 export default function FactorsSection({ data }: FactorsSectionProps) {
   const activeFactors = mapBackendListToFactors(data);
 
