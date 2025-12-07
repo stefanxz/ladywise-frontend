@@ -1,39 +1,58 @@
-import React, { useCallback, useState, useEffect, useMemo } from 'react';
+import React, { useCallback, useState, useEffect, useMemo, useRef } from 'react';
 import { View, Text, TouchableOpacity, FlatList, StatusBar, ActivityIndicator, Pressable, Alert } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Calendar as CalendarIcon } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Feather } from '@expo/vector-icons';
 import { generateMonths } from '@/utils/calendarHelpers';
-import CalendarDay from '@/components/Calendar/CalendarDay';
 import CalendarHeader from '@/components/Calendar/CalendarHeader';
 import LogNewPeriodButton from '@/components/LogNewPeriodButton/LogNewPeriodButton';
-import { addDays, addMonths, eachDayOfInterval, endOfDay, areIntervalsOverlapping, format, isAfter, isBefore, isSameDay, isWithinInterval, parse, parseISO, startOfDay, subDays, subMonths } from 'date-fns';
+import { addDays, addMonths, eachDayOfInterval, endOfDay, areIntervalsOverlapping, format, isAfter, isBefore, isSameDay, parseISO, startOfDay, subDays, subMonths } from 'date-fns';
 import { useTheme } from '@/context/ThemeContext';
 import { getCycleStatus, getPeriodHistory, getPredictions, logNewPeriod } from '@/lib/api';
 import { useAuth } from "@/context/AuthContext";
 import { PeriodLogRequest } from '@/lib/types/period';
+import CalendarMonth from '@/components/Calendar/CalendarMonth';
 
 // Configuration
-const PRELOAD_PAST_MONTHS = 6;
-const PRELOAD_FUTURE_MONTHS = 12;
-const BATCH_SIZE = 4; // How many months to load at a time
+const PRELOAD_PAST_MONTHS = 6;  // Load 6 months back for initial render
+const PRELOAD_FUTURE_MONTHS = 6; // Load 6 months forward for initial render
+const BATCH_SIZE = 6; // Load 6 months at a time
 
+// Period type definition
 type ParsedPeriod = {
   start: Date,
   end: Date,
 };
 
+// Main calendar screen component
 export default function CalendarScreen() {
   const insets = useSafeAreaInsets(); // Used to get precise safe area dimensions
   const { theme, setPhase } = useTheme();
   const { token, isLoading: isAuthLoading } = useAuth();
+  const flatListRef = useRef<FlatList>(null);
+  
+  // Use refs for loading locks to prevent re-renders during rapid scrolling
+  const isLoadingPastRef = useRef(false);
+  const isLoadingFutureRef = useRef(false);
 
-  const today = startOfDay(new Date());
+  // We add a 'ready' state to hide the initial loading
+  const [isListReady, setIsListReady] = useState(false);
 
-  const [months, setMonths] = useState<any[]>([]);
+  // Memoize 'today' so it doesn't trigger re-renders
+  const today = useMemo(() => startOfDay(new Date()), []);
+  
+  // This ensures 'months' already has the initial months on the very first render
+  const [months, setMonths] = useState<any[]>(() => {
+    const start = subMonths(today, PRELOAD_PAST_MONTHS);
+    const totalMonths = PRELOAD_PAST_MONTHS + 1 + PRELOAD_FUTURE_MONTHS; 
+    return generateMonths(start, totalMonths);
+  });
+
+  // State
   const [periods, setPeriods] = useState<ParsedPeriod[]>([]);
   const [predictions, setPredictions] = useState<ParsedPeriod[]>([]);
+  
+  // Loading states for infinite scroll
   const [isLoadingPast, setIsLoadingPast] = useState(false);
   const [isLoadingFuture, setIsLoadingFuture] = useState(false);
 
@@ -76,19 +95,11 @@ export default function CalendarScreen() {
       } catch (err) {
         console.error("Failed to fetch cycle calendar data: " + err);
       }
-  }, [token, isAuthLoading, setPhase]);
+  }, [token, isAuthLoading, setPhase, today]);
 
   useEffect(() => {
     fetchData();
   }, [fetchData]);
-
-  // Initial Load
-  useEffect(() => {
-    const today = new Date();
-    const start = subMonths(today, PRELOAD_PAST_MONTHS);
-    const totalMonths = PRELOAD_PAST_MONTHS + PRELOAD_FUTURE_MONTHS;
-    setMonths(generateMonths(start, totalMonths));
-  }, []);
 
   // Optimize by putting period dates into a set for O(1) lookup
   const periodDateSet = useMemo(() => {
@@ -104,7 +115,7 @@ export default function CalendarScreen() {
     });
 
     return set;
-  }, [periods])
+  }, [periods]);
 
   // Same for predictions
   const predictionDateSet = useMemo(() => {
@@ -120,16 +131,6 @@ export default function CalendarScreen() {
     return set;
   }, [predictions]);
 
-  // Helper check if its in period
-  const checkIsPeriod = useCallback((date: Date) => {
-    return periodDateSet.has(format(date, 'yyyy-MM-dd'));
-  }, [periodDateSet])
-
-  // Helper check if its a prediction
-  const checkIsPrediction = useCallback((date: Date) => {
-    return predictionDateSet.has(format(date, 'yyyy-MM-dd'));
-  }, [predictionDateSet]);
-
   // Logging new period
   const handleLogPeriodStart = () => {
     setIsLogMode(true);
@@ -144,36 +145,30 @@ export default function CalendarScreen() {
   };
 
   const handleDatePress = useCallback((date: Date) => {
-    if (!isLogMode) return; // Only interactive in log mode
+    // Pressing dates has behavior only in log mode
+    if (!isLogMode) return;
 
     // Prevent selection of future dates
-    if (isAfter(date, today)) {
-      return; 
-    }
-
+    if (isAfter(date, today)) return; 
+    
     setSelection(prev => {
       // If "Ongoing" is checked, we only allow picking a Start Date
-      if (isOngoing) {
-        return { start: date, end: today }; // End is visually "Today"
-      }
-
+      if (isOngoing) return { start: date, end: today }; // End is visually today
       const { start, end } = prev;
 
       // Start new selection
-      if (!start) {
-        return { start: date, end: null };
-      }
-
+      if (!start) return { start: date, end: null };
+      
       // Adjust selection
       if (start && !end) {
         if (isBefore(date, start)) {
-          // Clicked before start -> Reset start
+          // Clicked before start so we reset start
           return { start: date, end: null };
         } else if (isSameDay(date, start)) {
-          // Clicked same day -> Deselect
+          // Clicked same day so we deselect
           return { start: null, end: null };
         } else {
-          // Clicked after start -> Range complete
+          // Click after start means the range is complete
           return { start, end: date };
         }
       }
@@ -181,7 +176,7 @@ export default function CalendarScreen() {
       // Reset if full range exists
       return { start: date, end: null };
     });
-  }, [isLogMode, isOngoing]);
+  }, [isLogMode, isOngoing, today]);
 
   // Handle "Ongoing" toggle
   const toggleOngoing = () => {
@@ -201,17 +196,16 @@ export default function CalendarScreen() {
 
   // Selection validation and save
   const validateSelection = (start: Date, end: Date) => {
-    // Overlap Check
+    // Overlap check
     const hasOverlap = periods.some(p => 
-      areIntervalsOverlapping({ start, end }, { start: p.start, end: p.end })
+      areIntervalsOverlapping({ start, end }, { start: p.start, end: p.end }, { inclusive: true })
     );
-
     if (hasOverlap) {
-      Alert.alert("Overlap Detected", "This period overlaps with an existing one. Please edit or delete the existing period first.");
+      Alert.alert("Period already logged!", "It looks like you've already tracked a period during this timeframe. You can just tap on the existing entry to edit it!");
       return false;
     }
 
-    // Adjacency Check (1 day gap)
+    // Adjacency check (1 day gap)
     const isAdjacent = periods.some(p => {
       // Check if new.start is 1 day after p.end
       const touchesAfter = isSameDay(start, addDays(p.end, 1));
@@ -220,25 +214,22 @@ export default function CalendarScreen() {
       
       return touchesAfter || touchesBefore;
     });
-
     if (isAdjacent) {
-      Alert.alert("Periods are adjacent", "You have selected a period immediately before or after an existing one. Please edit the existing period to extend it instead.");
+      Alert.alert("Looks like one continuous period!", "Since these dates are right next to an existing log, it works best to just extend the dates of that period.");
       return false;
     }
-
     return true;
   };
 
   const handleSaveLog = async () => {
     if (!selection.start) {
-      Alert.alert("Missing Date", "Please select a start date.");
+      Alert.alert("Just a quick check!", "We need a start date to log this entry properly.");
       return;
     }
 
-    // If ongoing, validation range is Start -> Today
-    // If not ongoing, validation range is Start -> End (or Start -> Start if single day)
+    // If ongoing, validation range is start -> today
+    // If not ongoing, validation range is start -> end (or start -> start if single day)
     const effectiveEnd = selection.end || selection.start;
-    
     if (!validateSelection(selection.start, effectiveEnd)) return;
 
     setIsSaving(true);
@@ -248,23 +239,26 @@ export default function CalendarScreen() {
         // If ongoing, send null. Otherwise send formatted date.
         endDate: isOngoing ? null : format(effectiveEnd, 'yyyy-MM-dd'),
       };
-
       await logNewPeriod(payload);
       
-      // Refresh & Reset
+      // Refresh & reset
       await fetchData();
       handleCancelLog();
-      Alert.alert("Success", "Period logged successfully!");
+      Alert.alert("Saved!", "We've added this period to your history.");
     } catch (error: any) {
-      Alert.alert("Error", error.message || "Failed to log period");
+      Alert.alert("Oops!", error.message || "We had trouble saving that just now. Please try again in a moment.");
     } finally {
       setIsSaving(false);
     }
   };
 
-  // Load Previous Months (Scroll Up)
+  // Load previous months (scroll up)
   const loadMorePast = useCallback(() => {
-    if (isLoadingPast || months.length === 0) return;
+    // Check ref (synchronous lock)
+    if (isLoadingPastRef.current) return;
+    
+    // Set lock
+    isLoadingPastRef.current = true;
     setIsLoadingPast(true);
 
     // Small delay to allow UI to show spinner (feels more responsive)
@@ -273,117 +267,129 @@ export default function CalendarScreen() {
         return [...generateMonths(subMonths(currentMonths[0].date, BATCH_SIZE),
         BATCH_SIZE), ...currentMonths];
       });
-      setIsLoadingPast(false);
-    }, 500);
-  }, [isLoadingPast, months]);
 
-  // Load Future Months (Scroll Down)
+      // Release lock
+      setTimeout(() => {
+        isLoadingPastRef.current = false;
+        setIsLoadingPast(false);
+      }, 500);
+    }, 800);
+  }, []);
+
+  // Load future months (scroll down)
   const loadMoreFuture = useCallback(() => {
-    if (isLoadingFuture || months.length === 0) return;
+    // Check ref (synchronous lock)
+    if (isLoadingFutureRef.current) return;
 
+    // Set lock
+    isLoadingFutureRef.current = true;
     setIsLoadingFuture(true);
-
+    
+    // Small delay to allow UI to show spinner (feels more responsive)
     setTimeout(() => {
       setMonths((currentMonths) => {
         return [...currentMonths,
         ...generateMonths(addMonths(currentMonths[currentMonths.length - 1].date, 1), BATCH_SIZE)];
       });
-      setIsLoadingFuture(false);
-    }, 500);
-  }, [isLoadingFuture, months]);
+
+      // Release lock
+      setTimeout(() => {
+        isLoadingFutureRef.current = false;
+        setIsLoadingFuture(false);
+      }, 500);
+    }, 800);
+  }, []);
   
-  // Helper for rendering the months
+  // Months rendering
   const renderMonth = useCallback(({ item }: any) => (
-    <View className="mb-0 px-4"> 
-      <View className="flex-row items-center justify-center mb-2 mt-2 space-x-2">
-        <Feather name="calendar" size={18} color="#44403C" />
-        <View className="flex-row items-baseline ml-2">
-          <Text className="text-stone-900 text-lg font-bold mr-1">
-            {item.titleMonth}
-          </Text>
-          <Text className="text-stone-400 text-lg font-medium">
-            {item.titleYear}
-          </Text>
-        </View>
-      </View>
-      
-      <View className="flex-row flex-wrap mx-2">
-        {item.days.map((date: Date | null, index: number) => {
-          // Existing Period Check
-          const isPeriodDay = date ? checkIsPeriod(date) : false;
-          const isPredictionDay = date && !isPeriodDay ? checkIsPrediction(date) : false;
-          
-          // Selection Checks
-          let isSelected = false;
-          let isInRange = false;
-          let isSelectionStart = false;
-          let isSelectionEnd = false;
-
-          if (isLogMode && date && selection.start) {
-             const { start, end } = selection;
-             isSelectionStart = isSameDay(date, start);
-             isSelectionEnd = end ? isSameDay(date, end) : false;
-             
-             if (isSelectionStart || isSelectionEnd) {
-               isSelected = true;
-             } else if (end && isWithinInterval(date, { start, end })) {
-               isInRange = true;
-             }
-          }
-
-          return (
-            <CalendarDay 
-              key={date ? date.toISOString() : `empty-${item.id}-${index}`}
-              date={date}
-              isPeriod={isPeriodDay}
-              isPrediction={isPredictionDay}
-              isSelected={isSelected}
-              isInRange={isInRange}
-              isSelectionStart={isSelectionStart}
-              isSelectionEnd={isSelectionEnd}
-              themeColor={theme.highlight}
-              onPress={handleDatePress}
-            />
-          );
-        })}
-      </View>
-    </View>
-  ), [handleDatePress, checkIsPeriod, checkIsPrediction, theme, isLogMode, selection, theme.highlight]);
-
+    <CalendarMonth
+      item={item}
+      periodDateSet={periodDateSet}
+      predictionDateSet={predictionDateSet}
+      selection={selection}
+      isLogMode={isLogMode}
+      isOngoing={isOngoing}
+      themeColor={theme.highlight}
+      onPress={handleDatePress}
+      today={today}
+    />
+  ), [periodDateSet, predictionDateSet, selection, isLogMode, isOngoing, theme.highlight, handleDatePress, today]);
 
   return (
     <View 
       className="flex-1 bg-[#F9F9F9]"
       style={{ 
-        // Apply safe area padding for top (Status Bar)
-        // Add extra 20px for better visual spacing at top of screen
+        // Add extra 20px for better visual spacing at top of screen (for the status bar)
         paddingTop: insets.top + 20 
       }}
     >
       <StatusBar barStyle="dark-content" />
 
-      {/* Main Content Container */}
+      {/* Main content container */}
       <View className="flex-1">
         
         <CalendarHeader />
 
+        {/* The initial screen loading overlay */}
+        {!isListReady && (
+          <View className="absolute inset-0 z-50 items-center justify-center bg-[#F9F9F9] mt-24">
+             <ActivityIndicator size="large" color={theme.highlight || "#FCA5A5"} />
+          </View>
+        )}
+
         <FlatList
+          ref={flatListRef}
           data={months}
           keyExtractor={(item) => item.id}
           renderItem={renderMonth}
-          extraData={periods}
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingBottom: 160 }} 
+
+          // Hide list until the initial load is complete
+          style={{ opacity: isListReady ? 1 : 0 }}
+
+          // Start at index 6 because we loaded 6 past months + current month
+          initialScrollIndex={PRELOAD_PAST_MONTHS}
+
+          // We use this to confirm we are ready to show the list
+          onLayout={() => {
+             // Small safety timeout to ensure the scroll command has processed
+             setTimeout(() => {
+                setIsListReady(true);
+             }, 1000); 
+          }}
+
+          // This handles scroll index failures (happens on some slow devices)
+          onScrollToIndexFailed={(info) => {
+            const wait = new Promise(resolve => setTimeout(resolve, 500));
+            wait.then(() => {
+              flatListRef.current?.scrollToIndex({ index: info.index, animated: false });
+            });
+          }}
           
-          // Infinite Scroll Props
+          // This keeps the scroll position stable when we add new items to the top of the list
+          // Without this, adding items to the top pushes the content down, causing a visual jump
+          maintainVisibleContentPosition={{
+             minIndexForVisible: 0,
+          }}
+
+          // Infinite scroll props
           onStartReached={loadMorePast}
-          onStartReachedThreshold={0.5} // Trigger when near top
+          onStartReachedThreshold={0.2} // Trigger when near top
           onEndReached={loadMoreFuture}
-          onEndReachedThreshold={0.5} // Trigger when near bottom
+          onEndReachedThreshold={0.2} // Trigger when near bottom
+
+          showsVerticalScrollIndicator={false} // Hide scrollbar for cleaner look
+
+          // Extra padding at bottom so content isn't hidden behind buttons
+          contentContainerStyle={{ 
+            paddingBottom: isLogMode ? 340 : 180 
+          }}
           
-          // Keeps scroll position stable when adding items to top
-          maintainVisibleContentPosition={{ minIndexForVisible: 0 }}
-          
+          // Performance props
+          initialNumToRender={2}
+          maxToRenderPerBatch={3}
+          windowSize={3}
+          removeClippedSubviews={true}
+
           // Loaders
           ListHeaderComponent={
             isLoadingPast ? <ActivityIndicator size="small" color="#FCA5A5" className="py-4" /> : null
@@ -391,31 +397,28 @@ export default function CalendarScreen() {
           ListFooterComponent={
             isLoadingFuture ? <ActivityIndicator size="small" color="#FCA5A5" className="py-4" /> : null
           }
-
-          initialNumToRender={3}
-          maxToRenderPerBatch={3}
-          windowSize={5}
         />
 
         {/* Bottom styling */}
         <View className="absolute bottom-0 w-full justify-end">
            {/* Dynamic height based on mode: log mode needs more space, and regular mode needs less */}
-           <View className={`w-full ${isLogMode ? "h-[320px]" : "h-[180px]"}`} pointerEvents="box-none">
+           <View className={`w-full ${isLogMode ? "h-[230px]" : "h-[180px]"}`} pointerEvents="box-none">
              <LinearGradient
                 colors={['rgba(249,249,249,0)', 'rgba(249,249,249,0.95)', '#F9F9F9']}
                 locations={[0, 0.3, 0.7]}
                 className="absolute w-full h-full"
+                pointerEvents="none" // Allow touches to pass through
               />
 
               <View className="absolute bottom-0 w-full px-8 pb-8 z-10">
                 {!isLogMode ? (
-                  // When not in Log Mode, show the log new period Button
+                  // When not in log mode, show the log new period Button
                   <LogNewPeriodButton 
                     color="#FCA5A5" 
                     onPress={handleLogPeriodStart}
                   />
                 ) : (
-                  // When in Log Mode, show the logging controls
+                  // When in log mode, show the logging controls
                   <View className="w-full">
                     {/* Ongoing checkbox */}
                     <Pressable 
