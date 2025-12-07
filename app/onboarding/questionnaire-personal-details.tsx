@@ -3,13 +3,13 @@ import { ThemedTextInput } from "@/components/ThemedTextInput/ThemedTextInput";
 import { UnitInputField } from "@/components/UnitInputField/UnitInputField";
 import { useRouter } from "expo-router";
 import { useState, useEffect } from "react";
-import { 
-  Text, 
-  View, 
-  KeyboardAvoidingView, 
-  Platform, 
-  ScrollView, 
-  Keyboard 
+import {
+  Text,
+  View,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  Keyboard
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useQuestionnaire } from "./QuestionnaireContext";
@@ -136,16 +136,15 @@ export default function Questionnaire() {
         className="flex-1 bg-background" // Use flex-1 to take up the whole screen
         keyboardVerticalOffset={Platform.OS === "ios" ? 0 : -50}
       >
-        <ScrollView 
-          contentContainerStyle={{ 
-            flexGrow: 1, 
-            paddingBottom: bottomPadding, 
+        <ScrollView
+          contentContainerStyle={{
+            flexGrow: 1,
+            paddingBottom: bottomPadding,
             alignItems: "center"
           }}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-
           <View className="w-full max-w-md mt-2 px-10 pt-[71px]">
             <View className="flex-row items-center">
               <View className="flex-1">
