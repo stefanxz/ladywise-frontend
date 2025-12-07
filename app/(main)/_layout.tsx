@@ -3,9 +3,15 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Colors } from "@/constants/colors";
 import { useAuth } from "@/context/AuthContext";
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
+import { usePushNotifications } from "@/hooks/usePushNotifications";
 
 export default function HomeLayout() {
   const { token, isLoading } = useAuth();
+
+
+  // js tomfoolery to convert string to bool??
+  usePushNotifications(!!token);
+
 
   if (isLoading) {
     return null;

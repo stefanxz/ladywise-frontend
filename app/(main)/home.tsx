@@ -229,6 +229,7 @@ const Home = () => {
                 onLogPeriodPress={handleLogPeriod}
                 onCardPress={() => {}}
               />
+
             </View>
             <InsightsSection
               isLoading={isLoading}
