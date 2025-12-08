@@ -5,7 +5,7 @@ import { PasswordField } from "@/components/PasswordField/PasswordField";
 import { ThemedPressable } from "@/components/ThemedPressable/ThemedPressable";
 import { isPasswordValid } from "@/utils/validations";
 import { useAuth } from "@/context/AuthContext";
-import { changePassword } from "@/lib/api";
+import { changePassword, deleteUser } from "@/lib/api";
 import axios from "axios";
 
 export default function AccountSettings() {
@@ -93,14 +93,32 @@ export default function AccountSettings() {
     }
   };
 
-  const handleDeleteAccount = () => {
+  const handleDeleteAccount = async () => {
     setIsDeleting(true);
-    // TODO: change mock to actual impl
-    setTimeout(() => {
-      setIsDeleting(false);
+    try {
+      await deleteUser();
       console.log("Account deleted");
       signOut();
-    }, 2000);
+    } catch (error) {
+      setIsDeleting(false);
+
+      if (axios.isAxiosError(error)) {
+        const status = error.response?.status;
+
+        if (status === 404) {
+          console.error("User not found");
+          // User doesn't exist, sign out anyway
+          signOut();
+        } else {
+          console.error("Failed to delete account:", error.message);
+          // You might want to show an error message to the user here
+          alert("Failed to delete account. Please try again.");
+        }
+      } else {
+        console.error("An unexpected error occurred:", error);
+        alert("An unexpected error occurred. Please try again.");
+      }
+    }
   };
 
   return (

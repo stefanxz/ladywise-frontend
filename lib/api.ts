@@ -195,6 +195,18 @@ export async function resetPassword(payload: ResetPasswordPayload) {
   return data;
 }
 
+/**
+ * Deletes the authenticated user's account.
+ *
+ * This permanently removes the user and all associated data from the system.
+ * Requires the user to be authenticated via the Authorization header.
+ *
+ * @returns A promise that resolves when the deletion is successful (204) or rejects if user not found (404)
+ */
+export async function deleteUser(): Promise<void> {
+  await api.delete("/api/users");
+}
+
 export async function submitQuestionnaire(payload: QuestionnairePayload) {
   const { data } = await api.post<QuestionnaireResponse>(
     "/api/questionnaire",
