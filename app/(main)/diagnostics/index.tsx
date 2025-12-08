@@ -178,11 +178,7 @@ export default function DiagnosticsScreen({
               {
                 pathname: "/diagnostics/thrombosis-risk",
                 params: {
-                  graphData: JSON.stringify({
-                    labels,
-                    data: thrombosisData,
-                  }),
-                  currentRisk: riskLabels[latestThrombosis],
+                  risk_factor: "thrombosis-risk",
                 },
               } as any
             }
@@ -227,11 +223,7 @@ export default function DiagnosticsScreen({
               {
                 pathname: "/diagnostics/anemia-risk",
                 params: {
-                  graphData: JSON.stringify({
-                    labels,
-                    data: anemiaData,
-                  }),
-                  currentRisk: riskLabels[latestAnemia],
+                  risk_factor: "anemia-risk",
                 },
               } as any
             }
