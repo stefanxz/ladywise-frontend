@@ -31,11 +31,11 @@ const flowLabels: Record<FlowNum, string> = {
 };
 
 type DiagnosticsScreenProps = {
-  history?: RiskHistoryPoint[];
+  initialHistory?: RiskHistoryPoint[];
 };
 
 export default function DiagnosticsScreen({
-  history: historyProp,
+  initialHistory: historyProp,
 }: DiagnosticsScreenProps) {
   const { token, userId } = useAuth();
 
@@ -58,10 +58,17 @@ export default function DiagnosticsScreen({
         setLoading(true);
         setError(null);
         const data = await getRiskHistory(token, userId);
-        if (data && data.length > 0) {
+
+        console.log("getRiskHistory response:", data); // DEBUG LOG
+
+        if (Array.isArray(data) && data.length > 0) {
           setHistory(data);
+        } else if (!Array.isArray(data)) {
+          console.warn("API returned non-array data:", data);
+          setHistory(mockHistory);
+          setError("Received invalid data from server. Showing sample data.");
         } else {
-          // If API returns no data, fallback to mock data as requested
+          // If API returns empty array, fallback to mock data as requested
           setHistory(mockHistory);
           setError(
             "No history data was found. Showing sample data for demonstration.",

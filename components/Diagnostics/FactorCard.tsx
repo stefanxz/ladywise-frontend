@@ -21,7 +21,7 @@ export default function FactorCard({
   variant = "default",
 }: FactorCardProps) {
   return (
-    <View className="w-[48%] bg-white rounded-2xl p-4 border border-gray-100 shadow-sm mb-3 flex flex-col items-center justify-center">
+    <View className="bg-white rounded-2xl p-4 border border-gray-100 shadow-sm flex flex-col items-center justify-center">
       <View className="mb-3 flex-row items-center justify-center w-full">
         <IconComponent size={32} color="#80e4c1" />
       </View>

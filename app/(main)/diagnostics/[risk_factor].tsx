@@ -37,9 +37,9 @@ const ExtendedDiagnosticsScreen = () => {
   // Format title from risk_factor (e.g., 'anemia-risk' -> 'Anemia Risk')
   const title = risk_factor
     ? risk_factor
-      .split("-")
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(" ")
+        .split("-")
+        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(" ")
     : "Diagnostics";
 
   // Safely parse graphData
@@ -177,25 +177,23 @@ const ExtendedDiagnosticsScreen = () => {
           )}
         </View>
 
-        {/* Card 3: Factors */}
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Factors</Text>
-          {loading ? (
-            <ActivityIndicator
-              size="large"
-              color={Colors.brand}
-              style={styles.loader}
-            />
-          ) : (
-            <View style={styles.factorsGrid}>
-              {factors.map((factor) => (
-                <View key={factor.id} style={styles.factorWrapper}>
-                  <FactorCard {...factor} />
-                </View>
-              ))}
-            </View>
-          )}
-        </View>
+        {/* Section: Factors */}
+        <Text style={styles.sectionTitle}>Factors</Text>
+        {loading ? (
+          <ActivityIndicator
+            size="large"
+            color={Colors.brand}
+            style={styles.loader}
+          />
+        ) : (
+          <View style={styles.factorsGrid}>
+            {factors.map((factor) => (
+              <View key={factor.id} style={styles.factorWrapper}>
+                <FactorCard {...factor} />
+              </View>
+            ))}
+          </View>
+        )}
 
         <Text style={styles.disclaimer}>
           This information is for informational purposes only and does not
@@ -296,6 +294,13 @@ const styles = StyleSheet.create({
   factorWrapper: {
     width: "50%",
     padding: 8,
+    marginBottom: 12,
+  },
+  sectionTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+    color: Colors.textHeading,
+    marginBottom: 16,
   },
   disclaimer: {
     fontSize: 12,
