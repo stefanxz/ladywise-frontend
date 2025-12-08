@@ -13,7 +13,7 @@ type CalendarMonthProps = {
   isLogMode: boolean;
   isOngoing: boolean;
   themeColor: string;
-  onPress: (date: Date) => void;
+  onPress: (date: Date, position: { x: number; y: number }) => void;
   today: Date;
 };
 

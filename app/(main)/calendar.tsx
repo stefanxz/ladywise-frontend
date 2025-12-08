@@ -6,12 +6,13 @@ import { Feather } from '@expo/vector-icons';
 import { generateMonths } from '@/utils/calendarHelpers';
 import CalendarHeader from '@/components/Calendar/CalendarHeader';
 import LogNewPeriodButton from '@/components/LogNewPeriodButton/LogNewPeriodButton';
-import { addDays, addMonths, eachDayOfInterval, endOfDay, areIntervalsOverlapping, format, isAfter, isBefore, isSameDay, parseISO, startOfDay, subDays, subMonths } from 'date-fns';
+import { addDays, addMonths, eachDayOfInterval, endOfDay, areIntervalsOverlapping, format, isAfter, isBefore, isSameDay, parseISO, startOfDay, subDays, subMonths, isWithinInterval } from 'date-fns';
 import { useTheme } from '@/context/ThemeContext';
-import { getCycleStatus, getPeriodHistory, getPredictions, logNewPeriod } from '@/lib/api';
+import { deletePeriod, getCycleStatus, getPeriodHistory, getPredictions, logNewPeriod, updatePeriod } from '@/lib/api';
 import { useAuth } from "@/context/AuthContext";
 import { PeriodLogRequest } from '@/lib/types/period';
 import CalendarMonth from '@/components/Calendar/CalendarMonth';
+import PeriodActionTooltip from '@/components/Calendar/EditDeleteTooltip';
 
 // Configuration
 const PRELOAD_PAST_MONTHS = 6;  // Load 6 months back for initial render
@@ -20,8 +21,23 @@ const BATCH_SIZE = 6; // Load 6 months at a time
 
 // Period type definition
 type ParsedPeriod = {
-  start: Date,
-  end: Date,
+  id: string; // Crucial for editing/deleting
+  start: Date;
+  end: Date;
+  isOngoing?: boolean; // Track if it came from backend as ongoing
+};
+
+// Prediction type definition
+type ParsedPrediction = {
+  start: Date;
+  end: Date;
+};
+
+// Tooltip state type definition
+type TooltipState = {
+  visible: boolean;
+  position: { x: number; y: number } | null;
+  periodId: string | null;
 };
 
 // Main calendar screen component
@@ -48,19 +64,25 @@ export default function CalendarScreen() {
     return generateMonths(start, totalMonths);
   });
 
-  // State
+  // Periods state
   const [periods, setPeriods] = useState<ParsedPeriod[]>([]);
-  const [predictions, setPredictions] = useState<ParsedPeriod[]>([]);
+
+  // Predictions state
+  const [predictions, setPredictions] = useState<ParsedPrediction[]>([]);
   
   // Loading states for infinite scroll
   const [isLoadingPast, setIsLoadingPast] = useState(false);
   const [isLoadingFuture, setIsLoadingFuture] = useState(false);
 
-  // Period logging state
+  // Period logging and editing state
   const [isLogMode, setIsLogMode] = useState(false);
+  const [editingPeriodId, setEditingPeriodId] = useState<string | null>(null); // Null = creating new, String = editing existing
   const [selection, setSelection] = useState<{ start: Date | null, end: Date | null }>({ start: null, end: null });
   const [isOngoing, setIsOngoing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+
+  // Tooltip state
+  const [tooltip, setTooltip] = useState<TooltipState>({ visible: false, position: null, periodId: null });
 
   // Fetch data
   const fetchData = useCallback (async () => {
@@ -75,12 +97,15 @@ export default function CalendarScreen() {
 
         // Fetch period history 
         const history = await getPeriodHistory();
+
+        // Parse periods
         const parsedPeriods = history.map(p => ({
+          id: p.id, // Store ID
           start: startOfDay(parseISO(p.startDate)),
           // If end date is null (ongoing), use today as temp for visual rendering
-          end: p.endDate ? endOfDay(parseISO(p.endDate)) : today
+          end: p.endDate ? endOfDay(parseISO(p.endDate)) : today,
+          isOngoing: !p.endDate // Track original state
         }));
-
         setPeriods(parsedPeriods);
 
         // Predictions, fetch 3-6 months
@@ -134,49 +159,111 @@ export default function CalendarScreen() {
   // Logging new period
   const handleLogPeriodStart = () => {
     setIsLogMode(true);
+    setEditingPeriodId(null); // Clear editing ID
     setSelection({ start: null, end: null });
     setIsOngoing(false);
+    setTooltip(prev => ({ ...prev, visible: false })); // Close tooltip
   };
 
+  // Cancel logging
   const handleCancelLog = () => {
     setIsLogMode(false);
+    setEditingPeriodId(null); // Clear editing ID
     setSelection({ start: null, end: null });
     setIsOngoing(false);
   };
 
-  const handleDatePress = useCallback((date: Date) => {
-    // Pressing dates has behavior only in log mode
-    if (!isLogMode) return;
+  // Edit period handler
+  const handleEditPeriod = () => {
+    const periodToEdit = periods.find(p => p.id === tooltip.periodId);
+    if (!periodToEdit) return;
 
-    // Prevent selection of future dates
-    if (isAfter(date, today)) return; 
+    // Enter log mode with pre-filled data
+    setIsLogMode(true);
+    setEditingPeriodId(periodToEdit.id);
+    setSelection({ start: periodToEdit.start, end: periodToEdit.end });
+    setIsOngoing(!!periodToEdit.isOngoing);
     
-    setSelection(prev => {
-      // If "Ongoing" is checked, we only allow picking a Start Date
-      if (isOngoing) return { start: date, end: today }; // End is visually today
-      const { start, end } = prev;
+    // Close tooltip
+    setTooltip({ visible: false, position: null, periodId: null });
+  };
 
-      // Start new selection
-      if (!start) return { start: date, end: null };
-      
-      // Adjust selection
-      if (start && !end) {
-        if (isBefore(date, start)) {
-          // Clicked before start so we reset start
-          return { start: date, end: null };
-        } else if (isSameDay(date, start)) {
-          // Clicked same day so we deselect
-          return { start: null, end: null };
-        } else {
-          // Click after start means the range is complete
-          return { start, end: date };
+  // Delete period handler
+  const handleDeletePeriod = () => {
+    Alert.alert(
+      "Delete Period",
+      "Are you sure you want to delete this period log?",
+      [
+        { text: "Cancel", style: "cancel" },
+        { 
+          text: "Delete", 
+          style: "destructive", 
+          onPress: async () => {
+            if (!tooltip.periodId) return;
+            try {
+              await deletePeriod(tooltip.periodId);
+              await fetchData(); // Refresh
+              setTooltip({ visible: false, position: null, periodId: null });
+            } catch (error) {
+              Alert.alert("Error", "Failed to delete period.");
+            }
+          } 
         }
-      }
+      ]
+    );
+  };
 
-      // Reset if full range exists
-      return { start: date, end: null };
-    });
-  }, [isLogMode, isOngoing, today]);
+  const handleDatePress = useCallback((date: Date, position: { x: number; y: number }) => {
+
+    if (isLogMode) {
+    
+      // Prevent selection of future dates
+      if (isAfter(date, today)) return; 
+      
+      setSelection(prev => {
+        // If "Ongoing" is checked, we only allow picking a Start Date
+        if (isOngoing) return { start: date, end: today }; // End is visually today
+        const { start, end } = prev;
+
+        // Start new selection
+        if (!start) return { start: date, end: null };
+        
+        // Adjust selection
+        if (start && !end) {
+          if (isBefore(date, start)) {
+            // Clicked before start so we reset start
+            return { start: date, end: null };
+          } else if (isSameDay(date, start)) {
+            // Clicked same day so we deselect
+            return { start: null, end: null };
+          } else {
+            // Click after start means the range is complete
+            return { start, end: date };
+          }
+        }
+
+        // Reset if full range exists
+        return { start: date, end: null };
+      });
+      return;
+    }
+
+    // Not in log mode - handle tooltip for existing periods
+    // Check if the tapped date belongs to an existing period
+    const clickedPeriod = periods.find(p => isWithinInterval(date, { start: p.start, end: p.end }));
+    if (clickedPeriod) {
+      // Show tooltip at click position
+      setTooltip({
+        visible: true,
+        position,
+        periodId: clickedPeriod.id
+      });
+    } else {
+      // Hide tooltip if clicking empty space
+      setTooltip({ visible: false, position: null, periodId: null });
+    }
+
+  }, [isLogMode, isOngoing, today, periods]);
 
   // Handle "Ongoing" toggle
   const toggleOngoing = () => {
@@ -197,7 +284,14 @@ export default function CalendarScreen() {
   // Selection validation and save
   const validateSelection = (start: Date, end: Date) => {
     // Overlap check
-    const hasOverlap = periods.some(p => 
+
+    // Filter out the period currently being edited from the overlap check
+    // so it doesn't collide with its own previous state
+    const otherPeriods = editingPeriodId 
+      ? periods.filter(p => p.id !== editingPeriodId) 
+      : periods;
+
+    const hasOverlap = otherPeriods.some(p => 
       areIntervalsOverlapping({ start, end }, { start: p.start, end: p.end }, { inclusive: true })
     );
     if (hasOverlap) {
@@ -206,7 +300,7 @@ export default function CalendarScreen() {
     }
 
     // Adjacency check (1 day gap)
-    const isAdjacent = periods.some(p => {
+    const isAdjacent = otherPeriods.some(p => {
       // Check if new.start is 1 day after p.end
       const touchesAfter = isSameDay(start, addDays(p.end, 1));
       // Check if new.end is 1 day before p.start
@@ -239,12 +333,18 @@ export default function CalendarScreen() {
         // If ongoing, send null. Otherwise send formatted date.
         endDate: isOngoing ? null : format(effectiveEnd, 'yyyy-MM-dd'),
       };
-      await logNewPeriod(payload);
+      if (editingPeriodId) {
+        // Update existing
+        await updatePeriod(editingPeriodId, payload);
+      } else {
+        // Create new
+        await logNewPeriod(payload);
+      }
       
       // Refresh & reset
       await fetchData();
       handleCancelLog();
-      Alert.alert("Saved!", "We've added this period to your history.");
+      Alert.alert("Success", editingPeriodId ? "We've updated this period in your history." : "We've added this period to your history.");
     } catch (error: any) {
       Alert.alert("Oops!", error.message || "We had trouble saving that just now. Please try again in a moment.");
     } finally {
@@ -336,7 +436,8 @@ export default function CalendarScreen() {
              <ActivityIndicator size="large" color={theme.highlight || "#FCA5A5"} />
           </View>
         )}
-
+        
+        {/* Months list */}
         <FlatList
           ref={flatListRef}
           data={months}
@@ -365,6 +466,13 @@ export default function CalendarScreen() {
             });
           }}
           
+          // This hides the tooltip when the user starts scrolling
+          onScrollBeginDrag={() => {
+            if (tooltip.visible) {
+              setTooltip({ visible: false, position: null, periodId: null });
+            }
+          }}
+
           // This keeps the scroll position stable when we add new items to the top of the list
           // Without this, adding items to the top pushes the content down, causing a visual jump
           maintainVisibleContentPosition={{
@@ -458,6 +566,15 @@ export default function CalendarScreen() {
               </View>
            </View>
         </View>
+        
+        {/* Tooltip component */}
+        <PeriodActionTooltip 
+          visible={tooltip.visible}
+          position={tooltip.position}
+          onEdit={handleEditPeriod}
+          onDelete={handleDeletePeriod}
+          onClose={() => setTooltip({ visible: false, position: null, periodId: null })}
+        />
 
       </View>
     </View>

@@ -1,5 +1,5 @@
-import React, { useMemo } from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
+import React, { useMemo, useRef } from 'react';
+import { View, Text, TouchableOpacity, GestureResponderEvent } from 'react-native';
 import { format, isSameDay, isWeekend } from 'date-fns';
 import { clsx } from 'clsx';
 import { themes } from "@/lib/themes";
@@ -9,7 +9,7 @@ const SELECTION_RED = "rgba(205, 22, 61, 0.9)";
 
 interface CalendarDayProps {
   date: Date | null;
-  onPress?: (date: Date) => void;
+  onPress?: (date: Date, position: { x: number; y: number }) => void;
   isPeriod?: boolean;
   isSelected?: boolean;
   isInRange?: boolean;
@@ -29,6 +29,10 @@ const CalendarDay = React.memo(({
   isSelectionEnd = false,
   isPrediction = false, themeColor 
 }: CalendarDayProps) => {
+  
+  // Reference to the day view for measuring position
+  const viewRef = useRef<View>(null);
+
   // Handle empty days (padding at start of month)
   if (!date) {
     return <View className="w-[14.28%] aspect-square" />;
@@ -40,13 +44,24 @@ const CalendarDay = React.memo(({
   // Base container style (1/7th width)
   const containerBase = "w-[14.28%] aspect-square justify-center items-center mb-1 rounded-full";
 
+  // Handle press to measure position for tooltip
+  const handlePress = () => {
+    if (onPress && viewRef.current) {
+      // .measure calculates the position of the element relative to the screen
+      viewRef.current.measure((x, y, width, height, pageX, pageY) => {
+        // Calculate center X (the horizontal center of the day component)
+        const centerX = pageX + (width / 2);
+        // Calculate top Y (the top edge of the day component)
+        const topY = pageY;
+        
+        onPress(date, { x: centerX, y: topY });
+      });
+    }
+  };
+  
+  // Dynamic styles based on state
   const dynamicStyles = useMemo(() => {
-    const styles: {
-      backgroundColor: string;
-      borderColor: string;
-      borderWidth: number;
-      borderStyle?: 'solid' | 'dotted' | 'dashed';
-    } = {
+    const styles: any = {
       backgroundColor: "transparent",
       borderColor: "transparent",
       borderWidth: 0,
@@ -120,9 +135,9 @@ const CalendarDay = React.memo(({
   )
   
   return (
-    <View className={containerBase}>
+    <View className={containerBase} ref={viewRef}>
       <TouchableOpacity 
-        onPress={() => onPress?.(date)}
+        onPress={handlePress}
         activeOpacity={0.7}
         // If in range, we span wider to connect. If single selection, we stay round.
         className={clsx(

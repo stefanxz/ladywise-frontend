@@ -153,3 +153,15 @@ export async function logNewPeriod(payload: PeriodLogRequest) {
   const { data } = await api.post<PeriodLogResponse>("/api/periods", payload);
   return data;
 }
+
+// Update an existing period
+export async function updatePeriod(periodId: string, payload: PeriodLogRequest) {
+  const { data } = await api.put<PeriodLogResponse>(`/api/periods/${periodId}`, payload);
+  return data;
+}
+
+// Delete a period
+export async function deletePeriod(periodId: string) {
+  const { data } = await api.delete(`/api/periods/${periodId}`);
+  return data;
+}
