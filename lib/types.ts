@@ -34,7 +34,6 @@ export interface ResetPasswordPayload {
 }
 
 export type QuestionnairePayload = {
-  userId: string;
   health: {
     personalDetails: {
       age: number;

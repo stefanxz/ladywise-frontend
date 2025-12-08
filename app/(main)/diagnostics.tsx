@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { View, Text, ActivityIndicator, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { isAxiosError } from "axios";
-
 import { RiskLineChart } from "@/components/charts/RiskLineChart";
 import { useAuth } from "@/context/AuthContext";
 import { getRiskHistory } from "@/lib/api";
