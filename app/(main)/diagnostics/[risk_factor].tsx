@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { Feather } from "@expo/vector-icons";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 import { Colors, riskColors } from "@/constants/colors";
 import { RiskLineChart } from "@/components/charts/RiskLineChart";
@@ -36,12 +37,11 @@ const ExtendedDiagnosticsScreen = () => {
   // Format title from risk_factor (e.g., 'anemia-risk' -> 'Anemia Risk')
   const title = risk_factor
     ? risk_factor
-        .split("-")
-        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-        .join(" ")
+      .split("-")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ")
     : "Diagnostics";
 
-  // Safely parse graphData
   // Safely parse graphData
   const riskData = React.useMemo(() => {
     if (!graphDataString) return { labels: [], data: [] };
@@ -112,103 +112,108 @@ const ExtendedDiagnosticsScreen = () => {
   }, [risk_factor]);
 
   return (
-    <ScrollView style={styles.container}>
-      <Stack.Screen options={{ title }} />
+    <SafeAreaView style={styles.safeArea} edges={["top"]}>
+      <ScrollView contentContainerStyle={styles.scrollContent}>
+        <Stack.Screen options={{ headerShown: false }} />
 
-      <View style={styles.headerContainer}>
-        <TouchableOpacity
-          testID="back-button"
-          onPress={() => router.back()}
-          style={styles.backButton}
-        >
-          <Feather name="arrow-left" size={24} color={Colors.textHeading} />
-        </TouchableOpacity>
-        <Text style={styles.mainTitle}>{title}</Text>
-      </View>
-
-      {/* Card 1: Risk Trend */}
-      <View style={styles.card}>
-        <View style={styles.cardHeader}>
-          <View>
-            <Text style={styles.currentRiskLabel}>Current Risk</Text>
-            <Text style={styles.currentRiskValue}>{currentRisk}</Text>
-          </View>
-          <TouchableOpacity style={styles.timeframeButton}>
-            <Text style={styles.timeframeButtonText}>Monthly</Text>
+        <View style={styles.headerContainer}>
+          <TouchableOpacity
+            testID="back-button"
+            onPress={() => router.back()}
+            style={styles.backButton}
+          >
+            <Feather name="arrow-left" size={24} color={Colors.textHeading} />
           </TouchableOpacity>
+          <Text className="text-3xl font-bold text-headingText">{title}</Text>
         </View>
-        <View style={styles.graphContainer}>
-          {riskData.data.length > 0 ? (
-            <RiskLineChart
-              labels={riskData.labels}
-              data={riskData.data}
-              width={chartWidth}
-              height={250}
-              segments={2}
-              formatYLabel={formatRiskTick}
-              verticalLabelRotation={30}
-            />
-          ) : (
-            <Text style={styles.noDataText}>No graph data available.</Text>
-          )}
-        </View>
-      </View>
 
-      {/* Card 2: Insights */}
-      <View style={styles.card}>
-        <Text style={styles.cardTitle}>Insights</Text>
-        {loading ? (
-          <ActivityIndicator
-            testID="loading-indicator"
-            size="large"
-            color={Colors.brand}
-            style={styles.loader}
-          />
-        ) : (
-          <View>
-            <Text style={styles.insightsText} numberOfLines={4}>
-              {insights}
-            </Text>
-            <TouchableOpacity>
-              <Text style={styles.readMore}>Read more</Text>
+        {/* Card 1: Risk Trend */}
+        <View style={styles.card}>
+          <View style={styles.cardHeader}>
+            <View>
+              <Text style={styles.currentRiskLabel}>Current Risk</Text>
+              <Text style={styles.currentRiskValue}>{currentRisk}</Text>
+            </View>
+            <TouchableOpacity style={styles.timeframeButton}>
+              <Text style={styles.timeframeButtonText}>Monthly</Text>
             </TouchableOpacity>
           </View>
-        )}
-      </View>
-
-      {/* Card 3: Factors */}
-      <View style={styles.card}>
-        <Text style={styles.cardTitle}>Factors</Text>
-        {loading ? (
-          <ActivityIndicator
-            size="large"
-            color={Colors.brand}
-            style={styles.loader}
-          />
-        ) : (
-          <View style={styles.factorsGrid}>
-            {factors.map((factor) => (
-              <View key={factor.id} style={styles.factorWrapper}>
-                <FactorCard {...factor} />
-              </View>
-            ))}
+          <View style={styles.graphContainer}>
+            {riskData.data.length > 0 ? (
+              <RiskLineChart
+                labels={riskData.labels}
+                data={riskData.data}
+                width={chartWidth}
+                height={250}
+                segments={2}
+                formatYLabel={formatRiskTick}
+                verticalLabelRotation={30}
+              />
+            ) : (
+              <Text style={styles.noDataText}>No graph data available.</Text>
+            )}
           </View>
-        )}
-      </View>
+        </View>
 
-      <Text style={styles.disclaimer}>
-        This information is for informational purposes only and does not
-        constitute medical advice. Please consult a healthcare professional.
-      </Text>
-    </ScrollView>
+        {/* Card 2: Insights */}
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>Insights</Text>
+          {loading ? (
+            <ActivityIndicator
+              testID="loading-indicator"
+              size="large"
+              color={Colors.brand}
+              style={styles.loader}
+            />
+          ) : (
+            <View>
+              <Text style={styles.insightsText} numberOfLines={4}>
+                {insights}
+              </Text>
+              <TouchableOpacity>
+                <Text style={styles.readMore}>Read more</Text>
+              </TouchableOpacity>
+            </View>
+          )}
+        </View>
+
+        {/* Card 3: Factors */}
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>Factors</Text>
+          {loading ? (
+            <ActivityIndicator
+              size="large"
+              color={Colors.brand}
+              style={styles.loader}
+            />
+          ) : (
+            <View style={styles.factorsGrid}>
+              {factors.map((factor) => (
+                <View key={factor.id} style={styles.factorWrapper}>
+                  <FactorCard {...factor} />
+                </View>
+              ))}
+            </View>
+          )}
+        </View>
+
+        <Text style={styles.disclaimer}>
+          This information is for informational purposes only and does not
+          constitute medical advice. Please consult a healthcare professional.
+        </Text>
+      </ScrollView>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
+  safeArea: {
     flex: 1,
     backgroundColor: Colors.background,
+  },
+  scrollContent: {
     padding: 20,
+    paddingTop: 10, // Added slight top padding for breathing room
   },
   headerContainer: {
     flexDirection: "row",
@@ -217,11 +222,6 @@ const styles = StyleSheet.create({
   },
   backButton: {
     marginRight: 16,
-  },
-  mainTitle: {
-    fontSize: 28,
-    fontWeight: "bold",
-    color: Colors.textHeading,
   },
   card: {
     backgroundColor: "white",
@@ -241,11 +241,11 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   currentRiskLabel: {
-    fontSize: 14,
+    fontSize: 12, // Matching text-xs (12px)
     color: Colors.regularText,
   },
   currentRiskValue: {
-    fontSize: 32,
+    fontSize: 20, // Reduced to 20 (text-xl equivalent)
     fontWeight: "bold",
     color: Colors.brand,
   },
@@ -269,7 +269,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   cardTitle: {
-    fontSize: 20,
+    fontSize: 18, // Matching text-lg (18px)
     fontWeight: "bold",
     color: Colors.textHeading,
     marginBottom: 16,
@@ -278,11 +278,12 @@ const styles = StyleSheet.create({
     marginVertical: 20,
   },
   insightsText: {
-    fontSize: 16,
-    lineHeight: 24,
+    fontSize: 14, // Reduced from 16 to 14 (text-sm equivalent)
+    lineHeight: 22,
     color: Colors.regularText,
   },
   readMore: {
+    fontSize: 14,
     color: riskColors[2], // High risk color
     marginTop: 8,
     fontWeight: "600",
