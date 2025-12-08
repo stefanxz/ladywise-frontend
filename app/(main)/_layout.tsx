@@ -64,12 +64,7 @@ export default function HomeLayout() {
             ),
           }}
         />
-        <Tabs.Screen
-          name="extended-diagnostics"
-          options={{
-            href: null,
-          }}
-        />
+        
       </Tabs>
     </BottomSheetModalProvider>
   );

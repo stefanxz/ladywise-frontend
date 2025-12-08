@@ -1,6 +1,6 @@
 import React from "react";
 import { render, screen, waitFor, fireEvent } from "@testing-library/react-native";
-import ExtendedDiagnosticsScreen from "@/app/(main)/extended-diagnostics";
+import ExtendedDiagnosticsScreen from "@/app/(main)/diagnostics/[risk_factor]";
 import { useLocalSearchParams, useRouter } from "expo-router";
 
 // Mock dependencies
@@ -42,8 +42,7 @@ const mockRouter = {
 };
 
 const mockParams = {
-  conditionId: "anemia",
-  title: "Anemia Risk",
+  risk_factor: "anemia-risk",
   graphData: JSON.stringify({
     labels: ["W1", "W2", "W3", "W4"],
     data: [0, 1, 0, 1],
@@ -68,7 +67,7 @@ describe("ExtendedDiagnosticsScreen", () => {
     render(<ExtendedDiagnosticsScreen />);
 
     expect(screen.getByTestId("loading-indicator")).toBeTruthy();
-    expect(screen.queryByText(/Based on your recent symptoms/)).toBeNull();
+    expect(screen.queryByText(/Your anemia risk profile/)).toBeNull();
   });
 
   it("displays the correct title and current risk from params", async () => {
@@ -85,7 +84,7 @@ describe("ExtendedDiagnosticsScreen", () => {
   it("renders the risk chart with data from params", async () => {
     mockUseLocalSearchParams.mockReturnValue(mockParams);
     render(<ExtendedDiagnosticsScreen />);
-    
+
     await waitFor(() => jest.runAllTimers());
 
     const chart = screen.getByTestId("mock-risk-line-chart");
@@ -106,11 +105,26 @@ describe("ExtendedDiagnosticsScreen", () => {
 
     // Now insights should be visible
     expect(screen.queryByTestId("loading-indicator")).toBeNull();
-    expect(screen.getByText(/Based on your recent symptoms/)).toBeTruthy();
+    expect(screen.getByText(/Your anemia risk profile/)).toBeTruthy();
   });
 
-  it("renders factor cards", async () => {
+  it("renders factor cards for anemia", async () => {
     mockUseLocalSearchParams.mockReturnValue(mockParams);
+    render(<ExtendedDiagnosticsScreen />);
+
+    await waitFor(() => jest.runAllTimers());
+
+    const factorCards = screen.getAllByTestId("mock-factor-card");
+    expect(factorCards.length).toBeGreaterThan(0);
+    expect(screen.getByText("Fatigue")).toBeTruthy();
+    expect(screen.getByText("Dizziness")).toBeTruthy();
+  });
+
+  it("renders factor cards for thrombosis", async () => {
+    mockUseLocalSearchParams.mockReturnValue({
+      ...mockParams,
+      risk_factor: "thrombosis-risk",
+    });
     render(<ExtendedDiagnosticsScreen />);
 
     await waitFor(() => jest.runAllTimers());

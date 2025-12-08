@@ -6,7 +6,7 @@ import {
   ScrollView,
   TouchableOpacity,
 } from "react-native";
-import { useRouter } from "expo-router";
+import { Link } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { isAxiosError } from "axios";
 
@@ -38,7 +38,7 @@ type DiagnosticsScreenProps = {
 export default function DiagnosticsScreen({
   history: historyProp,
 }: DiagnosticsScreenProps) {
-  const router = useRouter();
+  
   const { token, userId } = useAuth();
 
   const [history, setHistory] = useState<RiskHistoryPoint[]>(historyProp ?? []);
@@ -168,23 +168,24 @@ export default function DiagnosticsScreen({
           )}
 
           {/* --- Thrombosis Card --- */}
-          <TouchableOpacity
-            onPress={() =>
-              router.push({
-                pathname: "/(main)/extended-diagnostics",
+          <Link
+            href={
+              {
+                pathname: "/diagnostics/thrombosis-risk",
                 params: {
-                  conditionId: "thrombosis",
-                  title: "Thrombosis Risk",
                   graphData: JSON.stringify({
                     labels,
                     data: thrombosisData,
                   }),
                   currentRisk: riskLabels[latestThrombosis],
                 },
-              })
+              } as any
             }
-            className="bg-white rounded-2xl shadow-sm p-4 mb-6"
+            asChild
           >
+            <TouchableOpacity
+              className="bg-white rounded-2xl shadow-sm p-4 mb-6"
+            >
             <Text className="text-lg font-semibold text-headingText mb-3">
               Thrombosis Risk
             </Text>
@@ -213,25 +214,27 @@ export default function DiagnosticsScreen({
               isInteractive
             />
           </TouchableOpacity>
+          </Link>
 
           {/* --- Anemia Card --- */}
-          <TouchableOpacity
-            onPress={() =>
-              router.push({
-                pathname: "/(main)/extended-diagnostics",
+          <Link
+            href={
+              {
+                pathname: "/diagnostics/anemia-risk",
                 params: {
-                  conditionId: "anemia",
-                  title: "Anemia Risk",
                   graphData: JSON.stringify({
                     labels,
                     data: anemiaData,
                   }),
                   currentRisk: riskLabels[latestAnemia],
                 },
-              })
+              } as any
             }
-            className="bg-white rounded-2xl shadow-sm p-4 mb-6"
+            asChild
           >
+            <TouchableOpacity
+              className="bg-white rounded-2xl shadow-sm p-4 mb-6"
+            >
             <Text className="text-lg font-semibold text-headingText mb-3">
               Anemia Risk
             </Text>
@@ -259,6 +262,7 @@ export default function DiagnosticsScreen({
               isInteractive
             />
           </TouchableOpacity>
+          </Link>
 
           {/* --- Flow Card --- */}
           <View className="bg-white rounded-2xl shadow-sm p-4 mb-10">

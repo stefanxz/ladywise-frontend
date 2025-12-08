@@ -17,59 +17,40 @@ import FactorCard from "@/components/Diagnostics/FactorCard";
 import { FactorCardProps } from "@/components/Diagnostics/types";
 import { FACTORS_REGISTRY } from "@/constants/factors-registry";
 
-// Mock data for factors - using a selection from the registry
-const mockFactors: (FactorCardProps & { id: string })[] = [
-  {
-    ...FACTORS_REGISTRY.estrogen_pill,
-    value: "Present",
-  },
-  {
-    ...FACTORS_REGISTRY.surgery_injury,
-    value: "Present",
-  },
-  {
-    ...FACTORS_REGISTRY.shortness_breath,
-    value: "Absent",
-  },
-  {
-    ...FACTORS_REGISTRY.dizziness,
-    value: "Present",
-  },
-  {
-    ...FACTORS_REGISTRY.family_history_thrombosis,
-    value: "Thrombosis",
-  },
-  {
-    ...FACTORS_REGISTRY.tired,
-    value: "Absent",
-  },
-];
-
 const chartWidth = Dimensions.get("window").width - 80; // Screen padding (20*2) + Card padding (20*2)
 
 const ExtendedDiagnosticsScreen = () => {
   const router = useRouter();
   const params = useLocalSearchParams<{
-    conditionId: string;
-    title: string;
-    graphData: string; // Received as string, needs parsing
+    risk_factor: string;
+    graphData: string;
     currentRisk: string;
   }>();
 
   const {
-    conditionId,
-    title = "Diagnostics",
+    risk_factor,
     graphData: graphDataString,
     currentRisk = "N/A",
   } = params;
 
+  // Format title from risk_factor (e.g., 'anemia-risk' -> 'Anemia Risk')
+  const title = risk_factor
+    ? risk_factor
+        .split("-")
+        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(" ")
+    : "Diagnostics";
+
   // Safely parse graphData
-  const parsedGraphData = graphDataString
+  const riskData = graphDataString
     ? JSON.parse(graphDataString)
     : { labels: [], data: [] };
 
   const [insights, setInsights] = useState("");
   const [loading, setLoading] = useState(true);
+  const [factors, setFactors] = useState<(FactorCardProps & { id: string })[]>(
+    []
+  );
 
   // This should be aligned with the logic in the main diagnostics screen
   const riskLabels: Record<number, string> = {
@@ -83,22 +64,45 @@ const ExtendedDiagnosticsScreen = () => {
   };
 
   useEffect(() => {
-    // Mock API call
+    // Mock API call to fetch data based on risk_factor
     const fetchInsights = () => {
-      console.log(`Fetching insights for condition: ${conditionId}`);
+      console.log(`Fetching data for risk factor: ${risk_factor}`);
       setLoading(true);
       setTimeout(() => {
-        const mockResponse =
-          "Based on your recent symptoms and medical history, your risk profile shows a slight increase. Key contributing factors include your current medication and a family history of similar conditions. Maintaining a healthy lifestyle and regular check-ups is advised to manage these risks effectively.";
-        setInsights(mockResponse);
+        // Mock responses based on risk_factor
+        if (risk_factor === "anemia-risk") {
+          setFactors([
+            { ...FACTORS_REGISTRY.tired, value: "Present" },
+            { ...FACTORS_REGISTRY.dizziness, value: "Present" },
+            { ...FACTORS_REGISTRY.shortness_breath, value: "Absent" },
+          ]);
+          setInsights(
+            "Your anemia risk profile shows some fluctuations. Key factors include reported tiredness and dizziness. Consider discussing these with your healthcare provider."
+          );
+        } else if (risk_factor === "thrombosis-risk") {
+          setFactors([
+            { ...FACTORS_REGISTRY.estrogen_pill, value: "Present" },
+            { ...FACTORS_REGISTRY.surgery_injury, value: "Present" },
+            {
+              ...FACTORS_REGISTRY.family_history_thrombosis,
+              value: "Thrombosis",
+            },
+          ]);
+          setInsights(
+            "Your thrombosis risk is currently elevated due to factors like estrogen pill usage and recent surgery. It is crucial to monitor for symptoms and consult your doctor."
+          );
+        } else {
+          setFactors([]);
+          setInsights("No data available for this risk factor.");
+        }
         setLoading(false);
       }, 1000);
     };
 
-    if (conditionId) {
+    if (risk_factor) {
       fetchInsights();
     }
-  }, [conditionId]);
+  }, [risk_factor]);
 
   return (
     <ScrollView style={styles.container}>
@@ -127,12 +131,12 @@ const ExtendedDiagnosticsScreen = () => {
           </TouchableOpacity>
         </View>
         <View style={styles.graphContainer}>
-          {parsedGraphData.data.length > 0 ? (
+          {riskData.data.length > 0 ? (
             <RiskLineChart
-              labels={parsedGraphData.labels}
-              data={parsedGraphData.data}
+              labels={riskData.labels}
+              data={riskData.data}
               width={chartWidth}
-              height={250} // Increased height for rotated labels
+              height={250}
               segments={2}
               formatYLabel={formatRiskTick}
               verticalLabelRotation={30}
@@ -168,13 +172,21 @@ const ExtendedDiagnosticsScreen = () => {
       {/* Card 3: Factors */}
       <View style={styles.card}>
         <Text style={styles.cardTitle}>Factors</Text>
-        <View style={styles.factorsGrid}>
-          {mockFactors.map((factor) => (
-            <View key={factor.id} style={styles.factorWrapper}>
-              <FactorCard {...factor} />
-            </View>
-          ))}
-        </View>
+        {loading ? (
+          <ActivityIndicator
+            size="large"
+            color={Colors.brand}
+            style={styles.loader}
+          />
+        ) : (
+          <View style={styles.factorsGrid}>
+            {factors.map((factor) => (
+              <View key={factor.id} style={styles.factorWrapper}>
+                <FactorCard {...factor} />
+              </View>
+            ))}
+          </View>
+        )}
       </View>
 
       <Text style={styles.disclaimer}>
