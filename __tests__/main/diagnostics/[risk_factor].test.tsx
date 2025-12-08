@@ -39,6 +39,7 @@ const mockUseRouter = useRouter as jest.Mock;
 
 const mockRouter = {
   push: jest.fn(),
+  back: jest.fn(),
 };
 
 const mockParams = {
@@ -143,7 +144,7 @@ describe("ExtendedDiagnosticsScreen", () => {
 
     const backButton = screen.getByTestId("back-button"); // We need to add a testID to the TouchableOpacity
     fireEvent.press(backButton);
-    expect(mockRouter.push).toHaveBeenCalledWith("/(main)/diagnostics");
+    expect(mockRouter.back).toHaveBeenCalled();
   });
 
   it("shows a fallback message if graph data is missing", async () => {

@@ -38,7 +38,6 @@ type DiagnosticsScreenProps = {
 export default function DiagnosticsScreen({
   history: historyProp,
 }: DiagnosticsScreenProps) {
-  
   const { token, userId } = useAuth();
 
   const [history, setHistory] = useState<RiskHistoryPoint[]>(historyProp ?? []);
@@ -183,37 +182,37 @@ export default function DiagnosticsScreen({
             }
             asChild
           >
-            <TouchableOpacity
-              className="bg-white rounded-2xl shadow-sm p-4 mb-6"
-            >
-            <Text className="text-lg font-semibold text-headingText mb-3">
-              Thrombosis Risk
-            </Text>
+            <TouchableOpacity className="bg-white rounded-2xl shadow-sm p-4 mb-6">
+              <Text className="text-lg font-semibold text-headingText mb-3">
+                Thrombosis Risk
+              </Text>
 
-            <View className="flex-row justify-between items-center mb-4">
-              <View>
-                <Text className="text-xs text-inactiveText">Current Risk</Text>
-                <Text
-                  className="text-xl font-semibold"
-                  style={{ color: riskColors[latestThrombosis] }}
-                >
-                  {riskLabels[latestThrombosis]}
+              <View className="flex-row justify-between items-center mb-4">
+                <View>
+                  <Text className="text-xs text-inactiveText">
+                    Current Risk
+                  </Text>
+                  <Text
+                    className="text-xl font-semibold"
+                    style={{ color: riskColors[latestThrombosis] }}
+                  >
+                    {riskLabels[latestThrombosis]}
+                  </Text>
+                </View>
+                {/* placeholder for "same as last month" etc. */}
+                <Text className="text-xs text-inactiveText">
+                  latest measurement
                 </Text>
               </View>
-              {/* placeholder for "same as last month" etc. */}
-              <Text className="text-xs text-inactiveText">
-                latest measurement
-              </Text>
-            </View>
 
-            <RiskLineChart
-              labels={labels}
-              data={thrombosisData}
-              segments={2}
-              formatYLabel={formatRiskTick}
-              isInteractive
-            />
-          </TouchableOpacity>
+              <RiskLineChart
+                labels={labels}
+                data={thrombosisData}
+                segments={2}
+                formatYLabel={formatRiskTick}
+                isInteractive
+              />
+            </TouchableOpacity>
           </Link>
 
           {/* --- Anemia Card --- */}
@@ -232,36 +231,36 @@ export default function DiagnosticsScreen({
             }
             asChild
           >
-            <TouchableOpacity
-              className="bg-white rounded-2xl shadow-sm p-4 mb-6"
-            >
-            <Text className="text-lg font-semibold text-headingText mb-3">
-              Anemia Risk
-            </Text>
+            <TouchableOpacity className="bg-white rounded-2xl shadow-sm p-4 mb-6">
+              <Text className="text-lg font-semibold text-headingText mb-3">
+                Anemia Risk
+              </Text>
 
-            <View className="flex-row justify-between items-center mb-4">
-              <View>
-                <Text className="text-xs text-inactiveText">Current Risk</Text>
-                <Text
-                  className="text-xl font-semibold"
-                  style={{ color: riskColors[latestAnemia] }}
-                >
-                  {riskLabels[latestAnemia]}
+              <View className="flex-row justify-between items-center mb-4">
+                <View>
+                  <Text className="text-xs text-inactiveText">
+                    Current Risk
+                  </Text>
+                  <Text
+                    className="text-xl font-semibold"
+                    style={{ color: riskColors[latestAnemia] }}
+                  >
+                    {riskLabels[latestAnemia]}
+                  </Text>
+                </View>
+                <Text className="text-xs text-inactiveText">
+                  latest measurement
                 </Text>
               </View>
-              <Text className="text-xs text-inactiveText">
-                latest measurement
-              </Text>
-            </View>
 
-            <RiskLineChart
-              labels={labels}
-              data={anemiaData}
-              segments={2}
-              formatYLabel={formatRiskTick}
-              isInteractive
-            />
-          </TouchableOpacity>
+              <RiskLineChart
+                labels={labels}
+                data={anemiaData}
+                segments={2}
+                formatYLabel={formatRiskTick}
+                isInteractive
+              />
+            </TouchableOpacity>
           </Link>
 
           {/* --- Flow Card --- */}

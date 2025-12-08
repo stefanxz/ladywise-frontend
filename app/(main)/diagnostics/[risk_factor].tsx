@@ -42,14 +42,21 @@ const ExtendedDiagnosticsScreen = () => {
     : "Diagnostics";
 
   // Safely parse graphData
-  const riskData = graphDataString
-    ? JSON.parse(graphDataString)
-    : { labels: [], data: [] };
+  // Safely parse graphData
+  const riskData = React.useMemo(() => {
+    if (!graphDataString) return { labels: [], data: [] };
+    try {
+      return JSON.parse(graphDataString);
+    } catch (error) {
+      console.warn("Failed to parse graphData:", error);
+      return { labels: [], data: [] };
+    }
+  }, [graphDataString]);
 
   const [insights, setInsights] = useState("");
   const [loading, setLoading] = useState(true);
   const [factors, setFactors] = useState<(FactorCardProps & { id: string })[]>(
-    []
+    [],
   );
 
   // This should be aligned with the logic in the main diagnostics screen
@@ -77,7 +84,7 @@ const ExtendedDiagnosticsScreen = () => {
             { ...FACTORS_REGISTRY.shortness_breath, value: "Absent" },
           ]);
           setInsights(
-            "Your anemia risk profile shows some fluctuations. Key factors include reported tiredness and dizziness. Consider discussing these with your healthcare provider."
+            "Your anemia risk profile shows some fluctuations. Key factors include reported tiredness and dizziness. Consider discussing these with your healthcare provider.",
           );
         } else if (risk_factor === "thrombosis-risk") {
           setFactors([
@@ -89,7 +96,7 @@ const ExtendedDiagnosticsScreen = () => {
             },
           ]);
           setInsights(
-            "Your thrombosis risk is currently elevated due to factors like estrogen pill usage and recent surgery. It is crucial to monitor for symptoms and consult your doctor."
+            "Your thrombosis risk is currently elevated due to factors like estrogen pill usage and recent surgery. It is crucial to monitor for symptoms and consult your doctor.",
           );
         } else {
           setFactors([]);
@@ -111,7 +118,7 @@ const ExtendedDiagnosticsScreen = () => {
       <View style={styles.headerContainer}>
         <TouchableOpacity
           testID="back-button"
-          onPress={() => router.push("/(main)/diagnostics")}
+          onPress={() => router.back()}
           style={styles.backButton}
         >
           <Feather name="arrow-left" size={24} color={Colors.textHeading} />
