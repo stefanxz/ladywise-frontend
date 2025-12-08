@@ -12,7 +12,8 @@ import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { Feather } from "@expo/vector-icons";
 
 import { Colors, riskColors } from "@/constants/colors";
-import { RiskLineChart } from "@/components/charts/RiskLineChart";import FactorCard from "@/components/Diagnostics/FactorCard";
+import { RiskLineChart } from "@/components/charts/RiskLineChart";
+import FactorCard from "@/components/Diagnostics/FactorCard";
 import { FactorCardProps } from "@/components/Diagnostics/types";
 import { FACTORS_REGISTRY } from "@/constants/factors-registry";
 
@@ -71,7 +72,11 @@ const ExtendedDiagnosticsScreen = () => {
   const [loading, setLoading] = useState(true);
 
   // This should be aligned with the logic in the main diagnostics screen
-  const riskLabels: Record<number, string> = { 0: "Low", 1: "Medium", 2: "High" };
+  const riskLabels: Record<number, string> = {
+    0: "Low",
+    1: "Medium",
+    2: "High",
+  };
   const formatRiskTick = (value: string) => {
     const rounded = Math.round(Number(value));
     return riskLabels[rounded] ?? "";
