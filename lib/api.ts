@@ -11,8 +11,8 @@ import type {
   UserResponse,
 } from "./types";
 import { CycleStatusDTO } from "./types/cycle";
-import { getAuthData, StoredAuthData } from "./auth";
-import { RiskData, ApiRiskResponse, RiskHistoryPoint } from "./types/risks";
+import { getAuthData } from "./auth";
+import { ApiRiskResponse, RiskHistoryPoint } from "./types/risks";
 import { DailyLogRequest, DailyLogResponse } from "@/lib/types/period";
 
 export const api = axios.create({
@@ -161,10 +161,6 @@ export async function resetPassword(payload: ResetPasswordPayload) {
 }
 
 export async function submitQuestionnaire(payload: QuestionnairePayload) {
-  if (!payload.userId) {
-    throw new Error("User ID is missing.");
-  }
-
   const { data } = await api.post<QuestionnaireResponse>(
     "/api/questionnaire",
     payload,
