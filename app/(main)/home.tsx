@@ -108,7 +108,7 @@ const Home = () => {
           // Generate calendar days with period data
           setCalendarDays(generateCalendarDays(status.periodDates));
         } catch (err: any) {
-          console.error("Failed to fetch cycle status:", err);
+          // console.error("Failed to fetch cycle status:", err);
 
           if (err.response?.status === 404) {
             console.log("No cycle data found (user needs setup).");

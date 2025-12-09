@@ -1,7 +1,8 @@
 import React from "react";
 import { View, Text, TouchableOpacity } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import { Feather, Ionicons } from "@expo/vector-icons";
 import { type Theme } from "@/lib/themes";
+import { Colors } from "@/constants/colors";
 
 type PhaseCardProps = {
   phaseName: string;
@@ -34,12 +35,12 @@ const PhaseCard: React.FC<PhaseCardProps> = ({
           className="absolute top-6 right-6 w-7 h-7 rounded-full justify-center items-center"
           style={{ backgroundColor: theme.highlight }}
         >
-          <Text
-            className="text-sm font-bold"
-            style={{ color: theme.highlightTextColor }}
-          >
-            &gt;
-          </Text>
+          <Feather
+            name="chevron-right"
+            size={16}
+            color={theme.highlightTextColor}
+            testID="back-button-icon"
+          />
         </View>
 
         <View className="items-center my-5">
