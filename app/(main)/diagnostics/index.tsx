@@ -9,6 +9,7 @@ import {
 import { Link } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { isAxiosError } from "axios";
+import { Feather } from "@expo/vector-icons";
 import { RiskLineChart } from "@/components/charts/RiskLineChart";
 import { useAuth } from "@/context/AuthContext";
 import { getRiskHistory } from "@/lib/api";
@@ -16,6 +17,7 @@ import type { RiskHistoryPoint } from "@/lib/types/risks";
 import { Colors, riskColors, flowColors } from "@/constants/colors";
 import { mockHistory } from "@/constants/mock-data";
 import type { RiskNum, FlowNum } from "@/lib/types/diagnostics";
+import ShareReportModal from "@/components/ShareReport/ShareReportModal";
 
 const riskLabels: Record<RiskNum, string> = {
   0: "Low",
@@ -42,6 +44,7 @@ export default function DiagnosticsScreen({
   const [history, setHistory] = useState<RiskHistoryPoint[]>(historyProp ?? []);
   const [loading, setLoading] = useState(!historyProp);
   const [error, setError] = useState<string | null>(null);
+  const [showShareModal, setShowShareModal] = useState(false);
 
   useEffect(() => {
     if (historyProp) return; // Don't fetch if history is passed as a prop
@@ -289,6 +292,31 @@ export default function DiagnosticsScreen({
               formatYLabel={formatFlowTick}
             />
           </View>
+
+          {/* Share Insights Button */}
+          <TouchableOpacity
+            testID="share-insights-button"
+            onPress={() => setShowShareModal(true)}
+            className="bg-headingText rounded-xl py-3.5 px-6 flex-row items-center justify-center mb-2"
+          >
+            <Text className="text-white font-semibold text-sm mr-2">
+              Share insights
+            </Text>
+            <Feather name="arrow-right" size={16} color="white" />
+          </TouchableOpacity>
+
+          {/* Terms notice */}
+          <Text className="text-xs text-inactiveText text-center px-4 mb-10">
+            By sharing your data, you agree with our Terms and Conditions.
+            LifeSense Group is not responsible for your data from here on.
+          </Text>
+
+          {/* Share Report Modal */}
+          <ShareReportModal
+            visible={showShareModal}
+            onClose={() => setShowShareModal(false)}
+            reportType="FULL_REPORT"
+          />
         </View>
       </ScrollView>
     </SafeAreaView>

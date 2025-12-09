@@ -10,6 +10,7 @@ import type {
   UserPayload,
   UserResponse,
 } from "./types";
+import type { ReportRequest } from "./types/reports";
 import { CycleStatusDTO } from "./types/cycle";
 import { getAuthData } from "./auth";
 import { ApiRiskResponse, RiskHistoryPoint } from "./types/risks";
@@ -223,3 +224,20 @@ export async function checkCycleQuestionnaireAccess(): Promise<{
     throw error;
   }
 }
+
+/**
+ * Sends a PDF health report to the specified clinician's email.
+ * @param token - User's auth token
+ * @param payload - Report request containing email, report type, and optional graph/insights
+ * @returns Success message from the server
+ */
+export async function shareReport(
+  token: string,
+  payload: ReportRequest,
+): Promise<string> {
+  const { data } = await api.post<string>("/api/reports/share", payload, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return data;
+}
+
