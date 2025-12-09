@@ -1,3 +1,5 @@
+import { StyleProp, ViewStyle } from "react-native";
+
 /**
  * Props for the “Log period +” button.
  *
@@ -22,4 +24,7 @@ export interface LogNewPeriodButtonProps {
 
   // Test identifier for automated UI tests (defaults to 'log-new-period-button')
   testID?: string;
+
+  // Additional style for the button container
+  style?: StyleProp<ViewStyle>;
 }

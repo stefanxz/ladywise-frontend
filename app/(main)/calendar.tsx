@@ -13,6 +13,7 @@ import { useAuth } from "@/context/AuthContext";
 import { PeriodLogRequest } from '@/lib/types/period';
 import CalendarMonth from '@/components/Calendar/CalendarMonth';
 import PeriodActionTooltip from '@/components/Calendar/EditDeleteTooltip';
+import { FloatingAddButton } from "@/components/FloatingAddButton/FloatingAddButton";
 
 // Configuration
 const PRELOAD_PAST_MONTHS = 6;  // Load 6 months back for initial render
@@ -510,7 +511,7 @@ export default function CalendarScreen() {
         {/* Bottom styling */}
         <View className="absolute bottom-0 w-full justify-end">
            {/* Dynamic height based on mode: log mode needs more space, and regular mode needs less */}
-           <View className={`w-full ${isLogMode ? "h-[230px]" : "h-[180px]"}`} pointerEvents="box-none">
+           <View className={`w-full ${isLogMode ? "h-[200px]" : "h-[150px]"}`} pointerEvents="box-none">
              <LinearGradient
                 colors={['rgba(249,249,249,0)', 'rgba(249,249,249,0.95)', '#F9F9F9']}
                 locations={[0, 0.3, 0.7]}
@@ -518,13 +519,29 @@ export default function CalendarScreen() {
                 pointerEvents="none" // Allow touches to pass through
               />
 
-              <View className="absolute bottom-0 w-full px-8 pb-8 z-10">
+              <View className="absolute bottom-0 w-full px-8 pb-4 z-10">
                 {!isLogMode ? (
-                  // When not in log mode, show the log new period Button
-                  <LogNewPeriodButton 
-                    color="#FCA5A5" 
-                    onPress={handleLogPeriodStart}
-                  />
+                  // When not in log/edit mode, show the log new period button and the cycle questionnaire button
+                  <View className="w-full flex-row items-center justify-center relative">
+
+                    {/* Log period button */}
+                    <LogNewPeriodButton 
+                      color="#FCA5A5" 
+                      onPress={handleLogPeriodStart} 
+                      style={{ width: '42%' }} 
+                    />
+
+                    {/* Cycle questionnaire button */}
+                    <View className="absolute right-0">
+                      <FloatingAddButton 
+                        size={50}
+                        buttonColor="#FCA5A5"
+                        textColor="black"
+                        onPress={() => console.log("Add Questionnaire Response")} // TODO Replace with logic
+                      />
+                    </View>
+
+                  </View>
                 ) : (
                   // When in log mode, show the logging controls
                   <View className="w-full">
