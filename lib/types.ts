@@ -3,8 +3,6 @@ export type RegisterPayload = {
   password: string;
   consentGiven: boolean;
   consentVersion: string;
-  firstName: string;
-  lastName: string;
 };
 export type LoginPayload = { email: string; password: string };
 export type LoginResponse = {

@@ -74,10 +74,9 @@ const Home = () => {
         console.log(riskData);
 
         const user = await getUserById(token!, userId!);
-
-        // Safely handle null/undefined names
-        const safeFirst = (user as any).firstName ?? ""; // cast 'as any' if TS complains
-        const safeLast = (user as any).lastName ?? "";
+        
+        const safeFirst = user.firstName ?? "";
+        const safeLast  = user.lastName ?? "";
 
         const fullName =
           safeFirst || safeLast
