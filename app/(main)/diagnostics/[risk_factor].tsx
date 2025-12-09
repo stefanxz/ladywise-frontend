@@ -143,7 +143,7 @@ const ExtendedDiagnosticsScreen = () => {
 
   return (
     <SafeAreaView className="flex-1 bg-background" edges={["top"]}>
-      <ScrollView contentContainerStyle={{ padding: 20, paddingTop: 10 }}>
+      <ScrollView contentContainerStyle={{ padding: 16, paddingTop: 40 }}>
         <Stack.Screen options={{ headerShown: false }} />
 
         <View className="flex-row items-center mb-6">
@@ -221,7 +221,9 @@ const ExtendedDiagnosticsScreen = () => {
         </View>
 
         {/* Section: Factors */}
-        <Text className="text-xl font-bold text-headingText mb-4">Factors</Text>
+        <Text className="text-xl font-bold text-headingText mb-2 mt-4">
+          Factors
+        </Text>
         {loading ? (
           <ActivityIndicator
             size="large"
@@ -238,7 +240,7 @@ const ExtendedDiagnosticsScreen = () => {
           </View>
         )}
 
-        <Text className="text-xs text-inactiveText text-center px-5 mb-10">
+        <Text className="text-xs text-inactiveText text-center px-5 mb-10 mt-6">
           This information is for informational purposes only and does not
           constitute medical advice. Please consult a healthcare professional.
         </Text>
