@@ -9,21 +9,25 @@ jest.mock("@gorhom/bottom-sheet", () => {
   const React = require("react");
   const { View, Text, Pressable } = require("react-native");
 
+  const BottomSheetModal = React.forwardRef(
+    ({ children, backdropComponent }: any, ref: any) => {
+      const [isVisible, setIsVisible] = React.useState(false);
+
+      React.useImperativeHandle(ref, () => ({
+        present: () => setIsVisible(true),
+        close: () => setIsVisible(false),
+      }));
+
+      if (!isVisible) return null;
+
+      return <View testID="bottom-sheet-modal">{children}</View>;
+    },
+  );
+
+  BottomSheetModal.displayName = "BottomSheetModal";
+
   return {
-    BottomSheetModal: React.forwardRef(
-      ({ children, backdropComponent }: any, ref: any) => {
-        const [isVisible, setIsVisible] = React.useState(false);
-
-        React.useImperativeHandle(ref, () => ({
-          present: () => setIsVisible(true),
-          close: () => setIsVisible(false),
-        }));
-
-        if (!isVisible) return null;
-
-        return <View testID="bottom-sheet-modal">{children}</View>;
-      },
-    ),
+    BottomSheetModal,
     BottomSheetBackdrop: ({ children }: any) => <View>{children}</View>,
     BottomSheetScrollView: ({ children }: any) => <View>{children}</View>,
   };
