@@ -65,7 +65,7 @@ export default function RegisterIndex() {
     };
   }, []);
 
-  const bottomPadding = isKeyboardVisible ? 300 : 0;
+  const bottomPadding = isKeyboardVisible ? 350 : 0;
 
   const onChangeEmail = (t: string) => {
     setEmail(t);
