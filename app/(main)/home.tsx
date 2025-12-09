@@ -10,7 +10,7 @@ import CalendarStrip, {
 import PhaseCard from "@/components/PhaseCard/PhaseCard";
 import { LinearGradient } from "expo-linear-gradient";
 import { useTheme } from "@/context/ThemeContext";
-import { createDailyEntry, getCycleStatus, getRiskData } from "@/lib/api";
+import { createDailyEntry, getCycleStatus, getRiskData, getUserById } from "@/lib/api";
 import { CycleStatusDTO } from "@/lib/types/cycle";
 import { useFocusEffect } from "expo-router";
 import { useAuth } from "@/context/AuthContext";
@@ -20,7 +20,7 @@ import { BottomSheetModal } from "@gorhom/bottom-sheet";
 import { CycleQuestionsBottomSheet } from "@/components/CycleQuestionsBottomSheet/CycleQuestionsBottomSheet";
 import { DailyCycleAnswers } from "@/components/CycleQuestionsBottomSheet/CycleQuestionsBottomSheet.types";
 import { mapAnswersToPayload, mapApiToInsights } from "@/utils/helpers";
-import { MOCK_USER, MOCK_INSIGHTS } from "@/constants/mock-data";
+import { MOCK_INSIGHTS } from "@/constants/mock-data";
 
 async function fetchRiskData(
   token: string,
@@ -52,6 +52,7 @@ const Home = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
+  const [userName, setUserName] = useState<string>("");
 
   const openSheet = useCallback(() => {
     bottomSheetModalRef.current?.present();
@@ -66,6 +67,19 @@ const Home = () => {
         const riskData = await fetchRiskData(token!, userId!);
         setData(riskData);
         console.log(riskData);
+
+        const user = await getUserById(token!, userId!);
+
+        // Safely handle null/undefined names
+        const safeFirst = (user as any).firstName ?? ""; // cast 'as any' if TS complains
+        const safeLast = (user as any).lastName ?? "";
+
+        const fullName =
+          safeFirst || safeLast
+            ? `${safeFirst} ${safeLast}`.trim()
+            : (user.email?.split("@")[0] ?? "there"); // fallback to email prefix or "there"
+
+        setUserName(fullName);
       } catch (error) {
         console.error("[REMOVE IN PROD] error inside useEffect hook!");
         setData([]);
@@ -189,8 +203,7 @@ const Home = () => {
           <View className="flex-1 justify-between">
             <View className="pt-10">
               <Header
-                name={MOCK_USER.name}
-                avatarUrl={MOCK_USER.avatarUrl}
+                name={userName || "there"}
                 onHelpPress={handleHelpPress}
                 theme={theme}
               />
@@ -227,7 +240,7 @@ const Home = () => {
                 }
                 theme={theme}
                 onLogPeriodPress={handleLogPeriod}
-                onCardPress={() => {}}
+                onCardPress={() => { }}
               />
             </View>
             <InsightsSection
