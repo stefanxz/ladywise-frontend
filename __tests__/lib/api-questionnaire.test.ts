@@ -3,10 +3,10 @@
  */
 
 import * as auth from "@/lib/auth";
-import { 
-  markFirstQuestionnaireComplete, 
-  checkCycleQuestionnaireAccess 
-} from "@/lib/api"; 
+import {
+  markFirstQuestionnaireComplete,
+  checkCycleQuestionnaireAccess,
+} from "@/lib/api";
 
 jest.mock("axios", () => {
   const mockInstance = {
@@ -19,7 +19,7 @@ jest.mock("axios", () => {
   };
 
   return {
-    __esModule: true, 
+    __esModule: true,
     default: {
       create: jest.fn(() => mockInstance),
       isAxiosError: jest.fn(),
@@ -35,7 +35,7 @@ jest.mock("@/lib/auth");
 
 // Helper to access the mock instance easily in tests
 const mockAxios = require("axios").default;
-const mockApi = mockAxios.create(); 
+const mockApi = mockAxios.create();
 
 describe("Questionnaire API Logic", () => {
   beforeEach(() => {
@@ -45,34 +45,39 @@ describe("Questionnaire API Logic", () => {
 
   describe("markFirstQuestionnaireComplete", () => {
     it("calls completion endpoint with authenticated user", async () => {
-      (auth.getAuthData as jest.Mock).mockResolvedValue({ 
-        userId: "user123", 
-        token: "valid-token" 
+      (auth.getAuthData as jest.Mock).mockResolvedValue({
+        userId: "user123",
+        token: "valid-token",
       });
       mockApi.post.mockResolvedValue({ data: { success: true } });
 
       const result = await markFirstQuestionnaireComplete();
-      
+
       expect(result).toEqual({ success: true });
       expect(mockApi.post).toHaveBeenCalledWith(
         expect.stringContaining("/first-questionnaire/complete"),
-        expect.objectContaining({ userId: "user123" })
+        expect.objectContaining({ userId: "user123" }),
       );
     });
 
     it("throws when no auth data is found", async () => {
-      (auth.getAuthData as jest.Mock).mockResolvedValue({ userId: null, token: null });
-      await expect(markFirstQuestionnaireComplete()).rejects.toThrow("User not authenticated");
+      (auth.getAuthData as jest.Mock).mockResolvedValue({
+        userId: null,
+        token: null,
+      });
+      await expect(markFirstQuestionnaireComplete()).rejects.toThrow(
+        "User not authenticated",
+      );
     });
   });
 
   describe("checkCycleQuestionnaireAccess", () => {
     it("returns access data when API call succeeds", async () => {
-      (auth.getAuthData as jest.Mock).mockResolvedValue({ 
-        userId: "user123", 
-        token: "valid-token" 
+      (auth.getAuthData as jest.Mock).mockResolvedValue({
+        userId: "user123",
+        token: "valid-token",
       });
-      
+
       const mockResponse = { allowed: true, reason: "completed" };
       mockApi.get.mockResolvedValue({ data: mockResponse });
 
@@ -81,14 +86,14 @@ describe("Questionnaire API Logic", () => {
       expect(result).toEqual(mockResponse);
       expect(mockApi.get).toHaveBeenCalledWith(
         expect.stringContaining("/cycle-questionnaire/access"),
-        expect.objectContaining({ params: { userId: "user123" } })
+        expect.objectContaining({ params: { userId: "user123" } }),
       );
     });
 
     it("returns mock { allowed: true } on Network Error (no response)", async () => {
-      (auth.getAuthData as jest.Mock).mockResolvedValue({ 
-        userId: "user123", 
-        token: "valid-token" 
+      (auth.getAuthData as jest.Mock).mockResolvedValue({
+        userId: "user123",
+        token: "valid-token",
       });
 
       // Explicitly tell the mocked isAxiosError to return true
@@ -96,7 +101,7 @@ describe("Questionnaire API Logic", () => {
 
       // Simulate an error where the server is unreachable (response is undefined)
       const networkError = new Error("Network Error");
-      (networkError as any).response = undefined; 
+      (networkError as any).response = undefined;
 
       mockApi.get.mockRejectedValue(networkError);
 
@@ -106,24 +111,28 @@ describe("Questionnaire API Logic", () => {
     });
 
     it("rethrows error on actual Backend Error (e.g. 500 or 403)", async () => {
-      (auth.getAuthData as jest.Mock).mockResolvedValue({ 
-        userId: "user123", 
-        token: "valid-token" 
+      (auth.getAuthData as jest.Mock).mockResolvedValue({
+        userId: "user123",
+        token: "valid-token",
       });
 
       mockAxios.isAxiosError.mockReturnValue(true);
 
       const backendError = new Error("Internal Server Error");
-      (backendError as any).response = { status: 500 }; 
+      (backendError as any).response = { status: 500 };
 
       mockApi.get.mockRejectedValue(backendError);
 
-      await expect(checkCycleQuestionnaireAccess()).rejects.toThrow("Internal Server Error");
+      await expect(checkCycleQuestionnaireAccess()).rejects.toThrow(
+        "Internal Server Error",
+      );
     });
 
     it("throws when user is not authenticated", async () => {
       (auth.getAuthData as jest.Mock).mockResolvedValue({}); // Missing userId/token
-      await expect(checkCycleQuestionnaireAccess()).rejects.toThrow("User not authenticated");
+      await expect(checkCycleQuestionnaireAccess()).rejects.toThrow(
+        "User not authenticated",
+      );
     });
   });
 });

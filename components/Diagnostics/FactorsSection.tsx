@@ -32,7 +32,9 @@ export default function FactorsSection({ data }: FactorsSectionProps) {
       {/* Grid Layout Container */}
       <View className="flex-row flex-wrap justify-between">
         {activeFactors.map((factor, index) => (
-          <FactorCard key={`${factor.title}-${index}`} {...factor} />
+          <View key={`${factor.title}-${index}`} className="w-[48%] mb-3">
+            <FactorCard {...factor} />
+          </View>
         ))}
       </View>
     </View>

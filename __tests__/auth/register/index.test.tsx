@@ -49,7 +49,7 @@ jest.mock(
         </View>
       ),
     };
-  }
+  },
 );
 
 //Mock validations
@@ -142,7 +142,7 @@ describe("RegisterIndex screen", () => {
     pressContinue();
 
     expect(
-      getByText("Email must have the format example@domain.com.")
+      getByText("Email must have the format example@domain.com."),
     ).toBeTruthy();
     expect(mockReplace).not.toHaveBeenCalled();
   });
@@ -168,8 +168,8 @@ describe("RegisterIndex screen", () => {
 
     expect(
       getByText(
-        "Password must contain at least 8 characters, 1 upper case, 1 lower case and 1 number (and no spaces)."
-      )
+        "Password must contain at least 8 characters, 1 upper case, 1 lower case and 1 number (and no spaces).",
+      ),
     ).toBeTruthy();
     expect(mockReplace).not.toHaveBeenCalled();
   });
@@ -234,7 +234,7 @@ describe("RegisterIndex screen", () => {
           password: "Abcd1234",
           consentGiven: true,
           consentVersion: expect.any(String),
-        })
+        }),
       );
     });
 
@@ -242,13 +242,13 @@ describe("RegisterIndex screen", () => {
       expect(mockSignIn).toHaveBeenCalledWith(
         "fake-token",
         "user-123",
-        "user@example.com"
+        "user@example.com",
       );
     });
 
     await waitFor(() => {
       expect(mockReplace).toHaveBeenCalledWith(
-        "/(auth)/register/personal-details"
+        "/(auth)/register/personal-details",
       );
     });
   });
@@ -286,8 +286,8 @@ describe("RegisterIndex screen", () => {
     pressContinue();
     expect(
       getByText(
-        "Password must contain at least 8 characters, 1 upper case, 1 lower case and 1 number (and no spaces)."
-      )
+        "Password must contain at least 8 characters, 1 upper case, 1 lower case and 1 number (and no spaces).",
+      ),
     ).toBeTruthy();
 
     // Edit password to a valid one → clear error on next submit
@@ -307,7 +307,7 @@ describe("RegisterIndex screen", () => {
           password: "Abcd1234",
           consentGiven: true,
           consentVersion: expect.any(String),
-        })
+        }),
       );
     });
 
@@ -315,14 +315,14 @@ describe("RegisterIndex screen", () => {
       expect(mockSignIn).toHaveBeenCalledWith(
         "fake-token",
         "user-123",
-        "user@example.com"
+        "user@example.com",
       );
     });
     //mockedRegisterUser.mockResolvedValueOnce({} as any);
 
     await waitFor(() => {
       expect(mockReplace).toHaveBeenCalledWith(
-        "/(auth)/register/personal-details"
+        "/(auth)/register/personal-details",
       );
     });
   });

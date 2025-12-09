@@ -26,16 +26,17 @@ describe("landing page", () => {
     const utils = render(<LandingPage />);
     const pressGetStarted = () =>
       fireEvent.press(utils.getByTestId("get-started-button"));
-    const pressLogIn = () =>
-      fireEvent.press(utils.getByTestId("login-button"));
-    return { ...utils, pressGetStarted, pressLogIn}
+    const pressLogIn = () => fireEvent.press(utils.getByTestId("login-button"));
+    return { ...utils, pressGetStarted, pressLogIn };
   };
 
   it("renders all key UI elements", () => {
     const { getByText } = setup();
 
     expect(getByText("LadyWise")).toBeTruthy();
-    expect(getByText("Your personal companion for menstrual health insights.")).toBeTruthy();
+    expect(
+      getByText("Your personal companion for menstrual health insights."),
+    ).toBeTruthy();
     expect(getByText("Get Started")).toBeTruthy();
     expect(getByText("Already have an account?")).toBeTruthy();
     expect(getByText("Log In")).toBeTruthy();
@@ -43,7 +44,7 @@ describe("landing page", () => {
 
   it("Navigates to the register screen when button is pressed", () => {
     const { pressGetStarted } = setup();
-    
+
     pressGetStarted();
 
     expect(router.push).toHaveBeenCalledWith("/(auth)/register");
@@ -51,7 +52,7 @@ describe("landing page", () => {
 
   it("Navigates to the login screen when 'Log In' is pressed", () => {
     const { pressLogIn } = setup();
-    
+
     pressLogIn();
 
     expect(router.push).toHaveBeenCalledWith("/login");

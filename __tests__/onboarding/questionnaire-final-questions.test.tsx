@@ -1,6 +1,11 @@
 import QuestionnaireFinalQuestions from "@/app/onboarding/questionnaire-final-questions";
 import { useQuestionnaire } from "@/app/onboarding/QuestionnaireContext";
-import { fireEvent, render, screen, waitFor } from "@testing-library/react-native";
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from "@testing-library/react-native";
 import { useRouter } from "expo-router";
 import React from "react";
 import { submitQuestionnaire } from "@/lib/api";
@@ -100,7 +105,7 @@ describe("QuestionnaireFinalQuestions", () => {
 
   it("does not submit if userId is null", async () => {
     (useAuth as jest.Mock).mockReturnValue({
-        userId: null,
+      userId: null,
     });
     (useQuestionnaire as jest.Mock).mockReturnValue({
       answers: { userId: null },

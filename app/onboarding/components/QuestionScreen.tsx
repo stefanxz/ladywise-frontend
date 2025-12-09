@@ -2,7 +2,7 @@ import { QUESTIONNAIRE_TOTAL_STEPS } from "@/app/onboarding/QuestionnaireContext
 import { ProgressBar } from "@/components/ProgressBar/ProgressBar";
 import { cn } from "@/utils/helpers";
 import { ReactNode } from "react";
-import { Pressable, Text, View } from "react-native";
+import { Pressable, ScrollView, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 const DEFAULT_EDGE_OFFSET = 0.08;
@@ -32,7 +32,7 @@ export function QuestionScreen({
 }: QuestionScreenProps) {
   return (
     <SafeAreaView className="flex-1 bg-background items-center">
-      <View className="w-full max-w-md mt-2 px-10 pt-[71px]">
+      <View className="w-full max-w-md mt-2 px-10 pt-[16px]">
         <View className="flex-row items-center">
           <View className="flex-1">
             <ProgressBar
@@ -55,7 +55,10 @@ export function QuestionScreen({
         </View>
       </View>
 
-      <View className="w-full max-w-md items-start mt-2 gap-y-4 px-10 pt-[71px] pb-12">
+      <ScrollView
+        className="w-full max-w-md mt-2 gap-y-4 px-10 pt-[71px] pb-12"
+        contentContainerStyle={{ alignItems: "flex-start" }}
+      >
         <Text className="text-3xl font-inter-semibold text-brand text-left">
           {title}
         </Text>
@@ -69,7 +72,7 @@ export function QuestionScreen({
         <View className={cn("w-full mt-6 gap-y-6")}>{children}</View>
 
         {footer ? <View className="w-full mt-10">{footer}</View> : null}
-      </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }

@@ -5,4 +5,5 @@ export interface TermsConditionsPopUpRef {
 
 export interface TermsConditionsPopUpProps {
   onAccept?: () => void;
+  mode?: "display" | "accept"; // Accept - register page; Display - settings page
 }

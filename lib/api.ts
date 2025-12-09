@@ -64,6 +64,20 @@ export async function updateUser(payload: UserPayload) {
   return data;
 }
 
+// Fetch a user by ID
+export async function getUserById(
+  token: string,
+  userId: string,
+): Promise<UserResponse> {
+  const { data } = await api.get<UserResponse>(`/api/users/${userId}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  return data;
+}
+
 export async function getRiskData(
   token: string,
   userId: string,
