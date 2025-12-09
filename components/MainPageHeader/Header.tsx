@@ -1,29 +1,19 @@
 import React from "react";
-import { Image, Text, TouchableOpacity, View } from "react-native";
+import { Text, TouchableOpacity, View } from "react-native";
 import { type Theme } from "@/lib/themes";
 
 // Prop types for the component
 type HeaderProps = {
   name: string;
-  avatarUrl: string;
   onHelpPress: () => void;
   theme: Theme;
 };
 
-const Header: React.FC<HeaderProps> = ({
-  name,
-  avatarUrl,
-  onHelpPress,
-  theme,
-}) => {
+const Header: React.FC<HeaderProps> = ({ name, onHelpPress, theme }) => {
   return (
     <View className="flex-row justify-between items-center px-5 pt-2.5 pb-5 w-full">
       {/* Avatar and Greeting */}
       <View className="flex-row items-center">
-        <Image
-          source={{ uri: avatarUrl }}
-          className="w-11 h-11 rounded-full mr-3 bg-gray-200"
-        />
         <View className="flex-col">
           <Text className="text-base text-gray-500">Hello,</Text>
           <Text className="text-xl font-bold text-black">{name}</Text>
