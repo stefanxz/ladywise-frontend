@@ -2,11 +2,14 @@ import type { RiskNum, FlowNum } from "@/lib/types/diagnostics";
 
 export const Colors = {
   brand: "#A45A6B",
+  lightBrand: "#D4A5B0",
   background: "#F9FAFB",
   regularText: "#374151",
   activeTab: "#111827",
   inactiveTab: "#9CA3AF",
   textHeading: "#111827",
+  gray100: "#F3F4F6",
+  gray200: "#E5E7EB",
 };
 
 // colors for text (and later, maybe dots) per level
