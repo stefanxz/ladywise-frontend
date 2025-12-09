@@ -100,7 +100,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setAuthToken(newToken);
       setEmail(newEmail);
     },
-    []
+    [],
   );
 
   const signOut = useCallback(async () => {

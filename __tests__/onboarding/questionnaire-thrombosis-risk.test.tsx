@@ -25,7 +25,9 @@ describe("QuestionnaireThrombosisRisk", () => {
       answers: { thrombosisRiskFactors: [] },
     });
     render(<QuestionnaireThrombosisRisk />);
-    expect(screen.getByText("Health background Thrombosis risk 💧")).toBeTruthy();
+    expect(
+      screen.getByText("Health background Thrombosis risk 💧"),
+    ).toBeTruthy();
     expect(screen.getByText("Smoking")).toBeTruthy();
   });
 
@@ -68,9 +70,7 @@ describe("QuestionnaireThrombosisRisk", () => {
     expect(updateAnswers).toHaveBeenCalledWith({
       thrombosisRiskFactors: ["smoking"],
     });
-    expect(mockPush).toHaveBeenCalledWith(
-      "./questionnaire-final-questions",
-    );
+    expect(mockPush).toHaveBeenCalledWith("./questionnaire-final-questions");
   });
 
   it("disables continue until an option is selected", () => {

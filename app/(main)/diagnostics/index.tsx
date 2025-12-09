@@ -1,8 +1,14 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, ActivityIndicator, ScrollView } from "react-native";
+import {
+  View,
+  Text,
+  ActivityIndicator,
+  ScrollView,
+  TouchableOpacity,
+} from "react-native";
+import { Link } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { isAxiosError } from "axios";
-
 import { RiskLineChart } from "@/components/charts/RiskLineChart";
 import { useAuth } from "@/context/AuthContext";
 import { getRiskHistory } from "@/lib/api";
@@ -25,11 +31,11 @@ const flowLabels: Record<FlowNum, string> = {
 };
 
 type DiagnosticsScreenProps = {
-  history?: RiskHistoryPoint[];
+  initialHistory?: RiskHistoryPoint[];
 };
 
 export default function DiagnosticsScreen({
-  history: historyProp,
+  initialHistory: historyProp,
 }: DiagnosticsScreenProps) {
   const { token, userId } = useAuth();
 
@@ -52,10 +58,17 @@ export default function DiagnosticsScreen({
         setLoading(true);
         setError(null);
         const data = await getRiskHistory(token, userId);
-        if (data && data.length > 0) {
+
+        console.log("getRiskHistory response:", data); // DEBUG LOG
+
+        if (Array.isArray(data) && data.length > 0) {
           setHistory(data);
+        } else if (!Array.isArray(data)) {
+          console.warn("API returned non-array data:", data);
+          setHistory(mockHistory);
+          setError("Received invalid data from server. Showing sample data.");
         } else {
-          // If API returns no data, fallback to mock data as requested
+          // If API returns empty array, fallback to mock data as requested
           setHistory(mockHistory);
           setError(
             "No history data was found. Showing sample data for demonstration.",
@@ -160,63 +173,93 @@ export default function DiagnosticsScreen({
           )}
 
           {/* --- Thrombosis Card --- */}
-          <View className="bg-white rounded-2xl shadow-sm p-4 mb-6">
-            <Text className="text-lg font-semibold text-headingText mb-3">
-              Thrombosis Risk
-            </Text>
+          <Link
+            href={
+              {
+                pathname: "/diagnostics/thrombosis-risk",
+                params: {
+                  risk_factor: "thrombosis-risk",
+                },
+              } as any
+            }
+            asChild
+          >
+            <TouchableOpacity className="bg-white rounded-2xl shadow-sm p-4 mb-6">
+              <Text className="text-lg font-semibold text-headingText mb-3">
+                Thrombosis Risk
+              </Text>
 
-            <View className="flex-row justify-between items-center mb-4">
-              <View>
-                <Text className="text-xs text-inactiveText">Current Risk</Text>
-                <Text
-                  className="text-xl font-semibold"
-                  style={{ color: riskColors[latestThrombosis] }}
-                >
-                  {riskLabels[latestThrombosis]}
+              <View className="flex-row justify-between items-center mb-4">
+                <View>
+                  <Text className="text-xs text-inactiveText">
+                    Current Risk
+                  </Text>
+                  <Text
+                    className="text-xl font-semibold"
+                    style={{ color: riskColors[latestThrombosis] }}
+                  >
+                    {riskLabels[latestThrombosis]}
+                  </Text>
+                </View>
+                {/* placeholder for "same as last month" etc. */}
+                <Text className="text-xs text-inactiveText">
+                  latest measurement
                 </Text>
               </View>
-              {/* placeholder for "same as last month" etc. */}
-              <Text className="text-xs text-inactiveText">
-                latest measurement
-              </Text>
-            </View>
 
-            <RiskLineChart
-              labels={labels}
-              data={thrombosisData}
-              segments={2}
-              formatYLabel={formatRiskTick}
-            />
-          </View>
+              <RiskLineChart
+                labels={labels}
+                data={thrombosisData}
+                segments={2}
+                formatYLabel={formatRiskTick}
+                isInteractive
+              />
+            </TouchableOpacity>
+          </Link>
 
           {/* --- Anemia Card --- */}
-          <View className="bg-white rounded-2xl shadow-sm p-4 mb-6">
-            <Text className="text-lg font-semibold text-headingText mb-3">
-              Anemia Risk
-            </Text>
+          <Link
+            href={
+              {
+                pathname: "/diagnostics/anemia-risk",
+                params: {
+                  risk_factor: "anemia-risk",
+                },
+              } as any
+            }
+            asChild
+          >
+            <TouchableOpacity className="bg-white rounded-2xl shadow-sm p-4 mb-6">
+              <Text className="text-lg font-semibold text-headingText mb-3">
+                Anemia Risk
+              </Text>
 
-            <View className="flex-row justify-between items-center mb-4">
-              <View>
-                <Text className="text-xs text-inactiveText">Current Risk</Text>
-                <Text
-                  className="text-xl font-semibold"
-                  style={{ color: riskColors[latestAnemia] }}
-                >
-                  {riskLabels[latestAnemia]}
+              <View className="flex-row justify-between items-center mb-4">
+                <View>
+                  <Text className="text-xs text-inactiveText">
+                    Current Risk
+                  </Text>
+                  <Text
+                    className="text-xl font-semibold"
+                    style={{ color: riskColors[latestAnemia] }}
+                  >
+                    {riskLabels[latestAnemia]}
+                  </Text>
+                </View>
+                <Text className="text-xs text-inactiveText">
+                  latest measurement
                 </Text>
               </View>
-              <Text className="text-xs text-inactiveText">
-                latest measurement
-              </Text>
-            </View>
 
-            <RiskLineChart
-              labels={labels}
-              data={anemiaData}
-              segments={2}
-              formatYLabel={formatRiskTick}
-            />
-          </View>
+              <RiskLineChart
+                labels={labels}
+                data={anemiaData}
+                segments={2}
+                formatYLabel={formatRiskTick}
+                isInteractive
+              />
+            </TouchableOpacity>
+          </Link>
 
           {/* --- Flow Card --- */}
           <View className="bg-white rounded-2xl shadow-sm p-4 mb-10">

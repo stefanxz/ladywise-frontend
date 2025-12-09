@@ -51,9 +51,7 @@ describe("QuestionnaireFamilyHistory", () => {
         thrombosis: true,
       },
     });
-    expect(mockPush).toHaveBeenCalledWith(
-      "./questionnaire-anemia-risk",
-    );
+    expect(mockPush).toHaveBeenCalledWith("./questionnaire-anemia-risk");
   });
 
   it("disables continue until an answer is given", () => {
