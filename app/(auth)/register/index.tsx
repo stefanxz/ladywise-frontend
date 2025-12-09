@@ -134,9 +134,9 @@ export default function RegisterIndex() {
   return (
     <SafeAreaView className="flex-1 bg-background">
       <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"} // Use 'padding' for iOS and 'height' for Android
-        className="flex-1 bg-background" // Use flex-1 to take up the whole screen
-        keyboardVerticalOffset={Platform.OS === "ios" ? 0 : -50}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        className="flex-1 bg-background"
+        keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 50}
       >
         <ScrollView
           contentContainerStyle={{
