@@ -135,7 +135,11 @@ const CalendarDay = React.memo(({
   )
   
   return (
-    <View className={containerBase} ref={viewRef}>
+    <View
+      className={containerBase}
+      ref={viewRef}
+      collapsable={false}
+    >
       <TouchableOpacity 
         onPress={handlePress}
         activeOpacity={0.7}
