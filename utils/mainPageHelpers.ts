@@ -1,7 +1,6 @@
 import { DayData } from "@/components/CalendarStrip/CalendarStrip";
 import { CyclePhase } from "@/lib/types/cycle";
 
-
 export const getLocalYYYYMMDD = (date: Date) => {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, "0");

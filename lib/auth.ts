@@ -56,7 +56,11 @@ async function persistRemove(key: string, useSecureStore: boolean) {
   }
 }
 
-export async function storeAuthData(token: string, userId: string, email: string) {
+export async function storeAuthData(
+  token: string,
+  userId: string,
+  email: string,
+) {
   const useSecureStore = await isSecureStoreAvailable();
   await Promise.all([
     persistSet(TOKEN_KEY, token, useSecureStore),
@@ -85,7 +89,9 @@ export async function clearAuthData(): Promise<void> {
   ]);
 }
 
-export function isTokenValid(authData: { token: string | null } | null): AuthStatus {
+export function isTokenValid(
+  authData: { token: string | null } | null,
+): AuthStatus {
   if (!authData?.token) {
     return "NO_TOKEN";
   }
@@ -131,4 +137,3 @@ export async function isAuthenticated(): Promise<boolean> {
   const data = await getAuthData();
   return isTokenValid(data) === "VALID" && !!data.userId && !!data.email;
 }
-

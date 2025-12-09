@@ -74,9 +74,7 @@ describe("QuestionnaireAnemiaRisk", () => {
     expect(updateAnswers).toHaveBeenCalledWith({
       anemiaRiskFactors: ["iron-deficiency"],
     });
-    expect(mockPush).toHaveBeenCalledWith(
-      "./questionnaire-thrombosis-risk",
-    );
+    expect(mockPush).toHaveBeenCalledWith("./questionnaire-thrombosis-risk");
   });
 
   it("disables continue until an option is selected", () => {
