@@ -74,9 +74,8 @@ const Home = () => {
         console.log(riskData);
 
         const user = await getUserById(token!, userId!);
-        
         const safeFirst = user.firstName ?? "";
-        const safeLast  = user.lastName ?? "";
+        const safeLast = user.lastName ?? "";
 
         const fullName =
           safeFirst || safeLast
