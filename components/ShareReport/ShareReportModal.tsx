@@ -194,7 +194,7 @@ const ShareReportModal: React.FC<ShareReportModalProps> = ({
                                         testID="send-button"
                                         disabled={loading}
                                         onPress={handleSend}
-                                        className="flex-1 flex-row items-center justify-center rounded-xl bg-headingText px-4 py-3 active:opacity-80 disabled:opacity-60"
+                                        className="flex-1 flex-row items-center justify-center rounded-xl bg-brand px-4 py-3 active:opacity-80 disabled:opacity-60"
                                         accessibilityRole="button"
                                         accessibilityLabel="Send report to clinician"
                                     >

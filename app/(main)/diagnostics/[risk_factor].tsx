@@ -279,7 +279,7 @@ const ExtendedDiagnosticsScreen = () => {
         <TouchableOpacity
           testID="share-insights-button"
           onPress={handleSharePress}
-          className="bg-gray-200 rounded-full py-3 px-6 flex-row items-center justify-center self-center mb-2"
+          className="bg-gray-200 rounded-xl py-3 px-6 flex-row items-center justify-center self-center mb-2"
         >
           <Text className="text-headingText font-medium text-sm mr-2">
             Share insights
