@@ -8,8 +8,15 @@ import { ThemedPressable } from "@/components/ThemedPressable/ThemedPressable";
 import { loginUser, registerUser } from "@/lib/api";
 import { isEmailValid, isPasswordValid } from "@/utils/validations";
 import { useRouter } from "expo-router";
-import React, { useState, useRef } from "react";
-import { Text, View } from "react-native";
+import React, { useState, useRef, useEffect } from "react";
+import {
+  Text,
+  View,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  Keyboard,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import TermsConditionsPopUp, {
   TermsConditionsPopUpRef,
@@ -35,6 +42,30 @@ export default function RegisterIndex() {
   const termsModalRef = useRef<TermsConditionsPopUpRef>(null);
 
   const router = useRouter();
+
+  const [isKeyboardVisible, setKeyboardVisible] = useState(false);
+  
+  useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener(
+      "keyboardDidShow",
+      () => {
+        setKeyboardVisible(true);
+      },
+    );
+    const keyboardDidHideListener = Keyboard.addListener(
+      "keyboardDidHide",
+      () => {
+        setKeyboardVisible(false);
+      },
+    );
+
+    return () => {
+      keyboardDidHideListener.remove();
+      keyboardDidShowListener.remove();
+    };
+  }, []);
+
+  const bottomPadding = isKeyboardVisible ? 300 : 0;
 
   const onChangeEmail = (t: string) => {
     setEmail(t);
@@ -102,90 +133,107 @@ export default function RegisterIndex() {
 
   return (
     <SafeAreaView className="flex-1 bg-background">
-      <View className="w-full bg-gray-50" style={{ zIndex: 10, elevation: 10 }}>
-        <AppBar />
-      </View>
-
-      <View className="w-full max-w-md px-6 pt-10 gap-y-2 self-center">
-        <View className="items-start px-10 mb-5">
-          <Text className="text-3xl text-brand text-left">
-            <Text className="font-semibold">Join </Text>
-            <Text className="font-aclonica-regular">LadyWise 💫</Text>
-          </Text>
-          <Text className="text-gray-600 text-lg mt-2 text-left leading-snug max-w-xs">
-            Start tracking your menstrual cycle with smart insights.
-          </Text>
-        </View>
-
-        <View className="gap-y-8 w-80 self-center">
-          {/* Email input field */}
-          <EmailField
-            label="Email"
-            value={email}
-            onChangeText={onChangeEmail}
-            placeholder="Your email"
-            error={emailError}
-            testID="email-input"
-          />
-
-          {/* Password input field */}
-          <PasswordField
-            label="Password"
-            value={password}
-            onChangeText={onChangePassword}
-            error={passwordError}
-            testID="password-input"
-          />
-
-          {/* Password confirmation input field */}
-          <PasswordField
-            label="Confirm Password"
-            value={confirmPassword}
-            onChangeText={onChangeConfirm}
-            error={confirmPasswordError}
-            testID="confirm-password-input"
-          />
-        </View>
-
-        {/* Terms and conditions checkbox */}
-        <View className="mt-6 mb-2 w-80 self-center">
-          <TermsConditionsCheckbox
-            checked={termsConditions}
-            onToggle={() => setTermsConditions((v) => !v)}
-            openSheet={() => {
-              termsModalRef.current?.open();
-            }}
-          />
-        </View>
-
-        {/* Continue button */}
-        <ThemedPressable
-          label="Continue"
-          onPress={handleContinue}
-          loading={registering}
-          disabled={!termsConditions}
-          className="mt-6 w-80 self-center bg-brand"
-          testID="continue-button"
-        />
-
-        {formError ? (
-          <Text className="text-red-700 text-sm mt-2 text-center">
-            {formError}
-          </Text>
-        ) : null}
-
-        {/* Social media sign on buttons */}
-        <SocialSignOn
-          onPress={(provider) => {
-            // TODO: Actual social media sign on
-            console.log("SSO pressed:", provider);
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"} // Use 'padding' for iOS and 'height' for Android
+        className="flex-1 bg-background" // Use flex-1 to take up the whole screen
+        keyboardVerticalOffset={Platform.OS === "ios" ? 0 : -50}
+      >
+        <ScrollView
+          contentContainerStyle={{
+            flexGrow: 1,
+            paddingBottom: bottomPadding,
+            alignItems: "center",
           }}
-        />
-      </View>
-      <TermsConditionsPopUp
-        ref={termsModalRef}
-        onAccept={() => setTermsConditions(true)}
-      />
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+        >
+          <View className="w-full bg-gray-50" style={{ zIndex: 10, elevation: 10 }}>
+            <AppBar />
+          </View>
+
+          <View className="w-full max-w-md px-6 pt-10 gap-y-2 self-center">
+            <View className="items-start px-10 mb-5">
+              <Text className="text-3xl text-brand text-left">
+                <Text className="font-semibold">Join </Text>
+                <Text className="font-aclonica-regular">LadyWise 💫</Text>
+              </Text>
+              <Text className="text-gray-600 text-lg mt-2 text-left leading-snug max-w-xs">
+                Start tracking your menstrual cycle with smart insights.
+              </Text>
+            </View>
+
+            <View className="gap-y-8 w-80 self-center">
+              {/* Email input field */}
+              <EmailField
+                label="Email"
+                value={email}
+                onChangeText={onChangeEmail}
+                placeholder="Your email"
+                error={emailError}
+                testID="email-input"
+              />
+
+              {/* Password input field */}
+              <PasswordField
+                label="Password"
+                value={password}
+                onChangeText={onChangePassword}
+                error={passwordError}
+                testID="password-input"
+              />
+
+              {/* Password confirmation input field */}
+              <PasswordField
+                label="Confirm Password"
+                value={confirmPassword}
+                onChangeText={onChangeConfirm}
+                error={confirmPasswordError}
+                testID="confirm-password-input"
+              />
+            </View>
+
+            {/* Terms and conditions checkbox */}
+            <View className="mt-6 mb-2 w-80 self-center">
+              <TermsConditionsCheckbox
+                checked={termsConditions}
+                onToggle={() => setTermsConditions((v) => !v)}
+                openSheet={() => {
+                  termsModalRef.current?.open();
+                }}
+              />
+            </View>
+
+            {/* Continue button */}
+            <ThemedPressable
+              label="Continue"
+              onPress={handleContinue}
+              loading={registering}
+              disabled={!termsConditions}
+              className="mt-6 w-80 self-center bg-brand"
+              testID="continue-button"
+            />
+
+            {formError ? (
+              <Text className="text-red-700 text-sm mt-2 text-center">
+                {formError}
+              </Text>
+            ) : null}
+
+            {/* Social media sign on buttons */}
+            <SocialSignOn
+              onPress={(provider) => {
+                // TODO: Actual social media sign on
+                console.log("SSO pressed:", provider);
+              }}
+            />
+          </View>
+          <TermsConditionsPopUp
+            ref={termsModalRef}
+            onAccept={() => setTermsConditions(true)}
+          />
+        </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
+
