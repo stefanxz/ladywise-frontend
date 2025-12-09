@@ -297,12 +297,12 @@ export default function DiagnosticsScreen({
           <TouchableOpacity
             testID="share-insights-button"
             onPress={() => setShowShareModal(true)}
-            className="bg-headingText rounded-xl py-3.5 px-6 flex-row items-center justify-center mb-2"
+            className="bg-gray-200 rounded-full py-3 px-6 flex-row items-center justify-center self-center mb-2"
           >
-            <Text className="text-white font-semibold text-sm mr-2">
+            <Text className="text-headingText font-medium text-sm mr-2">
               Share insights
             </Text>
-            <Feather name="arrow-right" size={16} color="white" />
+            <Feather name="arrow-right" size={16} color="#1F2937" />
           </TouchableOpacity>
 
           {/* Terms notice */}
