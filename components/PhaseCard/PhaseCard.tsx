@@ -2,7 +2,6 @@ import React from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 import { Feather, Ionicons } from "@expo/vector-icons";
 import { type Theme } from "@/lib/themes";
-import { Colors } from "@/constants/colors";
 
 type PhaseCardProps = {
   phaseName: string;
@@ -39,7 +38,7 @@ const PhaseCard: React.FC<PhaseCardProps> = ({
             name="chevron-right"
             size={16}
             color={theme.highlightTextColor}
-            testID="back-button-icon"
+            testID="chevron-right-icon"
           />
         </View>
 
