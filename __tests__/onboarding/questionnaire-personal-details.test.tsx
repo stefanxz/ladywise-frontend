@@ -34,34 +34,37 @@ describe("QuestionnairePersonalDetails screen", () => {
     const utils = render(
       <QuestionnaireProvider>
         <QuestionnairePersonalDetails />
-      </QuestionnaireProvider>
+      </QuestionnaireProvider>,
     );
     const pressContinue = () =>
-          fireEvent.press(utils.getByTestId("continue-button"));
+      fireEvent.press(utils.getByTestId("continue-button"));
     const typeAge = (v: string) =>
       fireEvent.changeText(utils.getByTestId("age-input"), v);
     const typeWeight = (v: string) =>
       fireEvent.changeText(utils.getByTestId("weight-input"), v);
     const typeHeight = (v: string) =>
       fireEvent.changeText(utils.getByTestId("height-input"), v);
-    return { ...utils, pressContinue, typeAge, typeWeight, typeHeight}
-  }
+    return { ...utils, pressContinue, typeAge, typeWeight, typeHeight };
+  };
 
-// Checking age input
+  // Checking age input
   it("renders all key UI elements", () => {
     const { getByText } = setup();
 
     expect(getByText("Let's start with a few basics 💫")).toBeTruthy();
-    expect(getByText("Tell us a bit about yourself so we can tailor your health insights.")).toBeTruthy();
+    expect(
+      getByText(
+        "Tell us a bit about yourself so we can tailor your health insights.",
+      ),
+    ).toBeTruthy();
     expect(getByText("Age")).toBeTruthy();
     expect(getByText("Weight")).toBeTruthy();
     expect(getByText("Height")).toBeTruthy();
     expect(getByText("Continue")).toBeTruthy();
-
   });
 
   it("shows 'Please enter your age.' when age is empty", () => {
-    const { pressContinue,  getByText } = setup();
+    const { pressContinue, getByText } = setup();
 
     pressContinue();
 
@@ -100,8 +103,7 @@ describe("QuestionnairePersonalDetails screen", () => {
   });
 
   it("Accpets integer value for age", () => {
-    const { pressContinue, queryByText, typeAge} = setup();
-    
+    const { pressContinue, queryByText, typeAge } = setup();
 
     typeAge("12");
     pressContinue();
@@ -111,8 +113,7 @@ describe("QuestionnairePersonalDetails screen", () => {
   });
 
   it("shows 'Age is out of range' when age is below 8", () => {
-    const { pressContinue, getByText, typeAge} = setup();
-    
+    const { pressContinue, getByText, typeAge } = setup();
 
     typeAge("7");
     pressContinue();
@@ -122,8 +123,7 @@ describe("QuestionnairePersonalDetails screen", () => {
   });
 
   it("shows 'Age is out of range' when age is above 56", () => {
-    const { pressContinue, getByText, typeAge} = setup();
-    
+    const { pressContinue, getByText, typeAge } = setup();
 
     typeAge("57");
     pressContinue();
@@ -135,7 +135,7 @@ describe("QuestionnairePersonalDetails screen", () => {
   // -------------------------------------------------------------------------
   // Checkign weight input
   it("shows 'Please enter your weight.' when weight is empty", () => {
-    const { pressContinue,  getByText } = setup();
+    const { pressContinue, getByText } = setup();
 
     pressContinue();
 
@@ -144,47 +144,63 @@ describe("QuestionnairePersonalDetails screen", () => {
   });
 
   it("shows 'Weight must be a positive number, using a dot (.) for decimals.' when weight is not a number", () => {
-    const { pressContinue, getByText, typeWeight} = setup();
+    const { pressContinue, getByText, typeWeight } = setup();
 
     typeWeight("abc");
     pressContinue();
 
-    expect(getByText("Weight must be a positive number, using a dot (.) for decimals.")).toBeTruthy();
+    expect(
+      getByText(
+        "Weight must be a positive number, using a dot (.) for decimals.",
+      ),
+    ).toBeTruthy();
     expect(router.push).not.toHaveBeenCalled();
   });
 
   it("Accpets integer value for weight", () => {
-    const { pressContinue, queryByText, typeWeight} = setup();
+    const { pressContinue, queryByText, typeWeight } = setup();
 
     typeWeight("12");
     pressContinue();
 
-    expect(queryByText("Weight must be a positive number, using a dot (.) for decimals.")).toBeNull();
+    expect(
+      queryByText(
+        "Weight must be a positive number, using a dot (.) for decimals.",
+      ),
+    ).toBeNull();
     expect(router.push).not.toHaveBeenCalled();
   });
 
   it("Accpets decimal value for weight", () => {
-    const { pressContinue, queryByText, typeWeight} = setup();
+    const { pressContinue, queryByText, typeWeight } = setup();
 
     typeWeight("12.1");
     pressContinue();
 
-    expect(queryByText("Weight must be a positive number, using a dot (.) for decimals.")).toBeNull();
+    expect(
+      queryByText(
+        "Weight must be a positive number, using a dot (.) for decimals.",
+      ),
+    ).toBeNull();
     expect(router.push).not.toHaveBeenCalled();
   });
 
   it("shows 'Weight must be a positive number, using a dot (.) for decimals.' when weight number is with a comma", () => {
-    const { pressContinue, getByText, typeWeight} = setup();
+    const { pressContinue, getByText, typeWeight } = setup();
 
     typeWeight("12,1");
     pressContinue();
 
-    expect(getByText("Weight must be a positive number, using a dot (.) for decimals.")).toBeTruthy();
+    expect(
+      getByText(
+        "Weight must be a positive number, using a dot (.) for decimals.",
+      ),
+    ).toBeTruthy();
     expect(router.push).not.toHaveBeenCalled();
   });
 
-   it("shows 'Weight is out of range.' when weight < 0", () => {
-    const { pressContinue, getByText, typeWeight} = setup();
+  it("shows 'Weight is out of range.' when weight < 0", () => {
+    const { pressContinue, getByText, typeWeight } = setup();
 
     typeWeight("-1");
     pressContinue();
@@ -194,8 +210,7 @@ describe("QuestionnairePersonalDetails screen", () => {
   });
 
   it("shows 'Weight is out of range' when weight is below 5", () => {
-    const { pressContinue, getByText, typeWeight} = setup();
-    
+    const { pressContinue, getByText, typeWeight } = setup();
 
     typeWeight("4.99");
     pressContinue();
@@ -204,8 +219,7 @@ describe("QuestionnairePersonalDetails screen", () => {
   });
 
   it("shows 'Weight is out of range' when weight is above 540", () => {
-    const { pressContinue, getByText, typeWeight} = setup();
-    
+    const { pressContinue, getByText, typeWeight } = setup();
 
     typeWeight("540.1");
     pressContinue();
@@ -216,7 +230,7 @@ describe("QuestionnairePersonalDetails screen", () => {
   // -----------------------------------------------------------------------------------------------------------
   // Checkign height input
   it("shows 'Please enter your height.' when height is empty", () => {
-    const { pressContinue,  getByText } = setup();
+    const { pressContinue, getByText } = setup();
 
     pressContinue();
 
@@ -225,7 +239,7 @@ describe("QuestionnairePersonalDetails screen", () => {
   });
 
   it("shows 'Please enter your height.' when height is empty", () => {
-    const { pressContinue,  getByText } = setup();
+    const { pressContinue, getByText } = setup();
 
     pressContinue();
 
@@ -234,47 +248,63 @@ describe("QuestionnairePersonalDetails screen", () => {
   });
 
   it("shows 'Height must be a positive number, using a dot (.) for decimals.' when height is not a number", () => {
-    const { pressContinue, getByText, typeHeight} = setup();
+    const { pressContinue, getByText, typeHeight } = setup();
 
     typeHeight("abc");
     pressContinue();
 
-    expect(getByText("Height must be a positive number, using a dot (.) for decimals.")).toBeTruthy();
+    expect(
+      getByText(
+        "Height must be a positive number, using a dot (.) for decimals.",
+      ),
+    ).toBeTruthy();
     expect(router.push).not.toHaveBeenCalled();
   });
 
   it("Accpets integer value for height", () => {
-    const { pressContinue, queryByText, typeHeight} = setup();
+    const { pressContinue, queryByText, typeHeight } = setup();
 
     typeHeight("12");
     pressContinue();
 
-    expect(queryByText("Height must be a positive number, using a dot (.) for decimals.")).toBeNull();
+    expect(
+      queryByText(
+        "Height must be a positive number, using a dot (.) for decimals.",
+      ),
+    ).toBeNull();
     expect(router.push).not.toHaveBeenCalled();
   });
 
   it("Accpets decimal value for height", () => {
-    const { pressContinue, queryByText, typeHeight} = setup();
+    const { pressContinue, queryByText, typeHeight } = setup();
 
     typeHeight("12.1");
     pressContinue();
 
-    expect(queryByText("Height must be a positive number, using a dot (.) for decimals.")).toBeNull();
+    expect(
+      queryByText(
+        "Height must be a positive number, using a dot (.) for decimals.",
+      ),
+    ).toBeNull();
     expect(router.push).not.toHaveBeenCalled();
   });
 
   it("shows 'Height must be a positive number, using a dot (.) for decimals.' when height number is with a comma", () => {
-    const { pressContinue, getByText, typeHeight} = setup();
+    const { pressContinue, getByText, typeHeight } = setup();
 
     typeHeight("12,1");
     pressContinue();
 
-    expect(getByText("Height must be a positive number, using a dot (.) for decimals.")).toBeTruthy();
+    expect(
+      getByText(
+        "Height must be a positive number, using a dot (.) for decimals.",
+      ),
+    ).toBeTruthy();
     expect(router.push).not.toHaveBeenCalled();
   });
 
-   it("shows 'Height is out of range.' when height < 0", () => {
-    const { pressContinue, getByText, typeHeight} = setup();
+  it("shows 'Height is out of range.' when height < 0", () => {
+    const { pressContinue, getByText, typeHeight } = setup();
 
     typeHeight("-1");
     pressContinue();
@@ -284,8 +314,7 @@ describe("QuestionnairePersonalDetails screen", () => {
   });
 
   it("shows 'Height is out of range' when height is below 62", () => {
-    const { pressContinue, getByText, typeHeight} = setup();
-    
+    const { pressContinue, getByText, typeHeight } = setup();
 
     typeHeight("4.99");
     pressContinue();
@@ -294,8 +323,7 @@ describe("QuestionnairePersonalDetails screen", () => {
   });
 
   it("shows 'Height is out of range' when height is above 216", () => {
-    const { pressContinue, getByText, typeHeight} = setup();
-    
+    const { pressContinue, getByText, typeHeight } = setup();
 
     typeHeight("540.1");
     pressContinue();
@@ -317,8 +345,9 @@ describe("QuestionnairePersonalDetails screen", () => {
   });
 
   it("shows error messages when all inputs are out of range", () => {
-    const { pressContinue, getByText, typeAge, typeWeight, typeHeight } = setup();
-    
+    const { pressContinue, getByText, typeAge, typeWeight, typeHeight } =
+      setup();
+
     typeAge("1");
     typeWeight("1");
     typeHeight("1");

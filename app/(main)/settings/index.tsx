@@ -2,17 +2,25 @@ import { useAuth } from "@/context/AuthContext";
 import { ScrollView, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ThemedPressable } from "@/components/ThemedPressable/ThemedPressable";
-import React from "react";
+import React, { useRef } from "react";
 import { accountSettings, otherSettings } from "@/constants/settings";
 import { SettingItem } from "@/components/Settings/SettingItem";
+import TermsConditionsPopUp, {
+  TermsConditionsPopUpRef,
+} from "@/components/TermsConditionsPopUp/TermsConditionsPopUp";
 
 export default function SettingsScreen() {
   const { signOut } = useAuth();
+  const termsSheetRef = useRef<TermsConditionsPopUpRef>(null);
 
   const handleLogout = () => {
     signOut();
     // auth layout should redirect automatically
   };
+
+  const otherSettingsItems = otherSettings(() => {
+    termsSheetRef.current?.open();
+  });
 
   return (
     <SafeAreaView className="flex-1 bg-background">
@@ -45,7 +53,7 @@ export default function SettingsScreen() {
           </Text>
 
           <View className="bg-white rounded-2xl shadow-sm px-4 mb-6">
-            {otherSettings.map((item, index, array) => (
+            {otherSettingsItems.map((item, index, array) => (
               <SettingItem
                 key={item.name}
                 item={item}
@@ -64,6 +72,7 @@ export default function SettingsScreen() {
           disabled={false}
         />
       </ScrollView>
+      <TermsConditionsPopUp ref={termsSheetRef} mode="display" />
     </SafeAreaView>
   );
 }

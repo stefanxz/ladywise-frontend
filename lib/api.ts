@@ -78,8 +78,6 @@ export async function getUserById(
   return data;
 }
 
-
-
 export async function getRiskData(
   token: string,
   userId: string,

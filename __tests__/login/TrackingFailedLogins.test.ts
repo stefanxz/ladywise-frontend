@@ -1,7 +1,7 @@
 import {
-    getFailedLoginCount,
-    incrementFailedLoginCount,
-    resetFailedLoginCount,
+  getFailedLoginCount,
+  incrementFailedLoginCount,
+  resetFailedLoginCount,
 } from "@/utils/asyncStorageHelpers";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
