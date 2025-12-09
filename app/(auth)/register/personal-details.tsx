@@ -4,7 +4,14 @@ import { ThemedPressable } from "@/components/ThemedPressable/ThemedPressable";
 import { ThemedTextInput } from "@/components/ThemedTextInput/ThemedTextInput";
 import { useRouter } from "expo-router";
 import React, { useCallback, useEffect, useState } from "react";
-import { Keyboard, KeyboardAvoidingView, Platform, ScrollView, Text, View } from "react-native";
+import { 
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  Text,
+  View,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { updateUser } from "@/lib/api";
 
@@ -18,7 +25,7 @@ export default function RegisterPersDetails() {
   const { userId, email } = useAuth();
 
   const [isKeyboardVisible, setKeyboardVisible] = useState(false);
-    
+
   useEffect(() => {
     const keyboardDidShowListener = Keyboard.addListener(
       "keyboardDidShow",
@@ -94,7 +101,10 @@ export default function RegisterPersDetails() {
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          <View className="w-full bg-gray-50" style={{ zIndex: 10, elevation: 10 }}>
+          <View 
+            className="w-full bg-gray-50" 
+            style={{ zIndex: 10, elevation: 10 }}
+          >
             <AppBar onBackPress={handleBack} />
           </View>
 

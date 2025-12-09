@@ -44,7 +44,7 @@ export default function RegisterIndex() {
   const router = useRouter();
 
   const [isKeyboardVisible, setKeyboardVisible] = useState(false);
-  
+
   useEffect(() => {
     const keyboardDidShowListener = Keyboard.addListener(
       "keyboardDidShow",
@@ -147,7 +147,10 @@ export default function RegisterIndex() {
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          <View className="w-full bg-gray-50" style={{ zIndex: 10, elevation: 10 }}>
+          <View 
+            className="w-full bg-gray-50" 
+            style={{ zIndex: 10, elevation: 10 }}
+            >
             <AppBar />
           </View>
 
@@ -236,4 +239,3 @@ export default function RegisterIndex() {
     </SafeAreaView>
   );
 }
-

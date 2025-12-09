@@ -39,7 +39,7 @@ export default function LoginScreen() {
   const showPasswordResetBanner = passwordReset === "true";
 
   const [isKeyboardVisible, setKeyboardVisible] = useState(false);
-      
+
   useEffect(() => {
     const keyboardDidShowListener = Keyboard.addListener(
       "keyboardDidShow",
@@ -59,7 +59,7 @@ export default function LoginScreen() {
       keyboardDidShowListener.remove();
     };
   }, []);
-  
+
   const bottomPadding = isKeyboardVisible ? 350 : 0;
 
   const handleLogin = async () => {
@@ -132,7 +132,7 @@ export default function LoginScreen() {
             flexGrow: 1,
             paddingBottom: bottomPadding,
             alignItems: "center",
-            justifyContent: "center"
+            justifyContent: "center",
           }}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
