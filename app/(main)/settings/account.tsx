@@ -111,7 +111,6 @@ export default function AccountSettings() {
           signOut();
         } else {
           console.error("Failed to delete account:", error.message);
-          // You might want to show an error message to the user here
           alert("Failed to delete account. Please try again.");
         }
       } else {
