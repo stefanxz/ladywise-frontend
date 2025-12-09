@@ -189,6 +189,14 @@ export default function CalendarScreen() {
     setTooltip({ visible: false, position: null, periodId: null });
   };
 
+  // Edit daily cycle questionnaire handler
+  const handleEditDailyQuestionnaire = () => {
+    console.log("Edit cycle questionnaire button pressed - To be implemented"); //TODO DAVID MEREACRE
+
+    // Close tooltip
+    setTooltip({ visible: false, position: null, periodId: null });
+  };
+
   // Delete period handler
   const handleDeletePeriod = () => {
     Alert.alert(
@@ -400,6 +408,13 @@ export default function CalendarScreen() {
       }, 500);
     }, 800);
   }, []);
+
+  // Helper function to close tooltip safely
+  const closeTooltip = useCallback(() => {
+    if (tooltip.visible) {
+      setTooltip({ visible: false, position: null, periodId: null });
+    }
+  }, [tooltip.visible]);
   
   // Months rendering
   const renderMonth = useCallback(({ item }: any) => (
@@ -412,9 +427,10 @@ export default function CalendarScreen() {
       isOngoing={isOngoing}
       themeColor={theme.highlight}
       onPress={handleDatePress}
+      onCloseTooltip={closeTooltip}
       today={today}
     />
-  ), [periodDateSet, predictionDateSet, selection, isLogMode, isOngoing, theme.highlight, handleDatePress, today]);
+  ), [periodDateSet, predictionDateSet, selection, isLogMode, isOngoing, theme.highlight, handleDatePress, today, closeTooltip]);
 
   return (
     // Main container - full screen with background color
@@ -433,82 +449,86 @@ export default function CalendarScreen() {
           
           <CalendarHeader />
 
-          {/* The initial screen loading overlay */}
-          {!isListReady && (
-            <View className="absolute inset-0 z-50 items-center justify-center bg-[#F9F9F9] mt-24">
-              <ActivityIndicator size="large" color={theme.highlight || "#FCA5A5"} />
-            </View>
-          )}
+          {/* Wrapper for overlay and list content */}
+          <View className="flex-1 relative">
           
-          {/* Months list */}
-          <FlatList
-            ref={flatListRef}
-            data={months}
-            keyExtractor={(item) => item.id}
-            renderItem={renderMonth}
-
-            // Hide list until the initial load is complete
-            style={{ opacity: isListReady ? 1 : 0 }}
-
-            // Start at index 6 because we loaded 6 past months + current month
-            initialScrollIndex={PRELOAD_PAST_MONTHS}
-
-            // We use this to confirm we are ready to show the list
-            onLayout={() => {
-              // Small safety timeout to ensure the scroll command has processed
-              setTimeout(() => {
-                  setIsListReady(true);
-              }, 1000); 
-            }}
-
-            // This handles scroll index failures (happens on some slow devices)
-            onScrollToIndexFailed={(info) => {
-              const wait = new Promise(resolve => setTimeout(resolve, 500));
-              wait.then(() => {
-                flatListRef.current?.scrollToIndex({ index: info.index, animated: false });
-              });
-            }}
+            {/* The initial screen loading overlay */}
+            {!isListReady && (
+              <View className="absolute inset-0 z-50 items-center justify-center bg-[#F9F9F9] mt-24">
+                <ActivityIndicator size="large" color={theme.highlight || "#FCA5A5"} />
+              </View>
+            )}
             
-            // This hides the tooltip when the user starts scrolling
-            onScrollBeginDrag={() => {
-              if (tooltip.visible) {
-                setTooltip({ visible: false, position: null, periodId: null });
+            {/* Months list */}
+            <FlatList
+              ref={flatListRef}
+              data={months}
+              keyExtractor={(item) => item.id}
+              renderItem={renderMonth}
+
+              // Hide list until the initial load is complete
+              style={{ opacity: isListReady ? 1 : 0 }}
+
+              // Start at index 6 because we loaded 6 past months + current month
+              initialScrollIndex={PRELOAD_PAST_MONTHS}
+
+              // We use this to confirm we are ready to show the list
+              onLayout={() => {
+                // Small safety timeout to ensure the scroll command has processed
+                setTimeout(() => {
+                    setIsListReady(true);
+                }, 1000); 
+              }}
+
+              // This handles scroll index failures (happens on some slow devices)
+              onScrollToIndexFailed={(info) => {
+                const wait = new Promise(resolve => setTimeout(resolve, 500));
+                wait.then(() => {
+                  flatListRef.current?.scrollToIndex({ index: info.index, animated: false });
+                });
+              }}
+              
+              // This hides the tooltip when the user starts scrolling
+              onScrollBeginDrag={() => {
+                if (tooltip.visible) {
+                  setTooltip({ visible: false, position: null, periodId: null });
+                }
+              }}
+
+              // This keeps the scroll position stable when we add new items to the top of the list
+              // Without this, adding items to the top pushes the content down, causing a visual jump
+              maintainVisibleContentPosition={{
+                minIndexForVisible: 0,
+              }}
+
+              // Infinite scroll props
+              onStartReached={loadMorePast}
+              onStartReachedThreshold={0.2} // Trigger when near top
+              onEndReached={loadMoreFuture}
+              onEndReachedThreshold={0.2} // Trigger when near bottom
+
+              showsVerticalScrollIndicator={false} // Hide scrollbar for cleaner look
+
+              // Extra padding at bottom so content isn't hidden behind buttons
+              contentContainerStyle={{ 
+                paddingBottom: isLogMode ? 340 : 180 
+              }}
+              
+              // Performance props
+              initialNumToRender={2}
+              maxToRenderPerBatch={3}
+              windowSize={3}
+              removeClippedSubviews={true}
+
+              // Loaders
+              ListHeaderComponent={
+                isLoadingPast ? <ActivityIndicator size="small" color="#FCA5A5" className="py-4" /> : null
               }
-            }}
-
-            // This keeps the scroll position stable when we add new items to the top of the list
-            // Without this, adding items to the top pushes the content down, causing a visual jump
-            maintainVisibleContentPosition={{
-              minIndexForVisible: 0,
-            }}
-
-            // Infinite scroll props
-            onStartReached={loadMorePast}
-            onStartReachedThreshold={0.2} // Trigger when near top
-            onEndReached={loadMoreFuture}
-            onEndReachedThreshold={0.2} // Trigger when near bottom
-
-            showsVerticalScrollIndicator={false} // Hide scrollbar for cleaner look
-
-            // Extra padding at bottom so content isn't hidden behind buttons
-            contentContainerStyle={{ 
-              paddingBottom: isLogMode ? 340 : 180 
-            }}
-            
-            // Performance props
-            initialNumToRender={2}
-            maxToRenderPerBatch={3}
-            windowSize={3}
-            removeClippedSubviews={true}
-
-            // Loaders
-            ListHeaderComponent={
-              isLoadingPast ? <ActivityIndicator size="small" color="#FCA5A5" className="py-4" /> : null
-            }
-            ListFooterComponent={
-              isLoadingFuture ? <ActivityIndicator size="small" color="#FCA5A5" className="py-4" /> : null
-            }
-          />
+              ListFooterComponent={
+                isLoadingFuture ? <ActivityIndicator size="small" color="#FCA5A5" className="py-4" /> : null
+              }
+            />
+          </View>
 
           {/* Bottom styling */}
           <View className="absolute bottom-0 w-full justify-end">
@@ -559,10 +579,10 @@ export default function CalendarScreen() {
                       </Pressable>
 
                       {/* Buttons for canceling and saving */}
-                      <View className="flex-row space-x-4">
+                      <View className="flex-row justify-between items-center px-1">
                         <TouchableOpacity
                           onPress={handleCancelLog}
-                          className="flex-1 bg-stone-200 py-3 rounded-full items-center"
+                          className="w-[48%] bg-stone-200 py-3 rounded-full items-center"
                         >
                           <Text className="text-stone-600 font-bold text-lg">Cancel</Text>
                         </TouchableOpacity>
@@ -570,7 +590,7 @@ export default function CalendarScreen() {
                         <TouchableOpacity
                           onPress={handleSaveLog}
                           disabled={isSaving}
-                          className="flex-1 bg-red-400 py-3 rounded-full items-center shadow-sm"
+                          className="w-[48%] bg-red-400 py-3 rounded-full items-center shadow-sm"
                         >
                           {isSaving ? (
                             <ActivityIndicator color="white" />
@@ -590,7 +610,8 @@ export default function CalendarScreen() {
           <PeriodActionTooltip 
             visible={tooltip.visible}
             position={tooltip.position}
-            onEdit={handleEditPeriod}
+            onEditPeriod={handleEditPeriod}
+            onEditCycleQuestionnaire={handleEditDailyQuestionnaire}
             onDelete={handleDeletePeriod}
             onClose={() => setTooltip({ visible: false, position: null, periodId: null })}
           />

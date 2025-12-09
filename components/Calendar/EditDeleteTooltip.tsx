@@ -3,7 +3,7 @@ import { View, Text, Pressable, StyleSheet, Dimensions } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 
 // Constants for layout
-const TOOLTIP_WIDTH = 145;
+const TOOLTIP_WIDTH = 230;
 const TOOLTIP_HEIGHT = 44; // Approx height
 const ARROW_SIZE = 6;
 const VERTICAL_SPACING = 47; // Space between day and arrow tip
@@ -14,7 +14,8 @@ const TOOLTIP_COLOR = "#292524"; // Stone-800 Hex code for the arrow color to ma
 type PeriodActionTooltipProps = {
   visible: boolean;
   position: { x: number; y: number } | null;
-  onEdit: () => void;
+  onEditPeriod: () => void;
+  onEditCycleQuestionnaire: () => void;
   onDelete: () => void;
   onClose: () => void;
 };
@@ -22,7 +23,8 @@ type PeriodActionTooltipProps = {
 export default function PeriodActionTooltip({ 
   visible, 
   position, 
-  onEdit, 
+  onEditPeriod,
+  onEditCycleQuestionnaire, 
   onDelete, 
   onClose 
 }: PeriodActionTooltipProps) {
@@ -58,16 +60,28 @@ export default function PeriodActionTooltip({
     >
       <View className="bg-stone-800 rounded-xl shadow-xl flex-row items-center overflow-hidden py-1 px-1">
         
-        {/* Edit option */}
+        {/* Edit period option */}
         <Pressable 
-          onPress={(e) => { e.stopPropagation(); onEdit(); }}
+          onPress={(e) => { e.stopPropagation(); onEditPeriod(); }}
           className="flex-1 flex-row items-center justify-center py-3 active:bg-stone-700 rounded-lg"
         >
           <Feather name="edit-2" size={16} color="white" style={{ marginRight: 6 }} />
-          <Text className="text-white text-sm font-bold">Edit</Text>
+          <Text className="text-white text-sm font-bold">Period</Text>
         </Pressable>
 
-        {/* Divider */}
+        {/* Divider 1 */}
+        <View className="w-[1px] h-6 bg-stone-600 mx-1" />
+
+        {/* Edit daily cycle questionnaire option */}
+        <Pressable 
+          onPress={(e) => { e.stopPropagation(); onEditCycleQuestionnaire(); }}
+          className="flex-1 flex-row items-center justify-center py-3 active:bg-stone-700 rounded-lg"
+        >
+          <Feather name="clipboard" size={16} color="white" style={{ marginRight: 6 }} />
+          <Text className="text-white text-sm font-bold">Entry</Text>
+        </Pressable>
+
+        {/* Divider 2*/}
         <View className="w-[1px] h-6 bg-stone-600 mx-1" />
 
         {/* Delete option */}

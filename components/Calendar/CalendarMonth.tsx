@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text } from 'react-native';
+import { View, Text, Pressable } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { format, isSameDay, isWithinInterval } from 'date-fns';
 import CalendarDay from './CalendarDay';
@@ -14,6 +14,7 @@ type CalendarMonthProps = {
   isOngoing: boolean;
   themeColor: string;
   onPress: (date: Date, position: { x: number; y: number }) => void;
+  onCloseTooltip: () => void;
   today: Date;
 };
 
@@ -27,6 +28,7 @@ const CalendarMonth = React.memo(({
   isOngoing,
   themeColor,
   onPress,
+  onCloseTooltip,
   today,
 }: CalendarMonthProps) => {
 
@@ -35,7 +37,12 @@ const CalendarMonth = React.memo(({
   const checkIsPrediction = (date: Date) => predictionDateSet.has(format(date, 'yyyy-MM-dd'));
 
   return (
-    <View className="mb-0 px-4"> 
+
+    // Container for the month to close tooltip on press
+    <Pressable 
+      onPress={onCloseTooltip} 
+      className="mb-0 px-4"
+    >
       <View className="flex-row items-center justify-center mb-2 mt-2 space-x-2">
         <Feather name="calendar" size={18} color="#44403C" />
         <View className="flex-row items-baseline ml-2">
@@ -84,7 +91,7 @@ const CalendarMonth = React.memo(({
           );
         })}
       </View>
-    </View>
+    </Pressable>
   );
 });
 
