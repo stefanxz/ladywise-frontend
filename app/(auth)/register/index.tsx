@@ -147,10 +147,10 @@ export default function RegisterIndex() {
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          <View 
-            className="w-full bg-gray-50" 
+          <View
+            className="w-full bg-gray-50"
             style={{ zIndex: 10, elevation: 10 }}
-            >
+          >
             <AppBar />
           </View>
 

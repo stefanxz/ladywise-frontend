@@ -4,7 +4,7 @@ import { ThemedPressable } from "@/components/ThemedPressable/ThemedPressable";
 import { ThemedTextInput } from "@/components/ThemedTextInput/ThemedTextInput";
 import { useRouter } from "expo-router";
 import React, { useCallback, useEffect, useState } from "react";
-import { 
+import {
   Keyboard,
   KeyboardAvoidingView,
   Platform,
@@ -101,8 +101,8 @@ export default function RegisterPersDetails() {
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          <View 
-            className="w-full bg-gray-50" 
+          <View
+            className="w-full bg-gray-50"
             style={{ zIndex: 10, elevation: 10 }}
           >
             <AppBar onBackPress={handleBack} />
