@@ -10,7 +10,12 @@ import CalendarStrip, {
 import PhaseCard from "@/components/PhaseCard/PhaseCard";
 import { LinearGradient } from "expo-linear-gradient";
 import { useTheme } from "@/context/ThemeContext";
-import { createDailyEntry, getCycleStatus, getRiskData, getUserById } from "@/lib/api";
+import {
+  createDailyEntry,
+  getCycleStatus,
+  getRiskData,
+  getUserById,
+} from "@/lib/api";
 import { CycleStatusDTO } from "@/lib/types/cycle";
 import { useFocusEffect } from "expo-router";
 import { useAuth } from "@/context/AuthContext";
@@ -240,7 +245,7 @@ const Home = () => {
                 }
                 theme={theme}
                 onLogPeriodPress={handleLogPeriod}
-                onCardPress={() => { }}
+                onCardPress={() => {}}
               />
             </View>
             <InsightsSection
