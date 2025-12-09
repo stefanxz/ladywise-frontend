@@ -1,7 +1,7 @@
 import InsightsSection from "@/components/InsightsSection/InsightsSection";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { RiskData } from "@/lib/types/risks";
-import { ActivityIndicator, Text, View } from "react-native";
+import { ActivityIndicator, ScrollView, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Header from "@/components/MainPageHeader/Header";
 import CalendarStrip, {
@@ -125,7 +125,7 @@ const Home = () => {
           // Generate calendar days with period data
           setCalendarDays(generateCalendarDays(status.periodDates));
         } catch (err: any) {
-          console.error("Failed to fetch cycle status:", err);
+          // console.error("Failed to fetch cycle status:", err);
 
           if (err.response?.status === 404) {
             console.log("No cycle data found (user needs setup).");
@@ -202,8 +202,14 @@ const Home = () => {
         start={{ x: 0.5, y: 0 }}
         end={{ x: 0.5, y: 1 }}
       >
-        <SafeAreaView style={{ flex: 1, backgroundColor: "transparent" }}>
-          <View className="flex-1 justify-between">
+        <SafeAreaView
+          style={{ flex: 1, backgroundColor: "transparent" }}
+          edges={["top"]}
+        >
+          <ScrollView
+            className="flex-1"
+            contentContainerStyle={{ justifyContent: "space-between" }}
+          >
             <View className="pt-10">
               <Header
                 name={userName || "there"}
@@ -250,7 +256,7 @@ const Home = () => {
               isLoading={isLoading}
               insights={data}
             ></InsightsSection>
-          </View>
+          </ScrollView>
 
           <View className="absolute bottom-4 right-4">
             <FloatingAddButton
