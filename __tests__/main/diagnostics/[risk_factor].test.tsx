@@ -1,0 +1,173 @@
+import React from "react";
+import { render, screen, waitFor, fireEvent } from "@testing-library/react-native";
+import ExtendedDiagnosticsScreen from "@/app/(main)/diagnostics/[risk_factor]";
+import { useLocalSearchParams, useRouter } from "expo-router";
+
+// Mock dependencies
+jest.mock("expo-router", () => ({
+  useLocalSearchParams: jest.fn(),
+  useRouter: jest.fn(),
+  Stack: {
+    Screen: () => null, // Mock the Screen component
+  },
+}));
+
+jest.mock("@/constants/mock-data", () => ({
+  mockHistory: [],
+}));
+
+// Mock API and Auth
+jest.mock("@/context/AuthContext", () => ({
+  useAuth: jest.fn(),
+}));
+jest.mock("@/lib/api", () => ({
+  getRiskHistory: jest.fn(),
+}));
+
+jest.mock("@/components/charts/RiskLineChart", () => ({
+  RiskLineChart: (props: any) => {
+    const { View, Text } = require("react-native");
+    return (
+      <View testID="mock-risk-line-chart">
+        <Text>{JSON.stringify(props.data)}</Text>
+      </View>
+    );
+  },
+}));
+
+jest.mock("@/components/Diagnostics/FactorCard", () => {
+  return (props: any) => {
+    const { View, Text } = require("react-native");
+    return (
+      <View testID="mock-factor-card">
+        <Text>{props.title}</Text>
+      </View>
+    );
+  };
+});
+
+import { useAuth } from "@/context/AuthContext";
+import { getRiskHistory } from "@/lib/api";
+
+const mockUseLocalSearchParams = useLocalSearchParams as jest.Mock;
+const mockUseRouter = useRouter as jest.Mock;
+const mockUseAuth = useAuth as jest.Mock;
+const mockGetRiskHistory = getRiskHistory as jest.Mock;
+
+const mockRouter = {
+  push: jest.fn(),
+  back: jest.fn(),
+};
+
+const mockHistoryData = [
+  {
+    recordedAt: "2023-01-01T00:00:00.000Z",
+    anemiaRisk: 1, // Medium
+    thrombosisRisk: 0, // Low
+    menstrualFlow: 1,
+  },
+  {
+    recordedAt: "2023-01-02T00:00:00.000Z",
+    anemiaRisk: 2, // High
+    thrombosisRisk: 1, // Medium
+    menstrualFlow: 2,
+  },
+];
+
+describe("ExtendedDiagnosticsScreen", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    mockUseRouter.mockReturnValue(mockRouter);
+    mockUseAuth.mockReturnValue({ token: "fake-token", userId: "user-123" });
+
+    // Default valid response
+    mockGetRiskHistory.mockResolvedValue(mockHistoryData);
+  });
+
+  it("renders a loading indicator initially", async () => {
+    mockUseLocalSearchParams.mockReturnValue({ risk_factor: "anemia-risk" });
+
+    // Make promise not resolve immediately to catch loading state
+    let resolvePromise: any;
+    mockGetRiskHistory.mockReturnValue(new Promise(r => resolvePromise = r));
+
+    render(<ExtendedDiagnosticsScreen />);
+
+    expect(screen.getByTestId("loading-indicator")).toBeTruthy();
+    expect(screen.queryByText(/Your anemia risk profile/)).toBeNull();
+
+    // Cleanup
+    resolvePromise(mockHistoryData);
+    await waitFor(() => expect(screen.queryByTestId("loading-indicator")).toBeNull());
+  });
+
+  it("displays the correct title and current risk from fetched data", async () => {
+    mockUseLocalSearchParams.mockReturnValue({ risk_factor: "anemia-risk" });
+    render(<ExtendedDiagnosticsScreen />);
+
+    await waitFor(() => expect(screen.queryByTestId("loading-indicator")).toBeNull());
+
+    expect(screen.getByText("Anemia Risk")).toBeTruthy();
+    // Latest anemia risk is 2 (High) in mockHistoryData[1]
+    expect(screen.getByText("High")).toBeTruthy();
+  });
+
+  it("renders the risk chart with fetched data", async () => {
+    mockUseLocalSearchParams.mockReturnValue({ risk_factor: "anemia-risk" });
+    render(<ExtendedDiagnosticsScreen />);
+
+    await waitFor(() => expect(screen.queryByTestId("loading-indicator")).toBeNull());
+
+    const chart = screen.getByTestId("mock-risk-line-chart");
+    expect(chart).toBeTruthy();
+    // Anemia risk data: [1, 2]
+    expect(chart.props.children.props.children).toBe(JSON.stringify([1, 2]));
+  });
+
+  it("renders factor cards for anemia", async () => {
+    mockUseLocalSearchParams.mockReturnValue({ risk_factor: "anemia-risk" });
+    render(<ExtendedDiagnosticsScreen />);
+
+    await waitFor(() => expect(screen.queryByTestId("loading-indicator")).toBeNull());
+
+    const factorCards = screen.getAllByTestId("mock-factor-card");
+    expect(factorCards.length).toBeGreaterThan(0);
+    expect(screen.getByText("Fatigue")).toBeTruthy();
+    expect(screen.getByText("Dizziness")).toBeTruthy();
+  });
+
+  it("renders factor cards for thrombosis", async () => {
+    mockUseLocalSearchParams.mockReturnValue({ risk_factor: "thrombosis-risk" });
+    render(<ExtendedDiagnosticsScreen />);
+
+    await waitFor(() => expect(screen.queryByTestId("loading-indicator")).toBeNull());
+
+    const factorCards = screen.getAllByTestId("mock-factor-card");
+    expect(factorCards.length).toBeGreaterThan(0);
+    expect(screen.getByText("Estrogen Pill")).toBeTruthy();
+    expect(screen.getByText("Surgery or Severe Injury")).toBeTruthy();
+  });
+
+  it("handles navigation back to diagnostics screen", async () => {
+    mockUseLocalSearchParams.mockReturnValue({ risk_factor: "anemia-risk" });
+    render(<ExtendedDiagnosticsScreen />);
+
+    await waitFor(() => expect(screen.queryByTestId("loading-indicator")).toBeNull());
+
+    const backButton = screen.getByTestId("back-button");
+    fireEvent.press(backButton);
+    expect(mockRouter.back).toHaveBeenCalled();
+  });
+
+  it("shows a fallback message if fetched data is empty", async () => {
+    mockUseLocalSearchParams.mockReturnValue({ risk_factor: "anemia-risk" });
+    mockGetRiskHistory.mockResolvedValue([]); // Empty array response
+
+    render(<ExtendedDiagnosticsScreen />);
+
+    await waitFor(() => expect(screen.queryByTestId("loading-indicator")).toBeNull());
+
+    expect(screen.getByText("No graph data available.")).toBeTruthy();
+    expect(screen.queryByTestId("mock-risk-line-chart")).toBeNull();
+  });
+});
