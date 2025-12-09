@@ -46,6 +46,22 @@ jest.mock("@/components/Diagnostics/FactorCard", () => {
   };
 });
 
+jest.mock("react-native-view-shot", () => ({
+  captureRef: jest.fn().mockResolvedValue("mock-base64-image"),
+}));
+
+jest.mock("@/components/ShareReport/ShareReportModal", () => {
+  return (props: any) => {
+    const { View, Text } = require("react-native");
+    if (!props.visible) return null;
+    return (
+      <View testID="mock-share-modal">
+        <Text>Share Modal</Text>
+      </View>
+    );
+  };
+});
+
 import { useAuth } from "@/context/AuthContext";
 import { getRiskHistory } from "@/lib/api";
 
@@ -169,5 +185,22 @@ describe("ExtendedDiagnosticsScreen", () => {
 
     expect(screen.getByText("No graph data available.")).toBeTruthy();
     expect(screen.queryByTestId("mock-risk-line-chart")).toBeNull();
+  });
+
+  it("renders the Share insights button and opens modal on press", async () => {
+    mockUseLocalSearchParams.mockReturnValue({ risk_factor: "anemia-risk" });
+    render(<ExtendedDiagnosticsScreen />);
+
+    await waitFor(() => expect(screen.queryByTestId("loading-indicator")).toBeNull());
+
+    const shareButton = screen.getByTestId("share-insights-button");
+    expect(shareButton).toBeTruthy();
+    expect(screen.getByText("Share insights")).toBeTruthy();
+
+    fireEvent.press(shareButton);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("mock-share-modal")).toBeTruthy();
+    });
   });
 });
