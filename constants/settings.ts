@@ -1,5 +1,8 @@
 import { SettingItem } from "@/constants/types/settings-types";
 import { Href } from "expo-router";
+import TermsConditionsPopUp, {
+  TermsConditionsPopUpRef,
+} from "@/components/TermsConditionsPopUp/TermsConditionsPopUp";
 
 /**
  * Defines the setting names, icons, and routes for all settings
@@ -24,13 +27,11 @@ export const accountSettings: SettingItem[] = [
  * Defines the setting names, icons, and routes for all settings
  * in the Other Settings category.
  */
-export const otherSettings: SettingItem[] = [
+export const otherSettings = (openTermsSheet: () => void): SettingItem[] => [
   {
     name: "Privacy Policy",
     icon: "book-open",
-    onPress: () => {
-      console.log("Privacy Policy");
-    },
+    onPress: openTermsSheet,
   },
   { name: "Rate Us", icon: "star", onPress: () => console.log("Rate us") },
 ];
