@@ -3,7 +3,7 @@ import React from "react";
 
 // mock AsyncStorage globally for all tests
 jest.mock("@react-native-async-storage/async-storage", () =>
-  require("@react-native-async-storage/async-storage/jest/async-storage-mock")
+  require("@react-native-async-storage/async-storage/jest/async-storage-mock"),
 );
 
 // Mock react-native-safe-area-context
@@ -27,14 +27,14 @@ jest.mock("@gorhom/bottom-sheet", () => {
     __esModule: true,
     default: React.forwardRef(({ children }: any, ref: any) => children),
     BottomSheetModal: React.forwardRef(
-      ({ children }: any, ref: any) => children
+      ({ children }: any, ref: any) => children,
     ),
     BottomSheetBackdrop: ({ children }: any) => children,
     BottomSheetView: ({ children, ...props }: any) =>
       React.createElement(View, props, children),
     BottomSheetScrollView: React.forwardRef(
       ({ children, ...props }: any, ref: any) =>
-        React.createElement(ScrollView, { ...props, ref }, children)
+        React.createElement(ScrollView, { ...props, ref }, children),
     ),
   };
 });

@@ -35,7 +35,7 @@ const TermsConditionsPopUp = forwardRef<
     (p: BottomSheetBackdropProps) => (
       <BottomSheetBackdrop {...p} appearsOnIndex={0} disappearsOnIndex={-1} />
     ),
-    []
+    [],
   );
   TermsConditionsPopUp.displayName = "TermsConditionsPopUp";
 

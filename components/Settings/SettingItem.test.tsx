@@ -31,7 +31,7 @@ describe("SettingItem", () => {
 
   it("renders correctly with all elements", () => {
     const { getByTestId, getByText } = render(
-      <SettingItem item={defaultItem} showDivider={false} />
+      <SettingItem item={defaultItem} showDivider={false} />,
     );
 
     expect(getByTestId("setting-item-container")).toBeTruthy();
@@ -44,7 +44,7 @@ describe("SettingItem", () => {
 
   it("shows divider when showDivider is true", () => {
     const { getByTestId } = render(
-      <SettingItem item={defaultItem} showDivider={true} />
+      <SettingItem item={defaultItem} showDivider={true} />,
     );
 
     expect(getByTestId("setting-item-divider")).toBeTruthy();
@@ -52,7 +52,7 @@ describe("SettingItem", () => {
 
   it("does not show divider when showDivider is false", () => {
     const { queryByTestId } = render(
-      <SettingItem item={defaultItem} showDivider={false} />
+      <SettingItem item={defaultItem} showDivider={false} />,
     );
 
     expect(queryByTestId("setting-item-divider")).toBeNull();
@@ -65,7 +65,7 @@ describe("SettingItem", () => {
     };
 
     const { getByTestId } = render(
-      <SettingItem item={itemWithRoute} showDivider={false} />
+      <SettingItem item={itemWithRoute} showDivider={false} />,
     );
 
     fireEvent.press(getByTestId("setting-item-button"));
@@ -81,7 +81,7 @@ describe("SettingItem", () => {
     };
 
     const { getByTestId } = render(
-      <SettingItem item={itemWithOnPress} showDivider={false} />
+      <SettingItem item={itemWithOnPress} showDivider={false} />,
     );
 
     fireEvent.press(getByTestId("setting-item-button"));
@@ -98,7 +98,7 @@ describe("SettingItem", () => {
     };
 
     const { getByTestId } = render(
-      <SettingItem item={itemWithBoth} showDivider={false} />
+      <SettingItem item={itemWithBoth} showDivider={false} />,
     );
 
     fireEvent.press(getByTestId("setting-item-button"));
@@ -114,7 +114,7 @@ describe("SettingItem", () => {
     };
 
     const { getByTestId } = render(
-      <SettingItem item={itemWithIcon} showDivider={false} />
+      <SettingItem item={itemWithIcon} showDivider={false} />,
     );
 
     const icon = getByTestId("setting-item-icon");
@@ -123,7 +123,7 @@ describe("SettingItem", () => {
 
   it("has correct accessibility properties", () => {
     const { getByTestId } = render(
-      <SettingItem item={defaultItem} showDivider={false} />
+      <SettingItem item={defaultItem} showDivider={false} />,
     );
 
     const button = getByTestId("setting-item-button");
@@ -141,7 +141,7 @@ describe("SettingItem", () => {
     };
 
     const { getByTestId } = render(
-      <SettingItem item={privacyPolicyItem} showDivider={false} />
+      <SettingItem item={privacyPolicyItem} showDivider={false} />,
     );
 
     fireEvent.press(getByTestId("setting-item-button"));

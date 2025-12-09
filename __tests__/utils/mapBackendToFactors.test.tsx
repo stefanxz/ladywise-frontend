@@ -16,7 +16,7 @@ describe("mapBackendListToFactors", () => {
     expect(result[0]).toEqual(
       expect.objectContaining({
         title: "Estrogen Pill",
-        value: "Present", 
+        value: "Present",
         variant: "default",
       }),
     );
@@ -30,7 +30,7 @@ describe("mapBackendListToFactors", () => {
     expect(result[0]).toEqual(
       expect.objectContaining({
         title: "Family History",
-        value: "Anemia", 
+        value: "Anemia",
       }),
     );
   });
@@ -51,22 +51,25 @@ describe("mapBackendListToFactors", () => {
 
   it("handles a complex mixed list", () => {
     const backendList = [
-      "TIRED",           // Should map to Fatigue
-      "flow_heavy",      // Should map to Heavy Flow
-      "BLOOD_CLOT",      // Should map to Blood Clot
-      "UNKNOWN_FACTOR"   // Should be ignored
+      "TIRED", // Should map to Fatigue
+      "flow_heavy", // Should map to Heavy Flow
+      "BLOOD_CLOT", // Should map to Blood Clot
+      "UNKNOWN_FACTOR", // Should be ignored
     ];
     const result = mapBackendListToFactors(backendList);
 
     expect(result).toHaveLength(3);
-    
+
     // Check for Fatigue (mapped from TIRED)
     expect(result).toEqual(
       expect.arrayContaining([
         expect.objectContaining({ title: "Fatigue" }),
-        expect.objectContaining({ title: "Flow Characteristics", value: "Heavy" }),
+        expect.objectContaining({
+          title: "Flow Characteristics",
+          value: "Heavy",
+        }),
         expect.objectContaining({ title: "Blood Clot" }),
-      ])
+      ]),
     );
   });
 });

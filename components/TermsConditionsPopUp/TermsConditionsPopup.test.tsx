@@ -22,7 +22,7 @@ jest.mock("@gorhom/bottom-sheet", () => {
         if (!isVisible) return null;
 
         return <View testID="bottom-sheet-modal">{children}</View>;
-      }
+      },
     ),
     BottomSheetBackdrop: ({ children }: any) => <View>{children}</View>,
     BottomSheetScrollView: ({ children }: any) => <View>{children}</View>,
@@ -39,7 +39,7 @@ describe("TermsConditionsPopUp", () => {
   it("should not be visible initially", () => {
     const ref = React.createRef<TermsConditionsPopUpRef>();
     const { queryByTestId } = render(
-      <TermsConditionsPopUp ref={ref} onAccept={mockOnAccept} />
+      <TermsConditionsPopUp ref={ref} onAccept={mockOnAccept} />,
     );
 
     expect(queryByTestId("bottom-sheet-modal")).toBeNull();
@@ -48,7 +48,7 @@ describe("TermsConditionsPopUp", () => {
   it("should open when open() is called", async () => {
     const ref = React.createRef<TermsConditionsPopUpRef>();
     const { getByTestId } = render(
-      <TermsConditionsPopUp ref={ref} onAccept={mockOnAccept} />
+      <TermsConditionsPopUp ref={ref} onAccept={mockOnAccept} />,
     );
 
     ref.current?.open();
@@ -62,7 +62,11 @@ describe("TermsConditionsPopUp", () => {
     it("should show Cancel and Accept & Continue buttons", async () => {
       const ref = React.createRef<TermsConditionsPopUpRef>();
       const { getByText } = render(
-        <TermsConditionsPopUp ref={ref} onAccept={mockOnAccept} mode="accept" />
+        <TermsConditionsPopUp
+          ref={ref}
+          onAccept={mockOnAccept}
+          mode="accept"
+        />,
       );
 
       ref.current?.open();
@@ -76,7 +80,11 @@ describe("TermsConditionsPopUp", () => {
     it("should call onAccept and close when Accept & Continue is pressed", async () => {
       const ref = React.createRef<TermsConditionsPopUpRef>();
       const { getByText, queryByTestId } = render(
-        <TermsConditionsPopUp ref={ref} onAccept={mockOnAccept} mode="accept" />
+        <TermsConditionsPopUp
+          ref={ref}
+          onAccept={mockOnAccept}
+          mode="accept"
+        />,
       );
 
       ref.current?.open();
@@ -97,7 +105,11 @@ describe("TermsConditionsPopUp", () => {
     it("should close without calling onAccept when Cancel is pressed", async () => {
       const ref = React.createRef<TermsConditionsPopUpRef>();
       const { getByText, queryByTestId } = render(
-        <TermsConditionsPopUp ref={ref} onAccept={mockOnAccept} mode="accept" />
+        <TermsConditionsPopUp
+          ref={ref}
+          onAccept={mockOnAccept}
+          mode="accept"
+        />,
       );
 
       ref.current?.open();
@@ -120,7 +132,7 @@ describe("TermsConditionsPopUp", () => {
     it("should show only OK button", async () => {
       const ref = React.createRef<TermsConditionsPopUpRef>();
       const { getByText, queryByText } = render(
-        <TermsConditionsPopUp ref={ref} mode="display" />
+        <TermsConditionsPopUp ref={ref} mode="display" />,
       );
 
       ref.current?.open();
@@ -135,7 +147,7 @@ describe("TermsConditionsPopUp", () => {
     it("should close when OK is pressed", async () => {
       const ref = React.createRef<TermsConditionsPopUpRef>();
       const { getByText, queryByTestId } = render(
-        <TermsConditionsPopUp ref={ref} mode="display" />
+        <TermsConditionsPopUp ref={ref} mode="display" />,
       );
 
       ref.current?.open();
@@ -155,7 +167,7 @@ describe("TermsConditionsPopUp", () => {
   it("should display terms content", async () => {
     const ref = React.createRef<TermsConditionsPopUpRef>();
     const { getByText } = render(
-      <TermsConditionsPopUp ref={ref} onAccept={mockOnAccept} />
+      <TermsConditionsPopUp ref={ref} onAccept={mockOnAccept} />,
     );
 
     ref.current?.open();
