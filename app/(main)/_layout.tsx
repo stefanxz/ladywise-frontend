@@ -8,10 +8,8 @@ import { usePushNotifications } from "@/hooks/usePushNotifications";
 export default function HomeLayout() {
   const { token, isLoading } = useAuth();
 
-
   // js tomfoolery to convert string to bool??
   usePushNotifications(!!token);
-
 
   if (isLoading) {
     return null;
