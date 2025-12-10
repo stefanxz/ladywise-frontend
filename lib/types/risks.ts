@@ -1,3 +1,23 @@
+// --- Real-time / WebSocket DTOs ---
+
+export interface RiskBlock {
+  risk: "Low" | "Medium" | "High";
+  key_inputs: string[];
+  summary_sentence: string;
+}
+
+export interface RiskResult {
+  anemia: RiskBlock;
+  thrombosis: RiskBlock;
+}
+
+export interface InsightResult {
+  trend: "improving" | "stable" | "worsening" | "neutral" | "increasing" | "declining";
+  description: string;
+}
+
+// --- App / UI Types ---
+
 export type RiskLevel = "Low" | "Medium" | "High";
 
 export type RiskData = {
@@ -5,11 +25,15 @@ export type RiskData = {
   title: string;
   level: RiskLevel;
   description: string;
+  trend?: string; // Added to support UI arrows (e.g. "increasing")
 };
 
+// Updated to match the Java 'UserResponse' DTO
 export type ApiRiskResponse = {
   thrombosisRisk: number;
   anemiaRisk: number;
+  latestAnemiaInsight?: InsightResult | null;
+  latestThrombosisInsight?: InsightResult | null;
 };
 
 export interface RiskHistoryPoint {
