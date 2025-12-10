@@ -40,7 +40,6 @@ import { RiskData } from "@/lib/types/risks";
 import { DailyCycleAnswers } from "@/components/CycleQuestionsBottomSheet/CycleQuestionsBottomSheet.types";
 import { mapAnswersToPayload, mapApiToInsights } from "@/utils/helpers";
 import { formatPhaseName, generateCalendarDays } from "@/utils/mainPageHelpers";
-import { RiskResult, InsightResult } from "@/lib/types/risks"; // Ensure these are exported from types
 
 const Home = () => {
   const { token, userId, isLoading: isAuthLoading } = useAuth();
@@ -68,10 +67,10 @@ const Home = () => {
     []
   );
 
-  // --- 3. Derived State (Merge Logic) ---
-  // Automatically updates when either WebSocket pushes new data OR initial fetch completes.
-  // WebSocket data (realtimeRisks) always takes precedence.
   const displayedInsights: RiskData[] = useMemo(() => {
+    const getFallbackTrend = (id: string) =>
+      initialApiData.find((item) => item.id === id)?.trend;
+
     if (realtimeRisks) {
       return [
         {
@@ -79,18 +78,21 @@ const Home = () => {
           title: "Anemia Risk",
           level: realtimeRisks.anemia.risk,
           description: realtimeRisks.anemia.summary_sentence,
-          trend: anemiaTrend?.trend,
+          // Priority: Live Trend -> Persisted Trend -> Undefined
+          trend: anemiaTrend?.trend || getFallbackTrend("anemia"),
         },
         {
           id: "thrombosis",
           title: "Thrombosis Risk",
           level: realtimeRisks.thrombosis.risk,
           description: realtimeRisks.thrombosis.summary_sentence,
-          trend: thrombosisTrend?.trend,
+          // Priority: Live Trend -> Persisted Trend -> Undefined
+          trend: thrombosisTrend?.trend || getFallbackTrend("thrombosis"),
         },
       ];
     }
 
+    // If no live data yet, show what we fetched from the DB
     return initialApiData;
   }, [realtimeRisks, anemiaTrend, thrombosisTrend, initialApiData]);
 
@@ -108,8 +110,6 @@ const Home = () => {
             : (user.email?.split("@")[0] ?? "there");
         setUserName(safeName);
 
-        // Fetch Risks from DB (State Snapshot)
-        // Only update fallback state if we don't already have live data
         if (!realtimeRisks) {
           const apiData = await getRiskData(token, userId);
           setInitialApiData(mapApiToInsights(apiData));
@@ -122,7 +122,7 @@ const Home = () => {
     };
 
     loadInitialData();
-  }, [token, userId, isAuthLoading]); // Dependencies are static, won't loop
+  }, [token, userId, isAuthLoading]);
 
   // --- 5. Effect: Cycle Data ---
   useFocusEffect(
@@ -154,10 +154,6 @@ const Home = () => {
     try {
       await createDailyEntry(payload);
 
-      // OPTIMISTIC UPDATE:
-      // We know the backend is processing. Show "Analyzing..." state immediately.
-      // The WebSocket update will eventually clear this via the derived state logic if you wire it,
-      // but explicitly setting it to false when data arrives is safer or handling it via a useEffect on data change.
       setIsCalculating(true);
     } catch (error: any) {
       setError(error.message ?? "Could not save daily answer entry.");
@@ -242,9 +238,9 @@ const Home = () => {
               insights={displayedInsights}
             />
 
-            {/* Connection Status Debugger (Optional) */}
+            {/* Optional: Connection Status Debugger */}
             <View className="items-center mt-2 opacity-50">
-              <Text className="text-[10px] text-gray-500">
+              <Text className="text-[10px] text-gray-400">
                 {isConnected ? "● Live Updates Active" : "○ Real-time Offline"}
               </Text>
             </View>
