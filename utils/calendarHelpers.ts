@@ -6,8 +6,18 @@ import {
   startOfMonth, 
   addMonths, 
   isSameDay, 
-  isWithinInterval, 
+  isBefore,
+  areIntervalsOverlapping,
+  addDays,
+  subDays
 } from 'date-fns';
+
+// Interface for objects that have a start and end date (Periods, Predictions)
+export interface DateRange {
+  id?: string;
+  start: Date;
+  end: Date;
+}
 
 /**
  * Generates the grid of days for a specific month, including empty padding slots.
@@ -43,4 +53,23 @@ export const generateMonths = (startDate: Date, count: number) => {
       days: generateDaysForMonth(monthDate),
     };
   });
+};
+
+/**
+ * Transforms an array of date ranges into a Set of 'yyyy-MM-dd' strings
+ * for O(1) lookup during rendering.
+ */
+export const generateDateSet = (ranges: DateRange[]): Set<string> => {
+  const set = new Set<string>();
+
+  ranges.forEach(range => {
+    try {
+      const days = eachDayOfInterval({ start: range.start, end: range.end });
+      days.forEach(d => set.add(format(d, 'yyyy-MM-dd')));
+    } catch (e) {
+      console.warn("Invalid interval skipped", range);
+    }
+  });
+
+  return set;
 };

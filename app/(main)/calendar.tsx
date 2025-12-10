@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity, FlatList, StatusBar, ActivityIndicator, P
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Feather } from '@expo/vector-icons';
-import { generateMonths } from '@/utils/calendarHelpers';
+import { generateDateSet, generateMonths } from '@/utils/calendarHelpers';
 import CalendarHeader from '@/components/Calendar/CalendarHeader';
 import LogNewPeriodButton from '@/components/LogNewPeriodButton/LogNewPeriodButton';
 import { addDays, addMonths, eachDayOfInterval, endOfDay, areIntervalsOverlapping, format, isAfter, isBefore, isSameDay, parseISO, startOfDay, subDays, subMonths, isWithinInterval } from 'date-fns';
@@ -128,35 +128,11 @@ export default function CalendarScreen() {
   }, [fetchData]);
 
   // Optimize by putting period dates into a set for O(1) lookup
-  const periodDateSet = useMemo(() => {
-    const set = new Set<string>();
-
-    periods.forEach(p => {
-      try {
-        const days = eachDayOfInterval({start: p.start, end: p.end});
-        days.forEach(d => set.add(format(d, 'yyyy-MM-dd')));
-      } catch (e) {
-        console.warn("Invalid interval skipped", p);
-      }
-    });
-
-    return set;
-  }, [periods]);
+  const periodDateSet = useMemo(() => generateDateSet(periods), [periods]);
 
   // Same for predictions
-  const predictionDateSet = useMemo(() => {
-    const set = new Set<string>();
-    predictions.forEach(p => {
-      try {
-        const days = eachDayOfInterval({ start: p.start, end: p.end });
-        days.forEach(d => set.add(format(d, 'yyyy-MM-dd')));
-      } catch (e) {
-        console.warn("Invalid prediction interval skipped", p);
-      }
-    });
-    return set;
-  }, [predictions]);
-
+  const predictionDateSet = useMemo(() => generateDateSet(predictions), [predictions]);
+  
   // Logging new period
   const handleLogPeriodStart = () => {
     setIsLogMode(true);
