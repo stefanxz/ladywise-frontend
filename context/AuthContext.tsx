@@ -83,7 +83,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           await signOut();
         }
       } catch (error) {
-        console.error("Failed to load auth data", error);
+        // console.error("Failed to load auth data", error);
       } finally {
         setIsLoading(false);
       }

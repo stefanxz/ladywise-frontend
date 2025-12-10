@@ -1,5 +1,7 @@
 import axios from "axios";
 import type {
+  ChangePasswordPayload,
+  ChangePasswordResponse,
   LoginPayload,
   LoginResponse,
   PasswordResetRequestPayload,
@@ -10,6 +12,7 @@ import type {
   UserPayload,
   UserResponse,
 } from "./types";
+import type { ReportRequest } from "./types/reports";
 import { CycleStatusDTO } from "./types/cycle";
 import { getAuthData } from "./auth";
 import { ApiRiskResponse, RiskHistoryPoint } from "./types/risks";
@@ -62,6 +65,23 @@ export async function loginUser(payload: LoginPayload) {
 export async function updateUser(payload: UserPayload) {
   const { data } = await api.patch<UserResponse>(
     "/api/users/updateUser",
+    payload,
+  );
+  return data;
+}
+
+/**
+ * Changes the password for the authenticated user.
+ *
+ * Requires the user to be authenticated and provide their current password for
+ * verification. The new password must meet validation requirements and be
+ * different from the current password.
+ *
+ * @param payload - Object containing the currentPassword and newPassword
+ */
+export async function changePassword(payload: ChangePasswordPayload) {
+  const { data } = await api.post<ChangePasswordResponse>(
+    "/api/auth/change-password",
     payload,
   );
   return data;
@@ -178,6 +198,18 @@ export async function resetPassword(payload: ResetPasswordPayload) {
   return data;
 }
 
+/**
+ * Deletes the authenticated user's account.
+ *
+ * This permanently removes the user and all associated data from the system.
+ * Requires the user to be authenticated via the Authorization header.
+ *
+ * @returns A promise that resolves when the deletion is successful (204) or rejects if user not found (404)
+ */
+export async function deleteCurrentUser(): Promise<void> {
+  await api.delete("/api/users/me");
+}
+
 export async function submitQuestionnaire(payload: QuestionnairePayload) {
   const { data } = await api.post<QuestionnaireResponse>(
     "/api/questionnaire",
@@ -256,5 +288,20 @@ export async function updatePeriod(periodId: string, payload: PeriodLogRequest) 
 // Delete a period
 export async function deletePeriod(periodId: string) {
   const { data } = await api.delete(`/api/periods/${periodId}`);
+  return data;
+}
+/**
+ * Sends a PDF health report to the specified clinician's email.
+ * @param token - User's auth token
+ * @param payload - Report request containing email, report type, and optional graph/insights
+ * @returns Success message from the server
+ */
+export async function shareReport(
+  token: string,
+  payload: ReportRequest,
+): Promise<string> {
+  const { data } = await api.post<string>("/api/reports/share", payload, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
   return data;
 }

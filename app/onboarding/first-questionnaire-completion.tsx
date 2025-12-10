@@ -40,7 +40,7 @@ export default function FirstQuestionnaireCompletion() {
       // }
       router.replace("/(main)/home");
     } catch (error: any) {
-      console.error("Completion error:", error);
+      // console.error("Completion error:", error);
       Alert.alert(
         "Connection Error",
         "We could not update your progress. Please check your internet connection.",

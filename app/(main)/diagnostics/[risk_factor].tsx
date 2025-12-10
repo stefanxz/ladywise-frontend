@@ -1,8 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import {
   View,
   Text,
-  StyleSheet,
   ScrollView,
   ActivityIndicator,
   TouchableOpacity,
@@ -11,6 +10,7 @@ import {
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { Feather } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { captureRef } from "react-native-view-shot";
 
 import { Colors, riskColors } from "@/constants/colors";
 import { RiskLineChart } from "@/components/charts/RiskLineChart";
@@ -20,6 +20,8 @@ import { FACTORS_REGISTRY } from "@/constants/factors-registry";
 import { useAuth } from "@/context/AuthContext";
 import { getRiskHistory } from "@/lib/api";
 import { mockHistory } from "@/constants/mock-data";
+import ShareReportModal from "@/components/ShareReport/ShareReportModal";
+import type { ReportType } from "@/lib/types/reports";
 
 const chartWidth = Dimensions.get("window").width - 80; // Screen padding (20*2) + Card padding (20*2)
 
@@ -48,6 +50,9 @@ const ExtendedDiagnosticsScreen = () => {
   const [factors, setFactors] = useState<(FactorCardProps & { id: string })[]>(
     [],
   );
+  const [showShareModal, setShowShareModal] = useState(false);
+  const [graphBase64, setGraphBase64] = useState<string | undefined>(undefined);
+  const chartRef = useRef<View>(null);
 
   // This should be aligned with the logic in the main diagnostics screen
   const riskLabels: Record<number, string> = {
@@ -141,6 +146,31 @@ const ExtendedDiagnosticsScreen = () => {
     return riskLabels[val] ?? "N/A";
   }, [riskData]);
 
+  // Determine report type based on risk_factor
+  const reportType: ReportType = React.useMemo(() => {
+    if (risk_factor === "thrombosis-risk") return "THROMBOSIS_ONLY";
+    if (risk_factor === "anemia-risk") return "ANEMIA_ONLY";
+    return "FULL_REPORT";
+  }, [risk_factor]);
+
+  // Capture chart as Base64 when opening share modal
+  const handleSharePress = async () => {
+    try {
+      if (chartRef.current) {
+        const base64 = await captureRef(chartRef, {
+          format: "png",
+          result: "base64",
+          quality: 0.8,
+        });
+        setGraphBase64(base64);
+      }
+    } catch (e) {
+      console.warn("Failed to capture chart:", e);
+      // Continue without graph capture
+    }
+    setShowShareModal(true);
+  };
+
   return (
     <SafeAreaView className="flex-1 bg-background" edges={["top"]}>
       <ScrollView contentContainerStyle={{ padding: 16, paddingTop: 40 }}>
@@ -172,7 +202,7 @@ const ExtendedDiagnosticsScreen = () => {
               </Text>
             </TouchableOpacity>
           </View>
-          <View className="items-center">
+          <View className="items-center" ref={chartRef} collapsable={false}>
             {riskData.data.length > 0 ? (
               <RiskLineChart
                 labels={riskData.labels}
@@ -240,10 +270,37 @@ const ExtendedDiagnosticsScreen = () => {
           </View>
         )}
 
-        <Text className="text-xs text-inactiveText text-center px-5 mb-10 mt-6">
+        <Text className="text-xs text-inactiveText text-center px-5 mb-6 mt-6">
           This information is for informational purposes only and does not
           constitute medical advice. Please consult a healthcare professional.
         </Text>
+
+        {/* Share Insights Button */}
+        <TouchableOpacity
+          testID="share-insights-button"
+          onPress={handleSharePress}
+          className="bg-gray-200 rounded-xl py-3 px-6 flex-row items-center justify-center self-center mb-2"
+        >
+          <Text className="text-headingText font-medium text-sm mr-2">
+            Share insights
+          </Text>
+          <Feather name="arrow-right" size={16} color="#1F2937" />
+        </TouchableOpacity>
+
+        {/* Terms notice */}
+        <Text className="text-xs text-inactiveText text-center px-5 mb-10">
+          By sharing your data, you agree with our Terms and Conditions.
+          LifeSense Group is not responsible for your data from here on.
+        </Text>
+
+        {/* Share Report Modal */}
+        <ShareReportModal
+          visible={showShareModal}
+          onClose={() => setShowShareModal(false)}
+          reportType={reportType}
+          graphImageBase64={graphBase64}
+          insightSummary={insights}
+        />
       </ScrollView>
     </SafeAreaView>
   );

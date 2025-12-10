@@ -40,7 +40,7 @@ async function fetchRiskData(
 
     return mappedData;
   } catch (e) {
-    console.error("Error fetching Risk Data: ", e);
+    // console.error("Error fetching Risk Data: ", e);
     return []; // Return empty array on failure
   }
 }
@@ -84,7 +84,7 @@ const Home = () => {
 
         setUserName(fullName);
       } catch (error) {
-        console.error("[REMOVE IN PROD] error inside useEffect hook!");
+        // console.error("[REMOVE IN PROD] error inside useEffect hook!");
         setData([]);
       } finally {
         setIsLoading(false);
