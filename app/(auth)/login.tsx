@@ -115,7 +115,7 @@ export default function LoginScreen() {
         }
       }
       setFormError(message);
-      console.error("Login error:", error);
+      // console.error("Login error:", error);
     } finally {
       setIsSubmitting(false);
     }

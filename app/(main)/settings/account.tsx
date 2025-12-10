@@ -105,16 +105,16 @@ export default function AccountSettings() {
         const status = error.response?.status;
 
         if (status === 404) {
-          console.error("User not found");
+          // console.error("User not found");
           // User doesn't exist, sign out anyway
           // TODO: change this?
           signOut();
         } else {
-          console.error("Failed to delete account:", error.message);
+          // console.error("Failed to delete account:", error.message);
           alert("Failed to delete account. Please try again.");
         }
       } else {
-        console.error("An unexpected error occurred:", error);
+        // console.error("An unexpected error occurred:", error);
         alert("An unexpected error occurred. Please try again.");
       }
     }
