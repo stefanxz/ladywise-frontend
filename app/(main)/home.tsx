@@ -1,4 +1,10 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  useMemo,
+} from "react";
 import { ActivityIndicator, ScrollView, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
@@ -9,8 +15,8 @@ import { BottomSheetModal } from "@gorhom/bottom-sheet";
 import { useAuth } from "@/context/AuthContext";
 import { useTheme } from "@/context/ThemeContext";
 
+// Hooks
 import { useHealthRealtime } from "@/hooks/useHealthRealtime";
-import { RiskResult, InsightResult } from "@/lib/types/risks"; // Or wherever you put the types
 
 // Components
 import Header from "@/components/MainPageHeader/Header";
@@ -34,22 +40,20 @@ import { RiskData } from "@/lib/types/risks";
 import { DailyCycleAnswers } from "@/components/CycleQuestionsBottomSheet/CycleQuestionsBottomSheet.types";
 import { mapAnswersToPayload, mapApiToInsights } from "@/utils/helpers";
 import { formatPhaseName, generateCalendarDays } from "@/utils/mainPageHelpers";
+import { RiskResult, InsightResult } from "@/lib/types/risks"; // Ensure these are exported from types
 
 const Home = () => {
   const { token, userId, isLoading: isAuthLoading } = useAuth();
   const { theme, setPhase } = useTheme();
 
-  // --- 1. INITIALIZE THE HOOK ---
-  // This opens the connection. 'realtimeRisks' will be null initially,
-  // then populate automatically when the server pushes data.
+  // --- 1. Real-time Hook (The Source of Truth) ---
   const { realtimeRisks, anemiaTrend, thrombosisTrend, isConnected } =
     useHealthRealtime(userId, token);
 
-  const [data, setData] = useState<RiskData[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-
-  // New State: calculating mode for UX feedback
-  const [isCalculating, setIsCalculating] = useState(false);
+  // --- 2. Local State ---
+  const [initialApiData, setInitialApiData] = useState<RiskData[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isCalculating, setIsCalculating] = useState<boolean>(false); // UI state for "Processing..."
 
   const [cycleStatus, setCycleStatus] = useState<CycleStatusDTO | null>(null);
   const [calendarDays, setCalendarDays] = useState<DayData[]>(
@@ -64,48 +68,39 @@ const Home = () => {
     []
   );
 
-  // This function converts the complex WebSocket object into your simple UI 'RiskCard' format
-  const updateRiskUI = useCallback(
-    (
-      risks: RiskResult,
-      aTrend: InsightResult | null,
-      tTrend: InsightResult | null
-    ) => {
-      const mappedData: RiskData[] = [
+  // --- 3. Derived State (Merge Logic) ---
+  // Automatically updates when either WebSocket pushes new data OR initial fetch completes.
+  // WebSocket data (realtimeRisks) always takes precedence.
+  const displayedInsights: RiskData[] = useMemo(() => {
+    if (realtimeRisks) {
+      return [
         {
           id: "anemia",
           title: "Anemia Risk",
-          level: risks.anemia.risk,
-          description: risks.anemia.summary_sentence,
-          trend: aTrend?.trend, // The new field you added
+          level: realtimeRisks.anemia.risk,
+          description: realtimeRisks.anemia.summary_sentence,
+          trend: anemiaTrend?.trend,
         },
         {
           id: "thrombosis",
           title: "Thrombosis Risk",
-          level: risks.thrombosis.risk,
-          description: risks.thrombosis.summary_sentence,
-          trend: tTrend?.trend,
+          level: realtimeRisks.thrombosis.risk,
+          description: realtimeRisks.thrombosis.summary_sentence,
+          trend: thrombosisTrend?.trend,
         },
       ];
-      setData(mappedData);
-      setIsLoading(false);
-      setIsCalculating(false); // Stop the spinner if we were waiting
-    },
-    []
-  );
-
-  useEffect(() => {
-    if (realtimeRisks) {
-      console.log("⚡️ WebSocket: Merging Live Updates");
-      updateRiskUI(realtimeRisks, anemiaTrend, thrombosisTrend);
     }
-  }, [realtimeRisks, anemiaTrend, thrombosisTrend, updateRiskUI]);
 
+    return initialApiData;
+  }, [realtimeRisks, anemiaTrend, thrombosisTrend, initialApiData]);
+
+  // --- 4. Effect: Initial Fetch (Pull) ---
   useEffect(() => {
     const loadInitialData = async () => {
       if (isAuthLoading || !token || !userId) return;
 
       try {
+        // Fetch User Profile
         const user = await getUserById(token, userId);
         const safeName =
           user.firstName || user.lastName
@@ -113,10 +108,11 @@ const Home = () => {
             : (user.email?.split("@")[0] ?? "there");
         setUserName(safeName);
 
+        // Fetch Risks from DB (State Snapshot)
+        // Only update fallback state if we don't already have live data
         if (!realtimeRisks) {
           const apiData = await getRiskData(token, userId);
-          const mappedData = mapApiToInsights(apiData);
-          setData(mappedData);
+          setInitialApiData(mapApiToInsights(apiData));
         }
       } catch (err) {
         console.error("Initial load failed", err);
@@ -126,8 +122,9 @@ const Home = () => {
     };
 
     loadInitialData();
-  }, [token, userId, isAuthLoading]);
+  }, [token, userId, isAuthLoading]); // Dependencies are static, won't loop
 
+  // --- 5. Effect: Cycle Data ---
   useFocusEffect(
     useCallback(() => {
       if (isAuthLoading || !token) return;
@@ -142,6 +139,8 @@ const Home = () => {
           if (err.response?.status === 404) {
             setPhase("neutral" as any);
             setCalendarDays(generateCalendarDays([]));
+          } else {
+            console.error("Cycle fetch error", err);
           }
         }
       };
@@ -154,12 +153,24 @@ const Home = () => {
     const payload = mapAnswersToPayload(answers);
     try {
       await createDailyEntry(payload);
+
+      // OPTIMISTIC UPDATE:
+      // We know the backend is processing. Show "Analyzing..." state immediately.
+      // The WebSocket update will eventually clear this via the derived state logic if you wire it,
+      // but explicitly setting it to false when data arrives is safer or handling it via a useEffect on data change.
       setIsCalculating(true);
     } catch (error: any) {
       setError(error.message ?? "Could not save daily answer entry.");
       setIsCalculating(false);
     }
   };
+
+  // Reset calculating state when new data arrives
+  useEffect(() => {
+    if (displayedInsights.length > 0) {
+      setIsCalculating(false);
+    }
+  }, [displayedInsights]);
 
   if (isAuthLoading) {
     return (
@@ -225,14 +236,13 @@ const Home = () => {
               />
             </View>
 
-            {/* --- UPDATED SECTION --- */}
             <InsightsSection
               isLoading={isLoading}
-              isCalculating={isCalculating} // Pass the "AI Processing" state
-              insights={data}
+              isCalculating={isCalculating}
+              insights={displayedInsights}
             />
 
-            {/* Status Debugger */}
+            {/* Connection Status Debugger (Optional) */}
             <View className="items-center mt-2 opacity-50">
               <Text className="text-[10px] text-gray-500">
                 {isConnected ? "● Live Updates Active" : "○ Real-time Offline"}
