@@ -165,10 +165,6 @@ export async function resetPassword(payload: ResetPasswordPayload) {
 }
 
 export async function submitQuestionnaire(payload: QuestionnairePayload) {
-  if (!payload.userId) {
-    throw new Error("User ID is missing.");
-  }
-
   const { data } = await api.post<QuestionnaireResponse>(
     "/api/questionnaire",
     payload,
