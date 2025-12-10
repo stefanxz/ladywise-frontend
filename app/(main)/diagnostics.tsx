@@ -1,24 +1,14 @@
 import React, { useEffect, useState } from "react";
-import {
-  View,
-  Text,
-  ActivityIndicator,
-  ScrollView,
-  Dimensions,
-} from "react-native";
+import { View, Text, ActivityIndicator, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { LineChart } from "react-native-chart-kit";
 import { isAxiosError } from "axios";
-
+import { RiskLineChart } from "@/components/charts/RiskLineChart";
 import { useAuth } from "@/context/AuthContext";
 import { getRiskHistory } from "@/lib/api";
 import type { RiskHistoryPoint } from "@/lib/types/risks";
-import { Colors } from "@/constants/colors";
-
-const screenWidth = Dimensions.get("window").width - 32;
-
-type RiskNum = 0 | 1 | 2;
-type FlowNum = 0 | 1 | 2 | 3;
+import { Colors, riskColors, flowColors } from "@/constants/colors";
+import { mockHistory } from "@/constants/mock-data";
+import type { RiskNum, FlowNum } from "@/lib/types/diagnostics";
 
 const riskLabels: Record<RiskNum, string> = {
   0: "Low",
@@ -32,55 +22,6 @@ const flowLabels: Record<FlowNum, string> = {
   2: "Normal",
   3: "Heavy",
 };
-
-// colors for text (and later, maybe dots) per level
-const riskColors: Record<RiskNum, string> = {
-  0: "#16a34a", // green
-  1: "#eab308", // yellow
-  2: "#dc2626", // red
-};
-
-const flowColors: Record<FlowNum, string> = {
-  0: "#6B7280", // grey for "None"
-  1: "#22c55e", // light-ish green
-  2: Colors.brand, // normal = brand
-  3: "#dc2626", // heavy = red
-};
-
-//TODO: When backend is properly implemented for keeping track of risk history remove this and change the
-//useEffect so that it doesnt fall back on the mock data.
-const mockHistory: RiskHistoryPoint[] = [
-  {
-    recordedAt: "2025-10-28T10:00:00Z",
-    anemiaRisk: 1,
-    thrombosisRisk: 0,
-    menstrualFlow: 2,
-  },
-  {
-    recordedAt: "2025-10-29T10:00:00Z",
-    anemiaRisk: 1,
-    thrombosisRisk: 1,
-    menstrualFlow: 3,
-  },
-  {
-    recordedAt: "2025-10-30T10:00:00Z",
-    anemiaRisk: 2,
-    thrombosisRisk: 1,
-    menstrualFlow: 2,
-  },
-  {
-    recordedAt: "2025-10-31T10:00:00Z",
-    anemiaRisk: 1,
-    thrombosisRisk: 2,
-    menstrualFlow: 1,
-  },
-  {
-    recordedAt: "2025-11-01T10:00:00Z",
-    anemiaRisk: 0,
-    thrombosisRisk: 1,
-    menstrualFlow: 0,
-  },
-];
 
 type DiagnosticsScreenProps = {
   history?: RiskHistoryPoint[];
@@ -113,8 +54,11 @@ export default function DiagnosticsScreen({
         if (data && data.length > 0) {
           setHistory(data);
         } else {
-          // If API returns no data, fallback to mock data for development
+          // If API returns no data, fallback to mock data as requested
           setHistory(mockHistory);
+          setError(
+            "No history data was found. Showing sample data for demonstration.",
+          );
         }
       } catch (err: unknown) {
         console.error("Failed to load risk history", err);
@@ -127,11 +71,16 @@ export default function DiagnosticsScreen({
           if (status === 401) {
             setError("Your session has expired. Please log in again.");
           } else {
-            // Don't show a "not found" error, just use mock data for now.
-            setError(null);
+            setError(
+              `We couldn't load your data. Showing sample data. Error: ${err.message}`,
+            );
           }
+        } else if (err instanceof Error) {
+          setError(
+            `An unexpected error occurred: ${err.message}. Showing sample data.`,
+          );
         } else {
-          setError(null); // Or a generic error message
+          setError("An unexpected error occurred. Showing sample data.");
         }
       } finally {
         setLoading(false);
@@ -154,12 +103,16 @@ export default function DiagnosticsScreen({
   if (loading) {
     return (
       <View className="flex-1 justify-center items-center bg-background">
-        <ActivityIndicator size="large" color={Colors.brand} />
+        <ActivityIndicator
+          size="large"
+          color={Colors.brand}
+          testID="loading-indicator"
+        />
       </View>
     );
   }
 
-  if (error) {
+  if (error && error.includes("session has expired")) {
     return (
       <View className="flex-1 justify-center items-center bg-background px-6">
         <Text className="text-lg text-regularText text-center">{error}</Text>
@@ -193,26 +146,17 @@ export default function DiagnosticsScreen({
   const latestAnemia = latest.anemiaRisk as RiskNum;
   const latestFlow = latest.menstrualFlow as FlowNum;
 
-  const chartConfig = {
-    backgroundGradientFrom: "#ffffff",
-    backgroundGradientTo: "#ffffff",
-    color: (opacity = 1) => `rgba(164, 90, 107, ${opacity})`,
-    labelColor: () => "#374151",
-    propsForDots: {
-      r: "4",
-      strokeWidth: "2",
-      stroke: Colors.brand,
-      fill: Colors.brand,
-    },
-  };
-
   return (
-    <SafeAreaView className="flex-1 bg-background">
+    <SafeAreaView className="flex-1 bg-background" edges={["top"]}>
       <ScrollView testID="diagnostics-scroll-view">
         <View className="px-4 pt-10">
           <Text className="text-3xl font-bold text-headingText mb-6">
             Diagnostics
           </Text>
+
+          {error && (
+            <Text className="text-center text-red-500 mb-4">{error}</Text>
+          )}
 
           {/* --- Thrombosis Card --- */}
           <View className="bg-white rounded-2xl shadow-sm p-4 mb-6">
@@ -236,18 +180,10 @@ export default function DiagnosticsScreen({
               </Text>
             </View>
 
-            <LineChart
-              data={{
-                labels,
-                datasets: [{ data: thrombosisData }],
-              }}
-              width={screenWidth}
-              height={220}
-              chartConfig={chartConfig}
-              bezier
-              fromZero
-              withShadow={false}
-              segments={2} // 0,1,2 → Low,Medium,High
+            <RiskLineChart
+              labels={labels}
+              data={thrombosisData}
+              segments={2}
               formatYLabel={formatRiskTick}
             />
           </View>
@@ -273,17 +209,9 @@ export default function DiagnosticsScreen({
               </Text>
             </View>
 
-            <LineChart
-              data={{
-                labels,
-                datasets: [{ data: anemiaData }],
-              }}
-              width={screenWidth}
-              height={220}
-              chartConfig={chartConfig}
-              bezier
-              fromZero
-              withShadow={false}
+            <RiskLineChart
+              labels={labels}
+              data={anemiaData}
               segments={2}
               formatYLabel={formatRiskTick}
             />
@@ -310,18 +238,10 @@ export default function DiagnosticsScreen({
               </Text>
             </View>
 
-            <LineChart
-              data={{
-                labels,
-                datasets: [{ data: flowData }],
-              }}
-              width={screenWidth}
-              height={220}
-              chartConfig={chartConfig}
-              bezier
-              fromZero
-              withShadow={false}
-              segments={3} // 0..3 → None,Light,Normal,Heavy
+            <RiskLineChart
+              labels={labels}
+              data={flowData}
+              segments={3}
               formatYLabel={formatFlowTick}
             />
           </View>

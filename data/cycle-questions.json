@@ -1,12 +1,12 @@
 [
   {
-    "id": 1,
+    "key": "flow",
     "question": "How was your flow today?",
     "options": ["None", "Light", "Normal", "Heavy"],
     "multiSelect": false
   },
   {
-    "id": 2,
+    "key": "symptoms",
     "question": "How are you feeling today?",
     "options": [
       "Shortness of breath",
@@ -20,7 +20,7 @@
     "multiSelect": true
   },
   {
-    "id": 3,
+    "key": "riskFactors",
     "question": "Have you had any of these risk factors in the past 2 weeks?",
     "options": [
       "Estrogen pill",

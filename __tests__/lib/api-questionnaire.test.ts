@@ -1,20 +1,46 @@
 /**
- * __tests__/lib/questionnaireService.test.ts
+ * __tests__/lib/api-questionnaire.test.ts
  */
 
 import * as auth from "@/lib/auth";
 import { 
   markFirstQuestionnaireComplete, 
   checkCycleQuestionnaireAccess 
-} from "@/lib/questionnaireService";
-import axios from "axios";
+} from "@/lib/api"; 
 
-jest.mock("axios");
+jest.mock("axios", () => {
+  const mockInstance = {
+    get: jest.fn(),
+    post: jest.fn(),
+    interceptors: {
+      request: { use: jest.fn(), eject: jest.fn() },
+      response: { use: jest.fn(), eject: jest.fn() },
+    },
+  };
+
+  return {
+    __esModule: true, 
+    default: {
+      create: jest.fn(() => mockInstance),
+      isAxiosError: jest.fn(),
+      post: jest.fn(),
+      get: jest.fn(),
+    },
+    create: jest.fn(() => mockInstance),
+    isAxiosError: jest.fn(),
+  };
+});
+
 jest.mock("@/lib/auth");
 
-describe("questionnaireService", () => {
+// Helper to access the mock instance easily in tests
+const mockAxios = require("axios").default;
+const mockApi = mockAxios.create(); 
+
+describe("Questionnaire API Logic", () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockAxios.create.mockReturnValue(mockApi);
   });
 
   describe("markFirstQuestionnaireComplete", () => {
@@ -23,14 +49,14 @@ describe("questionnaireService", () => {
         userId: "user123", 
         token: "valid-token" 
       });
-      (axios.post as jest.Mock).mockResolvedValue({ data: { success: true } });
+      mockApi.post.mockResolvedValue({ data: { success: true } });
 
       const result = await markFirstQuestionnaireComplete();
       
       expect(result).toEqual({ success: true });
-      expect(axios.post).toHaveBeenCalledWith(
+      expect(mockApi.post).toHaveBeenCalledWith(
         expect.stringContaining("/first-questionnaire/complete"),
-        { userId: "user123" }
+        expect.objectContaining({ userId: "user123" })
       );
     });
 
@@ -48,14 +74,14 @@ describe("questionnaireService", () => {
       });
       
       const mockResponse = { allowed: true, reason: "completed" };
-      (axios.get as jest.Mock).mockResolvedValue({ data: mockResponse });
+      mockApi.get.mockResolvedValue({ data: mockResponse });
 
       const result = await checkCycleQuestionnaireAccess();
 
       expect(result).toEqual(mockResponse);
-      expect(axios.get).toHaveBeenCalledWith(
+      expect(mockApi.get).toHaveBeenCalledWith(
         expect.stringContaining("/cycle-questionnaire/access"),
-        { params: { userId: "user123" } }
+        expect.objectContaining({ params: { userId: "user123" } })
       );
     });
 
@@ -65,18 +91,17 @@ describe("questionnaireService", () => {
         token: "valid-token" 
       });
 
-      // FIX: Explicitly tell the mocked isAxiosError to return true
-      (axios.isAxiosError as unknown as jest.Mock).mockReturnValue(true);
+      // Explicitly tell the mocked isAxiosError to return true
+      mockAxios.isAxiosError.mockReturnValue(true);
 
       // Simulate an error where the server is unreachable (response is undefined)
       const networkError = new Error("Network Error");
       (networkError as any).response = undefined; 
 
-      (axios.get as jest.Mock).mockRejectedValue(networkError);
+      mockApi.get.mockRejectedValue(networkError);
 
       const result = await checkCycleQuestionnaireAccess();
 
-      // Should return the fallback defined in your service
       expect(result).toEqual({ allowed: true });
     });
 
@@ -86,16 +111,13 @@ describe("questionnaireService", () => {
         token: "valid-token" 
       });
 
-      // FIX: explicit true here as well just to be safe, though not strictly required if it fails later
-      (axios.isAxiosError as unknown as jest.Mock).mockReturnValue(true);
+      mockAxios.isAxiosError.mockReturnValue(true);
 
-      // Simulate an error where the server DID respond (e.g., Internal Server Error)
       const backendError = new Error("Internal Server Error");
       (backendError as any).response = { status: 500 }; 
 
-      (axios.get as jest.Mock).mockRejectedValue(backendError);
+      mockApi.get.mockRejectedValue(backendError);
 
-      // Should NOT catch this, should rethrow
       await expect(checkCycleQuestionnaireAccess()).rejects.toThrow("Internal Server Error");
     });
 

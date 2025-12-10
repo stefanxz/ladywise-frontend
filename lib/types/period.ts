@@ -1,25 +1,31 @@
-export enum FlowLevel {
-  NONE = "NONE",
-  LIGHT = "LIGHT",
-  NORMAL = "NORMAL",
-  HEAVY = "HEAVY",
-}
+export type FlowLevel = "LIGHT" | "NORMAL" | "HEAVY" | "SPOTTING" | null;
+export type RiskFactor =
+  | "ESTROGEN_PILL"
+  | "SURGERY_OR_INJURY"
+  | "BLOOD_CLOT"
+  | "POSTPARTUM_UNDER_6_MONTHS";
 
-export enum Symptom {
-  SHORTNESS_OF_BREATH = "SHORTNESS_OF_BREATH",
-  SWELLING = "SWELLING",
-  TIRED = "TIRED",
-  CHEST_PAIN = "CHEST_PAIN",
-  ONE_SIDED_LEG_PAIN = "ONE_SIDED_LEG_PAIN",
-  DIZZY = "DIZZY",
-}
+export type Symptom =
+  | "SHORTNESS_OF_BREATH"
+  | "SWELLING"
+  | "TIRED"
+  | "CHEST_PAIN"
+  | "ONE_SIDED_LEG_PAIN"
+  | "DIZZY";
 
-export enum RiskFactor {
-  ESTROGEN_PILL = "ESTROGEN_PILL",
-  SURGERY_OR_INJURY = "SURGERY_OR_INJURY",
-  BLOOD_CLOT = "BLOOD_CLOT",
-  POSTPARTUM_UNDER_6_MONTHS = "POSTPARTUM_UNDER_6_MONTHS",
-}
+export type DailyLogRequest = {
+  date: string; // "YYYY-MM-DD"
+  flow: FlowLevel;
+  symptoms: Symptom[];
+  riskFactors: RiskFactor[];
+};
+
+export type DailyLogResponse = {
+  date: string; // "YYYY-MM-DD"
+  flow: FlowLevel;
+  symptoms: Symptom[];
+  riskFactors: RiskFactor[];
+};
 
 export interface DailyEntryDTO {
   date: string; // YYYY-MM-DD

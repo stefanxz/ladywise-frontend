@@ -187,7 +187,7 @@ describe("LoginScreen", () => {
     it("shows an error message and increments failed login count on failed login", async () => {
       const consoleErrorSpy = jest
         .spyOn(console, "error")
-        .mockImplementation(() => {});
+        .mockImplementation(() => { });
 
       mockedValidation.isEmailValid.mockReturnValue(true);
       const mockAxiosError = new AxiosError(

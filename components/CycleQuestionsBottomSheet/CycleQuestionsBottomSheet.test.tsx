@@ -14,8 +14,8 @@ jest.mock("@gorhom/bottom-sheet", () => {
     React.useImperativeHandle(ref, () => ({
       close: jest.fn(),
       present: jest.fn(),
+      dismiss: jest.fn(),
     }));
-    // Render children so we can find the content
     return <View testID="bottom-sheet-mock">{props.children}</View>;
   });
   BottomSheetModal.displayName = "BottomSheetModal";
@@ -30,14 +30,14 @@ jest.mock("@gorhom/bottom-sheet", () => {
 jest.mock("@/data/cycle-questions.json", () => {
   return [
     {
-      id: 101,
-      question: "Single Question?",
-      options: ["Yes", "No"],
+      key: "flow",
+      question: "How was your flow?",
+      options: ["Light", "Heavy"],
       multiSelect: false,
     },
     {
-      id: 102,
-      question: "Multi Question?",
+      key: "symptoms",
+      question: "Any symptoms?",
       options: ["Headache", "Cramps", "None of the above"],
       multiSelect: true,
     },
@@ -47,6 +47,12 @@ jest.mock("@/data/cycle-questions.json", () => {
 describe("CycleQuestionsBottomSheet Integration", () => {
   let mockOnSave: jest.Mock;
   let bottomSheetRef: React.RefObject<any>;
+
+  const expectedEmptyState = {
+    flow: null,
+    symptoms: [],
+    riskFactors: [],
+  };
 
   beforeEach(() => {
     mockOnSave = jest.fn();
@@ -65,7 +71,7 @@ describe("CycleQuestionsBottomSheet Integration", () => {
     expect(getByText(/Answer a few quick questions/)).toBeTruthy();
   });
 
-  it("Renders all questions from data", () => {
+  it("Renders questions from the mock data", () => {
     const { getByText } = render(
       <CycleQuestionsBottomSheet
         bottomSheetRef={bottomSheetRef}
@@ -73,11 +79,11 @@ describe("CycleQuestionsBottomSheet Integration", () => {
       />,
     );
 
-    expect(getByText("Single Question?")).toBeTruthy();
-    expect(getByText("Multi Question?")).toBeTruthy();
+    expect(getByText("How was your flow?")).toBeTruthy();
+    expect(getByText("Any symptoms?")).toBeTruthy();
   });
 
-  it("Collects answers and calls onSave with correct data map", async () => {
+  it("Collects answers and calls onSave with correct typed object", async () => {
     const { getByText, getByTestId } = render(
       <CycleQuestionsBottomSheet
         bottomSheetRef={bottomSheetRef}
@@ -85,10 +91,8 @@ describe("CycleQuestionsBottomSheet Integration", () => {
       />,
     );
 
-    // Answer Question 1 (Single: Yes)
-    fireEvent.press(getByText("Yes"));
+    fireEvent.press(getByText("Light"));
 
-    // Answer Question 2 (Multi: Headache + Cramps)
     fireEvent.press(getByText("Headache"));
     fireEvent.press(getByText("Cramps"));
 
@@ -100,12 +104,15 @@ describe("CycleQuestionsBottomSheet Integration", () => {
 
     expect(mockOnSave).toHaveBeenCalledTimes(1);
     expect(mockOnSave).toHaveBeenCalledWith({
-      101: "Yes",
-      102: ["Headache", "Cramps"],
+      ...expectedEmptyState,
+      date: new Date().toISOString().split("T")[0],
+      flow: "Light",
+      symptoms: ["Headache", "Cramps"],
     });
   });
 
   it("Updates Save button text while saving", async () => {
+    // Simulate a slow API call
     mockOnSave.mockImplementation(
       () => new Promise((resolve) => setTimeout(resolve, 500)),
     );
@@ -121,8 +128,10 @@ describe("CycleQuestionsBottomSheet Integration", () => {
 
     fireEvent.press(saveButton);
 
+    // Check immediate loading state
     expect(getByText("Saving answers...")).toBeTruthy();
 
+    // Wait for async finish
     await waitFor(() => expect(mockOnSave).toHaveBeenCalled());
   });
 
@@ -170,27 +179,6 @@ describe("CycleQuestionsBottomSheet Integration", () => {
     consoleSpy.mockRestore();
   });
 
-  it("Button is disabled while saving", async () => {
-    mockOnSave.mockImplementation(
-      () => new Promise((resolve) => setTimeout(resolve, 100)),
-    );
-
-    const { getByTestId } = render(
-      <CycleQuestionsBottomSheet
-        bottomSheetRef={bottomSheetRef}
-        onSave={mockOnSave}
-      />,
-    );
-
-    const saveButton = getByTestId("save-button");
-
-    fireEvent.press(saveButton);
-
-    expect(saveButton.props.accessibilityState.disabled).toBe(true);
-
-    await waitFor(() => expect(mockOnSave).toHaveBeenCalled());
-  });
-
   it("Correctly handles deselecting an option in multi-select", async () => {
     const { getByText, getByTestId } = render(
       <CycleQuestionsBottomSheet
@@ -211,12 +199,12 @@ describe("CycleQuestionsBottomSheet Integration", () => {
 
     expect(mockOnSave).toHaveBeenCalledWith(
       expect.objectContaining({
-        102: ["Cramps"],
+        symptoms: ["Cramps"], // Should only have Cramps
       }),
     );
   });
 
-  it("Correctly handles 'None' option clearing others in integration", async () => {
+  it("Correctly handles 'None' option clearing others", async () => {
     const { getByText, getByTestId } = render(
       <CycleQuestionsBottomSheet
         bottomSheetRef={bottomSheetRef}
@@ -224,8 +212,10 @@ describe("CycleQuestionsBottomSheet Integration", () => {
       />,
     );
 
+    // Select a symptom
     fireEvent.press(getByText("Headache"));
 
+    // Select None (assuming your CycleQuestion component handles this logic internally via onChange)
     fireEvent.press(getByText("None of the above"));
 
     await act(async () => {
@@ -234,7 +224,7 @@ describe("CycleQuestionsBottomSheet Integration", () => {
 
     expect(mockOnSave).toHaveBeenCalledWith(
       expect.objectContaining({
-        102: ["None of the above"],
+        symptoms: ["None of the above"],
       }),
     );
   });

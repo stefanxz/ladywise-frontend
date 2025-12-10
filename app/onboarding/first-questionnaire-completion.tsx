@@ -1,6 +1,5 @@
 import { AppBar } from "@/components/AppBarBackButton/AppBarBackButton";
 import { ThemedPressable } from "@/components/ThemedPressable/ThemedPressable";
-import { markFirstQuestionnaireComplete } from "@/lib/questionnaireService";
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import { ActivityIndicator, Alert, Image, Text, View } from "react-native";
@@ -27,10 +26,18 @@ export default function FirstQuestionnaireCompletion() {
     try {
       setLoading(true);
 
-      // wait 1 second instead of calling the API
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      // assume success
+      // TODO: uncomment this once this functionality exists on backend
+      // const result = await markFirstQuestionnaireComplete();
+      //
+      // if (result.success) {
+      //   // Replace navigation stack so user cannot go back to onboarding
+      //   router.replace("/(main)/home");
+      // } else {
+      //   Alert.alert(
+      //     "Error",
+      //     "Could not mark questionnaire as complete. Please try again.",
+      //   );
+      // }
       router.replace("/(main)/home");
     } catch (error: any) {
       console.error("Completion error:", error);

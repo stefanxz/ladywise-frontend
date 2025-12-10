@@ -4,7 +4,6 @@ export type RegisterPayload = {
   consentGiven: boolean;
   consentVersion: string;
 };
-export type RegisterResponse = { id: string; email: string };
 export type LoginPayload = { email: string; password: string };
 export type LoginResponse = {
   token: string;
@@ -35,7 +34,6 @@ export interface ResetPasswordPayload {
 }
 
 export type QuestionnairePayload = {
-  userId: string;
   health: {
     personalDetails: {
       age: number;
@@ -59,3 +57,14 @@ export type QuestionnaireResponse = {
   userId: string;
   createdAt?: string;
 };
+
+/**
+ * Response from GET /api/symptoms/risk
+ * Matches backend DTO: nl.tue.ladywise_backend.symptom.dto.RiskSymptomsDto
+ */
+export interface RiskSymptomsResponse {
+  anemiaSymptoms: string[]; // e.g. ["TIRED", "Family history of anemia"]
+  thrombosisSymptoms: string[]; // e.g. ["SWELLING"]
+  flowLevel: string | null; // e.g. "flow_heavy" or null
+  riskFactors: string[]; // e.g. ["ESTROGEN_PILL"]
+}
