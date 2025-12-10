@@ -67,15 +67,13 @@ export default function QuestionnaireFinalQuestions() {
         health.biosensorCup = finalAnswers.usesBiosensorCup;
       }
 
-      const payload = {
-        userId: userId,
+      const payload: QuestionnairePayload = {
         health: health,
         history: [],
       };
 
-      if (payload.userId) {
-        await submitQuestionnaire(payload as QuestionnairePayload);
-      }
+      // Send health object to backend
+      await submitQuestionnaire(payload);
 
       reset();
       router.replace("/onboarding/first-questionnaire-completion");
