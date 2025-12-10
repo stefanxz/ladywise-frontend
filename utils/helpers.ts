@@ -34,9 +34,9 @@ export const mapAnswersToPayload = (
 
 export const mapApiToInsights = (apiData: ApiRiskResponse): RiskData[] => {
   const levelMap: { [key: number]: RiskLevel } = {
-    0: "Low",
-    1: "Medium",
-    2: "High",
+    1: "Low",
+    2: "Medium",
+    3: "High",
   };
 
   const titleMap: { [key: string]: string } = {

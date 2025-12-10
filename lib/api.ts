@@ -82,12 +82,10 @@ export async function getRiskData(
   token: string,
   userId: string,
 ): Promise<ApiRiskResponse> {
-  // <-- Use the correct response type
   const config = {
     params: { userId },
     headers: { Authorization: `Bearer ${token}` },
   };
-  // Use the correct generic type
   const { data } = await api.get<ApiRiskResponse>(
     `/api/users/${userId}/risks`,
     config,

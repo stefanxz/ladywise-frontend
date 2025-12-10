@@ -29,7 +29,7 @@ import { MOCK_INSIGHTS } from "@/constants/mock-data";
 
 async function fetchRiskData(
   token: string,
-  userId: string,
+  userId: string
 ): Promise<RiskData[]> {
   try {
     // Fetch the raw API data
@@ -52,7 +52,7 @@ const Home = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true); // For risk data
   const [cycleStatus, setCycleStatus] = useState<CycleStatusDTO | null>(null);
   const [calendarDays, setCalendarDays] = useState<DayData[]>(
-    generateCalendarDays(),
+    generateCalendarDays()
   );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -143,7 +143,7 @@ const Home = () => {
       };
 
       fetchCycleData();
-    }, [setPhase, token, isAuthLoading]),
+    }, [setPhase, token, isAuthLoading])
   );
 
   const handleLogPeriod = () => console.log("Log period pressed");
