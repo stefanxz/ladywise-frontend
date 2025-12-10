@@ -1,15 +1,28 @@
-import InsightsSection from "@/components/InsightsSection/InsightsSection";
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { RiskData } from "@/lib/types/risks";
 import { ActivityIndicator, ScrollView, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { LinearGradient } from "expo-linear-gradient";
+import { useFocusEffect } from "expo-router";
+import { BottomSheetModal } from "@gorhom/bottom-sheet";
+
+// Contexts
+import { useAuth } from "@/context/AuthContext";
+import { useTheme } from "@/context/ThemeContext";
+
+import { useHealthRealtime } from "@/hooks/useHealthRealtime";
+import { RiskResult, InsightResult } from "@/lib/types/risks"; // Or wherever you put the types
+
+// Components
 import Header from "@/components/MainPageHeader/Header";
 import CalendarStrip, {
   DayData,
 } from "@/components/CalendarStrip/CalendarStrip";
 import PhaseCard from "@/components/PhaseCard/PhaseCard";
-import { LinearGradient } from "expo-linear-gradient";
-import { useTheme } from "@/context/ThemeContext";
+import InsightsSection from "@/components/InsightsSection/InsightsSection";
+import { FloatingAddButton } from "@/components/FloatingAddButton/FloatingAddButton";
+import { CycleQuestionsBottomSheet } from "@/components/CycleQuestionsBottomSheet/CycleQuestionsBottomSheet";
+
+// Utils & Types
 import {
   createDailyEntry,
   getCycleStatus,
@@ -17,128 +30,119 @@ import {
   getUserById,
 } from "@/lib/api";
 import { CycleStatusDTO } from "@/lib/types/cycle";
-import { useFocusEffect } from "expo-router";
-import { useAuth } from "@/context/AuthContext";
-import { formatPhaseName, generateCalendarDays } from "@/utils/mainPageHelpers";
-import { FloatingAddButton } from "@/components/FloatingAddButton/FloatingAddButton";
-import { BottomSheetModal } from "@gorhom/bottom-sheet";
-import { CycleQuestionsBottomSheet } from "@/components/CycleQuestionsBottomSheet/CycleQuestionsBottomSheet";
+import { RiskData } from "@/lib/types/risks";
 import { DailyCycleAnswers } from "@/components/CycleQuestionsBottomSheet/CycleQuestionsBottomSheet.types";
 import { mapAnswersToPayload, mapApiToInsights } from "@/utils/helpers";
-import { MOCK_INSIGHTS } from "@/constants/mock-data";
-
-async function fetchRiskData(
-  token: string,
-  userId: string
-): Promise<RiskData[]> {
-  try {
-    // Fetch the raw API data
-    const apiResponse = await getRiskData(token, userId);
-
-    // Map the raw data to the shape your component needs
-    const mappedData = mapApiToInsights(apiResponse);
-
-    return mappedData;
-  } catch (e) {
-    console.error("Error fetching Risk Data: ", e);
-    return []; // Return empty array on failure
-  }
-}
+import { formatPhaseName, generateCalendarDays } from "@/utils/mainPageHelpers";
 
 const Home = () => {
   const { token, userId, isLoading: isAuthLoading } = useAuth();
   const { theme, setPhase } = useTheme();
-  const [data, setData] = useState<RiskData[]>(MOCK_INSIGHTS);
-  const [isLoading, setIsLoading] = useState<boolean>(true); // For risk data
+
+  // --- 1. INITIALIZE THE HOOK ---
+  // This opens the connection. 'realtimeRisks' will be null initially,
+  // then populate automatically when the server pushes data.
+  const { realtimeRisks, anemiaTrend, thrombosisTrend, isConnected } =
+    useHealthRealtime(userId, token);
+
+  const [data, setData] = useState<RiskData[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // New State: calculating mode for UX feedback
+  const [isCalculating, setIsCalculating] = useState(false);
+
   const [cycleStatus, setCycleStatus] = useState<CycleStatusDTO | null>(null);
   const [calendarDays, setCalendarDays] = useState<DayData[]>(
     generateCalendarDays()
   );
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const bottomSheetModalRef = useRef<BottomSheetModal>(null);
   const [userName, setUserName] = useState<string>("");
 
-  const openSheet = useCallback(() => {
-    bottomSheetModalRef.current?.present();
-  }, []);
+  const bottomSheetModalRef = useRef<BottomSheetModal>(null);
+  const openSheet = useCallback(
+    () => bottomSheetModalRef.current?.present(),
+    []
+  );
 
-  // Effect for fetching risk data
+  // This function converts the complex WebSocket object into your simple UI 'RiskCard' format
+  const updateRiskUI = useCallback(
+    (
+      risks: RiskResult,
+      aTrend: InsightResult | null,
+      tTrend: InsightResult | null
+    ) => {
+      const mappedData: RiskData[] = [
+        {
+          id: "anemia",
+          title: "Anemia Risk",
+          level: risks.anemia.risk,
+          description: risks.anemia.summary_sentence,
+          trend: aTrend?.trend, // The new field you added
+        },
+        {
+          id: "thrombosis",
+          title: "Thrombosis Risk",
+          level: risks.thrombosis.risk,
+          description: risks.thrombosis.summary_sentence,
+          trend: tTrend?.trend,
+        },
+      ];
+      setData(mappedData);
+      setIsLoading(false);
+      setIsCalculating(false); // Stop the spinner if we were waiting
+    },
+    []
+  );
+
   useEffect(() => {
-    const loadData = async () => {
-      // We already know token and userId are valid strings here
+    if (realtimeRisks) {
+      console.log("⚡️ WebSocket: Merging Live Updates");
+      updateRiskUI(realtimeRisks, anemiaTrend, thrombosisTrend);
+    }
+  }, [realtimeRisks, anemiaTrend, thrombosisTrend, updateRiskUI]);
+
+  useEffect(() => {
+    const loadInitialData = async () => {
+      if (isAuthLoading || !token || !userId) return;
+
       try {
-        // Pass the credentials from the context
-        const riskData = await fetchRiskData(token!, userId!);
-        setData(riskData);
-        console.log(riskData);
+        const user = await getUserById(token, userId);
+        const safeName =
+          user.firstName || user.lastName
+            ? `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim()
+            : (user.email?.split("@")[0] ?? "there");
+        setUserName(safeName);
 
-        const user = await getUserById(token!, userId!);
-        const safeFirst = user.firstName ?? "";
-        const safeLast = user.lastName ?? "";
-
-        const fullName =
-          safeFirst || safeLast
-            ? `${safeFirst} ${safeLast}`.trim()
-            : (user.email?.split("@")[0] ?? "there"); // fallback to email prefix or "there"
-
-        setUserName(fullName);
-      } catch (error) {
-        console.error("[REMOVE IN PROD] error inside useEffect hook!");
-        setData([]);
+        if (!realtimeRisks) {
+          const apiData = await getRiskData(token, userId);
+          const mappedData = mapApiToInsights(apiData);
+          setData(mappedData);
+        }
+      } catch (err) {
+        console.error("Initial load failed", err);
       } finally {
         setIsLoading(false);
       }
     };
 
-    // This is the critical guard.
-    // Do not attempt to fetch data if auth is loading or if the token is missing.
-    if (isAuthLoading || !token || !userId) {
-      setIsLoading(false); // Stop the loader, there's nothing to fetch
-      return; // Do nothing
-    }
-
-    console.log("ATTEMPTING FETCH WITH:", { token, userId });
-
-    loadData();
+    loadInitialData();
   }, [token, userId, isAuthLoading]);
 
-  // Effect for fetching cycle data
   useFocusEffect(
     useCallback(() => {
-      if (isAuthLoading || !token) {
-        console.log("Waiting for auth...");
-        return;
-      }
+      if (isAuthLoading || !token) return;
+
       const fetchCycleData = async () => {
         try {
-          setLoading(true);
-          setError(null);
-
           const status = await getCycleStatus();
-
           setCycleStatus(status);
-
-          // Update theme based on backend data
           setPhase(status.currentPhase.toLowerCase() as any);
-
-          // Generate calendar days with period data
           setCalendarDays(generateCalendarDays(status.periodDates));
         } catch (err: any) {
-          // console.error("Failed to fetch cycle status:", err);
-
           if (err.response?.status === 404) {
-            console.log("No cycle data found (user needs setup).");
-
             setPhase("neutral" as any);
-
             setCalendarDays(generateCalendarDays([]));
-          } else {
-            console.error("Error fetching cycle", err);
-            setError(err.message || "Failed to load data.");
           }
-        } finally {
-          setLoading(false);
         }
       };
 
@@ -146,50 +150,24 @@ const Home = () => {
     }, [setPhase, token, isAuthLoading])
   );
 
-  const handleLogPeriod = () => console.log("Log period pressed");
-  const handleHelpPress = () => console.log("Help pressed");
-  const handleDayPress = (dayId: string) => console.log("Pressed day: ", dayId);
-  const handleCardPress = () => console.log("Phase Card Pressed");
-
-  /**
-   * Called when the user clicks 'Save answers' on the cycle questionnaire bottom sheet.
-   * First maps answers to the payload that the backend expects, then creates the new
-   * daily entry.
-   * @param answers {DailyCycleAnswers} - user's answers to the cycle questionnaire
-   */
   const handleAddDailyEntry = async (answers: DailyCycleAnswers) => {
     const payload = mapAnswersToPayload(answers);
     try {
       await createDailyEntry(payload);
+      setIsCalculating(true);
     } catch (error: any) {
       setError(error.message ?? "Could not save daily answer entry.");
+      setIsCalculating(false);
     }
   };
 
-  if (loading) {
+  if (isAuthLoading) {
     return (
       <LinearGradient
         colors={[theme.gradientStart, theme.gradientEnd]}
         style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
       >
-        <ActivityIndicator
-          size="large"
-          color={theme.highlight}
-          testID="loading-indicator"
-        />
-      </LinearGradient>
-    );
-  }
-
-  if (error) {
-    return (
-      <LinearGradient
-        colors={["#FFFFFF", "#F0F0F0"]}
-        style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
-      >
-        <Text className="text-lg text-red-500 font-bold mb-4">
-          Error: {error || "Could not load cycle data."}
-        </Text>
+        <ActivityIndicator size="large" color={theme.highlight} />
       </LinearGradient>
     );
   }
@@ -199,8 +177,6 @@ const Home = () => {
       <LinearGradient
         colors={[theme.gradientStart, theme.gradientEnd]}
         style={{ flex: 1 }}
-        start={{ x: 0.5, y: 0 }}
-        end={{ x: 0.5, y: 1 }}
       >
         <SafeAreaView
           style={{ flex: 1, backgroundColor: "transparent" }}
@@ -208,14 +184,10 @@ const Home = () => {
         >
           <ScrollView
             className="flex-1"
-            contentContainerStyle={{ justifyContent: "space-between" }}
+            contentContainerStyle={{ paddingBottom: 100 }}
           >
             <View className="pt-10">
-              <Header
-                name={userName || "there"}
-                onHelpPress={handleHelpPress}
-                theme={theme}
-              />
+              <Header name={userName} onHelpPress={() => {}} theme={theme} />
 
               <Text className="text-base text-gray-500 px-5 mb-5 pt-5">
                 {new Date().toLocaleDateString("en-US", {
@@ -228,7 +200,7 @@ const Home = () => {
               <CalendarStrip
                 days={calendarDays}
                 themeColor={theme.highlight}
-                onDayPress={handleDayPress}
+                onDayPress={() => {}}
               />
 
               <PhaseCard
@@ -248,14 +220,24 @@ const Home = () => {
                     : "Log your first period to begin tracking."
                 }
                 theme={theme}
-                onLogPeriodPress={handleLogPeriod}
+                onLogPeriodPress={() => {}}
                 onCardPress={() => {}}
               />
             </View>
+
+            {/* --- UPDATED SECTION --- */}
             <InsightsSection
               isLoading={isLoading}
+              isCalculating={isCalculating} // Pass the "AI Processing" state
               insights={data}
-            ></InsightsSection>
+            />
+
+            {/* Status Debugger */}
+            <View className="items-center mt-2 opacity-50">
+              <Text className="text-[10px] text-gray-500">
+                {isConnected ? "● Live Updates Active" : "○ Real-time Offline"}
+              </Text>
+            </View>
           </ScrollView>
 
           <View className="absolute bottom-4 right-4">
