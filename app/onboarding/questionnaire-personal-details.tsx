@@ -51,9 +51,8 @@ export default function Questionnaire() {
   }, []);
 
   // Calculate dynamic padding
-  // Only apply the large padding (e.g., 400) when the keyboard is visible.
-  // When the keyboard is hidden, we use a small, standard padding
-  const bottomPadding = isKeyboardVisible ? 400 : 50;
+  const bottomPadding =
+    Platform.OS === "android" && isKeyboardVisible ? 400 : 50;
 
   // navigation to the next screen of first time questionnaire
   // Only go to the next page of the questionnaire when all fields are inputted correctly

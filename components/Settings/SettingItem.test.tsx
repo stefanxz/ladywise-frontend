@@ -130,4 +130,23 @@ describe("SettingItem", () => {
     expect(button.props.accessibilityLabel).toBe("Profile Settings setting");
     expect(button.props.accessibilityRole).toBe("button");
   });
+
+  it("opens terms sheet when Privacy Policy onPress is called", () => {
+    const mockOpenSheet = jest.fn();
+
+    const privacyPolicyItem = {
+      name: "Privacy Policy",
+      icon: "book-open" as const,
+      onPress: mockOpenSheet,
+    };
+
+    const { getByTestId } = render(
+      <SettingItem item={privacyPolicyItem} showDivider={false} />,
+    );
+
+    fireEvent.press(getByTestId("setting-item-button"));
+
+    expect(mockOpenSheet).toHaveBeenCalledTimes(1);
+    expect(mockPush).not.toHaveBeenCalled();
+  });
 });

@@ -12,7 +12,7 @@ import {
 import { Feather } from "@expo/vector-icons";
 import { isAxiosError } from "axios";
 import { useRouter, useLocalSearchParams } from "expo-router";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   KeyboardAvoidingView,
   Platform,
@@ -20,6 +20,7 @@ import {
   ScrollView,
   Text,
   View,
+  Keyboard,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -36,6 +37,31 @@ export default function LoginScreen() {
 
   const { passwordReset } = useLocalSearchParams<{ passwordReset?: string }>();
   const showPasswordResetBanner = passwordReset === "true";
+
+  const [isKeyboardVisible, setKeyboardVisible] = useState(false);
+
+  useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener(
+      "keyboardDidShow",
+      () => {
+        setKeyboardVisible(true);
+      },
+    );
+    const keyboardDidHideListener = Keyboard.addListener(
+      "keyboardDidHide",
+      () => {
+        setKeyboardVisible(false);
+      },
+    );
+
+    return () => {
+      keyboardDidHideListener.remove();
+      keyboardDidShowListener.remove();
+    };
+  }, []);
+
+  const bottomPadding =
+    Platform.OS === "android" && isKeyboardVisible ? 350 : 0;
 
   const handleLogin = async () => {
     setEmailError(null);
@@ -99,11 +125,18 @@ export default function LoginScreen() {
     <>
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
-        className="flex-1 bg-[#FDFBFB]"
+        className="flex-1 bg-background"
+        keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 50}
       >
         <ScrollView
-          contentContainerStyle={{ flexGrow: 1, justifyContent: "center" }}
+          contentContainerStyle={{
+            flexGrow: 1,
+            paddingBottom: bottomPadding,
+            alignItems: "center",
+            justifyContent: "center",
+          }}
           keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
         >
           <SafeAreaView className="flex-1 bg-background">
             {/* Back Button */}
@@ -117,7 +150,7 @@ export default function LoginScreen() {
             {/* Main content container */}
             <View className="flex-1 justify-between pt-12 mb-5">
               {/* Welcome Section */}
-              <View className="px-16">
+              <View className="px-16 mb-8">
                 <Text className="text-3xl font-bold text-brand text-left">
                   Welcome Back 🌸
                 </Text>
@@ -142,7 +175,7 @@ export default function LoginScreen() {
               </View>
 
               {/* Form Section */}
-              <View className="gap-y-8 w-full px-16 self-center">
+              <View className="mt-8 gap-y-8 w-full px-16 self-center">
                 {/* Email */}
                 <View>
                   <Text className="text-gray-700 mb-1 font-extrabold">
@@ -231,15 +264,17 @@ export default function LoginScreen() {
                 />
               </View>
 
-              {/* Bottom Section */}
-              <SocialSignOn
-                onPress={(provider) => {
-                  {
-                    /*TODO: Actual social media sign on*/
-                  }
-                  console.log("SSO pressed:", provider);
-                }}
-              />
+              <View className="mt-32 gap-y-8 w-full px-16 self-center">
+                {/* Bottom Section */}
+                <SocialSignOn
+                  onPress={(provider) => {
+                    {
+                      /*TODO: Actual social media sign on*/
+                    }
+                    console.log("SSO pressed:", provider);
+                  }}
+                />
+              </View>
             </View>
           </SafeAreaView>
         </ScrollView>
