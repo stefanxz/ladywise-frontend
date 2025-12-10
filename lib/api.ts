@@ -83,14 +83,16 @@ export async function getRiskData(
   userId: string,
 ): Promise<ApiRiskResponse> {
   const config = {
-    params: { userId },
     headers: { Authorization: `Bearer ${token}` },
   };
+
+  // Ensure the path matches your Spring Boot controller exactly
   const { data } = await api.get<ApiRiskResponse>(
-    `/api/users/${userId}/risks`,
-    config,
+    `/api/users/${userId}/risks`, 
+    config
   );
-  return data; // This returns: { thrombosisRisk: 1, anemiaRisk: 2 }
+  
+  return data;
 }
 
 export async function getRiskHistory(
