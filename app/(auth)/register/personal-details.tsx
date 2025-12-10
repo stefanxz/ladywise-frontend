@@ -46,7 +46,8 @@ export default function RegisterPersDetails() {
     };
   }, []);
 
-  const bottomPadding = isKeyboardVisible ? 350 : 0;
+  const bottomPadding =
+    Platform.OS === "android" && isKeyboardVisible ? 350 : 0;
 
   const handleBack = useCallback(() => {
     router.replace("/(main)/home");

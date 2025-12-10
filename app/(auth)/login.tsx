@@ -60,7 +60,8 @@ export default function LoginScreen() {
     };
   }, []);
 
-  const bottomPadding = isKeyboardVisible ? 350 : 0;
+  const bottomPadding =
+    Platform.OS === "android" && isKeyboardVisible ? 350 : 0;
 
   const handleLogin = async () => {
     setEmailError(null);
