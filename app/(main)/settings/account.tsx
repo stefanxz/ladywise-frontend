@@ -5,7 +5,7 @@ import { PasswordField } from "@/components/PasswordField/PasswordField";
 import { ThemedPressable } from "@/components/ThemedPressable/ThemedPressable";
 import { isPasswordValid } from "@/utils/validations";
 import { useAuth } from "@/context/AuthContext";
-import { changePassword, deleteUser } from "@/lib/api";
+import { changePassword, deleteCurrentUser, deleteUser } from "@/lib/api";
 import axios from "axios";
 
 export default function AccountSettings() {
@@ -96,8 +96,7 @@ export default function AccountSettings() {
   const handleDeleteAccount = async () => {
     setIsDeleting(true);
     try {
-      await deleteUser();
-      console.log("Account deleted");
+      await deleteCurrentUser();
       signOut();
     } catch (error) {
       setIsDeleting(false);
@@ -108,6 +107,7 @@ export default function AccountSettings() {
         if (status === 404) {
           console.error("User not found");
           // User doesn't exist, sign out anyway
+          // TODO: change this?
           signOut();
         } else {
           console.error("Failed to delete account:", error.message);
