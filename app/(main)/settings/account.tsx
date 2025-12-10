@@ -5,7 +5,7 @@ import { PasswordField } from "@/components/PasswordField/PasswordField";
 import { ThemedPressable } from "@/components/ThemedPressable/ThemedPressable";
 import { isPasswordValid } from "@/utils/validations";
 import { useAuth } from "@/context/AuthContext";
-import { changePassword, deleteCurrentUser, deleteUser } from "@/lib/api";
+import { changePassword, deleteCurrentUser } from "@/lib/api";
 import axios from "axios";
 
 export default function AccountSettings() {
