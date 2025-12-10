@@ -265,8 +265,8 @@ export async function resetPassword(payload: ResetPasswordPayload) {
  *
  * @returns A promise that resolves when the deletion is successful (204) or rejects if user not found (404)
  */
-export async function deleteUser(): Promise<void> {
-  await api.delete("/api/users");
+export async function deleteCurrentUser(): Promise<void> {
+  await api.delete("/api/users/me");
 }
 
 /**
