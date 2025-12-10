@@ -9,7 +9,7 @@ import type {
   ResetPasswordPayload,
   UserPayload,
   UserResponse,
-} from "./types";
+} from "./types/payloads";
 import { CycleStatusDTO } from "./types/cycle";
 import { getAuthData } from "./auth";
 import { ApiRiskResponse, RiskHistoryPoint } from "./types/risks";

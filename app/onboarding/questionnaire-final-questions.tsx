@@ -6,7 +6,7 @@ import {
 import { useQuestionnaire } from "@/app/onboarding/QuestionnaireContext";
 import { ThemedPressable } from "@/components/ThemedPressable/ThemedPressable";
 import { submitQuestionnaire } from "@/lib/api";
-import { QuestionnairePayload } from "@/lib/types";
+import { QuestionnairePayload } from "@/lib/types/payloads";
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import { Text, View } from "react-native";
@@ -17,7 +17,7 @@ export default function QuestionnaireFinalQuestions() {
   const { userId } = useAuth();
 
   const [usesEstrogen, setUsesEstrogen] = useState(
-    answers.usesEstrogenContraception,
+    answers.usesEstrogenContraception
   );
   const [usesBiosensor, setUsesBiosensor] = useState(answers.usesBiosensorCup);
   const [submitting, setSubmitting] = useState(false);
@@ -27,7 +27,7 @@ export default function QuestionnaireFinalQuestions() {
 
   const submit = async (
     estrogen: boolean | null,
-    biosensor: boolean | null,
+    biosensor: boolean | null
   ) => {
     if (submitting) return;
     setSubmitting(true);
