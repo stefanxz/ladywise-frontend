@@ -73,7 +73,7 @@ describe("QuestionnaireFinalQuestions", () => {
 
     fireEvent.press(screen.getByTestId("estrogen-yes"));
     fireEvent.press(screen.getByTestId("biosensor-no"));
-    await fireEvent.press(screen.getByText("Finish"));
+    fireEvent.press(screen.getByText("Finish"));
 
     await waitFor(() => {
       expect(updateAnswers).toHaveBeenCalledWith({
@@ -81,7 +81,6 @@ describe("QuestionnaireFinalQuestions", () => {
         usesBiosensorCup: false,
       });
       expect(submitQuestionnaire).toHaveBeenCalledWith({
-        userId: "test-user-id",
         health: {
           personalDetails: {
             age: 25,
