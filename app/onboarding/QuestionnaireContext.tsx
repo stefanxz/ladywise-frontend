@@ -1,5 +1,5 @@
 import merge from "lodash.merge";
-import { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useState } from "react";
 
 type BooleanAnswer = boolean | null;
 
@@ -15,7 +15,6 @@ type FamilyHistory = {
 };
 
 export type QuestionnaireAnswers = {
-  userId: string | null;
   personal: PersonalDetails;
   familyHistory: FamilyHistory;
   anemiaRiskFactors: string[];
@@ -27,12 +26,10 @@ export type QuestionnaireAnswers = {
 type QuestionnaireContextValue = {
   answers: QuestionnaireAnswers;
   updateAnswers: (patch: Partial<QuestionnaireAnswers>) => void;
-  setUserId: (id: string | null) => void;
   reset: () => void;
 };
 
 const DEFAULT_ANSWERS: QuestionnaireAnswers = {
-  userId: null,
   personal: { age: "", weight: "", height: "" },
   familyHistory: { anemia: null, thrombosis: null },
   anemiaRiskFactors: [],
@@ -56,20 +53,10 @@ export function QuestionnaireProvider({
     setAnswers((prev) => merge({}, prev, patch));
   };
 
-  const setUserId = (id: string | null) => {
-    setAnswers((prev) => ({ ...prev, userId: id }));
-  };
-
-  const reset = () =>
-    setAnswers((prev) => ({
-      ...DEFAULT_ANSWERS,
-      userId: prev.userId,
-    }));
+  const reset = () => setAnswers(DEFAULT_ANSWERS);
 
   return (
-    <QuestionnaireContext.Provider
-      value={{ answers, updateAnswers, setUserId, reset }}
-    >
+    <QuestionnaireContext.Provider value={{ answers, updateAnswers, reset }}>
       {children}
     </QuestionnaireContext.Provider>
   );

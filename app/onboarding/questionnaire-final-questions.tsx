@@ -1,4 +1,3 @@
-import { useAuth } from "@/context/AuthContext";
 import {
   BinaryChoiceGroup,
   QuestionScreen,
@@ -14,7 +13,6 @@ import { Text, View } from "react-native";
 export default function QuestionnaireFinalQuestions() {
   const router = useRouter();
   const { answers, updateAnswers, reset } = useQuestionnaire();
-  const { userId } = useAuth();
 
   const [usesEstrogen, setUsesEstrogen] = useState(
     answers.usesEstrogenContraception,
@@ -22,7 +20,7 @@ export default function QuestionnaireFinalQuestions() {
   const [usesBiosensor, setUsesBiosensor] = useState(answers.usesBiosensorCup);
   const [submitting, setSubmitting] = useState(false);
 
-  // --- Error States ---
+  // Error States
   const [apiError, setApiError] = useState<string | null>(null); // For submission errors
 
   const submit = async (

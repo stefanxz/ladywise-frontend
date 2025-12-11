@@ -32,9 +32,6 @@ const mockReplace = jest.fn();
 describe("QuestionnaireFinalQuestions", () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    (useAuth as jest.Mock).mockReturnValue({
-      userId: "test-user-id",
-    });
   });
 
   it("renders correctly", () => {
@@ -57,7 +54,6 @@ describe("QuestionnaireFinalQuestions", () => {
     const reset = jest.fn();
     (useQuestionnaire as jest.Mock).mockReturnValue({
       answers: {
-        userId: "test-user-id",
         personal: { age: "25", weight: "60", height: "170" },
         familyHistory: { anemia: false, thrombosis: false },
         anemiaRiskFactors: [],
@@ -102,33 +98,12 @@ describe("QuestionnaireFinalQuestions", () => {
     });
   });
 
-  it("does not submit if userId is null", async () => {
-    (useAuth as jest.Mock).mockReturnValue({
-      userId: null,
-    });
-    (useQuestionnaire as jest.Mock).mockReturnValue({
-      answers: { userId: null },
-      updateAnswers: jest.fn(),
-      reset: jest.fn(),
-    });
-    render(<QuestionnaireFinalQuestions />);
-
-    fireEvent.press(screen.getByTestId("estrogen-yes"));
-    fireEvent.press(screen.getByTestId("biosensor-no"));
-    fireEvent.press(screen.getByText("Finish"));
-
-    await waitFor(() => {
-      expect(submitQuestionnaire).not.toHaveBeenCalled();
-    });
-  });
-
   it("handles submission error", async () => {
     (submitQuestionnaire as jest.Mock).mockRejectedValueOnce(
       new Error("Submission failed"),
     );
     (useQuestionnaire as jest.Mock).mockReturnValue({
       answers: {
-        userId: "test-user-id",
         personal: { age: "25", weight: "60", height: "170" },
         familyHistory: { anemia: false, thrombosis: false },
         anemiaRiskFactors: [],
