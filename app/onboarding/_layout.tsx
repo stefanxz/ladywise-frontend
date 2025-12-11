@@ -1,19 +1,8 @@
-import { useAuth } from "@/context/AuthContext";
-import {
-  QuestionnaireProvider,
-  useQuestionnaire,
-} from "@/app/onboarding/QuestionnaireContext";
+import { QuestionnaireProvider } from "@/app/onboarding/QuestionnaireContext";
 import { Stack } from "expo-router";
-import { useEffect } from "react";
+import React from "react";
 
 function QuestionnaireWrapper({ children }: { children: React.ReactNode }) {
-  const { userId } = useAuth();
-  const { setUserId } = useQuestionnaire();
-
-  useEffect(() => {
-    setUserId(userId);
-  }, [userId, setUserId]);
-
   return <>{children}</>;
 }
 
