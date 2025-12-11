@@ -48,7 +48,7 @@ export const mockHistory: RiskHistoryPoint[] = [
   {
     recordedAt: "2025-11-01T10:00:00Z",
     anemiaRisk: 0,
-    thrombosisRisk: 1,
+    thrombosisRisk: 2,
     menstrualFlow: 0,
   },
 ];
