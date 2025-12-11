@@ -38,9 +38,9 @@ const ExtendedDiagnosticsScreen = () => {
   // Format title from risk_factor (e.g., 'anemia-risk' -> 'Anemia Risk')
   const title = risk_factor
     ? risk_factor
-      .split("-")
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(" ")
+        .split("-")
+        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(" ")
     : "Diagnostics";
 
   const { token, userId } = useAuth();
@@ -228,7 +228,8 @@ const ExtendedDiagnosticsScreen = () => {
                 </Text>
               </View>
               <Text className="text-sm text-red-600 mt-1">
-                Your current risk level is high. We recommend contacting your healthcare provider or clinician to discuss your health status.
+                Your current risk level is high. We recommend contacting your
+                healthcare provider or clinician to discuss your health status.
               </Text>
             </View>
           )}
