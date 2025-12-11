@@ -22,12 +22,12 @@ if (typeof global.TextEncoder === "undefined") {
 describe("useHealthRealtime Hook", () => {
   const mockUserId = "user-123";
   const mockToken = "auth-token-xyz";
-
+  
   let mockActivate: jest.Mock;
   let mockDeactivate: jest.Mock;
   let mockSubscribe: jest.Mock;
   // We'll capture the 'onConnect' function assigned by the hook here
-  let capturedOnConnect: (() => void) | undefined;
+  let capturedOnConnect: (() => void) | undefined; 
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -60,7 +60,7 @@ describe("useHealthRealtime Hook", () => {
   it("should not activate client if userId or token is missing", () => {
     renderHook(() => useHealthRealtime(null, null));
     expect(Client).not.toHaveBeenCalled();
-
+    
     renderHook(() => useHealthRealtime("user", null));
     expect(Client).not.toHaveBeenCalled();
   });
@@ -73,9 +73,7 @@ describe("useHealthRealtime Hook", () => {
   });
 
   it("should subscribe to channels and update state on message receipt", async () => {
-    const { result } = renderHook(() =>
-      useHealthRealtime(mockUserId, mockToken)
-    );
+    const { result } = renderHook(() => useHealthRealtime(mockUserId, mockToken));
 
     // 1. Verify initial state
     expect(result.current.isConnected).toBe(false);
@@ -95,7 +93,7 @@ describe("useHealthRealtime Hook", () => {
       `/topic/risks/${mockUserId}`,
       expect.any(Function)
     );
-
+    
     // 4. Simulate Incoming Risk Data
     // Extract the callback function passed to .subscribe for the risks topic
     const riskCallback = mockSubscribe.mock.calls.find(
@@ -117,9 +115,7 @@ describe("useHealthRealtime Hook", () => {
   });
 
   it("should update trend state when trend messages arrive", () => {
-    const { result } = renderHook(() =>
-      useHealthRealtime(mockUserId, mockToken)
-    );
+    const { result } = renderHook(() => useHealthRealtime(mockUserId, mockToken));
 
     // Connect
     act(() => {
@@ -131,10 +127,7 @@ describe("useHealthRealtime Hook", () => {
       (call) => call[0] === `/topic/insights/anemia/${mockUserId}`
     )[1];
 
-    const mockTrend = {
-      trend: "worsening",
-      description: "Iron levels dropping.",
-    };
+    const mockTrend = { trend: "worsening", description: "Iron levels dropping." };
 
     // Simulate Message
     act(() => {
@@ -145,9 +138,7 @@ describe("useHealthRealtime Hook", () => {
   });
 
   it("should deactivate client on unmount", () => {
-    const { unmount } = renderHook(() =>
-      useHealthRealtime(mockUserId, mockToken)
-    );
+    const { unmount } = renderHook(() => useHealthRealtime(mockUserId, mockToken));
 
     unmount();
 

@@ -1,27 +1,47 @@
+import { InsightResult } from "./risks";
+
 export type RegisterPayload = {
   email: string;
   password: string;
   consentGiven: boolean;
   consentVersion: string;
 };
+
 export type LoginPayload = { email: string; password: string };
+
 export type LoginResponse = {
   token: string;
   tokenType: "Bearer";
   userId: string;
   email: string;
 };
+
 export type UserPayload = {
   id: string | null;
   email: string | null;
   firstName: string;
   lastName: string;
 };
+
+
 export type UserResponse = {
   id: string;
   email: string;
   firstName: string;
   lastName: string;
+  attributes: Record<string, any>;
+  
+  // Risk Data
+  thrombosisRisk: number;
+  anemiaRisk: number;
+  
+  // Insight Data
+  latestAnemiaInsight: InsightResult | null;
+  latestThrombosisInsight: InsightResult | null;
+  
+  // Status Flags
+  firstQuestionnaireCompleted: boolean;
+  consentGiven: boolean;
 };
 
 export interface PasswordResetRequestPayload {
@@ -63,8 +83,8 @@ export type QuestionnaireResponse = {
  * Matches backend DTO: nl.tue.ladywise_backend.symptom.dto.RiskSymptomsDto
  */
 export interface RiskSymptomsResponse {
-  anemiaSymptoms: string[]; // e.g. ["TIRED", "Family history of anemia"]
-  thrombosisSymptoms: string[]; // e.g. ["SWELLING"]
-  flowLevel: string | null; // e.g. "flow_heavy" or null
-  riskFactors: string[]; // e.g. ["ESTROGEN_PILL"]
+  anemiaSymptoms: string[]; 
+  thrombosisSymptoms: string[]; 
+  flowLevel: string | null; 
+  riskFactors: string[]; 
 }
