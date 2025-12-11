@@ -132,7 +132,6 @@ describe("QuestionnaireFinalQuestions", () => {
       answers: {
         usesEstrogenContraception: null,
         usesBiosensorCup: null,
-        userId: "test-user-id",
         personal: { age: "25", weight: "60", height: "170" },
         familyHistory: { anemia: false, thrombosis: false },
         anemiaRiskFactors: [],
