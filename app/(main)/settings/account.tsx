@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text } from "react-native";
+import { View, Text, Alert } from "react-native";
 import { SettingsPageLayout } from "@/components/Settings/SettingsPageLayout";
 import { PasswordField } from "@/components/PasswordField/PasswordField";
 import { ThemedPressable } from "@/components/ThemedPressable/ThemedPressable";
@@ -119,11 +119,11 @@ export default function AccountSettings() {
           signOut();
         } else {
           console.error("Failed to delete account:", error.message);
-          alert("Failed to delete account. Please try again.");
+          Alert.alert("Failed to delete account. Please try again.");
         }
       } else {
         console.error("An unexpected error occurred:", error);
-        alert("An unexpected error occurred. Please try again.");
+        Alert.alert("An unexpected error occurred. Please try again.");
       }
     }
   };
@@ -191,7 +191,10 @@ export default function AccountSettings() {
       </View>
 
       <View className="bg-white rounded-2xl shadow-sm px-4 py-6 mb-6">
-        <Text className="text-lg font-bold text-red-600 mb-2">
+        <Text
+          className="text-lg font-bold text-red-600 mb-2"
+          testID="delete-account-btn"
+        >
           Delete Account
         </Text>
         <Text className="text-sm text-inactiveText mb-6 leading-5">
