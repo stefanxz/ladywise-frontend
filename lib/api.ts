@@ -1,5 +1,7 @@
 import axios from "axios";
 import type {
+  ChangePasswordPayload,
+  ChangePasswordResponse,
   LoginPayload,
   LoginResponse,
   PasswordResetRequestPayload,
@@ -60,6 +62,23 @@ export async function loginUser(payload: LoginPayload) {
 export async function updateUser(payload: UserPayload) {
   const { data } = await api.patch<UserResponse>(
     "/api/users/updateUser",
+    payload,
+  );
+  return data;
+}
+
+/**
+ * Changes the password for the authenticated user.
+ *
+ * Requires the user to be authenticated and provide their current password for
+ * verification. The new password must meet validation requirements and be
+ * different from the current password.
+ *
+ * @param payload - Object containing the currentPassword and newPassword
+ */
+export async function changePassword(payload: ChangePasswordPayload) {
+  const { data } = await api.post<ChangePasswordResponse>(
+    "/api/auth/change-password",
     payload,
   );
   return data;
@@ -175,6 +194,18 @@ export async function resetPassword(payload: ResetPasswordPayload) {
   return data;
 }
 
+/**
+ * Deletes the authenticated user's account.
+ *
+ * This permanently removes the user and all associated data from the system.
+ * Requires the user to be authenticated via the Authorization header.
+ *
+ * @returns A promise that resolves when the deletion is successful (204) or rejects if user not found (404)
+ */
+export async function deleteCurrentUser(): Promise<void> {
+  await api.delete("/api/users/me");
+}
+
 export async function submitQuestionnaire(payload: QuestionnairePayload) {
   const { data } = await api.post<QuestionnaireResponse>(
     "/api/questionnaire",
@@ -240,4 +271,3 @@ export async function shareReport(
   });
   return data;
 }
-
