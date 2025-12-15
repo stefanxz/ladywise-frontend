@@ -10,6 +10,7 @@ import type {
   UserPayload,
   UserResponse,
 } from "./types/payloads";
+import { ReportRequest } from "./types/reports";
 import { CycleStatusDTO } from "./types/cycle";
 import { getAuthData } from "./auth";
 import { ApiRiskResponse, RiskHistoryPoint } from "./types/risks";

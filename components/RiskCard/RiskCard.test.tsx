@@ -1,11 +1,12 @@
 import { render, screen } from "@testing-library/react-native";
 import React from "react";
-import RiskCard from "./RiskCard"; // Adjust path as needed
+import RiskCard from "./RiskCard";
 
 describe("RiskCard", () => {
   const baseProps = {
+    id: "test-card-id", // Added to satisfy RiskCardProps interface
     title: "Heart Rate",
-    level: "Low" as const, // Use 'as const' for type safety
+    level: "Low" as const,
     description: "Your resting heart rate is normal.",
   };
 
@@ -24,7 +25,7 @@ describe("RiskCard", () => {
     ["High", "text-red-500"],
   ])("should apply correct color for %s level", (level, expectedClass) => {
     render(
-      <RiskCard {...baseProps} level={level as "Low" | "Medium" | "High"} />,
+      <RiskCard {...baseProps} level={level as "Low" | "Medium" | "High"} />
     );
 
     const levelElement = screen.getByText(level);
