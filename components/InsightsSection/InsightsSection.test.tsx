@@ -47,7 +47,7 @@ describe("InsightsSection", () => {
   it("renders the analyzing message when isCalculating is true", () => {
     // Note: isLoading should be false here usually
     render(
-      <InsightsSection insights={[]} isLoading={false} isCalculating={true} />
+      <InsightsSection insights={[]} isLoading={false} isCalculating={true} />,
     );
 
     // Check for the specific analyzing message
@@ -60,13 +60,15 @@ describe("InsightsSection", () => {
   // Test Case 3: The empty state (after loading, no data)
   it("renders the empty message when not loading/calculating and insights are empty", () => {
     render(
-      <InsightsSection insights={[]} isLoading={false} isCalculating={false} />
+      <InsightsSection insights={[]} isLoading={false} isCalculating={false} />,
     );
 
     // Check that the empty message is visible
     expect(screen.getByText("No insights yet")).toBeTruthy();
     expect(
-      screen.getByText("Log your daily symptoms to generate your risk profile.")
+      screen.getByText(
+        "Log your daily symptoms to generate your risk profile.",
+      ),
     ).toBeTruthy();
 
     expect(screen.queryByTestId("mock-risk-card")).toBeNull();
@@ -89,7 +91,7 @@ describe("InsightsSection", () => {
   // Test Case 5: Priority of states
   it("prioritizes loading over empty state", () => {
     render(
-      <InsightsSection insights={[]} isLoading={true} isCalculating={false} />
+      <InsightsSection insights={[]} isLoading={true} isCalculating={false} />,
     );
     expect(screen.getByText("Loading health profile...")).toBeTruthy();
     expect(screen.queryByText("No insights yet")).toBeNull();
@@ -97,7 +99,7 @@ describe("InsightsSection", () => {
 
   it("prioritizes calculating over empty state", () => {
     render(
-      <InsightsSection insights={[]} isLoading={false} isCalculating={true} />
+      <InsightsSection insights={[]} isLoading={false} isCalculating={true} />,
     );
     expect(screen.getByText("Analyzing latest data...")).toBeTruthy();
     expect(screen.queryByText("No insights yet")).toBeNull();

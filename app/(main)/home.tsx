@@ -56,7 +56,7 @@ const Home = () => {
 
   const [cycleStatus, setCycleStatus] = useState<CycleStatusDTO | null>(null);
   const [calendarDays, setCalendarDays] = useState<DayData[]>(
-    generateCalendarDays()
+    generateCalendarDays(),
   );
   const [error, setError] = useState<string | null>(null);
   const [userName, setUserName] = useState<string>("");
@@ -64,7 +64,7 @@ const Home = () => {
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
   const openSheet = useCallback(
     () => bottomSheetModalRef.current?.present(),
-    []
+    [],
   );
 
   const displayedInsights: RiskData[] = useMemo(() => {
@@ -146,7 +146,7 @@ const Home = () => {
       };
 
       fetchCycleData();
-    }, [setPhase, token, isAuthLoading])
+    }, [setPhase, token, isAuthLoading]),
   );
 
   const handleAddDailyEntry = async (answers: DailyCycleAnswers) => {
