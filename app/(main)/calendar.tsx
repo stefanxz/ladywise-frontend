@@ -438,6 +438,7 @@ export default function CalendarScreen() {
             {/* Months list */}
             <FlatList
               ref={flatListRef}
+              testID="calendar-list"
               data={months}
               keyExtractor={(item) => item.id}
               renderItem={renderMonth}

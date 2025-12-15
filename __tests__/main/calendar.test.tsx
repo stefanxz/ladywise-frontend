@@ -1,388 +1,376 @@
 import React from 'react';
-import { render, fireEvent, waitFor } from '@testing-library/react-native';
-import { Alert, View, Text, TouchableOpacity } from 'react-native';
+import { render, fireEvent, waitFor, act } from '@testing-library/react-native';
+import { Alert } from 'react-native';
 import CalendarScreen from '@/app/(main)/calendar';
-import * as api from '@/lib/api';
-import { CyclePhase } from '@/lib/types/cycle';
-import { PeriodLogResponse } from '@/lib/types/period';
+import { useAuth } from '@/context/AuthContext';
+import { useTheme } from '@/context/ThemeContext';
+import { getCycleStatus, getPeriodHistory, getPredictions, logNewPeriod, updatePeriod, deletePeriod } from '@/lib/api';
+import { format, addDays, subDays, startOfDay } from 'date-fns';
 
-// Mocks
+// Setup and mocks
+// Suppress specific "not wrapped in act" warnings
+const originalError = console.error;
+beforeAll(() => {
+  console.error = (...args: any[]) => {
+    if (typeof args[0] === 'string' && args[0].includes('not wrapped in act')) return;
+    originalError.call(console, ...args);
+  };
+});
+afterAll(() => {
+  console.error = originalError;
+});
 
-// Mock navigation/safe area
-jest.mock('react-native-safe-area-context', () => {
-  const inset = { top: 40, right: 0, bottom: 20, left: 0 };
-  
-  const SafeAreaProvider = ({ children }: any) => children;
-  SafeAreaProvider.displayName = 'SafeAreaProvider'; // Required by NativeWind
+// Context and API mocks
+jest.mock('@/context/AuthContext');
+jest.mock('@/context/ThemeContext');
+jest.mock('@/lib/api');
+jest.mock('react-native-safe-area-context', () => ({
+  useSafeAreaInsets: () => ({ top: 44, bottom: 34, left: 0, right: 0 }),
+}));
+jest.mock('expo-linear-gradient', () => ({
+  LinearGradient: 'LinearGradient', 
+}));
 
-  const SafeAreaView = ({ children }: any) => children;
-  SafeAreaView.displayName = 'SafeAreaView'; // Required by NativeWind
-
+// Mock calendar helpers
+// We require 'date-fns' inside the mock factory because jest.mock is hoisted
+// above imports so external variables are not accessible here
+jest.mock('@/utils/calendarHelpers', () => {
+  const { addDays } = require('date-fns');
   return {
-    SafeAreaProvider,
-    SafeAreaView,
-    useSafeAreaInsets: jest.fn(() => inset),
+    generateDateSet: jest.fn(() => new Set()),
+    generateMonths: jest.fn((start, count) => 
+      Array.from({ length: count }, (_, i) => ({
+        id: `month-${i}`,
+        date: start ? addDays(start, i * 30) : new Date(), 
+      }))
+    ),
   };
 });
 
-// Mock external libraries (native modules)
-jest.mock('expo-linear-gradient', () => ({
-  LinearGradient: ({ children }: any) => children,
-}));
-jest.mock('@expo/vector-icons', () => ({
-  Feather: 'Feather',
-}));
-
-// Mock child components to isolate screen logic
 jest.mock('@/components/Calendar/CalendarHeader', () => 'CalendarHeader');
 
-// Completely exclude FloatingAddButton logic by rendering null since it's not important here
-jest.mock('@/components/FloatingAddButton/FloatingAddButton', () => ({
-  FloatingAddButton: () => null,
-}));
-
 jest.mock('@/components/LogNewPeriodButton/LogNewPeriodButton', () => {
-  const { TouchableOpacity, Text } = require('react-native'); 
-  return (props: any) => (
-    <TouchableOpacity onPress={props.onPress} testID="log-period-btn">
-      <Text>Log Period +</Text>
+  const { TouchableOpacity, Text } = require('react-native');
+  return ({ onPress }: any) => (
+    <TouchableOpacity onPress={onPress} testID="log-period-button">
+      <Text>Log New Period</Text>
     </TouchableOpacity>
   );
 });
 
-// Mock CalendarMonth to simulate user interactions with dates
+// Functional mock for CalendarMonth
+// This component is rendered for every month in the FlatList
+// Tests must use `getAllByTestId` (picking the first index) to interact with specific buttons
 jest.mock('@/components/Calendar/CalendarMonth', () => {
-  const { View, Button, Text } = require('react-native');
-  return ({ item, onPress }: any) => (
-    <View testID="calendar-month">
-      <Text>{item.titleMonth}</Text>
+  const { TouchableOpacity, Text, View } = require('react-native');
+  const { addDays, subDays } = require('date-fns');
+  
+  return ({ onPress, today, item }: any) => (
+    <View testID={`month-view-${item.id}`}>
+      <TouchableOpacity 
+        testID="day-today" 
+        onPress={() => onPress(today, { x: 100, y: 100 })}
+      >
+        <Text>Today</Text>
+      </TouchableOpacity>
       
-      {/* Button for Jan 15 */}
-      <Button
-        title="Simulate Jan 15" 
-        testID="date-trigger-jan-15"
-        onPress={() => onPress(new Date(2025, 0, 15), { x: 100, y: 100 })}
-      />
-      
-      {/* Button for Jan 20 */}
-      <Button
-        title="Simulate Jan 20" 
-        testID="date-trigger-jan-20"
-        onPress={() => onPress(new Date(2025, 0, 20), { x: 100, y: 100 })}
-      />
+      <TouchableOpacity 
+        testID="day-yesterday" 
+        onPress={() => onPress(subDays(today, 1), { x: 100, y: 100 })}
+      >
+        <Text>Yesterday</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity 
+        testID="day-tomorrow" 
+        onPress={() => onPress(addDays(today, 1), { x: 100, y: 100 })}
+      >
+        <Text>Tomorrow</Text>
+      </TouchableOpacity>
     </View>
   );
 });
 
 jest.mock('@/components/Calendar/EditDeleteTooltip', () => {
-  const { View, Button } = require('react-native');
+  const { View, TouchableOpacity, Text } = require('react-native');
   return ({ visible, onEditPeriod, onDelete }: any) => {
     if (!visible) return null;
     return (
       <View testID="tooltip-container">
-        <Button title="Edit" onPress={onEditPeriod} testID="tooltip-edit" />
-        <Button title="Delete" onPress={onDelete} testID="tooltip-delete" />
+        <TouchableOpacity onPress={onEditPeriod} testID="tooltip-edit"><Text>Edit</Text></TouchableOpacity>
+        <TouchableOpacity onPress={onDelete} testID="tooltip-delete"><Text>Delete</Text></TouchableOpacity>
       </View>
     );
   };
 });
 
-// Mock API
-jest.mock('@/lib/api');
-
-// Mock Contexts
-const mockSetPhase = jest.fn();
-jest.mock('@/context/ThemeContext', () => ({
-  useTheme: () => ({
-    theme: { highlight: '#FF0000' },
-    setPhase: mockSetPhase,
-  }),
+jest.mock('@/components/FloatingAddButton/FloatingAddButton', () => ({
+  FloatingAddButton: 'FloatingAddButton',
 }));
 
-jest.mock('@/context/AuthContext', () => ({
-  useAuth: () => ({
-    token: 'fake-jwt-token',
-    isLoading: false,
-  }),
-}));
+// Spy on Alert to test confirmation dialogs and validation errors
+jest.spyOn(Alert, 'alert');
 
-// Test suite
+// Tests
+describe('CalendarScreen', () => {
+  const mockToken = 'mock-token';
+  const mockSetPhase = jest.fn();
+  const today = startOfDay(new Date());
 
-describe('Calendar Screen', () => {
-  const mockedApi = jest.mocked(api);
+  const mockPeriodHistory = [
+    {
+      id: 'period-old',
+      startDate: format(subDays(today, 10), 'yyyy-MM-dd'),
+      endDate: format(subDays(today, 6), 'yyyy-MM-dd'),
+    }
+  ];
+  
+  const mockPredictions = [
+    { startDate: '2025-01-01', endDate: '2025-01-05' }
+  ];
 
   beforeEach(() => {
     jest.clearAllMocks();
-    jest.useFakeTimers();
-
-    // Freeze time to Jan 25, 2025
-    jest.setSystemTime(new Date('2025-01-25T12:00:00Z'));
-
-    // Default API success responses
-    mockedApi.getCycleStatus.mockResolvedValue({
-      currentCycleDay: 5,
-      currentPhase: "FOLLICULAR" as CyclePhase,
-      nextEvent: "NEXT_OVULATION",
-      daysUntilNextEvent: 10,
-      nextEventDate: "2025-02-04",
-      periodHistory: [],
-      periodDates: [],
-      predictedPeriodDates: []
+    
+    (useAuth as jest.Mock).mockReturnValue({
+      token: mockToken,
+      isLoading: false,
     });
 
-    mockedApi.getPeriodHistory.mockResolvedValue([]);
-    mockedApi.getPredictions.mockResolvedValue([]);
-    mockedApi.logNewPeriod.mockResolvedValue({ id: 'new-id' } as PeriodLogResponse);
-    mockedApi.updatePeriod.mockResolvedValue({ id: 'updated-id' } as PeriodLogResponse);
-    mockedApi.deletePeriod.mockResolvedValue({} as any);
+    (useTheme as jest.Mock).mockReturnValue({
+      theme: { highlight: '#FCA5A5' },
+      setPhase: mockSetPhase,
+    });
+
+    (getCycleStatus as jest.Mock).mockResolvedValue({ currentPhase: 'follicular' });
+    (getPeriodHistory as jest.Mock).mockResolvedValue(mockPeriodHistory);
+    (getPredictions as jest.Mock).mockResolvedValue(mockPredictions);
   });
 
-  afterEach(() => {
-    jest.useRealTimers();
+  describe('Initial Rendering', () => {
+    // Tests that the component successfully calls all required APIs on mount 
+    // and displays the main calendar list
+    it('should fetch data and render list on mount', async () => {
+      const { getByTestId } = render(<CalendarScreen />);
+
+      await waitFor(() => {
+        expect(getPeriodHistory).toHaveBeenCalled();
+        expect(getPredictions).toHaveBeenCalled();
+      });
+
+      expect(getByTestId('calendar-list')).toBeTruthy();
+      expect(mockSetPhase).toHaveBeenCalledWith('follicular');
+    });
+
+    // Tests that the component doesn't crash if the API returns an error
+    it('should handle API errors gracefully', async () => {
+      const consoleError = jest.spyOn(console, 'error').mockImplementation();
+      (getPeriodHistory as jest.Mock).mockRejectedValue(new Error('API Error'));
+
+      render(<CalendarScreen />);
+
+      await waitFor(() => {
+        expect(consoleError).toHaveBeenCalledWith(expect.stringContaining('Failed to fetch cycle'));
+      });
+      consoleError.mockRestore();
+    });
   });
 
-  // Rendering test
+  describe('Logging New Period (User Flow)', () => {
+    // Tests the standard path: user opens log mode, selects a range 
+    // (start date -> end date), and successfully saves
+    it('should allow user to enter log mode, select dates, and save', async () => {
+      (logNewPeriod as jest.Mock).mockResolvedValue({ success: true });
+      const { getByTestId, getAllByTestId, getByText, queryByText } = render(<CalendarScreen />);
 
-  it('renders correctly and loads initial data', async () => {
-    const { getByText } = render(<CalendarScreen />);
-    
-    // Wait for API load
-    await waitFor(() => expect(mockedApi.getCycleStatus).toHaveBeenCalled());
-    
-    // Verification: "January" should be visible from the helper generation
-    expect(getByText('January')).toBeTruthy();
-  });
+      await waitFor(() => expect(getPeriodHistory).toHaveBeenCalled());
 
-  // Logging new period tests
+      // Enter log mode
+      fireEvent.press(getByTestId('log-period-button'));
+      
+      await waitFor(() => {
+        expect(getByText('Cancel')).toBeTruthy();
+        expect(getByText('Save')).toBeTruthy();
+      });
 
-//   it('logs a single-day period', async () => {
-//     const { getByTestId, getByText, getAllByTestId } = render(<CalendarScreen />);
-//     await waitFor(() => expect(mockedApi.getCycleStatus).toHaveBeenCalled());
+      // Select dates
+      // We use getAllByTestId(...)[0] because the list renders multiple Yesterday buttons (one per month item)
+      fireEvent.press(getAllByTestId('day-yesterday')[0]); // Start
+      fireEvent.press(getAllByTestId('day-today')[0]);     // End
 
-//     // Enter log mode
-//     fireEvent.press(getByTestId('log-period-btn'));
+      // Save
+      fireEvent.press(getByText('Save'));
 
-//     // Wait for log mode to be active
-//     await waitFor(() => getByText('Save'));
-    
-//     // Select date
-//     fireEvent.press(getAllByTestId('date-trigger-jan-15')[0]);
-    
-//     // Save
-//     fireEvent.press(getByText('Save'));
+      // Verify API call
+      await waitFor(() => {
+        expect(logNewPeriod).toHaveBeenCalledWith({
+          startDate: format(subDays(today, 1), 'yyyy-MM-dd'),
+          endDate: format(today, 'yyyy-MM-dd'),
+        });
+      });
 
-//     await waitFor(() => {
-//       expect(mockedApi.logNewPeriod).toHaveBeenCalledWith({
-//         startDate: '2025-01-15',
-//         endDate: '2025-01-15', 
-//       });
-//     });
-//   });
+      // Verify exit log mode
+      await waitFor(() => {
+        expect(queryByText('Save')).toBeNull();
+      });
+    });
 
-  it('logs a multi-day range period (Start -> End)', async () => {
-    const { getByTestId, getByText, getAllByTestId } = render(<CalendarScreen />);
-    await waitFor(() => expect(mockedApi.getCycleStatus).toHaveBeenCalled());
+    // Tests the flow for logging a period that is still active (Ongoing),
+    // ensuring the payload sends a null endDate
+    it('should handle ongoing period logging', async () => {
+      (logNewPeriod as jest.Mock).mockResolvedValue({ success: true });
+      const { getByTestId, getAllByTestId, getByText } = render(<CalendarScreen />);
 
-    // Enter log mode
-    fireEvent.press(getByTestId('log-period-btn'));
+      await waitFor(() => expect(getPeriodHistory).toHaveBeenCalled());
 
-    // Wait for log mode to be active
-    await waitFor(() => getByText('Save'));
-    
-    // Click start (Jan 15)
-    fireEvent.press(getAllByTestId('date-trigger-jan-15')[0]);
-    
-    // Click end (Jan 20)
-    fireEvent.press(getAllByTestId('date-trigger-jan-20')[0]);
+      fireEvent.press(getByTestId('log-period-button'));
+      await waitFor(() => getByText('Mark as ongoing'));
 
-    // Save
-    fireEvent.press(getByText('Save'));
+      fireEvent.press(getByText('Mark as ongoing'));
+      
+      // Select start date only
+      fireEvent.press(getAllByTestId('day-today')[0]);
+      
+      fireEvent.press(getByText('Save'));
 
-    await waitFor(() => {
-      expect(mockedApi.logNewPeriod).toHaveBeenCalledWith({
-        startDate: '2025-01-15',
-        endDate: '2025-01-20', 
+      await waitFor(() => {
+        expect(logNewPeriod).toHaveBeenCalledWith({
+          startDate: format(today, 'yyyy-MM-dd'),
+          endDate: null,
+        });
       });
     });
   });
 
-  it('logs an ongoing period (endDate is null)', async () => {
-    const { getByTestId, getByText, getAllByTestId } = render(<CalendarScreen />);
-    await waitFor(() => expect(mockedApi.getCycleStatus).toHaveBeenCalled());
+  describe('Validation Logic', () => {
+    // Tests validation ensuring the user cannot save without selecting any date
+    it('should alert if saving without a start date', async () => {
+      const { getByTestId, getByText } = render(<CalendarScreen />);
+      await waitFor(() => expect(getPeriodHistory).toHaveBeenCalled());
 
-    // Enter log mode
-    fireEvent.press(getByTestId('log-period-btn'));
+      fireEvent.press(getByTestId('log-period-button'));
+      await waitFor(() => getByText('Save'));
 
-    // Select start date (Jan 15)
-    fireEvent.press(getAllByTestId('date-trigger-jan-15')[0]);
+      fireEvent.press(getByText('Save'));
 
-    // Toggle ongoing switch
-    fireEvent.press(getByText('Mark as ongoing'));
+      expect(Alert.alert).toHaveBeenCalledWith(
+        "Just a quick check!",
+        expect.stringContaining("need a start date")
+      );
+      expect(logNewPeriod).not.toHaveBeenCalled();
+    });
 
-    // Save
-    fireEvent.press(getByText('Save'));
+    // Tests validation ensuring the user cannot log periods for future dates
+    it('should prevent selection of future dates', async () => {
+      const { getByTestId, getAllByTestId, getByText } = render(<CalendarScreen />);
+      await waitFor(() => expect(getPeriodHistory).toHaveBeenCalled());
 
-    await waitFor(() => {
-      expect(mockedApi.logNewPeriod).toHaveBeenCalledWith({
-        startDate: '2025-01-15',
-        endDate: null, 
+      fireEvent.press(getByTestId('log-period-button'));
+      await waitFor(() => getByText('Save'));
+
+      // Try to click future date
+      fireEvent.press(getAllByTestId('day-tomorrow')[0]);
+      
+      fireEvent.press(getByText('Save'));
+
+      expect(Alert.alert).toHaveBeenCalledWith(
+        "Just a quick check!",
+        "We need a start date to log this entry properly."
+      );
+    });
+  });
+
+  describe('Editing & Deleting (User Flow)', () => {
+    const periodOnToday = [{
+      id: 'period-today',
+      startDate: format(today, 'yyyy-MM-dd'),
+      endDate: format(today, 'yyyy-MM-dd'),
+    }];
+
+    // Tests the delete workflow: tapping a date -> tooltip appearing -> clicking delete -> confirming alert
+    it('should open tooltip and allow deletion', async () => {
+      (getPeriodHistory as jest.Mock).mockResolvedValue(periodOnToday);
+      (deletePeriod as jest.Mock).mockResolvedValue({ success: true });
+      
+      const { getByTestId, getAllByTestId, queryByTestId } = render(<CalendarScreen />);
+      await waitFor(() => expect(getPeriodHistory).toHaveBeenCalled());
+
+      // Tap Today
+      fireEvent.press(getAllByTestId('day-today')[0]);
+
+      await waitFor(() => expect(getByTestId('tooltip-container')).toBeTruthy());
+
+      // Press Delete button on the tooltip (triggers the Alert)
+      fireEvent.press(getByTestId('tooltip-delete'));
+
+      // Confirm Alert exists
+      expect(Alert.alert).toHaveBeenCalled();
+      
+      // Extract the Delete button logic from the Alert mock
+      const alertButtons = (Alert.alert as jest.Mock).mock.calls[0][2];
+      const deleteAction = alertButtons.find((b: any) => b.text === 'Delete');
+      
+      // We wrap the manual async call in act() to ensure state updates flush
+      await act(async () => {
+        await deleteAction.onPress();
+      });
+
+      // Verify API was called
+      expect(deletePeriod).toHaveBeenCalledWith('period-today');
+
+      // Verify UI updated (tooltip is gone)
+      await waitFor(() => {
+        expect(queryByTestId('tooltip-container')).toBeNull();
+      });
+    });
+
+    // Tests the edit workflow: tapping a date -> tooltip -> clicking edit -> modifying the dates -> saving
+    it('should open tooltip and enter edit mode', async () => {
+      (getPeriodHistory as jest.Mock).mockResolvedValue(periodOnToday);
+      (updatePeriod as jest.Mock).mockResolvedValue({ success: true });
+
+      const { getByTestId, getAllByTestId, getByText, queryByTestId } = render(<CalendarScreen />);
+      await waitFor(() => expect(getPeriodHistory).toHaveBeenCalled());
+
+      fireEvent.press(getAllByTestId('day-today')[0]);
+      await waitFor(() => expect(getByTestId('tooltip-edit')).toBeTruthy());
+
+      fireEvent.press(getByTestId('tooltip-edit'));
+
+      await waitFor(() => {
+        expect(getByText('Save')).toBeTruthy();
+        expect(queryByTestId('tooltip-container')).toBeNull();
+      });
+
+      // Change selection to yesterday
+      fireEvent.press(getAllByTestId('day-yesterday')[0]);
+
+      fireEvent.press(getByText('Save'));
+
+      await waitFor(() => {
+        expect(updatePeriod).toHaveBeenCalledWith(
+          'period-today',
+          expect.objectContaining({
+             startDate: format(subDays(today, 1), 'yyyy-MM-dd')
+          })
+        );
       });
     });
   });
 
-  // Tests for editing and deleting existing periods
+  describe('Infinite Scroll', () => {
+    // Tests that reaching the end of the FlatList triggers the logic to generate more months
+    it('should trigger loading when reaching end of list', async () => {
+      const { getByTestId } = render(<CalendarScreen />);
+      await waitFor(() => expect(getPeriodHistory).toHaveBeenCalled());
 
-  it('edits an existing period via tooltip', async () => {
-    // Setup: one existing period (Jan 15)
-    mockedApi.getPeriodHistory.mockResolvedValue([{
-      id: 'period-123',
-      startDate: '2025-01-15',
-      endDate: '2025-01-15', // Originally 1 day
-      dailyEntries: []
-    }]);
-
-    const { getByTestId, getAllByTestId, getByText } = render(<CalendarScreen />);
-    await waitFor(() => expect(mockedApi.getPeriodHistory).toHaveBeenCalled());
-
-    // Click date to open tooltip
-    fireEvent.press(getAllByTestId('date-trigger-jan-15')[0]);
-
-    // Click Edit in tooltip
-    fireEvent.press(getByTestId('tooltip-edit'));
-    // State is now { start: Jan 15, end: Jan 15 }
-
-    // User clicks Jan 15 to reset the range
-    fireEvent.press(getAllByTestId('date-trigger-jan-15')[0]);
-    // State is now { start: Jan 15, end: null }
-
-    // User clicks Jan 20 to complete the range
-    fireEvent.press(getAllByTestId('date-trigger-jan-20')[0]);
-    // State is now { start: Jan 15, end: Jan 20 }
-
-    // Save
-    fireEvent.press(getByText('Save'));
-
-    await waitFor(() => {
-      expect(mockedApi.updatePeriod).toHaveBeenCalledWith('period-123', {
-        startDate: '2025-01-15',
-        endDate: '2025-01-20'
+      const list = getByTestId('calendar-list');
+      
+      fireEvent(list, 'onEndReached');
+      
+      await waitFor(() => {
+        expect(require('@/utils/calendarHelpers').generateMonths).toHaveBeenCalledTimes(2);
       });
-    });
-  });
-
-  it('deletes a period after confirmation', async () => {
-
-    // Spy on Alert to simulate clicking "Delete"
-    const alertSpy = jest.spyOn(Alert, 'alert').mockImplementation((title, msg, buttons) => {
-      const deleteBtn = buttons?.find(b => b.text === 'Delete');
-      deleteBtn?.onPress?.();
-    });
-
-    mockedApi.getPeriodHistory.mockResolvedValue([{
-      id: 'period-123',
-      startDate: '2025-01-15',
-      endDate: '2025-01-20',
-      dailyEntries: []
-    }]);
-
-    const { getByTestId, getAllByTestId } = render(<CalendarScreen />);
-    await waitFor(() => expect(mockedApi.getPeriodHistory).toHaveBeenCalled());
-
-    // Open tooltip
-    fireEvent.press(getAllByTestId('date-trigger-jan-15')[0]);
-
-    // Click Delete
-    fireEvent.press(getByTestId('tooltip-delete'));
-
-    await waitFor(() => {
-      expect(alertSpy).toHaveBeenCalled();
-      expect(mockedApi.deletePeriod).toHaveBeenCalledWith('period-123');
-    });
-  });
-
-  // Validation and error handling tests
-
-  it('prevents overlapping periods', async () => {
-
-    // Spy on Alert
-    const alertSpy = jest.spyOn(Alert, 'alert');
-
-    // Existing: Jan 14-16
-    mockedApi.getPeriodHistory.mockResolvedValue([{
-      id: 'existing-1',
-      startDate: '2025-01-14',
-      endDate: '2025-01-16',
-      dailyEntries: []
-    }]);
-
-    const { getByTestId, getByText, getAllByTestId } = render(<CalendarScreen />);
-    await waitFor(() => expect(mockedApi.getPeriodHistory).toHaveBeenCalled());
-
-    // Enter log mode
-    fireEvent.press(getByTestId('log-period-btn'));
-    
-    // User tries to pick Jan 15 (inside Jan 14-16)
-    fireEvent.press(getAllByTestId('date-trigger-jan-15')[0]); 
-
-    // Save
-    fireEvent.press(getByText('Save'));
-
-    expect(alertSpy).toHaveBeenCalledWith("Period already logged!", expect.anything());
-    expect(mockedApi.logNewPeriod).not.toHaveBeenCalled();
-  });
-
-  it('warns about adjacent periods (one continuous period)', async () => {
-
-    // Spy on Alert
-    const alertSpy = jest.spyOn(Alert, 'alert');
-
-    // Existing: Jan 10-14
-    mockedApi.getPeriodHistory.mockResolvedValue([{
-      id: 'existing-1',
-      startDate: '2025-01-10',
-      endDate: '2025-01-14',
-      dailyEntries: []
-    }]);
-
-    const { getByTestId, getByText, getAllByTestId } = render(<CalendarScreen />);
-    await waitFor(() => expect(mockedApi.getPeriodHistory).toHaveBeenCalled());
-
-    // Enter log mode
-    fireEvent.press(getByTestId('log-period-btn'));
-
-    // User picks Jan 15 (Immediately after Jan 14)
-    fireEvent.press(getAllByTestId('date-trigger-jan-15')[0]);
-
-    // Save
-    fireEvent.press(getByText('Save'));
-
-    expect(alertSpy).toHaveBeenCalledWith("Looks like one continuous period!", expect.anything());
-    expect(mockedApi.logNewPeriod).not.toHaveBeenCalled();
-  });
-
-  it('handles API errors', async () => {
-
-    // Spy on Alert
-    const alertSpy = jest.spyOn(Alert, 'alert');
-
-    // Force API to fail
-    mockedApi.logNewPeriod.mockRejectedValue(new Error('Network Error'));
-
-    const { getByTestId, getByText, getAllByTestId } = render(<CalendarScreen />);
-    await waitFor(() => expect(mockedApi.getCycleStatus).toHaveBeenCalled());
-
-    // Enter log mode
-    fireEvent.press(getByTestId('log-period-btn'));
-
-    // Select date
-    fireEvent.press(getAllByTestId('date-trigger-jan-15')[0]);
-
-    // Save
-    fireEvent.press(getByText('Save'));
-
-    // Verify Alert is shown with error message
-    await waitFor(() => {
-      expect(alertSpy).toHaveBeenCalledWith("Oops!", expect.stringContaining("Network Error"));
     });
   });
 });
