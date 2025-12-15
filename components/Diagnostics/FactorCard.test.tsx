@@ -2,16 +2,16 @@ import React from "react";
 import { render } from "@testing-library/react-native";
 import { View } from "react-native";
 import FactorCard from "./FactorCard";
+import type { LucideIcon } from "lucide-react-native";
 
 describe("FactorCard Component", () => {
-  // Create a dummy component to mock the Vector Icon
-  const MockIcon = () => <View testID="mock-icon" />;
+  const MockIcon = (() => <View testID="mock-icon" />) as unknown as LucideIcon;
 
   const mockProps = {
     title: "Test Factor",
     value: "High Risk",
     description: "This is a test description",
-    icon: MockIcon, // Pass the component, NOT an object
+    icon: MockIcon,
     variant: "default" as const,
   };
 
