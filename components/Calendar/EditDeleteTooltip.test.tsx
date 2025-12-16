@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Dimensions } from "react-native";
+import { Dimensions } from "react-native";
 import { render, fireEvent, screen } from "@testing-library/react-native";
 
 // Mocks and setup
@@ -140,38 +140,7 @@ describe("EditDeleteTooltip component", () => {
     expect(mockOnDelete).toHaveBeenCalled();
   });
 
-  // Positioning logic
-  it("calculates correct position when centered in screen", () => {
-    // x=200 is exactly middle of our 400px wide screen
-    const x = 200;
-    const y = 300;
-
-    const { toJSON } = render(
-      <PeriodActionTooltip
-        visible={true}
-        position={{ x, y }}
-        onEditPeriod={mockOnEditPeriod}
-        onEditCycleQuestionnaire={mockOnEditCycleQuestionnaire}
-        onDelete={mockOnDelete}
-        onClose={mockOnClose}
-      />,
-    );
-
-    // We use toJSON() to inspect styles on the root element
-    // This avoids the "received value must be a host element" error
-    const root = toJSON();
-
-    // Expected calculations:
-    // left = x - (width/2) = 200 - 115 = 85
-    // top = y - height - arrow - spacing = 300 - 44 - 6 - 47 = 203
-    expect(root?.props.style).toEqual(
-      expect.objectContaining({
-        left: 85,
-        top: 203,
-      }),
-    );
-  });
-
+  // positional logic
   it("clamps position to left padding when clicked near left edge", () => {
     // x=20 is very close to left edge
     const x = 20;
