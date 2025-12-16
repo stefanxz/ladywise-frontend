@@ -44,7 +44,8 @@ export default function LogNewPeriodButton({
         {
           backgroundColor: color,
           minHeight: 20, // ensures vertical balance
-        }, style
+        },
+        style,
       ]}
       // Slightly larger touch area than the visible button
       hitSlop={6}
@@ -56,16 +57,16 @@ export default function LogNewPeriodButton({
         <ActivityIndicator color="#ffffff" />
       ) : (
         <View className="flex-row items-center">
-          <Text 
+          <Text
             className="text-black font-semibold text-base"
             style={{
               lineHeight: 20, // aligns text vertically in the middle
-              includeFontPadding: false // android fix for vertical alignment            }}
+              includeFontPadding: false, // android fix for vertical alignment            }}
             }}
           >
             Log period
           </Text>
-          <Feather 
+          <Feather
             name="plus"
             size={20}
             color="black"

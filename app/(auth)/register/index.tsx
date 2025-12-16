@@ -5,7 +5,7 @@ import { PasswordField } from "@/components/PasswordField/PasswordField";
 import { SocialSignOn } from "@/components/SocialSignOn/SocialSignOn";
 import { TermsConditionsCheckbox } from "@/components/TermsConditionsCheckbox/TermsConditionsCheckbox";
 import { ThemedPressable } from "@/components/ThemedPressable/ThemedPressable";
-import { loginUser, registerUser } from "@/lib/api";
+import { registerUser } from "@/lib/api";
 import { isEmailValid, isPasswordValid } from "@/utils/validations";
 import { useRouter } from "expo-router";
 import React, { useState, useRef, useEffect } from "react";

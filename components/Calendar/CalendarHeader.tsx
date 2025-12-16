@@ -1,48 +1,47 @@
-import React from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
-import { clsx } from 'clsx';
+import React from "react";
+import { View, Text, TouchableOpacity } from "react-native";
+import { clsx } from "clsx";
 import { useTheme } from "@/context/ThemeContext"; // 1. Import hook
 
-
 // The week days we use
-const WEEK_DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+const WEEK_DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
 const CalendarHeader = () => {
   const { theme } = useTheme();
   return (
     // Matches the screen background
     <View className="bg-[#F9F9F9] pb-2 z-10">
+      <View className="flex-row justify-between items-center px-8 mb-4 mt-2">
+        <Text className="text-3xl font-bold text-stone-800 mb-4 mt-2">
+          Calendar
+        </Text>
 
-      <View className='flex-row justify-between items-center px-8 mb-4 mt-2'>
-          <Text className="text-3xl font-bold text-stone-800 mb-4 mt-2">
-            Calendar
-          </Text>
-
-          <TouchableOpacity
-            onPress={() => {console.log("Help pressed")}}
-            className="w-12 h-12 rounded-full bg-gray-100 justify-center text-sm items-center"
-            style={{ backgroundColor: theme.highlight }}
+        <TouchableOpacity
+          onPress={() => {
+            console.log("Help pressed");
+          }}
+          className="w-12 h-12 rounded-full bg-gray-100 justify-center text-sm items-center"
+          style={{ backgroundColor: theme.highlight }}
+        >
+          <Text
+            className="text-lg fond-bold text-gray-800"
+            style={{ color: theme.highlightTextColor }}
           >
-            <Text
-              className="text-lg fond-bold text-gray-800"
-              style={{ color: theme.highlightTextColor }}
-            >
-              ?
-            </Text>
-          </TouchableOpacity>
-          
+            ?
+          </Text>
+        </TouchableOpacity>
       </View>
 
       {/* Rounded Rectangle Container */}
       <View className="mx-6 bg-white rounded-full shadow-sm flex-row justify-between py-3 px-2">
         {WEEK_DAYS.map((day, index) => {
-          const isWeekend = index >= 5; 
+          const isWeekend = index >= 5;
           return (
-            <Text 
-              key={day} 
+            <Text
+              key={day}
               className={clsx(
                 "flex-1 text-center font-bold text-sm",
-                isWeekend ? "text-stone-400" : "text-stone-800"
+                isWeekend ? "text-stone-400" : "text-stone-800",
               )}
             >
               {day}

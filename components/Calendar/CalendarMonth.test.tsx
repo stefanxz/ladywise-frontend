@@ -1,22 +1,22 @@
-import React from 'react';
-import { View } from 'react-native';
-import { render, fireEvent, screen } from '@testing-library/react-native';
-import CalendarMonth from '@/components/Calendar/CalendarMonth';
-import { format } from 'date-fns'; 
+import React from "react";
+import { View } from "react-native";
+import { render, fireEvent, screen } from "@testing-library/react-native";
+import CalendarMonth from "@/components/Calendar/CalendarMonth";
+import { format } from "date-fns";
 
 // Mocks and setup
 
 // Mock CalendarDay to isolate CalendarMonth tests from CalendarDay implementation
-jest.mock('@/components/Calendar/CalendarDay', () => {
-  const { View } = require('react-native');
-  
+jest.mock("@/components/Calendar/CalendarDay", () => {
+  const { View } = require("react-native");
+
   const MockCalendarDay = (props: any) => {
     // We render a View with a testID that includes the date string for easy finding
     // We attach all props to this View so we can assert against them
     return (
-      <View 
-        testID={`day-${props.date ? props.date.toISOString() : 'empty'}`}
-        {...props} 
+      <View
+        testID={`day-${props.date ? props.date.toISOString() : "empty"}`}
+        {...props}
       />
     );
   };
@@ -24,32 +24,32 @@ jest.mock('@/components/Calendar/CalendarDay', () => {
 });
 
 // Mock feather icons
-jest.mock('@expo/vector-icons', () => {
-  const { View } = require('react-native');
+jest.mock("@expo/vector-icons", () => {
+  const { View } = require("react-native");
   return {
     Feather: () => <View testID="icon-feather" />,
   };
 });
 
-describe('CalendarMonth component', () => {
+describe("CalendarMonth component", () => {
   // Test data setup
-  const MOCK_TODAY = new Date('2023-10-15T12:00:00Z');
-  const THEME_COLOR = '#FCA5A5';
-  
+  const MOCK_TODAY = new Date("2023-10-15T12:00:00Z");
+  const THEME_COLOR = "#FCA5A5";
+
   // Create a mock month item structure
   const mockDates = [
     null, // Padding
-    new Date('2023-10-01T12:00:00Z'),
-    new Date('2023-10-02T12:00:00Z'), // Period
-    new Date('2023-10-03T12:00:00Z'), // Period
-    new Date('2023-10-04T12:00:00Z'), // Prediction
+    new Date("2023-10-01T12:00:00Z"),
+    new Date("2023-10-02T12:00:00Z"), // Period
+    new Date("2023-10-03T12:00:00Z"), // Period
+    new Date("2023-10-04T12:00:00Z"), // Prediction
   ];
-  
+
   const mockItem = {
-    id: '2023-10',
-    titleMonth: 'October',
-    titleYear: '2023',
-    date: new Date('2023-10-01T12:00:00Z'),
+    id: "2023-10",
+    titleMonth: "October",
+    titleYear: "2023",
+    date: new Date("2023-10-01T12:00:00Z"),
     days: mockDates,
   };
 
@@ -57,8 +57,8 @@ describe('CalendarMonth component', () => {
   const mockOnCloseTooltip = jest.fn();
 
   // Helper sets
-  const periodSet = new Set(['2023-10-02', '2023-10-03']);
-  const predictionSet = new Set(['2023-10-04']);
+  const periodSet = new Set(["2023-10-02", "2023-10-03"]);
+  const predictionSet = new Set(["2023-10-04"]);
   const emptySet = new Set<string>();
 
   beforeEach(() => {
@@ -66,7 +66,7 @@ describe('CalendarMonth component', () => {
   });
 
   // Basic rendering and interactions
-  it('renders the correct month and year title', () => {
+  it("renders the correct month and year title", () => {
     render(
       <CalendarMonth
         item={mockItem}
@@ -79,14 +79,14 @@ describe('CalendarMonth component', () => {
         onPress={mockOnPress}
         onCloseTooltip={mockOnCloseTooltip}
         today={MOCK_TODAY}
-      />
+      />,
     );
 
-    expect(screen.getByText('October')).toBeTruthy();
-    expect(screen.getByText('2023')).toBeTruthy();
+    expect(screen.getByText("October")).toBeTruthy();
+    expect(screen.getByText("2023")).toBeTruthy();
   });
 
-  it('calls onCloseTooltip when the container is pressed', () => {
+  it("calls onCloseTooltip when the container is pressed", () => {
     render(
       <CalendarMonth
         item={mockItem}
@@ -99,18 +99,18 @@ describe('CalendarMonth component', () => {
         onPress={mockOnPress}
         onCloseTooltip={mockOnCloseTooltip}
         today={MOCK_TODAY}
-      />
+      />,
     );
 
     // Find the main container pressable
     // Since the structure is Pressable > View > Text, clicking October propagates up
-    fireEvent.press(screen.getByText('October'));
-    
+    fireEvent.press(screen.getByText("October"));
+
     expect(mockOnCloseTooltip).toHaveBeenCalled();
   });
 
   // Data mapping (periods and predictions)
-  it('correctly maps period and prediction props to CalendarDay children', () => {
+  it("correctly maps period and prediction props to CalendarDay children", () => {
     render(
       <CalendarMonth
         item={mockItem}
@@ -123,7 +123,7 @@ describe('CalendarMonth component', () => {
         onPress={mockOnPress}
         onCloseTooltip={mockOnCloseTooltip}
         today={MOCK_TODAY}
-      />
+      />,
     );
 
     // Check Oct 1 (nothing)
@@ -143,11 +143,11 @@ describe('CalendarMonth component', () => {
   });
 
   // Selection logic
-  it('calculates props for a standard selection range (Start -> End)', () => {
+  it("calculates props for a standard selection range (Start -> End)", () => {
     // Range: Oct 2 to Oct 3
     const selection = {
-      start: new Date('2023-10-02T12:00:00Z'),
-      end: new Date('2023-10-03T12:00:00Z'),
+      start: new Date("2023-10-02T12:00:00Z"),
+      end: new Date("2023-10-03T12:00:00Z"),
     };
 
     render(
@@ -162,7 +162,7 @@ describe('CalendarMonth component', () => {
         onPress={mockOnPress}
         onCloseTooltip={mockOnCloseTooltip}
         today={MOCK_TODAY}
-      />
+      />,
     );
 
     // Oct 2: should be start and selected
@@ -185,10 +185,9 @@ describe('CalendarMonth component', () => {
 
   // "Today" is Oct 15 and we set range to start on Oct 2
   // We need to check if dates between Oct 2 and Oct 15 are in range
-  it('calculates props for ongoing selection (Start -> Today)', () => {
-    
+  it("calculates props for ongoing selection (Start -> Today)", () => {
     const selection = {
-      start: new Date('2023-10-02T12:00:00Z'),
+      start: new Date("2023-10-02T12:00:00Z"),
       end: null, // End is null because it's ongoing
     };
 
@@ -204,7 +203,7 @@ describe('CalendarMonth component', () => {
         onPress={mockOnPress}
         onCloseTooltip={mockOnCloseTooltip}
         today={MOCK_TODAY} // Oct 15
-      />
+      />,
     );
 
     // Oct 2: start
@@ -222,10 +221,10 @@ describe('CalendarMonth component', () => {
     expect(day4.props.isInRange).toBe(true);
   });
 
-  it('ignores selection logic if isLogMode is false', () => {
+  it("ignores selection logic if isLogMode is false", () => {
     const selection = {
-      start: new Date('2023-10-02T12:00:00Z'),
-      end: new Date('2023-10-03T12:00:00Z'),
+      start: new Date("2023-10-02T12:00:00Z"),
+      end: new Date("2023-10-03T12:00:00Z"),
     };
 
     render(
@@ -240,7 +239,7 @@ describe('CalendarMonth component', () => {
         onPress={mockOnPress}
         onCloseTooltip={mockOnCloseTooltip}
         today={MOCK_TODAY}
-      />
+      />,
     );
 
     // Even though selection dates match, flags should be false
