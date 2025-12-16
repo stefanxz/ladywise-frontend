@@ -219,6 +219,20 @@ const ExtendedDiagnosticsScreen = () => {
               </Text>
             )}
           </View>
+          {currentRisk === "High" && (
+            <View className="bg-red-50 border border-red-200 rounded-lg p-3 mt-4">
+              <View className="flex-row items-center">
+                <Feather name="alert-circle" size={18} color="#DC2626" />
+                <Text className="text-sm font-semibold text-red-700 ml-2">
+                  High Risk Detected
+                </Text>
+              </View>
+              <Text className="text-sm text-red-600 mt-1">
+                Your current risk level is high. We recommend contacting your
+                healthcare provider or clinician to discuss your health status.
+              </Text>
+            </View>
+          )}
         </View>
 
         {/* Card 2: Insights */}
