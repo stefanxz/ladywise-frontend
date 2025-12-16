@@ -78,7 +78,7 @@ export default function DiagnosticsScreen({
           );
         }
       } catch (err: unknown) {
-        // console.error("Failed to load risk history", err);
+        console.error("Failed to load risk history", err);
 
         // Fallback to mock data if API fails, as requested for development
         setHistory(mockHistory);
@@ -171,9 +171,9 @@ export default function DiagnosticsScreen({
             Diagnostics
           </Text>
 
-          {/*{error && (*/}
-          {/*  <Text className="text-center text-red-500 mb-4">{error}</Text>*/}
-          {/*)}*/}
+          {error && (
+            <Text className="text-center text-red-500 mb-4">{error}</Text>
+          )}
 
           {/* --- Thrombosis Card --- */}
           <Link
