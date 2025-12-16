@@ -1,12 +1,12 @@
 import React from "react";
-import { View, Text, Pressable, StyleSheet, Dimensions } from "react-native";
+import { View, Text, Pressable, Dimensions, Platform } from "react-native";
 import { Feather } from "@expo/vector-icons";
 
 // Constants for layout
 const TOOLTIP_WIDTH = 230;
 const TOOLTIP_HEIGHT = 44; // Approx height
 const ARROW_SIZE = 6;
-const VERTICAL_SPACING = 47; // Space between day and arrow tip
+const VERTICAL_SPACING = Platform.OS === "ios" ? 72 : 47; // Space between day and arrow tip
 const SCREEN_PADDING = 10;
 const SCREEN_WIDTH = Dimensions.get("window").width;
 const TOOLTIP_COLOR = "#292524"; // Stone-800 Hex code for the arrow color to match the bg-stone-800 class

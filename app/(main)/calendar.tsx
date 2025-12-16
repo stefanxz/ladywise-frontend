@@ -616,13 +616,14 @@ export default function CalendarScreen() {
             >
               <LinearGradient
                 colors={[
-                  "rgba(249,249,249,0)",
-                  "rgba(249,249,249,0.95)",
+                  "rgba(249, 249, 249, 0)",
+                  "rgba(249, 249, 249, 0.8)",
+                  "rgba(249, 249, 249, 0.95)",
                   "#F9F9F9",
                 ]}
-                locations={[0, 0.3, 0.7]}
-                className="absolute w-full h-full"
-                pointerEvents="none" // Allow touches to pass through
+                locations={[0, 0.2, 0.5, 0.8]}
+                style={{ position: "absolute", width: "100%", height: "100%" }}
+                pointerEvents="none"
               />
 
               <View className="absolute bottom-0 w-full px-8 pb-4 z-10">
