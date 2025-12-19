@@ -2,6 +2,7 @@ import React from "react";
 import { View } from "react-native";
 import { useToast } from "@/hooks/useToast";
 import { ToastItem } from "./ToastItem";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 /**
  * Container that renders all active toasts in a fixed position.
@@ -12,10 +13,12 @@ import { ToastItem } from "./ToastItem";
  */
 export const ToastContainer: React.FC = () => {
   const { toasts } = useToast();
+  const insets = useSafeAreaInsets();
 
   return (
     <View
-      className="absolute top-12 left-0 right-0 items-center z-50 px-4"
+      style={{ top: insets.top + 12 }}
+      className="absolute right-4 z-50"
       pointerEvents="box-none"
     >
       {toasts.map((toast) => (
