@@ -13,6 +13,8 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { AuthProvider, useAuth } from "@/context/AuthContext";
 import { ThemeProvider } from "@/context/ThemeContext";
+import { ToastContainer } from "@/components/Toast/ToastContainer";
+import { ToastProvider } from "@/context/ToastContext";
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
 
@@ -34,7 +36,13 @@ function AppContent() {
     return null;
   }
 
-  return <Slot />;
+  return (
+    <>
+      <Slot />
+
+      <ToastContainer />
+    </>
+  );
 }
 
 export default function RootLayout() {
@@ -43,9 +51,11 @@ export default function RootLayout() {
       <SafeAreaProvider>
         <AuthProvider>
           <ThemeProvider>
-            <BottomSheetModalProvider>
-              <AppContent />
-            </BottomSheetModalProvider>
+            <ToastProvider>
+              <BottomSheetModalProvider>
+                <AppContent />
+              </BottomSheetModalProvider>
+            </ToastProvider>
           </ThemeProvider>
         </AuthProvider>
       </SafeAreaProvider>
