@@ -115,7 +115,6 @@ export default function AccountSettings() {
         if (status === 404) {
           console.error("User not found");
           // User doesn't exist, sign out anyway
-          // TODO: change this?
           signOut();
         } else {
           console.error("Failed to delete account:", error.message);
