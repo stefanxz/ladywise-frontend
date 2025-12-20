@@ -43,6 +43,7 @@ describe("useHealthRealtime Hook", () => {
         activate: mockActivate,
         deactivate: mockDeactivate,
         subscribe: mockSubscribe,
+        active: true, // Added to satisfy the hook's cleanup check
       };
 
       // Define a setter for onConnect to capture it when the hook writes to it

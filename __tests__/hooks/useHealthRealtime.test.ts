@@ -22,12 +22,12 @@ if (typeof global.TextEncoder === "undefined") {
 describe("useHealthRealtime Hook", () => {
   const mockUserId = "user-123";
   const mockToken = "auth-token-xyz";
-  
+
   let mockActivate: jest.Mock;
   let mockDeactivate: jest.Mock;
   let mockSubscribe: jest.Mock;
   // We'll capture the 'onConnect' function assigned by the hook here
-  let capturedOnConnect: (() => void) | undefined; 
+  let capturedOnConnect: (() => void) | undefined;
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -43,6 +43,7 @@ describe("useHealthRealtime Hook", () => {
         activate: mockActivate,
         deactivate: mockDeactivate,
         subscribe: mockSubscribe,
+        active: true, // Added to satisfy the hook's cleanup check
       };
 
       // Define a setter for onConnect to capture it when the hook writes to it
@@ -60,7 +61,7 @@ describe("useHealthRealtime Hook", () => {
   it("should not activate client if userId or token is missing", () => {
     renderHook(() => useHealthRealtime(null, null));
     expect(Client).not.toHaveBeenCalled();
-    
+
     renderHook(() => useHealthRealtime("user", null));
     expect(Client).not.toHaveBeenCalled();
   });
@@ -93,7 +94,7 @@ describe("useHealthRealtime Hook", () => {
       `/topic/risks/${mockUserId}`,
       expect.any(Function)
     );
-    
+
     // 4. Simulate Incoming Risk Data
     // Extract the callback function passed to .subscribe for the risks topic
     const riskCallback = mockSubscribe.mock.calls.find(
