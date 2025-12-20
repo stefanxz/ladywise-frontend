@@ -1,6 +1,6 @@
 import { ThemedPressable } from "@/components/ThemedPressable/ThemedPressable";
 import { useRouter } from "expo-router";
-import React, { useState } from "react";
+import React from "react";
 import { Image, Platform, Pressable, Text, View } from "react-native";
 
 // Assets

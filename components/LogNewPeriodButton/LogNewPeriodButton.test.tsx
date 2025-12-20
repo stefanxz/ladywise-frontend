@@ -13,7 +13,7 @@ describe("LogNewPeriodButton", () => {
     const { getByText } = render(
       <LogNewPeriodButton color={baseColor} onPress={() => {}} />,
     );
-    expect(getByText("Log period＋")).toBeTruthy();
+    expect(getByText("Log period")).toBeTruthy();
   });
 
   it("renders ActivityIndicator when loading and blocks presses", () => {

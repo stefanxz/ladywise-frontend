@@ -1,5 +1,7 @@
 import axios from "axios";
 import type {
+  ChangePasswordPayload,
+  ChangePasswordResponse,
   LoginPayload,
   LoginResponse,
   PasswordResetRequestPayload,
@@ -14,7 +16,7 @@ import type { ReportRequest } from "./types/reports";
 import { CycleStatusDTO } from "./types/cycle";
 import { getAuthData } from "./auth";
 import { ApiRiskResponse, RiskHistoryPoint } from "./types/risks";
-import { DailyLogRequest, DailyLogResponse } from "@/lib/types/period";
+import { PeriodLogResponse, PredictedPeriodDTO, PeriodLogRequest, DailyLogRequest, DailyLogResponse } from "./types/period";
 
 export const api = axios.create({
   baseURL: process.env.EXPO_PUBLIC_API_URL,
@@ -43,6 +45,9 @@ api.interceptors.response.use(
   },
 );
 
+
+
+
 // register new user by sending their credentials to the backend API
 // uses the base URL from .env + '/api/auth/register'
 export async function registerUser(payload: RegisterPayload) {
@@ -60,6 +65,23 @@ export async function loginUser(payload: LoginPayload) {
 export async function updateUser(payload: UserPayload) {
   const { data } = await api.patch<UserResponse>(
     "/api/users/updateUser",
+    payload,
+  );
+  return data;
+}
+
+/**
+ * Changes the password for the authenticated user.
+ *
+ * Requires the user to be authenticated and provide their current password for
+ * verification. The new password must meet validation requirements and be
+ * different from the current password.
+ *
+ * @param payload - Object containing the currentPassword and newPassword
+ */
+export async function changePassword(payload: ChangePasswordPayload) {
+  const { data } = await api.post<ChangePasswordResponse>(
+    "/api/auth/change-password",
     payload,
   );
   return data;
@@ -96,6 +118,7 @@ export async function getRiskData(
   return data; // This returns: { thrombosisRisk: 1, anemiaRisk: 2 }
 }
 
+// Cycle and Periods
 export async function getRiskHistory(
   token: string,
   userId: string,
@@ -175,6 +198,18 @@ export async function resetPassword(payload: ResetPasswordPayload) {
   return data;
 }
 
+/**
+ * Deletes the authenticated user's account.
+ *
+ * This permanently removes the user and all associated data from the system.
+ * Requires the user to be authenticated via the Authorization header.
+ *
+ * @returns A promise that resolves when the deletion is successful (204) or rejects if user not found (404)
+ */
+export async function deleteCurrentUser(): Promise<void> {
+  await api.delete("/api/users/me");
+}
+
 export async function submitQuestionnaire(payload: QuestionnairePayload) {
   const { data } = await api.post<QuestionnaireResponse>(
     "/api/questionnaire",
@@ -225,6 +260,36 @@ export async function checkCycleQuestionnaireAccess(): Promise<{
   }
 }
 
+export async function getPeriodHistory() {
+  const { data } = await api.get<PeriodLogResponse[]>("/api/cycle/history");
+  return data;
+}
+
+export async function getPredictions(cycles: number = 6) {
+  const { data } = await api.get<PredictedPeriodDTO[]>("/api/cycle/predictions", {
+    params: { cycles },
+  })
+  console.log("Predictions are: " + JSON.stringify(data));
+
+  return data;
+}
+
+export async function logNewPeriod(payload: PeriodLogRequest) {
+  const { data } = await api.post<PeriodLogResponse>("/api/periods", payload);
+  return data;
+}
+
+// Update an existing period
+export async function updatePeriod(periodId: string, payload: PeriodLogRequest) {
+  const { data } = await api.put<PeriodLogResponse>(`/api/periods/${periodId}`, payload);
+  return data;
+}
+
+// Delete a period
+export async function deletePeriod(periodId: string) {
+  const { data } = await api.delete(`/api/periods/${periodId}`);
+  return data;
+}
 /**
  * Sends a PDF health report to the specified clinician's email.
  * @param token - User's auth token
@@ -240,4 +305,3 @@ export async function shareReport(
   });
   return data;
 }
-

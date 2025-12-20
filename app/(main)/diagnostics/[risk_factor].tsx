@@ -12,7 +12,7 @@ import { Feather } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { captureRef } from "react-native-view-shot";
 
-import { Colors, riskColors } from "@/constants/colors";
+import { Colors } from "@/constants/colors";
 import { RiskLineChart } from "@/components/charts/RiskLineChart";
 import FactorCard from "@/components/Diagnostics/FactorCard";
 import { FactorCardProps } from "@/components/Diagnostics/types";
@@ -144,7 +144,7 @@ const ExtendedDiagnosticsScreen = () => {
     if (!riskData.data.length) return "N/A";
     const val = riskData.data[riskData.data.length - 1];
     return riskLabels[val] ?? "N/A";
-  }, [riskData]);
+  }, [riskData.data, riskLabels]);
 
   // Determine report type based on risk_factor
   const reportType: ReportType = React.useMemo(() => {
