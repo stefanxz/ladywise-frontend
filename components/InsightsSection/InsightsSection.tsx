@@ -11,10 +11,10 @@ interface InsightsSectionProps {
 
 /**
  * InsightsSection
- * 
+ *
  * Displays the user's health risk insights (anemia, thrombosis, etc.).
  * Handles various states: loading, calculating (AI processing), empty, and data display.
- * 
+ *
  * @param {InsightsSectionProps} props - Component props
  * @param {RiskData[]} props.insights - Array of risk data objects
  * @param {boolean} props.isLoading - Whether initial data is loading

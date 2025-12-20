@@ -6,10 +6,10 @@ import { FactorsSectionProps } from "@/components/Diagnostics/types";
 
 /**
  * FactorsSection
- * 
- * Displays a grid of risk factor cards based on backend data. 
+ *
+ * Displays a grid of risk factor cards based on backend data.
  * Shows a message when no factors are present.
- * 
+ *
  * @param {FactorsSectionProps} props - Component props
  * @param {any} props.data - Raw backend data containing risk factors
  * @returns {JSX.Element} The rendered factors grid or empty state

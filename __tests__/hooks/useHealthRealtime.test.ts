@@ -74,7 +74,9 @@ describe("useHealthRealtime Hook", () => {
   });
 
   it("should subscribe to channels and update state on message receipt", async () => {
-    const { result } = renderHook(() => useHealthRealtime(mockUserId, mockToken));
+    const { result } = renderHook(() =>
+      useHealthRealtime(mockUserId, mockToken),
+    );
 
     // 1. Verify initial state
     expect(result.current.isConnected).toBe(false);
@@ -92,13 +94,13 @@ describe("useHealthRealtime Hook", () => {
     // The hook subscribes to 3 topics. Let's find the callback for risks.
     expect(mockSubscribe).toHaveBeenCalledWith(
       `/topic/risks/${mockUserId}`,
-      expect.any(Function)
+      expect.any(Function),
     );
 
     // 4. Simulate Incoming Risk Data
     // Extract the callback function passed to .subscribe for the risks topic
     const riskCallback = mockSubscribe.mock.calls.find(
-      (call) => call[0] === `/topic/risks/${mockUserId}`
+      (call) => call[0] === `/topic/risks/${mockUserId}`,
     )[1];
 
     const mockRiskPayload = {
@@ -116,7 +118,9 @@ describe("useHealthRealtime Hook", () => {
   });
 
   it("should update trend state when trend messages arrive", () => {
-    const { result } = renderHook(() => useHealthRealtime(mockUserId, mockToken));
+    const { result } = renderHook(() =>
+      useHealthRealtime(mockUserId, mockToken),
+    );
 
     // Connect
     act(() => {
@@ -125,10 +129,13 @@ describe("useHealthRealtime Hook", () => {
 
     // Find the anemia subscription callback
     const anemiaCallback = mockSubscribe.mock.calls.find(
-      (call) => call[0] === `/topic/insights/anemia/${mockUserId}`
+      (call) => call[0] === `/topic/insights/anemia/${mockUserId}`,
     )[1];
 
-    const mockTrend = { trend: "worsening", description: "Iron levels dropping." };
+    const mockTrend = {
+      trend: "worsening",
+      description: "Iron levels dropping.",
+    };
 
     // Simulate Message
     act(() => {
@@ -139,7 +146,9 @@ describe("useHealthRealtime Hook", () => {
   });
 
   it("should deactivate client on unmount", () => {
-    const { unmount } = renderHook(() => useHealthRealtime(mockUserId, mockToken));
+    const { unmount } = renderHook(() =>
+      useHealthRealtime(mockUserId, mockToken),
+    );
 
     unmount();
 

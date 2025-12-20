@@ -43,28 +43,26 @@ import { formatPhaseName, generateCalendarDays } from "@/utils/mainPageHelpers";
 
 /**
  * Home
- * 
+ *
  * The primary dashboard screen of the application.
  * Displays the daily calendar strip, current cycle phase, risk insights, and easy access to logging.
  * Integrates real-time health data updates.
- * 
+ *
  * @returns {JSX.Element} The rendered home screen
  */
 const Home = () => {
   const { token, userId, isLoading: isAuthLoading } = useAuth();
   const { theme, setPhase } = useTheme();
 
-  // --- 1. Real-time Hook (The Source of Truth) ---
   const { realtimeRisks, isConnected } = useHealthRealtime(userId, token);
 
-  // --- 2. Local State ---
   const [initialApiData, setInitialApiData] = useState<RiskData[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isCalculating, setIsCalculating] = useState<boolean>(false); // UI state for "Processing..."
 
   const [cycleStatus, setCycleStatus] = useState<CycleStatusDTO | null>(null);
   const [calendarDays, setCalendarDays] = useState<DayData[]>(
-    generateCalendarDays()
+    generateCalendarDays(),
   );
   const [error, setError] = useState<string | null>(null);
   const [userName, setUserName] = useState<string>("");
@@ -72,7 +70,7 @@ const Home = () => {
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
   const openSheet = useCallback(
     () => bottomSheetModalRef.current?.present(),
-    []
+    [],
   );
 
   const displayedInsights: RiskData[] = useMemo(() => {
@@ -101,7 +99,6 @@ const Home = () => {
     return initialApiData;
   }, [realtimeRisks, initialApiData]);
 
-  // --- 4. Effect: Initial Fetch (Pull) ---
   useEffect(() => {
     const loadInitialData = async () => {
       if (isAuthLoading || !token || !userId) return;
@@ -129,7 +126,6 @@ const Home = () => {
     loadInitialData();
   }, [token, userId, isAuthLoading]);
 
-  // --- 5. Effect: Cycle Data ---
   useFocusEffect(
     useCallback(() => {
       if (isAuthLoading || !token) return;
@@ -151,7 +147,7 @@ const Home = () => {
       };
 
       fetchCycleData();
-    }, [setPhase, token, isAuthLoading])
+    }, [setPhase, token, isAuthLoading]),
   );
 
   const handleAddDailyEntry = async (answers: DailyCycleAnswers) => {

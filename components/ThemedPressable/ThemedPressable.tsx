@@ -6,10 +6,10 @@ import type { ThemedButtonProperties } from "./ThemedPressable.types";
 
 /**
  * ThemedPressable
- * 
+ *
  * A standardized button component with branding colors.
  * Supports loading state, disabled state, and custom styling.
- * 
+ *
  * @param {ThemedButtonProperties} props - Component props
  * @param {string} props.label - Button text
  * @param {function} props.onPress - Press handler

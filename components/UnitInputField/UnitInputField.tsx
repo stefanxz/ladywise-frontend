@@ -6,9 +6,9 @@ import { UnitInputFieldProps } from "./UnitInputField.types";
 
 /**
  * UnitInputField
- * 
+ *
  * An input field that appends a static unit suffix (e.g., "kg", "cm").
- * 
+ *
  * @param {UnitInputFieldProps} props - Component props
  * @param {string} props.unit - The unit string to display (e.g. "kg")
  * @param {string} props.value - Input value

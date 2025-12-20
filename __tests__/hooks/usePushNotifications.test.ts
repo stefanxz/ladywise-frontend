@@ -29,10 +29,14 @@ describe("usePushNotifications Hook", () => {
 
     // Setup Notification Listeners mocks
     mockAddNotificationReceivedListener.mockReturnValue({ remove: mockRemove });
-    mockAddNotificationResponseReceivedListener.mockReturnValue({ remove: mockRemove });
+    mockAddNotificationResponseReceivedListener.mockReturnValue({
+      remove: mockRemove,
+    });
 
-    (Notifications.addNotificationReceivedListener as jest.Mock) = mockAddNotificationReceivedListener;
-    (Notifications.addNotificationResponseReceivedListener as jest.Mock) = mockAddNotificationResponseReceivedListener;
+    (Notifications.addNotificationReceivedListener as jest.Mock) =
+      mockAddNotificationReceivedListener;
+    (Notifications.addNotificationResponseReceivedListener as jest.Mock) =
+      mockAddNotificationResponseReceivedListener;
 
     (Device as any).isDevice = true;
   });
@@ -54,10 +58,14 @@ describe("usePushNotifications Hook", () => {
     const { result } = renderHook(() => usePushNotifications(true));
 
     await waitFor(() => {
-        expect(result.current.expoPushToken).toBe("ExponentPushToken[test-token]");
+      expect(result.current.expoPushToken).toBe(
+        "ExponentPushToken[test-token]",
+      );
     });
 
-    expect(registerPushToken).toHaveBeenCalledWith("ExponentPushToken[test-token]");
+    expect(registerPushToken).toHaveBeenCalledWith(
+      "ExponentPushToken[test-token]",
+    );
   });
 
   it("requests permissions if not initially granted", async () => {
@@ -90,7 +98,7 @@ describe("usePushNotifications Hook", () => {
     const { result } = renderHook(() => usePushNotifications(true));
 
     await waitFor(() => {
-       expect(Notifications.getPermissionsAsync).toHaveBeenCalled();
+      expect(Notifications.getPermissionsAsync).toHaveBeenCalled();
     });
 
     expect(Notifications.getExpoPushTokenAsync).not.toHaveBeenCalled();
@@ -100,8 +108,12 @@ describe("usePushNotifications Hook", () => {
 
   it("sets up Android notification channel on Android", async () => {
     Platform.OS = "android";
-    (Notifications.getPermissionsAsync as jest.Mock).mockResolvedValue({ status: "granted" });
-    (Notifications.getExpoPushTokenAsync as jest.Mock).mockResolvedValue({ data: "token" });
+    (Notifications.getPermissionsAsync as jest.Mock).mockResolvedValue({
+      status: "granted",
+    });
+    (Notifications.getExpoPushTokenAsync as jest.Mock).mockResolvedValue({
+      data: "token",
+    });
 
     renderHook(() => usePushNotifications(true));
 
@@ -110,7 +122,7 @@ describe("usePushNotifications Hook", () => {
         "default",
         expect.objectContaining({
           importance: Notifications.AndroidImportance.MAX,
-        })
+        }),
       );
     });
   });
@@ -121,14 +133,16 @@ describe("usePushNotifications Hook", () => {
     renderHook(() => usePushNotifications(true));
 
     // Wait a tick to ensure effect ran
-    await waitFor(() => expect(Notifications.getPermissionsAsync).not.toHaveBeenCalled());
-    
+    await waitFor(() =>
+      expect(Notifications.getPermissionsAsync).not.toHaveBeenCalled(),
+    );
+
     expect(registerPushToken).not.toHaveBeenCalled();
   });
 
   it("cleans up listeners on unmount", () => {
     const { unmount } = renderHook(() => usePushNotifications(true));
-    
+
     unmount();
 
     expect(mockRemove).toHaveBeenCalledTimes(2); // One for received, one for response

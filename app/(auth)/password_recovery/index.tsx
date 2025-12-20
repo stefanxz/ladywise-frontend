@@ -17,10 +17,10 @@ import { requestPasswordReset } from "@/lib/api";
 
 /**
  * PasswordRecovery
- * 
+ *
  * The initial screen in the password recovery flow.
  * Prompts the user for their email address to initiate the reset process.
- * 
+ *
  * @returns {JSX.Element} The rendered password recovery start screen
  */
 export default function PasswordRecovery() {

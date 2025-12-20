@@ -11,9 +11,9 @@ type HeaderProps = {
 
 /**
  * Header
- * 
+ *
  * Main page header displaying the user's name and a help button.
- * 
+ *
  * @param {HeaderProps} props - Component props
  * @param {string} props.name - The user's name to display
  * @param {function} props.onHelpPress - Callback when the help button is pressed

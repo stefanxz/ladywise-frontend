@@ -7,9 +7,9 @@ import { ThemedTextInputProps } from "./ThemedTextInput.types";
 
 /**
  * ThemedTextInput
- * 
+ *
  * A standardized text input component with common styling.
- * 
+ *
  * @param {ThemedTextInputProps} props - Component props
  * @param {string} props.value - Input value
  * @param {function} props.onChangeText - Change handler

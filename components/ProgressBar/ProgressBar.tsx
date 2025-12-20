@@ -7,10 +7,10 @@ const clamp = (value: number, min: number, max: number) =>
 
 /**
  * ProgressBar
- * 
+ *
  * A horizontal progress bar indicating completion status.
  * Used in questionnaires and multi-step forms.
- * 
+ *
  * @param {ProgressBarProps} props - Component props
  * @param {number} props.currentStep - The current step number
  * @param {number} props.totalSteps - The total number of steps

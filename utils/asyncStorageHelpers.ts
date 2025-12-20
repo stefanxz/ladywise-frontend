@@ -3,7 +3,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 /**
  * Increments the failed login attempt count stored in AsyncStorage.
  * Used to track consecutive failures for security measures.
- * 
+ *
  * @returns {Promise<void>}
  */
 export const incrementFailedLoginCount = async (): Promise<void> => {

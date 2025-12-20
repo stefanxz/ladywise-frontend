@@ -15,9 +15,9 @@ const riskLevelColorMap: Record<string, string> = {
 
 /**
  * RiskCard
- * 
+ *
  * Displays a single risk metric (e.g., Anemia risk) with a color-coded level.
- * 
+ *
  * @param {RiskCardProps} props - Component props (extends RiskData)
  * @param {string} props.title - Risk title
  * @param {string} props.level - Risk level (Low, Medium, High)

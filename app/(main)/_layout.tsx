@@ -7,11 +7,11 @@ import { usePushNotifications } from "@/hooks/usePushNotifications";
 
 /**
  * HomeLayout
- * 
+ *
  * Main layout for the authenticated application.
  * Manages the bottom tab navigation and global providers like BottomSheetModalProvider.
  * Redirects to landing if no authentication token is present.
- * 
+ *
  * @returns {JSX.Element | null} The rendered layout or null/redirect
  */
 export default function HomeLayout() {

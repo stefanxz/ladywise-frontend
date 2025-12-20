@@ -1,7 +1,15 @@
 import React from "react";
-import { render, screen, waitFor, fireEvent } from "@testing-library/react-native";
+import {
+  render,
+  screen,
+  waitFor,
+  fireEvent,
+} from "@testing-library/react-native";
 import ExtendedDiagnosticsScreen from "@/app/(main)/diagnostics/[risk_factor]";
 import { useLocalSearchParams, useRouter } from "expo-router";
+
+import { useAuth } from "@/context/AuthContext";
+import { getRiskHistory } from "@/lib/api";
 
 // Mock dependencies
 jest.mock("expo-router", () => ({
@@ -62,9 +70,6 @@ jest.mock("@/components/ShareReport/ShareReportModal", () => {
   };
 });
 
-import { useAuth } from "@/context/AuthContext";
-import { getRiskHistory } from "@/lib/api";
-
 const mockUseLocalSearchParams = useLocalSearchParams as jest.Mock;
 const mockUseRouter = useRouter as jest.Mock;
 const mockUseAuth = useAuth as jest.Mock;
@@ -105,7 +110,9 @@ describe("ExtendedDiagnosticsScreen", () => {
 
     // Make promise not resolve immediately to catch loading state
     let resolvePromise: any;
-    mockGetRiskHistory.mockReturnValue(new Promise(r => resolvePromise = r));
+    mockGetRiskHistory.mockReturnValue(
+      new Promise((r) => (resolvePromise = r)),
+    );
 
     render(<ExtendedDiagnosticsScreen />);
 
@@ -114,14 +121,18 @@ describe("ExtendedDiagnosticsScreen", () => {
 
     // Cleanup
     resolvePromise(mockHistoryData);
-    await waitFor(() => expect(screen.queryByTestId("loading-indicator")).toBeNull());
+    await waitFor(() =>
+      expect(screen.queryByTestId("loading-indicator")).toBeNull(),
+    );
   });
 
   it("displays the correct title and current risk from fetched data", async () => {
     mockUseLocalSearchParams.mockReturnValue({ risk_factor: "anemia-risk" });
     render(<ExtendedDiagnosticsScreen />);
 
-    await waitFor(() => expect(screen.queryByTestId("loading-indicator")).toBeNull());
+    await waitFor(() =>
+      expect(screen.queryByTestId("loading-indicator")).toBeNull(),
+    );
 
     expect(screen.getByText("Anemia Risk")).toBeTruthy();
     // Latest anemia risk is 2 (High) in mockHistoryData[1]
@@ -132,7 +143,9 @@ describe("ExtendedDiagnosticsScreen", () => {
     mockUseLocalSearchParams.mockReturnValue({ risk_factor: "anemia-risk" });
     render(<ExtendedDiagnosticsScreen />);
 
-    await waitFor(() => expect(screen.queryByTestId("loading-indicator")).toBeNull());
+    await waitFor(() =>
+      expect(screen.queryByTestId("loading-indicator")).toBeNull(),
+    );
 
     const chart = screen.getByTestId("mock-risk-line-chart");
     expect(chart).toBeTruthy();
@@ -144,7 +157,9 @@ describe("ExtendedDiagnosticsScreen", () => {
     mockUseLocalSearchParams.mockReturnValue({ risk_factor: "anemia-risk" });
     render(<ExtendedDiagnosticsScreen />);
 
-    await waitFor(() => expect(screen.queryByTestId("loading-indicator")).toBeNull());
+    await waitFor(() =>
+      expect(screen.queryByTestId("loading-indicator")).toBeNull(),
+    );
 
     const factorCards = screen.getAllByTestId("mock-factor-card");
     expect(factorCards.length).toBeGreaterThan(0);
@@ -153,10 +168,14 @@ describe("ExtendedDiagnosticsScreen", () => {
   });
 
   it("renders factor cards for thrombosis", async () => {
-    mockUseLocalSearchParams.mockReturnValue({ risk_factor: "thrombosis-risk" });
+    mockUseLocalSearchParams.mockReturnValue({
+      risk_factor: "thrombosis-risk",
+    });
     render(<ExtendedDiagnosticsScreen />);
 
-    await waitFor(() => expect(screen.queryByTestId("loading-indicator")).toBeNull());
+    await waitFor(() =>
+      expect(screen.queryByTestId("loading-indicator")).toBeNull(),
+    );
 
     const factorCards = screen.getAllByTestId("mock-factor-card");
     expect(factorCards.length).toBeGreaterThan(0);
@@ -168,7 +187,9 @@ describe("ExtendedDiagnosticsScreen", () => {
     mockUseLocalSearchParams.mockReturnValue({ risk_factor: "anemia-risk" });
     render(<ExtendedDiagnosticsScreen />);
 
-    await waitFor(() => expect(screen.queryByTestId("loading-indicator")).toBeNull());
+    await waitFor(() =>
+      expect(screen.queryByTestId("loading-indicator")).toBeNull(),
+    );
 
     const backButton = screen.getByTestId("back-button");
     fireEvent.press(backButton);
@@ -181,7 +202,9 @@ describe("ExtendedDiagnosticsScreen", () => {
 
     render(<ExtendedDiagnosticsScreen />);
 
-    await waitFor(() => expect(screen.queryByTestId("loading-indicator")).toBeNull());
+    await waitFor(() =>
+      expect(screen.queryByTestId("loading-indicator")).toBeNull(),
+    );
 
     expect(screen.getByText("No graph data available.")).toBeTruthy();
     expect(screen.queryByTestId("mock-risk-line-chart")).toBeNull();
@@ -191,7 +214,9 @@ describe("ExtendedDiagnosticsScreen", () => {
     mockUseLocalSearchParams.mockReturnValue({ risk_factor: "anemia-risk" });
     render(<ExtendedDiagnosticsScreen />);
 
-    await waitFor(() => expect(screen.queryByTestId("loading-indicator")).toBeNull());
+    await waitFor(() =>
+      expect(screen.queryByTestId("loading-indicator")).toBeNull(),
+    );
 
     const shareButton = screen.getByTestId("share-insights-button");
     expect(shareButton).toBeTruthy();

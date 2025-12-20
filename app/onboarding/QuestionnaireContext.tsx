@@ -44,10 +44,10 @@ const QuestionnaireContext = createContext<QuestionnaireContextValue | null>(
 
 /**
  * QuestionnaireProvider
- * 
+ *
  * Context provider that holds the state of the onboarding questionnaire answers.
  * Allows components to read and update the user's responses across different screens.
- * 
+ *
  * @param {Object} props - Component props
  * @param {React.ReactNode} props.children - Child components
  * @returns {JSX.Element} The context provider
@@ -74,9 +74,9 @@ export function QuestionnaireProvider({
 
 /**
  * useQuestionnaire
- * 
+ *
  * Hook to access the QuestionnaireContext.
- * 
+ *
  * @returns {QuestionnaireContextValue} The context value (answers, updateAnswers, reset)
  * @throws {Error} If used outside of a QuestionnaireProvider
  */

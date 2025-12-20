@@ -11,11 +11,11 @@ import TermsConditionsPopUp, {
 
 /**
  * SettingsScreen
- * 
+ *
  * Main settings menu displaying a list of configurable options.
  * Provides access to Account, Profile, Notifications, and other settings.
  * Also handles user logout.
- * 
+ *
  * @returns {JSX.Element} The rendered settings menu
  */
 export default function SettingsScreen() {

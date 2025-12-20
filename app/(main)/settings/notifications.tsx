@@ -4,9 +4,9 @@ import { SettingsPageLayout } from "@/components/Settings/SettingsPageLayout";
 
 /**
  * NotificationsSettings
- * 
+ *
  * Screen for managing push notification preferences.
- * 
+ *
  * @returns {JSX.Element} The rendered notifications settings screen
  */
 export default function NotificationsSettings() {

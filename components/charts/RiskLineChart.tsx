@@ -31,10 +31,10 @@ const chartConfig = {
 
 /**
  * RiskLineChart
- * 
+ *
  * A line chart visualizing risk trends over time.
  * Uses `react-native-chart-kit` for rendering.
- * 
+ *
  * @param {RiskLineChartProps} props - Component props
  * @param {number[]} props.data - Array of numerical data points
  * @param {string[]} props.labels - Array of X-axis labels

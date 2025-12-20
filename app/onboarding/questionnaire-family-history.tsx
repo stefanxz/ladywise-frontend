@@ -10,10 +10,10 @@ import { View } from "react-native";
 
 /**
  * QuestionnaireFamilyHistory
- * 
+ *
  * Second step of the questionnaire: Family History.
  * Asks about family history of Anemia and Thrombosis.
- * 
+ *
  * @returns {JSX.Element} The rendered family history questionnaire step
  */
 export default function QuestionnaireFamilyHistory() {

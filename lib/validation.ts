@@ -7,7 +7,7 @@
 /**
  * Validates whether the email format is correct.
  * Checks for characters before and after '@' and a domain dot.
- * 
+ *
  * @param {string} email - The email address to validate
  * @returns {boolean} True if valid
  */
@@ -23,7 +23,7 @@ export function isEmailValid(email: string): boolean {
  * - 1 lowercase letter
  * - 1 number
  * - No whitespace
- * 
+ *
  * @param {string} password - The password to validate
  * @returns {boolean} True if strong enough
  */

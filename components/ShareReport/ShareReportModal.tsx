@@ -18,10 +18,10 @@ const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 /**
  * ShareReportModal
- * 
+ *
  * A modal dialog that allows users to share their health report with a clinician via email.
  * Validates the email address and handles the API call to send the report.
- * 
+ *
  * @param {ShareReportModalProps} props - Component props
  * @param {boolean} props.visible - Whether the modal is visible
  * @param {function} props.onClose - Callback to close the modal

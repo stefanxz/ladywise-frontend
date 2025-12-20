@@ -12,10 +12,10 @@ export interface DeleteAccountModalProps {
 
 /**
  * DeleteAccountModal
- * 
+ *
  * A modal dialog for confirming account deletion.
  * Displays a warning message and requires explicit confirmation.
- * 
+ *
  * @param {DeleteAccountModalProps} props - Component props
  * @param {boolean} props.visible - Whether the modal is visible
  * @param {function} props.onCancel - Callback for cancellation

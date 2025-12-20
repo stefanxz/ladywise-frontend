@@ -14,9 +14,9 @@ type PhaseCardProps = {
 
 /**
  * PhaseCard
- * 
+ *
  * Displays the current cycle phase information and allows logging a new period.
- * 
+ *
  * @param {PhaseCardProps} props - Component props
  * @param {string} props.phaseName - Name of the current phase (e.g., "Menstrual Phase")
  * @param {string} props.dayOfPhase - Current day status (e.g., "Day 1")

@@ -17,10 +17,10 @@ import { updateUser } from "@/lib/api";
 
 /**
  * RegisterPersDetails
- * 
+ *
  * Registration step to collect the user's personal details (First Name, Last Name).
  * Updates the user profile after initial account creation.
- * 
+ *
  * @returns {JSX.Element} The rendered personal details screen
  */
 export default function RegisterPersDetails() {
@@ -76,8 +76,6 @@ export default function RegisterPersDetails() {
     }
     if (hasError) return;
     try {
-
-
       await updateUser({
         id: userId,
         email: email,

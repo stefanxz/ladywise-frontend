@@ -11,10 +11,10 @@ import { View } from "react-native";
 
 /**
  * QuestionnaireAnemiaRisk
- * 
+ *
  * Third step of the questionnaire: Anemia Risk Factors.
  * Allows the user to select multiple conditions related to anemia.
- * 
+ *
  * @returns {JSX.Element} The rendered anemia risk questionnaire step
  */
 export default function QuestionnaireAnemiaRisk() {

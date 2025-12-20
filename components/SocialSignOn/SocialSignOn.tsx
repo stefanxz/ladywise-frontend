@@ -5,9 +5,9 @@ import type { SocialSignOnProps } from "@/components/SocialSignOn/SocialSignOn.t
 
 /**
  * SocialSignOn
- * 
+ *
  * Component displaying social media sign-in buttons (Google, Facebook, Apple).
- * 
+ *
  * @param {SocialSignOnProps} props - Component props
  * @param {function} props.onPress - Callback with the selected provider ("google" | "facebook" | "apple")
  * @returns {JSX.Element} The rendered social sign-on buttons

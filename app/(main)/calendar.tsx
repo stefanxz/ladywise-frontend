@@ -3,9 +3,9 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 /**
  * CalendarScreen
- * 
+ *
  * Displays the calendar view for tracking cycle events.
- * 
+ *
  * @returns {JSX.Element} The rendered calendar screen
  */
 export default function CalendarScreen() {

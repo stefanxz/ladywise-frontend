@@ -3,13 +3,13 @@ import { FLOW_MAP, RISK_MAP, SYMPTOM_MAP } from "@/constants/cycle-mappings";
 import { DailyLogRequest } from "@/lib/types/period";
 import { ApiRiskResponse, RiskData, RiskLevel } from "@/lib/types/risks";
 
-export const cn = (...xs: Array<string | false | undefined | null>) =>
+export const cn = (...xs: (string | false | undefined | null)[]) =>
   xs.filter(Boolean).join(" ");
 
 /**
  * Transforms UI-level daily log answers into a backend-compatible payload.
  * Maps string literals to enums.
- * 
+ *
  * @param {DailyCycleAnswers} answers - The answers from the bottom sheet
  * @returns {DailyLogRequest} The payload ready for API submission
  */
@@ -41,16 +41,19 @@ export const mapAnswersToPayload = (
 
 const mapScoreToLevel = (score: number): RiskLevel => {
   switch (score) {
-    case 3: return "High";
-    case 2: return "Medium";
+    case 3:
+      return "High";
+    case 2:
+      return "Medium";
     case 1:
-    default: return "Low";
+    default:
+      return "Low";
   }
 };
 
 /**
  * Maps raw API risk data into a UI-friendly structure for the insights dashboard.
- * 
+ *
  * @param {ApiRiskResponse} apiData - The raw data from the backend
  * @returns {RiskData[]} Array of risk data objects for rendering cards
  */
@@ -63,7 +66,8 @@ export const mapApiToInsights = (apiData: ApiRiskResponse): RiskData[] => {
     // 1. Map the integer score to string level
     level: mapScoreToLevel(apiData.anemiaRisk),
     // 2. Safely extract description from the Insight object (if present)
-    description: apiData.latestAnemiaInsight?.description || "No recent analysis.",
+    description:
+      apiData.latestAnemiaInsight?.description || "No recent analysis.",
     // 3. Extract trend
     trend: apiData.latestAnemiaInsight?.trend,
   };
@@ -72,7 +76,8 @@ export const mapApiToInsights = (apiData: ApiRiskResponse): RiskData[] => {
     id: "thrombosis",
     title: "Thrombosis Risk",
     level: mapScoreToLevel(apiData.thrombosisRisk),
-    description: apiData.latestThrombosisInsight?.description || "No recent analysis.",
+    description:
+      apiData.latestThrombosisInsight?.description || "No recent analysis.",
     trend: apiData.latestThrombosisInsight?.trend,
   };
 

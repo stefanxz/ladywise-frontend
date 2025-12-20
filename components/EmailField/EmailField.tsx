@@ -5,10 +5,10 @@ import { EmailFieldProps } from "@/components/EmailField/EmailField.types";
 
 /**
  * EmailField
- * 
+ *
  * A specialized text input field for email addresses.
  * Wraps `ThemedTextInput` with a label and error display.
- * 
+ *
  * @param {EmailFieldProps} props - Component props
  * @param {string} props.label - Field label
  * @param {string} props.value - Current email value

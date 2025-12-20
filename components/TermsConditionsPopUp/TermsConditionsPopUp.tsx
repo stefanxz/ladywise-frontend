@@ -26,10 +26,10 @@ import {
 
 /**
  * TermsConditionsPopUp
- * 
+ *
  * A bottom sheet modal displaying the full Terms of Service and Privacy Policy.
  * Can be used in 'accept' mode (Registration) or 'display' mode (Settings).
- * 
+ *
  * @param {TermsConditionsPopUpProps} props - Component props
  * @param {function} [props.onAccept] - Callback when terms are accepted
  * @param {'accept' | 'display'} [props.mode='accept'] - Display mode

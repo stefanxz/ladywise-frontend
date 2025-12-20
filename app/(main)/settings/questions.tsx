@@ -4,9 +4,9 @@ import { SettingsPageLayout } from "@/components/Settings/SettingsPageLayout";
 
 /**
  * QuestionsSettings
- * 
+ *
  * Screen displaying FAQs or help questions.
- * 
+ *
  * @returns {JSX.Element} The rendered questions/help screen
  */
 export default function QuestionsSettings() {

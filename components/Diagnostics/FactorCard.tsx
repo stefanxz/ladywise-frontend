@@ -4,7 +4,7 @@ import { FactorCardProps } from "./types";
 
 /**
  * FactorCard
- * 
+ *
  * Displays a single risk factor as a card with an icon, title, value, and
  * description. Designed to be used in a grid layout.
  *

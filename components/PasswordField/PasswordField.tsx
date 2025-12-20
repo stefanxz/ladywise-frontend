@@ -6,9 +6,9 @@ import { PasswordFieldProps } from "@/components/PasswordField/PasswordField.typ
 
 /**
  * PasswordField
- * 
+ *
  * A specialized text input for passwords with a visibility toggle.
- * 
+ *
  * @param {PasswordFieldProps} props - Component props
  * @param {string} props.label - Field label
  * @param {string} props.value - Current password value

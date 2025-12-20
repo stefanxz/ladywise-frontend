@@ -4,10 +4,10 @@ import { Pressable, Text, View } from "react-native";
 
 /**
  * TermsConditionsCheckbox
- * 
+ *
  * A checkbox component for agreeing to terms and conditions.
  * Includes a link to open the full terms and conditions modal.
- * 
+ *
  * @param {TermsConditionsCheckboxProps} props - Component props
  * @param {boolean} props.checked - Whether the checkbox is checked
  * @param {function} props.onToggle - Callback to toggle state

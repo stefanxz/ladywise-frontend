@@ -3,11 +3,11 @@ import { useAuth } from "@/context/AuthContext";
 
 /**
  * AuthLayout
- * 
+ *
  * Layout component for the authentication flow.
  * Handles redirection if the user is already authenticated
  * and not in the registration flow.
- * 
+ *
  * @returns {JSX.Element | null} The rendered layout or null/redirect
  */
 export default function AuthLayout() {

@@ -8,10 +8,10 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 /**
  * RegisterQuestIntro
- * 
+ *
  * Introduction screen to the questionnaire flow.
  * Explains the purpose of the data collection to the user.
- * 
+ *
  * @returns {JSX.Element} The rendered intro screen
  */
 export default function RegisterQuestIntro() {

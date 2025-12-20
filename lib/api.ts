@@ -18,7 +18,7 @@ import { DailyLogRequest, DailyLogResponse } from "@/lib/types/period";
 
 /**
  * api
- * 
+ *
  * Global Axios instance with base configuration.
  * Sets the base URL from environment variables and default timeout.
  */
@@ -30,7 +30,7 @@ export const api = axios.create({
 
 /**
  * Updates the Authorization header for the API instance.
- * 
+ *
  * @param {string | null} token - The JWT token to set, or null to remove it
  */
 export const setAuthToken = (token: string | null) => {
@@ -56,7 +56,7 @@ api.interceptors.response.use(
 
 /**
  * Registers a new user.
- * 
+ *
  * @param {RegisterPayload} payload - Registration details (email, password, consent)
  * @returns {Promise<LoginResponse>} The response containing the new user's tokens
  */
@@ -67,7 +67,7 @@ export async function registerUser(payload: RegisterPayload) {
 
 /**
  * Authenticates an existing user.
- * 
+ *
  * @param {LoginPayload} payload - Login credentials
  * @returns {Promise<LoginResponse>} The response containing auth tokens
  */
@@ -78,7 +78,7 @@ export async function loginUser(payload: LoginPayload) {
 
 /**
  * Updates user profile information.
- * 
+ *
  * @param {UserPayload} payload - The updated user details
  * @returns {Promise<UserResponse>} The updated user profile
  */
@@ -92,7 +92,7 @@ export async function updateUser(payload: UserPayload) {
 
 /**
  * Fetches a user's detailed profile by ID.
- * 
+ *
  * @param {string} token - Auth token
  * @param {string} userId - ID of the user to fetch
  * @returns {Promise<UserResponse>} The user profile data
@@ -112,7 +112,7 @@ export async function getUserById(
 
 /**
  * Retrieves the current risk analysis for a user.
- * 
+ *
  * @param {string} token - Auth token
  * @param {string} userId - User ID
  * @returns {Promise<ApiRiskResponse>} The latest risk data and insights
@@ -128,7 +128,7 @@ export async function getRiskData(
   // Ensure the path matches your Spring Boot controller exactly
   const { data } = await api.get<ApiRiskResponse>(
     `/api/users/${userId}/risks`,
-    config
+    config,
   );
 
   return data;
@@ -136,7 +136,7 @@ export async function getRiskData(
 
 /**
  * Retrieves historical risk data for charting.
- * 
+ *
  * @param {string} token - Auth token
  * @param {string} userId - User ID
  * @returns {Promise<RiskHistoryPoint[]>} Array of historical risk data points
@@ -161,7 +161,7 @@ export async function getRiskHistory(
 /**
  * Fetches the user's current menstrual cycle status.
  * includes phase, day count, and predictions.
- * 
+ *
  * @returns {Promise<CycleStatusDTO>} Cycle status details
  */
 export async function getCycleStatus() {
@@ -216,7 +216,7 @@ export async function createDailyEntry(payload: DailyLogRequest) {
 
 /**
  * Initiates the password reset process by sending a reset link to the user's email.
- * 
+ *
  * @param {PasswordResetRequestPayload} payload - Object containing the email
  * @returns {Promise<any>} Response data
  */
@@ -229,7 +229,7 @@ export async function requestPasswordReset(
 
 /**
  * Completes the password reset process using the token from the email.
- * 
+ *
  * @param {ResetPasswordPayload} payload - Object containing token and new password
  * @returns {Promise<any>} Response data
  */
@@ -240,7 +240,7 @@ export async function resetPassword(payload: ResetPasswordPayload) {
 
 /**
  * Submits the initial health questionnaire responses.
- * 
+ *
  * @param {QuestionnairePayload} payload - The questionnaire data
  * @returns {Promise<QuestionnaireResponse>} The created questionnaire record
  */
@@ -309,4 +309,3 @@ export async function shareReport(
   });
   return data;
 }
-

@@ -11,10 +11,10 @@ import { View } from "react-native";
 
 /**
  * QuestionnaireThrombosisRisk
- * 
+ *
  * Fourth step of the questionnaire: Thrombosis Risk Factors.
  * Allows the user to select multiple conditions related to thrombosis.
- * 
+ *
  * @returns {JSX.Element} The rendered thrombosis risk questionnaire step
  */
 export default function QuestionnaireThrombosisRisk() {

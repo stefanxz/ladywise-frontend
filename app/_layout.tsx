@@ -39,11 +39,11 @@ function AppContent() {
 
 /**
  * RootLayout
- * 
+ *
  * The top-level layout component for the application.
  * Initialises global providers (Auth, Theme, SafeArea, GestureHandler).
  * Manages the splash screen visibility based on font loading and auth state.
- * 
+ *
  * @returns {JSX.Element} The rendered root layout
  */
 export default function RootLayout() {

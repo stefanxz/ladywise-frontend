@@ -8,10 +8,10 @@ function QuestionnaireWrapper({ children }: { children: React.ReactNode }) {
 
 /**
  * OnboardingLayout
- * 
+ *
  * Layout wrapper for the questionnaire onboarding flow.
  * Provides the QuestionnaireContext to all screens within the stack.
- * 
+ *
  * @returns {JSX.Element} The rendered layout
  */
 export default function OnboardingLayout() {

@@ -3,10 +3,10 @@ import { useAuth } from "@/context/AuthContext";
 
 /**
  * RootIndex
- * 
+ *
  * The entry point route ("/") of the application.
  * Redirects the user to the home screen if authenticated, or the landing page if not.
- * 
+ *
  * @returns {JSX.Element | null} The redirect component or null
  */
 export default function RootIndex() {

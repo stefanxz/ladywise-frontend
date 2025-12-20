@@ -7,10 +7,10 @@ type AppBarProps = { onBackPress?: () => void };
 
 /**
  * AppBar
- * 
+ *
  * Custom navigation header with a back button.
  * Uses `expo-router` for navigation management.
- * 
+ *
  * @param {AppBarProps} props - Component props
  * @param {function} [props.onBackPress] - Optional custom back handler
  * @returns {JSX.Element} The rendered app bar

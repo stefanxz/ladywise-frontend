@@ -1,5 +1,3 @@
-// --- Real-time / WebSocket DTOs ---
-
 export interface RiskBlock {
   risk: "Low" | "Medium" | "High";
   key_inputs: string[];
@@ -12,11 +10,15 @@ export interface RiskResult {
 }
 
 export interface InsightResult {
-  trend: "improving" | "stable" | "worsening" | "neutral" | "increasing" | "declining";
+  trend:
+    | "improving"
+    | "stable"
+    | "worsening"
+    | "neutral"
+    | "increasing"
+    | "declining";
   description: string;
 }
-
-// --- App / UI Types ---
 
 export type RiskLevel = "Low" | "Medium" | "High";
 

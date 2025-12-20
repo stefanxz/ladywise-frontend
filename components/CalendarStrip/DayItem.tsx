@@ -4,10 +4,10 @@ import { TouchableOpacity, Text } from "react-native";
 
 /**
  * DayItem
- * 
+ *
  * Individual day component within the CalendarStrip.
  * Displays day number and letter, with specific styling for current day and period days.
- * 
+ *
  * @param {Object} props - Component props
  * @param {DayData} props.item - Data for the specific day
  * @param {string} props.themeColor - Highlight color

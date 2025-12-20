@@ -18,10 +18,10 @@ type CalendarStripProps = {
 
 /**
  * CalendarStrip
- * 
+ *
  * A horizontal scrollable list of days.
  * Used for selecting specific dates in the cycle tracker.
- * 
+ *
  * @param {CalendarStripProps} props - Component props
  * @param {DayData[]} props.days - Array of day objects to display
  * @param {string} props.themeColor - Color used for highlighting the selected day

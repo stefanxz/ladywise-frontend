@@ -27,11 +27,11 @@ const chartWidth = Dimensions.get("window").width - 80; // Screen padding (20*2)
 
 /**
  * ExtendedDiagnosticsScreen
- * 
+ *
  * Detailed view for a specific risk factor (e.g., Anemia or Thrombosis).
  * Displays a trend graph, current risk level, factors contributing to the risk, and insights.
  * Allows sharing of the risk report.
- * 
+ *
  * @returns {JSX.Element} The rendered extended diagnostics screen
  */
 const ExtendedDiagnosticsScreen = () => {
