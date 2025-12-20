@@ -1,6 +1,6 @@
 import { ThemedPressable } from "@/components/ThemedPressable/ThemedPressable";
 import { useRouter } from "expo-router";
-import React, { useState } from "react";
+import React from "react";
 import { Image, Platform, Pressable, Text, View } from "react-native";
 
 // Assets
@@ -9,10 +9,14 @@ import backgroundPart1 from "@/assets/images/LandingPage-background-part1.png";
 import backgroundPart2 from "@/assets/images/LandingPage-background-part2.png";
 
 /**
- * Landing page displayed when the app launches.
- * Provides entry points to Register and Login flows.
+ * LandingPage
+ *
+ * The entry screen displayed when the application launches.
+ * Provides navigation options for users to either register a new account
+ * or log in to an existing one.
+ *
+ * @returns {JSX.Element} The rendered landing page
  */
-
 export default function LandingPage() {
   const router = useRouter();
 

@@ -24,6 +24,14 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+/**
+ * LoginScreen
+ *
+ * Screen component that allows users to authenticate with their email and password.
+ * Handles form validation, credential submission, and error feedback.
+ *
+ * @returns {JSX.Element} The rendered login screen
+ */
 export default function LoginScreen() {
   const router = useRouter();
   const { signIn } = useAuth();

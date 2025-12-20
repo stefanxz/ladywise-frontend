@@ -17,14 +17,16 @@ import { Droplet } from "lucide-react-native";
 import { Colors } from "@/constants/colors";
 
 /**
+ * CycleQuestionsBottomSheet
+ *
  * A bottom sheet modal that renders a series of cycle-related questions
  * and allows the user to select answers. Answers are collected internally,
  * and saving is delegated to a parent via the `onSave` prop.
  *
- * Props:
- * @param bottomSheetRef - Ref to control the BottomSheetModal from parent
- * @param onSave - Async function called when "Save answers" is pressed
- *                 Receives the answers object as { [questionId]: string | string[] }
+ * @param {CycleQuestionsBottomSheetProps} props - Component props
+ * @param {React.RefObject} props.bottomSheetRef - Ref to control the BottomSheetModal from parent
+ * @param {function} props.onSave - Async function called when "Save answers" is pressed
+ * @returns {JSX.Element} The rendered bottom sheet
  *
  * @example
  * ```tsx

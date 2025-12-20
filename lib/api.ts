@@ -9,19 +9,30 @@ import type {
   ResetPasswordPayload,
   UserPayload,
   UserResponse,
-} from "./types";
-import type { ReportRequest } from "./types/reports";
+} from "./types/payloads";
+import { ReportRequest } from "./types/reports";
 import { CycleStatusDTO } from "./types/cycle";
 import { getAuthData } from "./auth";
 import { ApiRiskResponse, RiskHistoryPoint } from "./types/risks";
 import { DailyLogRequest, DailyLogResponse } from "@/lib/types/period";
 
+/**
+ * api
+ *
+ * Global Axios instance with base configuration.
+ * Sets the base URL from environment variables and default timeout.
+ */
 export const api = axios.create({
   baseURL: process.env.EXPO_PUBLIC_API_URL,
   timeout: 10000,
   headers: { "Content-Type": "application/json" },
 });
 
+/**
+ * Updates the Authorization header for the API instance.
+ *
+ * @param {string | null} token - The JWT token to set, or null to remove it
+ */
 export const setAuthToken = (token: string | null) => {
   if (token) {
     api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
@@ -43,20 +54,34 @@ api.interceptors.response.use(
   },
 );
 
-// register new user by sending their credentials to the backend API
-// uses the base URL from .env + '/api/auth/register'
+/**
+ * Registers a new user.
+ *
+ * @param {RegisterPayload} payload - Registration details (email, password, consent)
+ * @returns {Promise<LoginResponse>} The response containing the new user's tokens
+ */
 export async function registerUser(payload: RegisterPayload) {
   const { data } = await api.post<LoginResponse>("/api/auth/register", payload);
   return data;
 }
 
-// authenticate an existing user and return their auth token
+/**
+ * Authenticates an existing user.
+ *
+ * @param {LoginPayload} payload - Login credentials
+ * @returns {Promise<LoginResponse>} The response containing auth tokens
+ */
 export async function loginUser(payload: LoginPayload) {
   const { data } = await api.post<LoginResponse>("/api/auth/login", payload);
   return data;
 }
 
-//update user data of an existing user
+/**
+ * Updates user profile information.
+ *
+ * @param {UserPayload} payload - The updated user details
+ * @returns {Promise<UserResponse>} The updated user profile
+ */
 export async function updateUser(payload: UserPayload) {
   const { data } = await api.patch<UserResponse>(
     "/api/users/updateUser",
@@ -65,7 +90,13 @@ export async function updateUser(payload: UserPayload) {
   return data;
 }
 
-// Fetch a user by ID
+/**
+ * Fetches a user's detailed profile by ID.
+ *
+ * @param {string} token - Auth token
+ * @param {string} userId - ID of the user to fetch
+ * @returns {Promise<UserResponse>} The user profile data
+ */
 export async function getUserById(
   token: string,
   userId: string,
@@ -79,23 +110,37 @@ export async function getUserById(
   return data;
 }
 
+/**
+ * Retrieves the current risk analysis for a user.
+ *
+ * @param {string} token - Auth token
+ * @param {string} userId - User ID
+ * @returns {Promise<ApiRiskResponse>} The latest risk data and insights
+ */
 export async function getRiskData(
   token: string,
   userId: string,
 ): Promise<ApiRiskResponse> {
-  // <-- Use the correct response type
   const config = {
-    params: { userId },
     headers: { Authorization: `Bearer ${token}` },
   };
-  // Use the correct generic type
+
+  // Ensure the path matches your Spring Boot controller exactly
   const { data } = await api.get<ApiRiskResponse>(
     `/api/users/${userId}/risks`,
     config,
   );
-  return data; // This returns: { thrombosisRisk: 1, anemiaRisk: 2 }
+
+  return data;
 }
 
+/**
+ * Retrieves historical risk data for charting.
+ *
+ * @param {string} token - Auth token
+ * @param {string} userId - User ID
+ * @returns {Promise<RiskHistoryPoint[]>} Array of historical risk data points
+ */
 export async function getRiskHistory(
   token: string,
   userId: string,
@@ -113,6 +158,12 @@ export async function getRiskHistory(
   return data;
 }
 
+/**
+ * Fetches the user's current menstrual cycle status.
+ * includes phase, day count, and predictions.
+ *
+ * @returns {Promise<CycleStatusDTO>} Cycle status details
+ */
 export async function getCycleStatus() {
   const { data } = await api.get<CycleStatusDTO>("/api/cycle/status");
   return data;
@@ -163,6 +214,12 @@ export async function createDailyEntry(payload: DailyLogRequest) {
   return data;
 }
 
+/**
+ * Initiates the password reset process by sending a reset link to the user's email.
+ *
+ * @param {PasswordResetRequestPayload} payload - Object containing the email
+ * @returns {Promise<any>} Response data
+ */
 export async function requestPasswordReset(
   payload: PasswordResetRequestPayload,
 ) {
@@ -170,11 +227,23 @@ export async function requestPasswordReset(
   return data;
 }
 
+/**
+ * Completes the password reset process using the token from the email.
+ *
+ * @param {ResetPasswordPayload} payload - Object containing token and new password
+ * @returns {Promise<any>} Response data
+ */
 export async function resetPassword(payload: ResetPasswordPayload) {
   const { data } = await api.post("/api/auth/password-reset", payload);
   return data;
 }
 
+/**
+ * Submits the initial health questionnaire responses.
+ *
+ * @param {QuestionnairePayload} payload - The questionnaire data
+ * @returns {Promise<QuestionnaireResponse>} The created questionnaire record
+ */
 export async function submitQuestionnaire(payload: QuestionnairePayload) {
   const { data } = await api.post<QuestionnaireResponse>(
     "/api/questionnaire",
@@ -240,4 +309,3 @@ export async function shareReport(
   });
   return data;
 }
-

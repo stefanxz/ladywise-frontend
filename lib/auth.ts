@@ -56,6 +56,14 @@ async function persistRemove(key: string, useSecureStore: boolean) {
   }
 }
 
+/**
+ * Persists authentication data (token, user ID, email) to secure storage.
+ *
+ * @param {string} token - The auth token
+ * @param {string} userId - The user's ID
+ * @param {string} email - The user's email
+ * @returns {Promise<void>}
+ */
 export async function storeAuthData(
   token: string,
   userId: string,
@@ -69,6 +77,11 @@ export async function storeAuthData(
   ]);
 }
 
+/**
+ * Retrieves persisted authentication data.
+ *
+ * @returns {Promise<StoredAuthData>} The stored token, userId, and email
+ */
 export async function getAuthData(): Promise<StoredAuthData> {
   const useSecureStore = await isSecureStoreAvailable();
   const [token, userId, email] = await Promise.all([
@@ -80,6 +93,12 @@ export async function getAuthData(): Promise<StoredAuthData> {
   return { token, userId, email };
 }
 
+/**
+ * Clears all authentication data from storage.
+ * Used during logout.
+ *
+ * @returns {Promise<void>}
+ */
 export async function clearAuthData(): Promise<void> {
   const useSecureStore = await isSecureStoreAvailable();
   await Promise.all([
@@ -89,6 +108,12 @@ export async function clearAuthData(): Promise<void> {
   ]);
 }
 
+/**
+ * Checks if the current auth token is valid and not expired.
+ *
+ * @param {Object} authData - Object containing the token
+ * @returns {AuthStatus} "VALID", "EXPIRED", or "NO_TOKEN"
+ */
 export function isTokenValid(
   authData: { token: string | null } | null,
 ): AuthStatus {
@@ -133,6 +158,11 @@ function normalizeBase64(input: string): string {
   return normalized.padEnd(normalized.length + paddingNeeded, "=");
 }
 
+/**
+ * Checks if the user is currently authenticated with valid credentials.
+ *
+ * @returns {Promise<boolean>} True if authenticated, false otherwise
+ */
 export async function isAuthenticated(): Promise<boolean> {
   const data = await getAuthData();
   return isTokenValid(data) === "VALID" && !!data.userId && !!data.email;

@@ -1,35 +1,47 @@
-import { useState, useEffect, useRef } from 'react';
-import { Platform } from 'react-native';
-import * as Device from 'expo-device';
-import * as Notifications from 'expo-notifications';
-import Constants from 'expo-constants';
-import { registerPushToken } from '../lib/notifications'; 
+import { useState, useEffect, useRef } from "react";
+import { Platform } from "react-native";
+import * as Device from "expo-device";
+import * as Notifications from "expo-notifications";
+import Constants from "expo-constants";
+import { registerPushToken } from "../lib/notifications";
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
     shouldShowAlert: true,
     shouldPlaySound: true,
     shouldSetBadge: false,
-    shouldShowBanner: true, 
-    shouldShowList: true,  
+    shouldShowBanner: true,
+    shouldShowList: true,
   }),
 });
 
+/**
+ * usePushNotifications
+ *
+ * Custom hook to handle Expo Push Notification registration and listeners.
+ * Registers the device token with the backend and listens for incoming notifications.
+ *
+ * @param {boolean} isAuthenticated - Whether the user is authenticated (prerequisite for registration)
+ * @returns {Object} Expo push token and the last received notification
+ */
 export const usePushNotifications = (isAuthenticated: boolean) => {
   const [expoPushToken, setExpoPushToken] = useState<string | undefined>();
-  const [notification, setNotification] = useState<Notifications.Notification | undefined>();
-  
-  const notificationListener = useRef<Notifications.EventSubscription | null>(null);
+  const [notification, setNotification] = useState<
+    Notifications.Notification | undefined
+  >();
+
+  const notificationListener = useRef<Notifications.EventSubscription | null>(
+    null,
+  );
   const responseListener = useRef<Notifications.EventSubscription | null>(null);
 
   useEffect(() => {
-
     // If user is not authenticated stop cause we can't
     if (!isAuthenticated) return;
 
     const register = async () => {
       const token = await registerForPushNotificationsAsync();
-      
+
       if (token) {
         setExpoPushToken(token);
         try {
@@ -44,13 +56,15 @@ export const usePushNotifications = (isAuthenticated: boolean) => {
     register();
 
     // Listeners
-    notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
-      setNotification(notification);
-    });
+    notificationListener.current =
+      Notifications.addNotificationReceivedListener((notification) => {
+        setNotification(notification);
+      });
 
-    responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
-      console.log("User tapped notification:", response);
-    });
+    responseListener.current =
+      Notifications.addNotificationResponseReceivedListener((response) => {
+        console.log("User tapped notification:", response);
+      });
 
     return () => {
       notificationListener.current && notificationListener.current.remove();
@@ -65,38 +79,41 @@ export const usePushNotifications = (isAuthenticated: boolean) => {
 async function registerForPushNotificationsAsync() {
   let token;
 
-  if (Platform.OS === 'android') {
-    await Notifications.setNotificationChannelAsync('default', {
-      name: 'default',
+  if (Platform.OS === "android") {
+    await Notifications.setNotificationChannelAsync("default", {
+      name: "default",
       importance: Notifications.AndroidImportance.MAX,
       vibrationPattern: [0, 250, 250, 250],
-      lightColor: '#FF231F7C',
+      lightColor: "#FF231F7C",
     });
   }
 
   if (Device.isDevice) {
-    const { status: existingStatus } = await Notifications.getPermissionsAsync();
+    const { status: existingStatus } =
+      await Notifications.getPermissionsAsync();
     let finalStatus = existingStatus;
-    
-    if (existingStatus !== 'granted') {
+
+    if (existingStatus !== "granted") {
       const { status } = await Notifications.requestPermissionsAsync();
       finalStatus = status;
     }
-    
-    if (finalStatus !== 'granted') {
-      console.log('Permission not granted for push notifications');
+
+    if (finalStatus !== "granted") {
+      console.log("Permission not granted for push notifications");
       return;
     }
 
     try {
-      token = (await Notifications.getExpoPushTokenAsync({
-        projectId: Constants.expoConfig?.extra?.eas?.projectId,
-      })).data;
+      token = (
+        await Notifications.getExpoPushTokenAsync({
+          projectId: Constants.expoConfig?.extra?.eas?.projectId,
+        })
+      ).data;
     } catch (e) {
       console.error("Error fetching token from Expo:", e);
     }
   } else {
-    console.log('Must use physical device for Push Notifications');
+    console.log("Must use physical device for Push Notifications");
   }
 
   return token;

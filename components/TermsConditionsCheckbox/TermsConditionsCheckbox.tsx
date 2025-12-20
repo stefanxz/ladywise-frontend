@@ -2,6 +2,18 @@ import { TermsConditionsCheckboxProps } from "@/components/TermsConditionsCheckb
 import React from "react";
 import { Pressable, Text, View } from "react-native";
 
+/**
+ * TermsConditionsCheckbox
+ *
+ * A checkbox component for agreeing to terms and conditions.
+ * Includes a link to open the full terms and conditions modal.
+ *
+ * @param {TermsConditionsCheckboxProps} props - Component props
+ * @param {boolean} props.checked - Whether the checkbox is checked
+ * @param {function} props.onToggle - Callback to toggle state
+ * @param {function} props.openSheet - Callback to open the terms modal
+ * @returns {JSX.Element} The rendered checkbox with label
+ */
 export function TermsConditionsCheckbox({
   checked,
   onToggle,

@@ -26,7 +26,10 @@ const BACKEND_TO_FRONTEND_MAP: Record<string, string> = {
 
 /**
  * Transforms a list of backend strings into UI-ready Factor Objects.
- * @param backendList - Array of strings (e.g. ["TIRED", "flow_heavy", "ESTROGEN_PILL"])
+ * Maps backend string constants (e.g. "TIRED") to frontend definitions.
+ *
+ * @param {string[] | null | undefined} backendList - Array of backend strings
+ * @returns {FactorCardProps[]} Array of mapped factors for display
  */
 export function mapBackendListToFactors(
   backendList: string[] | null | undefined,

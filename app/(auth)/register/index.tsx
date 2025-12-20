@@ -5,7 +5,7 @@ import { PasswordField } from "@/components/PasswordField/PasswordField";
 import { SocialSignOn } from "@/components/SocialSignOn/SocialSignOn";
 import { TermsConditionsCheckbox } from "@/components/TermsConditionsCheckbox/TermsConditionsCheckbox";
 import { ThemedPressable } from "@/components/ThemedPressable/ThemedPressable";
-import { loginUser, registerUser } from "@/lib/api";
+import { registerUser } from "@/lib/api";
 import { isEmailValid, isPasswordValid } from "@/utils/validations";
 import { useRouter } from "expo-router";
 import React, { useState, useRef, useEffect } from "react";
@@ -23,6 +23,14 @@ import TermsConditionsPopUp, {
 } from "@/components/TermsConditionsPopUp/TermsConditionsPopUp";
 import termsData from "../../../data/terms-and-conditions.json";
 
+/**
+ * RegisterIndex
+ *
+ * The initial screen in the user registration flow.
+ * Collects email, password, and terms agreement.
+ *
+ * @returns {JSX.Element} The rendered registration screen
+ */
 export default function RegisterIndex() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");

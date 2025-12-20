@@ -3,15 +3,18 @@ import { View, Text } from "react-native";
 import { FactorCardProps } from "./types";
 
 /**
+ * FactorCard
+ *
  * Displays a single risk factor as a card with an icon, title, value, and
  * description. Designed to be used in a grid layout.
  *
- * @param title - The factor name
- * @param value - The current value
- * @param description - Additional context or interpretation of the value
- * @param IconComponent - Icon component to display
- * @param variant - Visual variant for different factor types
- * @constructor
+ * @param {FactorCardProps} props - Component props
+ * @param {string} props.title - The factor name
+ * @param {string} props.value - The current value
+ * @param {string} props.description - Additional context or interpretation of the value
+ * @param {React.ComponentType<any>} props.icon - Icon component to display
+ * @param {string} [props.variant="default"] - Visual variant for different factor types
+ * @returns {JSX.Element} The rendered factor card
  */
 export default function FactorCard({
   title,
