@@ -5,6 +5,19 @@ import { ProgressBarProps } from "./ProgressBar.types";
 const clamp = (value: number, min: number, max: number) =>
   Math.min(Math.max(value, min), max);
 
+/**
+ * ProgressBar
+ * 
+ * A horizontal progress bar indicating completion status.
+ * Used in questionnaires and multi-step forms.
+ * 
+ * @param {ProgressBarProps} props - Component props
+ * @param {number} props.currentStep - The current step number
+ * @param {number} props.totalSteps - The total number of steps
+ * @param {string} [props.testID] - Test ID
+ * @param {number} [props.edgeOffset] - Visual offset correction
+ * @returns {JSX.Element} The rendered progress bar
+ */
 export function ProgressBar({
   currentStep,
   totalSteps,

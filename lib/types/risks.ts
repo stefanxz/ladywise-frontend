@@ -20,6 +20,10 @@ export interface InsightResult {
 
 export type RiskLevel = "Low" | "Medium" | "High";
 
+/**
+ * RiskData
+ * UI-friendly representation of a risk factor and its analysis.
+ */
 export type RiskData = {
   id: string;
   title: string;
@@ -36,6 +40,10 @@ export type ApiRiskResponse = {
   latestThrombosisInsight?: InsightResult | null;
 };
 
+/**
+ * RiskHistoryPoint
+ * A single data point for risk history charts.
+ */
 export interface RiskHistoryPoint {
   recordedAt: string; // ISO 8601
   anemiaRisk: 0 | 1 | 2; // Low / Medium / High

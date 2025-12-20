@@ -13,6 +13,10 @@ export type Symptom =
   | "ONE_SIDED_LEG_PAIN"
   | "DIZZY";
 
+/**
+ * DailyLogRequest
+ * Payload for creating or updating a daily cycle entry.
+ */
 export type DailyLogRequest = {
   date: string; // "YYYY-MM-DD"
   flow: FlowLevel;
@@ -20,6 +24,10 @@ export type DailyLogRequest = {
   riskFactors: RiskFactor[];
 };
 
+/**
+ * DailyLogResponse
+ * Response data for a daily cycle entry.
+ */
 export type DailyLogResponse = {
   date: string; // "YYYY-MM-DD"
   flow: FlowLevel;

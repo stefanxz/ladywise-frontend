@@ -41,13 +41,21 @@ import { DailyCycleAnswers } from "@/components/CycleQuestionsBottomSheet/CycleQ
 import { mapAnswersToPayload, mapApiToInsights } from "@/utils/helpers";
 import { formatPhaseName, generateCalendarDays } from "@/utils/mainPageHelpers";
 
+/**
+ * Home
+ * 
+ * The primary dashboard screen of the application.
+ * Displays the daily calendar strip, current cycle phase, risk insights, and easy access to logging.
+ * Integrates real-time health data updates.
+ * 
+ * @returns {JSX.Element} The rendered home screen
+ */
 const Home = () => {
   const { token, userId, isLoading: isAuthLoading } = useAuth();
   const { theme, setPhase } = useTheme();
 
   // --- 1. Real-time Hook (The Source of Truth) ---
-  const { realtimeRisks, anemiaTrend, thrombosisTrend, isConnected } =
-    useHealthRealtime(userId, token);
+  const { realtimeRisks, isConnected } = useHealthRealtime(userId, token);
 
   // --- 2. Local State ---
   const [initialApiData, setInitialApiData] = useState<RiskData[]>([]);
@@ -56,7 +64,7 @@ const Home = () => {
 
   const [cycleStatus, setCycleStatus] = useState<CycleStatusDTO | null>(null);
   const [calendarDays, setCalendarDays] = useState<DayData[]>(
-    generateCalendarDays(),
+    generateCalendarDays()
   );
   const [error, setError] = useState<string | null>(null);
   const [userName, setUserName] = useState<string>("");
@@ -64,37 +72,34 @@ const Home = () => {
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
   const openSheet = useCallback(
     () => bottomSheetModalRef.current?.present(),
-    [],
+    []
   );
 
   const displayedInsights: RiskData[] = useMemo(() => {
-    const getFallbackTrend = (id: string) =>
-      initialApiData.find((item) => item.id === id)?.trend;
-
     if (realtimeRisks) {
       return [
         {
           id: "anemia",
           title: "Anemia Risk",
           level: realtimeRisks.anemia.risk,
-          description: realtimeRisks.anemia.summary_sentence,
-          // Priority: Live Trend -> Persisted Trend -> Undefined
-          trend: anemiaTrend?.trend || getFallbackTrend("anemia"),
+          description:
+            realtimeRisks.anemia.summary_sentence ||
+            "No significant risk factors identified.",
         },
         {
           id: "thrombosis",
           title: "Thrombosis Risk",
           level: realtimeRisks.thrombosis.risk,
-          description: realtimeRisks.thrombosis.summary_sentence,
-          // Priority: Live Trend -> Persisted Trend -> Undefined
-          trend: thrombosisTrend?.trend || getFallbackTrend("thrombosis"),
+          description:
+            realtimeRisks.thrombosis.summary_sentence ||
+            "No significant risk factors identified.",
         },
       ];
     }
 
     // If no live data yet, show what we fetched from the DB
     return initialApiData;
-  }, [realtimeRisks, anemiaTrend, thrombosisTrend, initialApiData]);
+  }, [realtimeRisks, initialApiData]);
 
   // --- 4. Effect: Initial Fetch (Pull) ---
   useEffect(() => {
@@ -146,7 +151,7 @@ const Home = () => {
       };
 
       fetchCycleData();
-    }, [setPhase, token, isAuthLoading]),
+    }, [setPhase, token, isAuthLoading])
   );
 
   const handleAddDailyEntry = async (answers: DailyCycleAnswers) => {

@@ -6,6 +6,14 @@ import { ThemedPressable } from "@/components/ThemedPressable/ThemedPressable";
 import { isPasswordValid } from "@/utils/validations";
 import { useAuth } from "@/context/AuthContext";
 
+/**
+ * AccountSettings
+ * 
+ * Screen for managing account security settings.
+ * Allows users to change their password and delete their account.
+ * 
+ * @returns {JSX.Element} The rendered account settings screen
+ */
 export default function AccountSettings() {
   const { signOut } = useAuth();
 

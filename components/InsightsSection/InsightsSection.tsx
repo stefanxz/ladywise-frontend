@@ -9,6 +9,18 @@ interface InsightsSectionProps {
   isCalculating?: boolean; // New prop to show "AI Analysis in progress"
 }
 
+/**
+ * InsightsSection
+ * 
+ * Displays the user's health risk insights (anemia, thrombosis, etc.).
+ * Handles various states: loading, calculating (AI processing), empty, and data display.
+ * 
+ * @param {InsightsSectionProps} props - Component props
+ * @param {RiskData[]} props.insights - Array of risk data objects
+ * @param {boolean} props.isLoading - Whether initial data is loading
+ * @param {boolean} [props.isCalculating] - Whether AI analysis is in progress
+ * @returns {JSX.Element} The rendered insights section
+ */
 const InsightsSection = ({
   insights,
   isLoading,

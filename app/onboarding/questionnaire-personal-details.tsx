@@ -15,6 +15,14 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useQuestionnaire } from "./QuestionnaireContext";
 import { ProgressBar } from "@/components/ProgressBar/ProgressBar";
 
+/**
+ * Questionnaire
+ * 
+ * First step of the questionnaire: Personal Details.
+ * Collects age, weight, and height with validation.
+ * 
+ * @returns {JSX.Element} The rendered personal details form
+ */
 export default function Questionnaire() {
   const router = useRouter();
   const { answers, updateAnswers } = useQuestionnaire();

@@ -9,6 +9,17 @@ type HeaderProps = {
   theme: Theme;
 };
 
+/**
+ * Header
+ * 
+ * Main page header displaying the user's name and a help button.
+ * 
+ * @param {HeaderProps} props - Component props
+ * @param {string} props.name - The user's name to display
+ * @param {function} props.onHelpPress - Callback when the help button is pressed
+ * @param {Theme} props.theme - The current theme for styling
+ * @returns {JSX.Element} The rendered header
+ */
 const Header: React.FC<HeaderProps> = ({ name, onHelpPress, theme }) => {
   return (
     <View className="flex-row justify-between items-center px-5 pt-2.5 pb-5 w-full">

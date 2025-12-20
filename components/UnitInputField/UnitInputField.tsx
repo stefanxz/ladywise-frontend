@@ -4,6 +4,20 @@ import { ThemedTextInput } from "@/components/ThemedTextInput/ThemedTextInput";
 import { Text, View } from "react-native";
 import { UnitInputFieldProps } from "./UnitInputField.types";
 
+/**
+ * UnitInputField
+ * 
+ * An input field that appends a static unit suffix (e.g., "kg", "cm").
+ * 
+ * @param {UnitInputFieldProps} props - Component props
+ * @param {string} props.unit - The unit string to display (e.g. "kg")
+ * @param {string} props.value - Input value
+ * @param {function} props.onChangeText - Change handler
+ * @param {string} [props.placeholder] - Placeholder text
+ * @param {string} [props.error] - Error message
+ * @param {string} [props.testID] - Test ID
+ * @returns {JSX.Element} The rendered input with unit
+ */
 export function UnitInputField({
   unit,
   value,

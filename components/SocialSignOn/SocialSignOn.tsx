@@ -3,6 +3,15 @@ import React from "react";
 import { Image, Pressable, View } from "react-native";
 import type { SocialSignOnProps } from "@/components/SocialSignOn/SocialSignOn.types";
 
+/**
+ * SocialSignOn
+ * 
+ * Component displaying social media sign-in buttons (Google, Facebook, Apple).
+ * 
+ * @param {SocialSignOnProps} props - Component props
+ * @param {function} props.onPress - Callback with the selected provider ("google" | "facebook" | "apple")
+ * @returns {JSX.Element} The rendered social sign-on buttons
+ */
 export function SocialSignOn({ onPress }: SocialSignOnProps) {
   return (
     <View className="mt-16">

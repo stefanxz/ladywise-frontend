@@ -17,7 +17,11 @@ type AppThemes = {
   neutral: Theme;
 };
 
-// Here are all the themes from your design
+/**
+ * Application Theme Definitions.
+ * Maps cycle phases (ovulation, menstrual, etc.) to specific color palettes.
+ * Used by `ThemeContext` to update the UI dynamically.
+ */
 export const themes: AppThemes = {
   ovulation: {
     gradientStart: "#dcedff",

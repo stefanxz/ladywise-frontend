@@ -25,6 +25,15 @@ import type { ReportType } from "@/lib/types/reports";
 
 const chartWidth = Dimensions.get("window").width - 80; // Screen padding (20*2) + Card padding (20*2)
 
+/**
+ * ExtendedDiagnosticsScreen
+ * 
+ * Detailed view for a specific risk factor (e.g., Anemia or Thrombosis).
+ * Displays a trend graph, current risk level, factors contributing to the risk, and insights.
+ * Allows sharing of the risk report.
+ * 
+ * @returns {JSX.Element} The rendered extended diagnostics screen
+ */
 const ExtendedDiagnosticsScreen = () => {
   const router = useRouter();
   const params = useLocalSearchParams<{
@@ -69,8 +78,8 @@ const ExtendedDiagnosticsScreen = () => {
     const loadData = async () => {
       setLoading(true);
 
-      // SImulate or Real Fetch
-      // For now, we reuse the logic from index.tsx: attempt fetch, fallback to mock
+      // Simulate or Real Fetch
+      // Attempt fetch from API, fallback to mock data if it fails or returns empty
       let fetchedHistory = [];
       try {
         if (token && userId) {

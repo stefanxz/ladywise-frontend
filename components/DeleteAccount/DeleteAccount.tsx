@@ -10,6 +10,20 @@ export interface DeleteAccountModalProps {
   message?: string;
 }
 
+/**
+ * DeleteAccountModal
+ * 
+ * A modal dialog for confirming account deletion.
+ * Displays a warning message and requires explicit confirmation.
+ * 
+ * @param {DeleteAccountModalProps} props - Component props
+ * @param {boolean} props.visible - Whether the modal is visible
+ * @param {function} props.onCancel - Callback for cancellation
+ * @param {function} props.onConfirm - Callback for confirmation
+ * @param {string} [props.title] - Optional title override
+ * @param {string} [props.message] - Optional message override
+ * @returns {JSX.Element} The rendered modal
+ */
 const DeleteAccountModal: React.FC<DeleteAccountModalProps> = ({
   visible,
   onCancel,

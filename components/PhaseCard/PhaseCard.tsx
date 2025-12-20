@@ -12,6 +12,20 @@ type PhaseCardProps = {
   onCardPress: () => void;
 };
 
+/**
+ * PhaseCard
+ * 
+ * Displays the current cycle phase information and allows logging a new period.
+ * 
+ * @param {PhaseCardProps} props - Component props
+ * @param {string} props.phaseName - Name of the current phase (e.g., "Menstrual Phase")
+ * @param {string} props.dayOfPhase - Current day status (e.g., "Day 1")
+ * @param {string} props.subtitle - Additional context (e.g., "Period start")
+ * @param {Theme} props.theme - Theme for card styling
+ * @param {function} props.onLogPeriodPress - Callback for logging a new period
+ * @param {function} props.onCardPress - Callback when the card is pressed
+ * @returns {JSX.Element} The rendered phase card
+ */
 const PhaseCard: React.FC<PhaseCardProps> = ({
   phaseName,
   dayOfPhase,

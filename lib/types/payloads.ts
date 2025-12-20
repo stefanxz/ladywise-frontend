@@ -1,5 +1,8 @@
 import { InsightResult } from "./risks";
 
+/**
+ * Payload for user registration.
+ */
 export type RegisterPayload = {
   email: string;
   password: string;
@@ -7,8 +10,14 @@ export type RegisterPayload = {
   consentVersion: string;
 };
 
+/**
+ * Payload for user login.
+ */
 export type LoginPayload = { email: string; password: string };
 
+/**
+ * Response received upon successful authentication.
+ */
 export type LoginResponse = {
   token: string;
   tokenType: "Bearer";
@@ -16,6 +25,9 @@ export type LoginResponse = {
   email: string;
 };
 
+/**
+ * Payload for updating basic user details.
+ */
 export type UserPayload = {
   id: string | null;
   email: string | null;
@@ -23,22 +35,25 @@ export type UserPayload = {
   lastName: string;
 };
 
-
+/**
+ * Comprehensive user profile response.
+ * Includes attributes, current risks, and latest insights.
+ */
 export type UserResponse = {
   id: string;
   email: string;
   firstName: string;
   lastName: string;
   attributes: Record<string, any>;
-  
+
   // Risk Data
   thrombosisRisk: number;
   anemiaRisk: number;
-  
+
   // Insight Data
   latestAnemiaInsight: InsightResult | null;
   latestThrombosisInsight: InsightResult | null;
-  
+
   // Status Flags
   firstQuestionnaireCompleted: boolean;
   consentGiven: boolean;
@@ -83,8 +98,8 @@ export type QuestionnaireResponse = {
  * Matches backend DTO: nl.tue.ladywise_backend.symptom.dto.RiskSymptomsDto
  */
 export interface RiskSymptomsResponse {
-  anemiaSymptoms: string[]; 
-  thrombosisSymptoms: string[]; 
-  flowLevel: string | null; 
-  riskFactors: string[]; 
+  anemiaSymptoms: string[];
+  thrombosisSymptoms: string[];
+  flowLevel: string | null;
+  riskFactors: string[];
 }

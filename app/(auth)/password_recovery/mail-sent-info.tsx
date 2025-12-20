@@ -11,6 +11,14 @@ import { useLocalSearchParams } from "expo-router";
 
 import { AppBar } from "@/components/AppBarBackButton/AppBarBackButton";
 
+/**
+ * PasswordRecoveryCodeScreen
+ * 
+ * Screen displayed after the user requests a password reset.
+ * Informs the user that a reset link has been sent to their email.
+ * 
+ * @returns {JSX.Element} The rendered mail sent info screen
+ */
 export default function PasswordRecoveryCodeScreen() {
   const params = useLocalSearchParams<{ email?: string }>();
 

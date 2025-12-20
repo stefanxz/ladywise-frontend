@@ -23,6 +23,14 @@ import TermsConditionsPopUp, {
 } from "@/components/TermsConditionsPopUp/TermsConditionsPopUp";
 import termsData from "../../../data/terms-and-conditions.json";
 
+/**
+ * RegisterIndex
+ * 
+ * The initial screen in the user registration flow.
+ * Collects email, password, and terms agreement.
+ * 
+ * @returns {JSX.Element} The rendered registration screen
+ */
 export default function RegisterIndex() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");

@@ -13,6 +13,17 @@ const riskLevelColorMap: Record<string, string> = {
   High: "text-red-500",
 };
 
+/**
+ * RiskCard
+ * 
+ * Displays a single risk metric (e.g., Anemia risk) with a color-coded level.
+ * 
+ * @param {RiskCardProps} props - Component props (extends RiskData)
+ * @param {string} props.title - Risk title
+ * @param {string} props.level - Risk level (Low, Medium, High)
+ * @param {string} props.description - Description of the risk
+ * @returns {JSX.Element} The rendered risk card
+ */
 const RiskCard = ({ title, level, description }: RiskCardProps) => {
   const dynamicColor = riskLevelColorMap[level] || "text-gray-500";
 

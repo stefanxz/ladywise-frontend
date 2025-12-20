@@ -36,6 +36,15 @@ type DiagnosticsScreenProps = {
   initialHistory?: RiskHistoryPoint[];
 };
 
+/**
+ * DiagnosticsScreen
+ * 
+ * Main diagnostics dashboard displaying summaries for various risk factors (Thrombosis, Anemia, Menstrual Flow).
+ * Shows trend lines and current status for each factor.
+ * 
+ * @param {DiagnosticsScreenProps} props - Component props
+ * @returns {JSX.Element} The rendered diagnostics dashboard
+ */
 export default function DiagnosticsScreen({
   initialHistory: historyProp,
 }: DiagnosticsScreenProps) {
@@ -62,7 +71,7 @@ export default function DiagnosticsScreen({
         setError(null);
         const data = await getRiskHistory(token, userId);
 
-        console.log("getRiskHistory response:", data); // DEBUG LOG
+
 
         if (Array.isArray(data) && data.length > 0) {
           setHistory(data);

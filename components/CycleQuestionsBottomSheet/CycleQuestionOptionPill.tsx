@@ -2,12 +2,15 @@ import { CycleQuestionOptionPillProps } from "@/components/CycleQuestionsBottomS
 import { Pressable, Text } from "react-native";
 
 /**
+ * CycleQuestionOptionPill
+ *
  * A single selectable pill/button representing one answer option in a CycleQuestion.
  *
- * Props:
- * @param label - The text to display inside the pill
- * @param selected - Whether this pill is currently selected
- * @param onPress - Callback when the pill is pressed
+ * @param {CycleQuestionOptionPillProps} props - Component props
+ * @param {string} props.label - The text to display inside the pill
+ * @param {boolean} props.selected - Whether this pill is currently selected
+ * @param {function} props.onPress - Callback when the pill is pressed
+ * @returns {JSX.Element} The rendered option pill
  */
 export function CycleQuestionOptionPill({
   label,

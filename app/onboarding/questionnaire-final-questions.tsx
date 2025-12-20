@@ -10,6 +10,15 @@ import { useRouter } from "expo-router";
 import { useState } from "react";
 import { Text, View } from "react-native";
 
+/**
+ * QuestionnaireFinalQuestions
+ * 
+ * Final step of the questionnaire.
+ * Asks about contraceptive use and biosensor cup usage.
+ * Submits the aggregated data to the backend.
+ * 
+ * @returns {JSX.Element} The rendered final questions screen
+ */
 export default function QuestionnaireFinalQuestions() {
   const router = useRouter();
   const { answers, updateAnswers, reset } = useQuestionnaire();

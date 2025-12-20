@@ -8,6 +8,14 @@ import { useRouter } from "expo-router";
 import { useState } from "react";
 import { View } from "react-native";
 
+/**
+ * QuestionnaireFamilyHistory
+ * 
+ * Second step of the questionnaire: Family History.
+ * Asks about family history of Anemia and Thrombosis.
+ * 
+ * @returns {JSX.Element} The rendered family history questionnaire step
+ */
 export default function QuestionnaireFamilyHistory() {
   const router = useRouter();
   const { answers, updateAnswers } = useQuestionnaire();

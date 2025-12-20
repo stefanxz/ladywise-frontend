@@ -1,14 +1,26 @@
 import { useEffect, useState, useRef } from 'react';
-import { Client } from '@stomp/stompjs';
+import { Client, IMessage } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
 import { TextEncoder } from 'text-encoding';
 import { RiskResult, InsightResult } from '@/lib/types/risks';
 
+// Polyfill for TextEncoder
 if (typeof global.TextEncoder === 'undefined') {
   global.TextEncoder = TextEncoder;
 }
 
+/**
+ * useHealthRealtime
+ * 
+ * Custom hook to manage real-time health data connections via WebSocket (STOMP).
+ * Subscribes to risk updates and trend insights for the specific user.
+ * 
+ * @param {string | null} userId - The ID of the authenticated user
+ * @param {string | null} token - Authentication token
+ * @returns {Object} Real-time health data and connection status
+ */
 export const useHealthRealtime = (userId: string | null, token: string | null) => {
+  // Using independent state atoms to avoid object merging conflicts
   const [realtimeRisks, setRealtimeRisks] = useState<RiskResult | null>(null);
   const [anemiaTrend, setAnemiaTrend] = useState<InsightResult | null>(null);
   const [thrombosisTrend, setThrombosisTrend] = useState<InsightResult | null>(null);
@@ -16,65 +28,99 @@ export const useHealthRealtime = (userId: string | null, token: string | null) =
 
   const clientRef = useRef<Client | null>(null);
 
+  // DEBUG: Monitor State Updates
+  useEffect(() => {
+    if (realtimeRisks) console.log("🔄 Hook State Updated: RISKS", realtimeRisks.anemia.risk);
+  }, [realtimeRisks]);
+
+  useEffect(() => {
+    if (anemiaTrend) console.log("🔄 Hook State Updated: ANEMIA TREND", anemiaTrend.trend);
+  }, [anemiaTrend]);
+
+  useEffect(() => {
+    if (thrombosisTrend) console.log("🔄 Hook State Updated: THROMBOSIS TREND", thrombosisTrend.trend);
+  }, [thrombosisTrend]);
+
   useEffect(() => {
     if (!userId || !token) return;
 
-    // 1. Dynamic Configuration from Env
-    // Fallback to localhost if env var is missing, though your .env should provide it.
     const baseUrl = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:8080';
-    
-    // Strip trailing slash if present to avoid double-slashing (e.g. "http://.../" -> "http://...")
-    const cleanBaseUrl = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
+    const cleanBaseUrl = baseUrl.replace(/\/$/, '');
     const socketUrl = `${cleanBaseUrl}/sockjs`;
 
-    // 2. SockJS Factory
-    const sockFactory = () => new SockJS(socketUrl, null, {
-        transports: ['xhr-streaming', 'xhr-polling']
-    });
-
     const client = new Client({
-      webSocketFactory: sockFactory,
-      connectHeaders: { Authorization: `Bearer ${token}` },
-      debug: (str) => console.log('[STOMP]:', str),
+      webSocketFactory: () => new SockJS(socketUrl, null, {
+        transports: ['xhr-streaming', 'xhr-polling']
+      }),
+      connectHeaders: {
+        Authorization: `Bearer ${token}`
+      },
+      debug: (str) => {
+        // Filter out heartbeat noise
+        if (!str.includes('PING') && !str.includes('PONG')) {
+          console.log('[STOMP Internal]:', str);
+        }
+      },
       reconnectDelay: 5000,
+      heartbeatIncoming: 4000,
+      heartbeatOutgoing: 4000,
     });
 
     client.onConnect = () => {
       console.log(`✅ Connected to Health Stream at ${socketUrl}`);
       setIsConnected(true);
 
-      client.subscribe(`/topic/risks/${userId}`, (message) => {
+      // --- Subscriptions ---
+
+      // 1. Risk Subscription
+      client.subscribe(`/topic/risks/${userId}`, (message: IMessage) => {
         if (message.body) {
-          console.log("⚡️ Risk Update Received");
-          setRealtimeRisks(JSON.parse(message.body));
+          const parsed = JSON.parse(message.body);
+          console.log("📥 STOMP Packet Received: RISKS", parsed);
+          // Functional update guarantees we don't use stale closures
+          setRealtimeRisks(() => parsed);
         }
       });
 
-      client.subscribe(`/topic/insights/anemia/${userId}`, (message) => {
+      // 2. Anemia Trend Subscription
+      client.subscribe(`/topic/insights/anemia/${userId}`, (message: IMessage) => {
         if (message.body) {
-          setAnemiaTrend(JSON.parse(message.body));
+          const parsed = JSON.parse(message.body);
+          console.log("📥 STOMP Packet Received: ANEMIA TREND", parsed);
+          setAnemiaTrend(() => parsed);
         }
       });
 
-      client.subscribe(`/topic/insights/thrombosis/${userId}`, (message) => {
+      // 3. Thrombosis Trend Subscription
+      client.subscribe(`/topic/insights/thrombosis/${userId}`, (message: IMessage) => {
         if (message.body) {
-          setThrombosisTrend(JSON.parse(message.body));
+          const parsed = JSON.parse(message.body);
+          console.log("📥 STOMP Packet Received: THROMBOSIS TREND", parsed);
+          setThrombosisTrend(() => parsed);
         }
       });
     };
 
     client.onStompError = (frame) => {
       console.error('❌ STOMP Broker Error:', frame.headers['message']);
+      console.error('Details:', frame.body);
     };
 
     client.activate();
     clientRef.current = client;
 
     return () => {
-      client.deactivate();
+      if (client.active) {
+        client.deactivate();
+      }
       setIsConnected(false);
     };
   }, [userId, token]);
 
-  return { realtimeRisks, anemiaTrend, thrombosisTrend, isConnected };
+  return {
+    realtimeRisks,
+    anemiaTrend,
+    thrombosisTrend,
+    isConnected
+  };
 };

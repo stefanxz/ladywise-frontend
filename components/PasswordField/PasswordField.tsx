@@ -4,6 +4,20 @@ import React, { useState } from "react";
 import { Pressable, Text, View } from "react-native";
 import { PasswordFieldProps } from "@/components/PasswordField/PasswordField.types";
 
+/**
+ * PasswordField
+ * 
+ * A specialized text input for passwords with a visibility toggle.
+ * 
+ * @param {PasswordFieldProps} props - Component props
+ * @param {string} props.label - Field label
+ * @param {string} props.value - Current password value
+ * @param {function} props.onChangeText - Callback for text change
+ * @param {string} [props.placeholder] - Placeholder text
+ * @param {string} [props.error] - Error message to display
+ * @param {string} [props.testID] - Test ID
+ * @returns {JSX.Element} The rendered password input
+ */
 export function PasswordField({
   label,
   value,
