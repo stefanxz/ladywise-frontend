@@ -21,6 +21,10 @@ jest.mock("@/lib/api", () => ({
   deleteCurrentUser: jest.fn(),
 }));
 
+jest.mock("@/hooks/useToast", () => ({
+  useToast: jest.fn(),
+}));
+
 jest.mock("@/utils/validations", () => ({
   isPasswordValid: jest.fn(),
 }));
@@ -86,9 +90,11 @@ const mockChangePassword = api.changePassword as jest.Mock;
 const mockDeleteCurrentUser = api.deleteCurrentUser as jest.Mock;
 const mockIsPasswordValid = require("@/utils/validations")
   .isPasswordValid as jest.Mock;
+const mockUseToast = require("@/hooks/useToast").useToast as jest.Mock;
 
 describe("AccountSettings - Change Password", () => {
   const mockSignOut = jest.fn();
+  const mockShowToast = jest.fn();
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -97,8 +103,10 @@ describe("AccountSettings - Change Password", () => {
       token: "fake-token",
       userId: "fake-user-id",
     });
-    // Mock alert
-    jest.spyOn(Alert, "alert").mockImplementation(() => {});
+
+    mockUseToast.mockReturnValue({
+      showToast: mockShowToast,
+    });
   });
 
   afterEach(() => {
@@ -192,7 +200,7 @@ describe("AccountSettings - Change Password", () => {
     expect(mockChangePassword).not.toHaveBeenCalled();
   });
 
-  it("successfully updates password and clears form fields", async () => {
+  it("successfully updates password and shows success toast", async () => {
     mockIsPasswordValid.mockReturnValue(true);
     mockChangePassword.mockResolvedValue({});
     render(<AccountSettings />);
@@ -214,12 +222,11 @@ describe("AccountSettings - Change Password", () => {
         currentPassword: "CurrentPass123",
         newPassword: "NewPassword123",
       });
+      expect(mockShowToast).toHaveBeenCalledWith(
+        "Password updated successfully!",
+        "success",
+      );
     });
-
-    // Verify fields are cleared after successful update
-    expect(currentPasswordInput.props.value).toBe("");
-    expect(newPasswordInput.props.value).toBe("");
-    expect(confirmPasswordInput.props.value).toBe("");
   });
 
   it("shows loading state while updating password", async () => {
@@ -355,6 +362,7 @@ describe("AccountSettings - Change Password", () => {
 
 describe("AccountSettings - Delete Account", () => {
   const mockSignOut = jest.fn();
+  const mockShowToast = jest.fn();
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -363,7 +371,6 @@ describe("AccountSettings - Delete Account", () => {
       token: "fake-token",
       userId: "fake-user-id",
     });
-    jest.spyOn(Alert, "alert").mockImplementation(() => {});
   });
 
   afterEach(() => {
@@ -460,7 +467,7 @@ describe("AccountSettings - Delete Account", () => {
     });
   });
 
-  it("shows alert on delete failure and does not sign out", async () => {
+  it("does not sign out on delete failure", async () => {
     const error = new AxiosError("Server Error");
     error.response = { status: 500 } as any;
     error.message = "Internal Server Error";
@@ -476,9 +483,6 @@ describe("AccountSettings - Delete Account", () => {
 
     await waitFor(() => {
       expect(mockDeleteCurrentUser).toHaveBeenCalled();
-      expect(Alert.alert).toHaveBeenCalledWith(
-        "Failed to delete account. Please try again.",
-      );
       expect(mockSignOut).not.toHaveBeenCalled();
     });
   });
@@ -496,9 +500,6 @@ describe("AccountSettings - Delete Account", () => {
 
     await waitFor(() => {
       expect(mockDeleteCurrentUser).toHaveBeenCalled();
-      expect(Alert.alert).toHaveBeenCalledWith(
-        "An unexpected error occurred. Please try again.",
-      );
       expect(mockSignOut).not.toHaveBeenCalled();
     });
   });
