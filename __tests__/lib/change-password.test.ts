@@ -1,7 +1,7 @@
 import type {
   ChangePasswordPayload,
   ChangePasswordResponse,
-} from "@/lib/types";
+} from "@/lib/types/payloads";
 import { changePassword } from "@/lib/api";
 
 jest.mock("axios", () => {
