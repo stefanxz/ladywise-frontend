@@ -20,7 +20,6 @@ export const ToastItem: React.FC<ToastItemProps> = ({
   const { hideToast } = useToast();
   const opacity = useRef(new Animated.Value(0)).current;
   const translateY = useRef(new Animated.Value(-20)).current;
-  const scale = useRef(new Animated.Value(0.95)).current;
 
   // Configuration based on type
   const config = {
@@ -52,7 +51,7 @@ export const ToastItem: React.FC<ToastItemProps> = ({
         useNativeDriver: true,
       }),
       Animated.timing(translateY, {
-        toValue: -10,
+        toValue: -20,
         duration: 200,
         useNativeDriver: true,
       }),
@@ -65,17 +64,14 @@ export const ToastItem: React.FC<ToastItemProps> = ({
       Animated.spring(opacity, {
         toValue: 1,
         useNativeDriver: true,
-        tension: 50,
+        tension: 65,
+        friction: 8,
       }),
       Animated.spring(translateY, {
         toValue: 0,
         useNativeDriver: true,
-        tension: 50,
-      }),
-      Animated.spring(scale, {
-        toValue: 1,
-        useNativeDriver: true,
-        tension: 50,
+        tension: 65,
+        friction: 8,
       }),
     ]).start();
 
@@ -86,20 +82,20 @@ export const ToastItem: React.FC<ToastItemProps> = ({
     }, displayDuration);
 
     return () => clearTimeout(timer);
-  }, [handleDismiss, opacity, scale, toast.duration, translateY]);
+  }, [handleDismiss, opacity, toast.duration, translateY]);
 
   return (
     <Animated.View
       style={{
         opacity,
-        transform: [{ translateY }, { scale }],
+        transform: [{ translateY }],
         shadowColor: "#000",
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.1,
-        shadowRadius: 12,
-        elevation: 5,
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.08,
+        shadowRadius: 8,
+        elevation: 4,
       }}
-      className="mb-3"
+      className="mb-2 mx-4"
     >
       <Pressable
         onPress={handleDismiss}
@@ -108,7 +104,7 @@ export const ToastItem: React.FC<ToastItemProps> = ({
           borderLeftWidth: 4,
           borderLeftColor: config.color,
         }}
-        className="flex-row items-center rounded-xl py-4 px-4 min-w-[280px] max-w-[340px]"
+        className="flex-row items-center rounded-xl py-3.5 px-4"
       >
         <Ionicons name={config.icon} size={22} color={config.color} />
 
@@ -116,6 +112,7 @@ export const ToastItem: React.FC<ToastItemProps> = ({
           <Text
             className="text-[15px] font-medium leading-5"
             style={{ color: Colors.regularText }}
+            numberOfLines={2}
           >
             {toast.message}
           </Text>
