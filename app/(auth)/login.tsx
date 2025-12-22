@@ -141,7 +141,6 @@ export default function LoginScreen() {
             flexGrow: 1,
             paddingBottom: bottomPadding,
             alignItems: "center",
-            justifyContent: "center",
           }}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
@@ -156,14 +155,14 @@ export default function LoginScreen() {
             </View>
 
             {/* Main content container */}
-            <View className="flex-1 justify-between pt-12 mb-5">
+            <View className="w-full max-w-md px-6 pt-10 self-center">
               {/* Welcome Section */}
-              <View className="px-16 mb-8">
+              <View className="items-start px-10 pt-12 mb-5">
                 <Text className="text-3xl font-bold text-brand text-left">
                   Welcome Back 🌸
                 </Text>
                 <Text
-                  className="text-gray-600 text-lg leading-snug text-left mt-2 w-72"
+                  className="text-gray-600 text-lg leading-snug text-left mt-2 max-w-xs"
                   numberOfLines={2}
                 >
                   Log in to continue your journey with{" "}
@@ -183,7 +182,7 @@ export default function LoginScreen() {
               </View>
 
               {/* Form Section */}
-              <View className="mt-8 gap-y-8 w-full px-16 self-center">
+              <View className="gap-y-8 w-80 self-center">
                 {/* Email */}
                 <View>
                   <Text className="text-gray-700 mb-1 font-extrabold">
@@ -217,7 +216,7 @@ export default function LoginScreen() {
                   <Text className="text-gray-700 mb-1 font-extrabold">
                     Password
                   </Text>
-                  <View className="flex-row items-center">
+                  <View className="relative">
                     <ThemedTextInput
                       value={password}
                       onChangeText={(value: string) => {
@@ -227,12 +226,12 @@ export default function LoginScreen() {
                       placeholder="Your password"
                       placeholderTextColor="gray"
                       secureTextEntry={!showPw}
-                      className="flex-1 h-11"
+                      className="h-11 pr-12"
                     />
                     <Pressable
                       onPress={() => setShowPw((v) => !v)}
                       hitSlop={12}
-                      className="px-3"
+                      className="absolute right-3 top-0 bottom-0 justify-center"
                     >
                       <Feather
                         name={showPw ? "eye-off" : "eye"}
@@ -243,11 +242,11 @@ export default function LoginScreen() {
                   </View>
 
                   <Pressable
-                    className="self-end mt-1"
+                    className="self-end mt-3"
                     hitSlop={6}
                     onPress={() => router.push("/(auth)/password_recovery")}
                   >
-                    <Text className="text-xs font-medium text-brand">
+                    <Text className="text-sm font-medium text-brand">
                       Forgot password?
                     </Text>
                   </Pressable>
@@ -272,17 +271,15 @@ export default function LoginScreen() {
                 />
               </View>
 
-              <View className="mt-32 gap-y-8 w-full px-16 self-center">
-                {/* Bottom Section */}
-                <SocialSignOn
-                  onPress={(provider) => {
-                    {
-                      /*TODO: Actual social media sign on*/
-                    }
-                    console.log("SSO pressed:", provider);
-                  }}
-                />
-              </View>
+              {/* Bottom Section */}
+              <SocialSignOn
+                onPress={(provider) => {
+                  {
+                    /*TODO: Actual social media sign on*/
+                  }
+                  console.log("SSO pressed:", provider);
+                }}
+              />
             </View>
           </SafeAreaView>
         </ScrollView>
