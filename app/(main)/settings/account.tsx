@@ -5,6 +5,9 @@ import { PasswordField } from "@/components/PasswordField/PasswordField";
 import { ThemedPressable } from "@/components/ThemedPressable/ThemedPressable";
 import { isPasswordValid } from "@/utils/validations";
 import { useAuth } from "@/context/AuthContext";
+import { changePassword, deleteCurrentUser } from "@/lib/api";
+import { isAxiosError } from "axios";
+import { useToast } from "@/hooks/useToast";
 
 /**
  * AccountSettings
@@ -12,18 +15,15 @@ import { useAuth } from "@/context/AuthContext";
  * Screen for managing account security settings.
  * Allows users to change their password and delete their account.
  *
- * @returns {JSX.Element} The rendered account settings screen
  */
 export default function AccountSettings() {
   const { signOut } = useAuth();
+  const { showToast } = useToast();
 
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
-  const [passwordSuccessMsg, setPasswordSuccessMsg] = useState<string | null>(
-    null,
-  );
   const [currentPwError, setCurrentPwError] = useState<string | null>(null);
   const [newPwError, setNewPwError] = useState<string | null>(null);
   const [confirmPwError, setConfirmPwError] = useState<string | null>(null);
@@ -35,18 +35,19 @@ export default function AccountSettings() {
     setCurrentPwError(null);
     setNewPwError(null);
     setConfirmPwError(null);
-    setPasswordSuccessMsg(null);
   };
 
-  const handleUpdatePassword = () => {
+  const handleUpdatePassword = async () => {
     clearErrors();
     let hasError = false;
 
+    // Validate current password is provided
     if (!currentPassword) {
       setCurrentPwError("Please enter your current password.");
       hasError = true;
     }
 
+    // Validate new password meets requirements
     if (!isPasswordValid(newPassword)) {
       setNewPwError(
         "Password must contain at least 8 characters, 1 upper case, 1 lower case and 1 number (and no spaces).",
@@ -54,6 +55,7 @@ export default function AccountSettings() {
       hasError = true;
     }
 
+    // Validate passwords match
     if (newPassword !== confirmPassword) {
       setConfirmPwError("Passwords do not match.");
       hasError = true;
@@ -61,25 +63,68 @@ export default function AccountSettings() {
 
     if (hasError) return;
 
-    // TODO: change mock to actual impl
     setIsUpdatingPassword(true);
-    setTimeout(() => {
-      setIsUpdatingPassword(false);
-      setPasswordSuccessMsg("Password updated successfully.");
+
+    try {
+      await changePassword({
+        currentPassword,
+        newPassword,
+      });
+
       setCurrentPassword("");
       setNewPassword("");
       setConfirmPassword("");
-    }, 1500);
+
+      showToast("Password updated successfully!", "success");
+    } catch (error) {
+      if (isAxiosError(error)) {
+        const status = error.response?.status;
+        const message = error.response?.data?.message || error.message;
+
+        if (status === 401) {
+          // Invalid current password
+          setCurrentPwError("Current password is incorrect.");
+        } else if (status === 400) {
+          // Validation error (e.g., new password same as current)
+          setNewPwError(message);
+        } else {
+          // Generic error
+          setCurrentPwError("Failed to update password. Please try again.");
+          showToast("Failed to update password.", "error");
+        }
+      } else {
+        // Non-Axios error
+        setCurrentPwError("An unexpected error occurred. Please try again.");
+        showToast("An unexpected error occurred.", "error");
+      }
+    } finally {
+      setIsUpdatingPassword(false);
+    }
   };
 
-  const handleDeleteAccount = () => {
+  const handleDeleteAccount = async () => {
     setIsDeleting(true);
-    // TODO: change mock to actual impl
-    setTimeout(() => {
+    try {
+      await deleteCurrentUser();
+      showToast("Account deleted successfully.", "success");
+      await signOut();
+    } catch (error) {
       setIsDeleting(false);
-      console.log("Account deleted");
-      signOut();
-    }, 2000);
+
+      if (isAxiosError(error)) {
+        const status = error.response?.status;
+
+        if (status === 404) {
+          showToast("Failed to delete account. Please try again.", "error");
+          // User doesn't exist, sign out anyway
+          await signOut();
+        } else {
+          showToast("Failed to delete account. Please try again.", "error");
+        }
+      } else {
+        showToast("Failed to delete account. Please try again.", "error");
+      }
+    }
   };
 
   return (
@@ -87,7 +132,7 @@ export default function AccountSettings() {
       title="Account"
       description="Manage your security and account preferences."
     >
-      {/* --- Change Password Section --- */}
+      {/* Change Password Section */}
       <View className="bg-white rounded-2xl shadow-sm px-4 py-6 mb-6">
         <Text className="text-lg font-bold text-headingText mb-4">
           Change Password
@@ -127,12 +172,6 @@ export default function AccountSettings() {
             testID="confirm-new-password-input"
           />
 
-          {passwordSuccessMsg && (
-            <Text className="text-green-600 text-sm font-medium text-center mt-2">
-              {passwordSuccessMsg}
-            </Text>
-          )}
-
           <ThemedPressable
             label="Update Password"
             onPress={handleUpdatePassword}
@@ -145,7 +184,10 @@ export default function AccountSettings() {
       </View>
 
       <View className="bg-white rounded-2xl shadow-sm px-4 py-6 mb-6">
-        <Text className="text-lg font-bold text-red-600 mb-2">
+        <Text
+          className="text-lg font-bold text-red-600 mb-2"
+          testID="delete-account-btn"
+        >
           Delete Account
         </Text>
         <Text className="text-sm text-inactiveText mb-6 leading-5">

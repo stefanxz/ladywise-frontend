@@ -9,6 +9,8 @@ export const Colors = {
   activeTab: "#111827",
   inactiveTab: "#9CA3AF",
   textHeading: "#111827",
+  gray100: "#F3F4F6",
+  gray200: "#E5E7EB",
 
   lightGreen: "#F0FDF4",
   lightRed: "#FEF2F2",
