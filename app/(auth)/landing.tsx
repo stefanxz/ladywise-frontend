@@ -9,10 +9,14 @@ import backgroundPart1 from "@/assets/images/LandingPage-background-part1.png";
 import backgroundPart2 from "@/assets/images/LandingPage-background-part2.png";
 
 /**
- * Landing page displayed when the app launches.
- * Provides entry points to Register and Login flows.
+ * LandingPage
+ *
+ * The entry screen displayed when the application launches.
+ * Provides navigation options for users to either register a new account
+ * or log in to an existing one.
+ *
+ * @returns {JSX.Element} The rendered landing page
  */
-
 export default function LandingPage() {
   const router = useRouter();
 
@@ -68,14 +72,14 @@ export default function LandingPage() {
           resizeMode="stretch"
           className="absolute bottom-0 w-full h-3/4"
         />
-        <View className="absolute bottom-0 w-full items-center pb-24">
+        <View className="absolute bottom-4 w-full px-6 items-center pb-24">
           <ThemedPressable
             label="Get Started"
             onPress={handleGetStarted}
             testID="get-started-button"
             loading={false}
             disabled={false}
-            className="h-11 w-[327px] mt-18 self-center bg-brand rounded-2xl"
+            className="h-11 w-full mt-18 self-center bg-brand rounded-2xl"
           />
           <View className="flex-row items-center justify-center space-x-2 mt-4">
             <Text className="text-regularText">Already have an account? </Text>

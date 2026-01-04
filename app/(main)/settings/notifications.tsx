@@ -3,6 +3,13 @@ import React, { useState } from "react";
 import { SettingsPageLayout } from "@/components/Settings/SettingsPageLayout";
 import { Colors } from "@/constants/colors";
 
+/**
+ * NotificationsSettings
+ *
+ * Screen for managing push notification preferences.
+ *
+ * @returns {JSX.Element} The rendered notifications settings screen
+ */
 export default function NotificationsSettings() {
   const [menstrualCycleNotifications, setMenstrualCycleNotifications] =
     useState(false);

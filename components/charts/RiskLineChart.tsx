@@ -29,6 +29,23 @@ const chartConfig = {
   },
 };
 
+/**
+ * RiskLineChart
+ *
+ * A line chart visualizing risk trends over time.
+ * Uses `react-native-chart-kit` for rendering.
+ *
+ * @param {RiskLineChartProps} props - Component props
+ * @param {number[]} props.data - Array of numerical data points
+ * @param {string[]} props.labels - Array of X-axis labels
+ * @param {number} props.segments - Number of horizontal segments
+ * @param {function} props.formatYLabel - Formatter for Y-axis labels
+ * @param {number} [props.width] - Chart width
+ * @param {number} [props.height] - Chart height
+ * @param {boolean} [props.isInteractive] - Whether to enable interactivity
+ * @param {number} [props.verticalLabelRotation] - Rotation angle for labels
+ * @returns {JSX.Element} The rendered line chart
+ */
 export function RiskLineChart({
   data,
   labels,

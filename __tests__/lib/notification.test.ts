@@ -24,13 +24,18 @@ describe("Notification API Helpers", () => {
   describe("registerPushToken", () => {
     it("posts the token to the correct endpoint", async () => {
       const mockToken = "ExponentPushToken[123]";
-      (api.post as jest.Mock).mockResolvedValueOnce({ data: { success: true } });
+      (api.post as jest.Mock).mockResolvedValueOnce({
+        data: { success: true },
+      });
 
       await registerPushToken(mockToken);
 
-      expect(api.post).toHaveBeenCalledWith("/api/notifications/register-token", {
-        token: mockToken,
-      });
+      expect(api.post).toHaveBeenCalledWith(
+        "/api/notifications/register-token",
+        {
+          token: mockToken,
+        },
+      );
     });
   });
 
@@ -54,7 +59,10 @@ describe("Notification API Helpers", () => {
     it("patches the setting with correct payload", async () => {
       (api.patch as jest.Mock).mockResolvedValueOnce({ data: {} });
 
-      await updateNotificationSetting(NotificationType.CYCLE_PHASE_UPDATE, false);
+      await updateNotificationSetting(
+        NotificationType.CYCLE_PHASE_UPDATE,
+        false,
+      );
 
       expect(api.patch).toHaveBeenCalledWith("/api/notifications/settings", {
         type: "CYCLE_PHASE_UPDATE",

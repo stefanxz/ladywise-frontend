@@ -8,6 +8,7 @@ import { ThemedPressable } from "@/components/ThemedPressable/ThemedPressable";
 import { registerUser } from "@/lib/api";
 import { isEmailValid, isPasswordValid } from "@/utils/validations";
 import { useRouter } from "expo-router";
+import axios from "axios";
 import React, { useState, useRef, useEffect } from "react";
 import {
   Text,
@@ -22,7 +23,15 @@ import TermsConditionsPopUp, {
   TermsConditionsPopUpRef,
 } from "@/components/TermsConditionsPopUp/TermsConditionsPopUp";
 import termsData from "../../../data/terms-and-conditions.json";
-
+type ApiError = { message?: string };
+/**
+ * RegisterIndex
+ *
+ * The initial screen in the user registration flow.
+ * Collects email, password, and terms agreement.
+ *
+ * @returns {JSX.Element} The rendered registration screen
+ */
 export default function RegisterIndex() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -125,8 +134,24 @@ export default function RegisterIndex() {
         loginResponse.email,
       );
       router.replace("/(auth)/register/personal-details");
-    } catch (e) {
-      setFormError(e instanceof Error ? e.message : "Registration failed.");
+    } catch (e: unknown) {
+      if (axios.isAxiosError(e)) {
+        const status = e.response?.status;
+        const message =
+          (e.response?.data as ApiError)?.message ??
+          e.message ??
+          "Registration failed.";
+
+        if (status === 409) {
+          setEmailError(message);
+          return;
+        }
+
+        setFormError(message);
+        return;
+      }
+
+      setFormError("Registration failed.");
     } finally {
       setRegistering(false);
     }

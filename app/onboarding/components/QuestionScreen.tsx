@@ -19,6 +19,16 @@ type QuestionScreenProps = {
   edgeOffset?: number;
 };
 
+/**
+ * QuestionScreen
+ *
+ * Reusable wrapper component for questionnaire steps.
+ * Displays a title, description, progress bar, and content.
+ * Optionally includes a "Skip" button and footer.
+ *
+ * @param {QuestionScreenProps} props - Component props
+ * @returns {JSX.Element} The rendered question screen layout
+ */
 export function QuestionScreen({
   step,
   totalSteps = QUESTIONNAIRE_TOTAL_STEPS,
@@ -86,6 +96,14 @@ type BinaryChoiceGroupProps = {
   testIDPrefix?: string;
 };
 
+/**
+ * BinaryChoiceGroup
+ *
+ * Component for selecting between two mutually exclusive options (e.g., Yes/No).
+ *
+ * @param {BinaryChoiceGroupProps} props - Component props
+ * @returns {JSX.Element} The rendered binary choice group
+ */
 export function BinaryChoiceGroup({
   question,
   value,
@@ -144,6 +162,14 @@ type MultiSelectGroupProps = {
   onToggle: (id: string) => void;
 };
 
+/**
+ * MultiSelectGroup
+ *
+ * Component for selecting multiple options from a list.
+ *
+ * @param {MultiSelectGroupProps} props - Component props
+ * @returns {JSX.Element} The rendered multi-select group
+ */
 export function MultiSelectGroup({
   question,
   options,

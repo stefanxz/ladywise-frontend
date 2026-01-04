@@ -9,6 +9,14 @@ import { ThemedPressable } from "@/components/ThemedPressable/ThemedPressable";
 import { resetPassword } from "@/lib/api";
 import { isPasswordValid } from "@/utils/validations";
 
+/**
+ * ResetPasswordScreen
+ *
+ * Screen that allows users to set a new password using a token from the reset link.
+ * Validates the new password and confirmation before submitting.
+ *
+ * @returns {JSX.Element} The rendered password reset screen
+ */
 export default function ResetPasswordScreen() {
   const router = useRouter();
   const { token } = useLocalSearchParams<{ token?: string }>();

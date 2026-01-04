@@ -4,6 +4,22 @@ import { ActivityIndicator, Pressable, Text } from "react-native";
 import { cn } from "../../utils/helpers";
 import type { ThemedButtonProperties } from "./ThemedPressable.types";
 
+/**
+ * ThemedPressable
+ *
+ * A standardized button component with branding colors.
+ * Supports loading state, disabled state, and custom styling.
+ *
+ * @param {ThemedButtonProperties} props - Component props
+ * @param {string} props.label - Button text
+ * @param {function} props.onPress - Press handler
+ * @param {boolean} [props.disabled] - Whether button is disabled
+ * @param {boolean} [props.loading] - Whether to show loading spinner
+ * @param {string} [props.className] - Additional container classes
+ * @param {string} [props.textClassName] - Additional text classes
+ * @param {string} [props.testID] - Test ID
+ * @returns {JSX.Element} The rendered button
+ */
 export function ThemedPressable({
   label,
   onPress,

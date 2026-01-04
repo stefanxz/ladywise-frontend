@@ -11,6 +11,22 @@ import { Feather } from "@expo/vector-icons";
  * - It supports loading and disabled states
  * - It is fully accessible and test-friendly
  */
+/**
+ * LogNewPeriodButton
+ *
+ * A simple, reusable “Log period +” button.
+ * The button is centered by its parent container and supports custom coloring.
+ * It handles loading and disabled states and provides accessibility support.
+ *
+ * @param {LogNewPeriodButtonProps} props - Component props
+ * @param {string} props.color - Background color of the button
+ * @param {function} props.onPress - Callback when pressed
+ * @param {boolean} [props.loading] - Whether to show a loading spinner
+ * @param {boolean} [props.disabled] - Whether the button is disabled
+ * @param {string} [props.accessibilityLabel] - Custom accessibility label
+ * @param {string} [props.testID] - Test ID for automated testing
+ * @returns {JSX.Element} The rendered button
+ */
 export default function LogNewPeriodButton({
   color,
   onPress,

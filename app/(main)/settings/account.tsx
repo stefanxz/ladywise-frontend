@@ -6,18 +6,24 @@ import { ThemedPressable } from "@/components/ThemedPressable/ThemedPressable";
 import { isPasswordValid } from "@/utils/validations";
 import { useAuth } from "@/context/AuthContext";
 import { changePassword, deleteCurrentUser } from "@/lib/api";
-import axios from "axios";
+import { isAxiosError } from "axios";
+import { useToast } from "@/hooks/useToast";
 
+/**
+ * AccountSettings
+ *
+ * Screen for managing account security settings.
+ * Allows users to change their password and delete their account.
+ *
+ */
 export default function AccountSettings() {
   const { signOut } = useAuth();
+  const { showToast } = useToast();
 
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
-  const [passwordSuccessMsg, setPasswordSuccessMsg] = useState<string | null>(
-    null,
-  );
   const [currentPwError, setCurrentPwError] = useState<string | null>(null);
   const [newPwError, setNewPwError] = useState<string | null>(null);
   const [confirmPwError, setConfirmPwError] = useState<string | null>(null);
@@ -29,7 +35,6 @@ export default function AccountSettings() {
     setCurrentPwError(null);
     setNewPwError(null);
     setConfirmPwError(null);
-    setPasswordSuccessMsg(null);
   };
 
   const handleUpdatePassword = async () => {
@@ -69,8 +74,10 @@ export default function AccountSettings() {
       setCurrentPassword("");
       setNewPassword("");
       setConfirmPassword("");
+
+      showToast("Password updated successfully!", "success");
     } catch (error) {
-      if (axios.isAxiosError(error)) {
+      if (isAxiosError(error)) {
         const status = error.response?.status;
         const message = error.response?.data?.message || error.message;
 
@@ -83,10 +90,12 @@ export default function AccountSettings() {
         } else {
           // Generic error
           setCurrentPwError("Failed to update password. Please try again.");
+          showToast("Failed to update password.", "error");
         }
       } else {
         // Non-Axios error
         setCurrentPwError("An unexpected error occurred. Please try again.");
+        showToast("An unexpected error occurred.", "error");
       }
     } finally {
       setIsUpdatingPassword(false);
@@ -97,25 +106,23 @@ export default function AccountSettings() {
     setIsDeleting(true);
     try {
       await deleteCurrentUser();
-      signOut();
+      showToast("Account deleted successfully.", "success");
+      await signOut();
     } catch (error) {
       setIsDeleting(false);
 
-      if (axios.isAxiosError(error)) {
+      if (isAxiosError(error)) {
         const status = error.response?.status;
 
         if (status === 404) {
-          // console.error("User not found");
+          showToast("Failed to delete account. Please try again.", "error");
           // User doesn't exist, sign out anyway
-          // TODO: change this?
-          signOut();
+          await signOut();
         } else {
-          // console.error("Failed to delete account:", error.message);
-          alert("Failed to delete account. Please try again.");
+          showToast("Failed to delete account. Please try again.", "error");
         }
       } else {
-        // console.error("An unexpected error occurred:", error);
-        alert("An unexpected error occurred. Please try again.");
+        showToast("Failed to delete account. Please try again.", "error");
       }
     }
   };
@@ -165,12 +172,6 @@ export default function AccountSettings() {
             testID="confirm-new-password-input"
           />
 
-          {passwordSuccessMsg && (
-            <Text className="text-green-600 text-sm font-medium text-center mt-2">
-              {passwordSuccessMsg}
-            </Text>
-          )}
-
           <ThemedPressable
             label="Update Password"
             onPress={handleUpdatePassword}
@@ -183,7 +184,10 @@ export default function AccountSettings() {
       </View>
 
       <View className="bg-white rounded-2xl shadow-sm px-4 py-6 mb-6">
-        <Text className="text-lg font-bold text-red-600 mb-2">
+        <Text
+          className="text-lg font-bold text-red-600 mb-2"
+          testID="delete-account-btn"
+        >
           Delete Account
         </Text>
         <Text className="text-sm text-inactiveText mb-6 leading-5">

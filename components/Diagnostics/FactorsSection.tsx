@@ -5,9 +5,14 @@ import { mapBackendListToFactors } from "@/utils/mapBackendToFactors";
 import { FactorsSectionProps } from "@/components/Diagnostics/types";
 
 /**
- * Displays a grid of risk factor cards based on backend data. Shows a message
- * when no factors are present.
- * @param data - Raw backend data containing risk factors
+ * FactorsSection
+ *
+ * Displays a grid of risk factor cards based on backend data.
+ * Shows a message when no factors are present.
+ *
+ * @param {FactorsSectionProps} props - Component props
+ * @param {any} props.data - Raw backend data containing risk factors
+ * @returns {JSX.Element} The rendered factors grid or empty state
  *
  * @example
  * ```tsx

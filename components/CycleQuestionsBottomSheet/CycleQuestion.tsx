@@ -4,16 +4,19 @@ import { CycleQuestionOptionPill } from "./CycleQuestionOptionPill";
 import { CycleQuestionProps } from "@/components/CycleQuestionsBottomSheet/CycleQuestionsBottomSheet.types";
 
 /**
+ * CycleQuestion
+ *
  * Renders a single question with multiple selectable options.
  * Supports both single-select and multi-select behavior.
  * Multi-select questions can include a "None of the above" option that clears other selections.
  *
- * Props:
- * @param question - The text of the question
- * @param options - Array of string options for this question
- * @param multiSelect - Whether the question allows multiple selections
- * @param onSelect - Callback that returns the currently selected value(s)
- * @param resetOption - Resets chosen answers and selects the reset option
+ * @param {CycleQuestionProps} props - Component props
+ * @param {string} props.question - The text of the question
+ * @param {string[]} props.options - Array of string options for this question
+ * @param {boolean} [props.multiSelect] - Whether the question allows multiple selections
+ * @param {function} [props.onSelect] - Callback that returns the currently selected value(s)
+ * @param {string} [props.resetOption] - Resets chosen answers and selects the reset option
+ * @returns {JSX.Element} The rendered question component
  */
 export function CycleQuestion({
   question,
