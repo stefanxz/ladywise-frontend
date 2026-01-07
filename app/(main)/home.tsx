@@ -40,6 +40,7 @@ import { RiskData } from "@/lib/types/risks";
 import { DailyCycleAnswers } from "@/components/CycleQuestionsBottomSheet/CycleQuestionsBottomSheet.types";
 import { mapAnswersToPayload, mapApiToInsights } from "@/utils/helpers";
 import { formatPhaseName, generateCalendarDays } from "@/utils/mainPageHelpers";
+import { useDailyEntry } from "@/hooks/useDailyEntry";
 
 /**
  * Home
@@ -67,11 +68,13 @@ const Home = () => {
   const [error, setError] = useState<string | null>(null);
   const [userName, setUserName] = useState<string>("");
 
-  const bottomSheetModalRef = useRef<BottomSheetModal>(null);
-  const openSheet = useCallback(
-    () => bottomSheetModalRef.current?.present(),
-    [],
-  );
+  const {
+    bottomSheetRef,
+    isLoading: isBottomSheetLoading,
+    selectedDayData,
+    openQuestionnaire,
+    handleSave,
+  } = useDailyEntry();
 
   const displayedInsights: RiskData[] = useMemo(() => {
     if (realtimeRisks) {
@@ -251,15 +254,17 @@ const Home = () => {
             <FloatingAddButton
               buttonColor={theme.button}
               textColor={theme.buttonText}
-              onPress={openSheet}
+              onPress={() => openQuestionnaire(new Date())}
             />
           </View>
         </SafeAreaView>
       </LinearGradient>
 
       <CycleQuestionsBottomSheet
-        bottomSheetRef={bottomSheetModalRef}
-        onSave={handleAddDailyEntry}
+        bottomSheetRef={bottomSheetRef}
+        initialData={selectedDayData}
+        isLoading={isBottomSheetLoading}
+        onSave={handleSave}
       />
     </>
   );

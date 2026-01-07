@@ -1,5 +1,5 @@
-import React, { useCallback, useMemo, useState } from "react";
-import { View, Text, Pressable } from "react-native";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { View, Text, Pressable, ActivityIndicator } from "react-native";
 import {
   BottomSheetModal,
   BottomSheetScrollView,
@@ -26,6 +26,8 @@ import { Colors } from "@/constants/colors";
  * @param {CycleQuestionsBottomSheetProps} props - Component props
  * @param {React.RefObject} props.bottomSheetRef - Ref to control the BottomSheetModal from parent
  * @param {function} props.onSave - Async function called when "Save answers" is pressed
+ * @param {DailyCycleAnswers | null} props.initialData - Initial data passed by parent
+ * @param {boolean} props.isLoading - Loading state passed by parent
  * @returns {JSX.Element} The rendered bottom sheet
  *
  * @example
@@ -41,6 +43,8 @@ import { Colors } from "@/constants/colors";
 export function CycleQuestionsBottomSheet({
   bottomSheetRef,
   onSave,
+  initialData,
+  isLoading,
 }: CycleQuestionsBottomSheetProps) {
   const questions = questionsData as unknown as QuestionConfig[];
 
@@ -50,7 +54,15 @@ export function CycleQuestionsBottomSheet({
     riskFactors: [],
     date: "",
   });
-  const [saving, setSaving] = useState(false);
+
+  // Sync state when parent provides new initialData
+  useEffect(() => {
+    if (initialData) {
+      setAnswers(initialData);
+    } else {
+      setAnswers({ flow: null, symptoms: [], riskFactors: [], date: "" });
+    }
+  }, [initialData]);
 
   const snapPoints = useMemo(() => ["80%"], []);
 
@@ -76,20 +88,9 @@ export function CycleQuestionsBottomSheet({
   };
 
   const handleSave = async () => {
-    setSaving(true);
-    try {
-      const answersWithDate = {
-        ...answers,
-        date: new Date().toISOString().split("T")[0], // today
-      };
-
-      await onSave(answersWithDate); // saving is delegated to parent
-      bottomSheetRef.current?.close();
-    } catch (err) {
-      // console.error("save failed", err);
-    } finally {
-      setSaving(false);
-    }
+    // Parent handles the logic of create vs update based on what it knows
+    await onSave(answers);
+    bottomSheetRef.current?.close();
   };
 
   return (
@@ -108,45 +109,45 @@ export function CycleQuestionsBottomSheet({
         </Text>
       </View>
 
-      <BottomSheetScrollView
-        contentContainerStyle={{
-          paddingHorizontal: 16,
-          paddingTop: 4,
-          paddingBottom: 24,
-        }}
-        showsVerticalScrollIndicator={false}
-      >
-        <Text className="mb-8 px-8 text-[12px] text-inactiveText flex items-center text-center">
-          Answer a few quick questions and help us track your cycle and spot any
-          important changes.
-        </Text>
+      {isLoading ? (
+        <View className="flex-1 items-center justify-center p-20">
+          <ActivityIndicator color="#FD7577" />
+        </View>
+      ) : (
+        <BottomSheetScrollView
+          contentContainerStyle={{
+            paddingHorizontal: 16,
+            paddingTop: 4,
+            paddingBottom: 24,
+          }}
+          showsVerticalScrollIndicator={false}
+        >
+          <Text className="mb-8 px-8 text-[12px] text-inactiveText flex items-center text-center">
+            Answer a few quick questions and help us track your cycle and spot
+            any important changes.
+          </Text>
 
-        {/* Questions */}
-        {questions.map((q) => (
-          <CycleQuestion
-            key={q.key}
-            question={q.question}
-            options={q.options}
-            multiSelect={q.multiSelect}
-            onSelect={(value) => handleSelect(q.key, value)}
-          />
-        ))}
-      </BottomSheetScrollView>
+          {/* Questions */}
+          {questions.map((q) => (
+            <CycleQuestion
+              key={q.key}
+              question={q.question}
+              options={q.options}
+              multiSelect={q.multiSelect}
+              value={answers[q.key as keyof DailyCycleAnswers]}
+              onSelect={(value) => handleSelect(q.key, value)}
+            />
+          ))}
+        </BottomSheetScrollView>
+      )}
 
       <View className="mt-4 flex-row gap-3 px-4 pb-8">
         <Pressable
           testID="save-button"
           onPress={handleSave}
-          disabled={saving}
-          className={`flex-1 rounded-xl py-3 items-center justify-center ${saving ? "bg-brand opacity-60" : "bg-brand"}`}
+          className={`flex-1 rounded-xl py-3 items-center justify-center bg-brand`}
         >
-          {saving ? (
-            <Text className="text-white font-inter-semibold">
-              Saving answers...
-            </Text>
-          ) : (
-            <Text className="text-white font-inter-semibold">Save answers</Text>
-          )}
+          <Text className="text-white font-inter-semibold">Save answers</Text>
         </Pressable>
       </View>
     </BottomSheetModal>

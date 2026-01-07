@@ -39,6 +39,33 @@ export const mapAnswersToPayload = (
   };
 };
 
+// Assuming these maps exist in your file
+const REVERSE_FLOW_MAP = Object.fromEntries(
+  Object.entries(FLOW_MAP).map(([k, v]) => [v, k]),
+);
+const REVERSE_SYMPTOM_MAP = Object.fromEntries(
+  Object.entries(SYMPTOM_MAP).map(([k, v]) => [v, k]),
+);
+const REVERSE_RISK_MAP = Object.fromEntries(
+  Object.entries(RISK_MAP).map(([k, v]) => [v, k]),
+);
+
+/**
+ * Transforms backend API data into UI-compatible state.
+ */
+export const mapApiToAnswers = (data: any, date: string): DailyCycleAnswers => {
+  return {
+    date: date,
+    flow: data.flow ? (REVERSE_FLOW_MAP[data.flow] ?? null) : null,
+    symptoms: (data.symptoms || []).map(
+      (s: string) => REVERSE_SYMPTOM_MAP[s] || s,
+    ),
+    riskFactors: (data.riskFactors || []).map(
+      (r: string) => REVERSE_RISK_MAP[r] || r,
+    ),
+  };
+};
+
 const mapScoreToLevel = (score: number): RiskLevel => {
   switch (score) {
     case 3:
