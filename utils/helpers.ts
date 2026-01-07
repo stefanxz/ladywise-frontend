@@ -90,12 +90,12 @@ export const mapApiToInsights = (apiData: ApiRiskResponse): RiskData[] => {
   const anemiaCard: RiskData = {
     id: "anemia",
     title: "Anemia Risk",
-    // 1. Map the integer score to string level
+    // Map the integer score to string level
     level: mapScoreToLevel(apiData.anemiaRisk),
-    // 2. Safely extract description from the Insight object (if present)
+    // Safely extract description from the Insight object (if present)
     description:
       apiData.latestAnemiaInsight?.description || "No recent analysis.",
-    // 3. Extract trend
+    // Extract trend
     trend: apiData.latestAnemiaInsight?.trend,
   };
 
