@@ -62,12 +62,6 @@ export function useDailyEntry(refreshData?: () => Promise<void>) {
     try {
       // Map UI answers back to API payload
       const payload = mapAnswersToPayload({ ...answers, date: contextDate });
-
-      /**
-       * Based on your backend PeriodLogController:
-       * We use logDailyEntryByDate (@PostMapping("/entries"))
-       * which handles both creating new and updating existing entries.
-       */
       await createDailyEntry(payload);
 
       showToast("Successfully saved entry!", "success");
