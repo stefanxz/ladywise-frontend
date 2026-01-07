@@ -23,13 +23,19 @@ interface UsePeriodInteractionProps {
 /**
  * Manages user interactions: selection, logging, editing, deleting, and validation of periods
  */
-export function usePeriodInteraction({ periods, refreshData }: UsePeriodInteractionProps) {
+export function usePeriodInteraction({
+  periods,
+  refreshData,
+}: UsePeriodInteractionProps) {
   const today = useMemo(() => startOfDay(new Date()), []);
 
   // Mode and selection state
   const [isLogMode, setIsLogMode] = useState(false);
   const [editingPeriodId, setEditingPeriodId] = useState<string | null>(null);
-  const [selection, setSelection] = useState<{ start: Date | null; end: Date | null }>({ start: null, end: null });
+  const [selection, setSelection] = useState<{
+    start: Date | null;
+    end: Date | null;
+  }>({ start: null, end: null });
   const [isOngoing, setIsOngoing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -38,6 +44,7 @@ export function usePeriodInteraction({ periods, refreshData }: UsePeriodInteract
     visible: false,
     position: null,
     periodId: null,
+    date: null,
   });
 
   // Actions
@@ -70,7 +77,7 @@ export function usePeriodInteraction({ periods, refreshData }: UsePeriodInteract
       // If toggle off, clear the end date so user can pick manually
       setSelection((prev) => ({ ...prev, end: null }));
     }
-  };  
+  };
 
   // Handle editing an existing period
   const handleEditPeriod = () => {
@@ -84,28 +91,37 @@ export function usePeriodInteraction({ periods, refreshData }: UsePeriodInteract
     setIsOngoing(!!periodToEdit.isOngoing);
 
     // Close tooltip
-    setTooltip({ visible: false, position: null, periodId: null });
+    setTooltip({ visible: false, position: null, periodId: null, date: null });
   };
 
   // Handle deleting an existing period
   const handleDeletePeriod = () => {
-    Alert.alert("Delete Period", "Are you sure you want to delete this period log?", [
-      { text: "Cancel", style: "cancel" },
-      {
-        text: "Delete",
-        style: "destructive",
-        onPress: async () => {
-          if (!tooltip.periodId) return;
-          try {
-            await deletePeriod(tooltip.periodId);
-            await refreshData();
-            setTooltip({ visible: false, position: null, periodId: null });
-          } catch (error) {
-            Alert.alert("Error", "Failed to delete period." + error);
-          }
+    Alert.alert(
+      "Delete Period",
+      "Are you sure you want to delete this period log?",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: async () => {
+            if (!tooltip.periodId) return;
+            try {
+              await deletePeriod(tooltip.periodId);
+              await refreshData();
+              setTooltip({
+                visible: false,
+                position: null,
+                periodId: null,
+                date: null,
+              });
+            } catch (error) {
+              Alert.alert("Error", "Failed to delete period." + error);
+            }
+          },
         },
-      },
-    ]);
+      ],
+    );
   };
 
   const handleDatePress = useCallback(
@@ -140,17 +156,27 @@ export function usePeriodInteraction({ periods, refreshData }: UsePeriodInteract
       // Not in log mode - handle tooltip for existing periods
       // Check if the tapped date belongs to an existing period
       const clickedPeriod = periods.find((p) =>
-        isWithinInterval(date, { start: p.start, end: p.end })
+        isWithinInterval(date, { start: p.start, end: p.end }),
       );
       if (clickedPeriod) {
         // Show tooltip at click position
-        setTooltip({ visible: true, position, periodId: clickedPeriod.id });
+        setTooltip({
+          visible: true,
+          position,
+          periodId: clickedPeriod.id,
+          date: date,
+        });
       } else {
         // Hide tooltip if clicking empty space
-        setTooltip({ visible: false, position: null, periodId: null });
+        setTooltip({
+          visible: false,
+          position: null,
+          periodId: null,
+          date: null,
+        });
       }
     },
-    [isLogMode, isOngoing, today, periods]
+    [isLogMode, isOngoing, today, periods],
   );
 
   // Validation for overlapping or adjacent periods
@@ -164,11 +190,18 @@ export function usePeriodInteraction({ periods, refreshData }: UsePeriodInteract
       : periods;
 
     const hasOverlap = otherPeriods.some((p) =>
-      areIntervalsOverlapping({ start, end }, { start: p.start, end: p.end }, { inclusive: true })
+      areIntervalsOverlapping(
+        { start, end },
+        { start: p.start, end: p.end },
+        { inclusive: true },
+      ),
     );
 
     if (hasOverlap) {
-      Alert.alert("Period already logged!", "It looks like you've already tracked a period during this timeframe. You can just tap on the existing entry to edit it!");
+      Alert.alert(
+        "Period already logged!",
+        "It looks like you've already tracked a period during this timeframe. You can just tap on the existing entry to edit it!",
+      );
       return false;
     }
 
@@ -182,7 +215,10 @@ export function usePeriodInteraction({ periods, refreshData }: UsePeriodInteract
     });
 
     if (isAdjacent) {
-      Alert.alert("Looks like one continuous period!", "Since these dates are right next to an existing log, try extending that period instead.");
+      Alert.alert(
+        "Looks like one continuous period!",
+        "Since these dates are right next to an existing log, try extending that period instead.",
+      );
       return false;
     }
     return true;
@@ -190,7 +226,10 @@ export function usePeriodInteraction({ periods, refreshData }: UsePeriodInteract
 
   const handleSaveLog = async () => {
     if (!selection.start) {
-      Alert.alert("Just a quick check!", "We need a start date to log this entry properly.");
+      Alert.alert(
+        "Just a quick check!",
+        "We need a start date to log this entry properly.",
+      );
       return;
     }
 
@@ -218,9 +257,18 @@ export function usePeriodInteraction({ periods, refreshData }: UsePeriodInteract
       // Refresh data and reset
       await refreshData();
       handleCancelLog();
-      Alert.alert("Success!", editingPeriodId ? "We've updated this period in your history." : "We've added this period to your history.");
+      Alert.alert(
+        "Success!",
+        editingPeriodId
+          ? "We've updated this period in your history."
+          : "We've added this period to your history.",
+      );
     } catch (error: any) {
-      Alert.alert("Oops!", error.message || "We had trouble saving that just now. Please try again in a moment.");
+      Alert.alert(
+        "Oops!",
+        error.message ||
+          "We had trouble saving that just now. Please try again in a moment.",
+      );
     } finally {
       setIsSaving(false);
     }

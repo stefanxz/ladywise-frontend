@@ -68,9 +68,12 @@ export default function CalendarScreen() {
 
   // Edit daily cycle questionnaire handler
   const handleEditDailyQuestionnaire = () => {
-    console.log("Edit cycle questionnaire - To be implemented"); //TODO DAVID MEREACRE
+    if (!tooltip.date) return;
+
+    console.log("Opening questionnaire for date:", tooltip.date.toISOString());
+
     // Close tooltip
-    setTooltip({ visible: false, position: null, periodId: null });
+    setTooltip({ visible: false, position: null, periodId: null, date: null });
   };
 
   // Months rendering
@@ -308,7 +311,12 @@ export default function CalendarScreen() {
             onEditCycleQuestionnaire={handleEditDailyQuestionnaire}
             onDelete={handleDeletePeriod}
             onClose={() =>
-              setTooltip({ visible: false, position: null, periodId: null })
+              setTooltip({
+                visible: false,
+                position: null,
+                periodId: null,
+                date: null,
+              })
             }
           />
         </View>
