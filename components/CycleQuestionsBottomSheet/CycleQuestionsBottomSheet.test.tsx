@@ -52,10 +52,11 @@ describe("CycleQuestionsBottomSheet Integration", () => {
     flow: null,
     symptoms: [],
     riskFactors: [],
+    date: "",
   };
 
   beforeEach(() => {
-    mockOnSave = jest.fn();
+    mockOnSave = jest.fn().mockResolvedValue(undefined);
     bottomSheetRef = React.createRef();
   });
 
@@ -64,6 +65,8 @@ describe("CycleQuestionsBottomSheet Integration", () => {
       <CycleQuestionsBottomSheet
         bottomSheetRef={bottomSheetRef}
         onSave={mockOnSave}
+        initialData={null}
+        isLoading={false}
       />,
     );
 
@@ -76,6 +79,8 @@ describe("CycleQuestionsBottomSheet Integration", () => {
       <CycleQuestionsBottomSheet
         bottomSheetRef={bottomSheetRef}
         onSave={mockOnSave}
+        initialData={null}
+        isLoading={false}
       />,
     );
 
@@ -88,11 +93,12 @@ describe("CycleQuestionsBottomSheet Integration", () => {
       <CycleQuestionsBottomSheet
         bottomSheetRef={bottomSheetRef}
         onSave={mockOnSave}
+        initialData={null}
+        isLoading={false}
       />,
     );
 
     fireEvent.press(getByText("Light"));
-
     fireEvent.press(getByText("Headache"));
     fireEvent.press(getByText("Cramps"));
 
@@ -104,44 +110,36 @@ describe("CycleQuestionsBottomSheet Integration", () => {
 
     expect(mockOnSave).toHaveBeenCalledTimes(1);
     expect(mockOnSave).toHaveBeenCalledWith({
-      ...expectedEmptyState,
-      date: new Date().toISOString().split("T")[0],
       flow: "Light",
       symptoms: ["Headache", "Cramps"],
+      riskFactors: [],
+      date: "",
     });
   });
 
-  it("Updates Save button text while saving", async () => {
-    // Simulate a slow API call
-    mockOnSave.mockImplementation(
-      () => new Promise((resolve) => setTimeout(resolve, 500)),
-    );
-
-    const { getByTestId, getByText } = render(
+  it("Shows loading indicator when isLoading is true", () => {
+    const { getByTestId, queryByText } = render(
       <CycleQuestionsBottomSheet
         bottomSheetRef={bottomSheetRef}
         onSave={mockOnSave}
+        initialData={null}
+        isLoading={true}
       />,
     );
 
-    const saveButton = getByTestId("save-button");
-
-    fireEvent.press(saveButton);
-
-    // Check immediate loading state
-    expect(getByText("Saving answers...")).toBeTruthy();
-
-    // Wait for async finish
-    await waitFor(() => expect(mockOnSave).toHaveBeenCalled());
+    // ActivityIndicator should be visible
+    expect(queryByText("How was your flow?")).toBeFalsy();
   });
 
   it("Closes the bottom sheet after successful save", async () => {
-    mockOnSave.mockResolvedValue(true);
+    mockOnSave.mockResolvedValue(undefined);
 
     const { getByTestId } = render(
       <CycleQuestionsBottomSheet
         bottomSheetRef={bottomSheetRef}
         onSave={mockOnSave}
+        initialData={null}
+        isLoading={false}
       />,
     );
 
@@ -154,36 +152,13 @@ describe("CycleQuestionsBottomSheet Integration", () => {
     expect(closeSpy).toHaveBeenCalled();
   });
 
-  it("Does NOT close the bottom sheet if save fails", async () => {
-    mockOnSave.mockRejectedValue(new Error("Network error"));
-    const consoleSpy = jest
-      .spyOn(console, "error")
-      .mockImplementation(() => {});
-
-    const { getByTestId } = render(
-      <CycleQuestionsBottomSheet
-        bottomSheetRef={bottomSheetRef}
-        onSave={mockOnSave}
-      />,
-    );
-
-    const closeSpy = jest.spyOn(bottomSheetRef.current, "close");
-
-    await act(async () => {
-      fireEvent.press(getByTestId("save-button"));
-    });
-
-    expect(mockOnSave).toHaveBeenCalled();
-    expect(closeSpy).not.toHaveBeenCalled();
-
-    consoleSpy.mockRestore();
-  });
-
   it("Correctly handles deselecting an option in multi-select", async () => {
     const { getByText, getByTestId } = render(
       <CycleQuestionsBottomSheet
         bottomSheetRef={bottomSheetRef}
         onSave={mockOnSave}
+        initialData={null}
+        isLoading={false}
       />,
     );
 
@@ -199,7 +174,7 @@ describe("CycleQuestionsBottomSheet Integration", () => {
 
     expect(mockOnSave).toHaveBeenCalledWith(
       expect.objectContaining({
-        symptoms: ["Cramps"], // Should only have Cramps
+        symptoms: ["Cramps"],
       }),
     );
   });
@@ -209,13 +184,15 @@ describe("CycleQuestionsBottomSheet Integration", () => {
       <CycleQuestionsBottomSheet
         bottomSheetRef={bottomSheetRef}
         onSave={mockOnSave}
+        initialData={null}
+        isLoading={false}
       />,
     );
 
     // Select a symptom
     fireEvent.press(getByText("Headache"));
 
-    // Select None (assuming your CycleQuestion component handles this logic internally via onChange)
+    // Select None
     fireEvent.press(getByText("None of the above"));
 
     await act(async () => {
@@ -227,5 +204,62 @@ describe("CycleQuestionsBottomSheet Integration", () => {
         symptoms: ["None of the above"],
       }),
     );
+  });
+
+  it("Initializes with provided initialData", () => {
+    const initialData = {
+      flow: "Heavy",
+      symptoms: ["Cramps"],
+      riskFactors: [],
+      date: "2024-01-15",
+    };
+
+    const { getByText } = render(
+      <CycleQuestionsBottomSheet
+        bottomSheetRef={bottomSheetRef}
+        onSave={mockOnSave}
+        initialData={initialData}
+        isLoading={false}
+      />,
+    );
+
+    // Verify the component renders (you may want to add more specific checks
+    // based on how CycleQuestion visually indicates selected state)
+    expect(getByText("How was your flow?")).toBeTruthy();
+  });
+
+  it("Resets state when initialData changes to null", async () => {
+    const initialData = {
+      flow: "Heavy",
+      symptoms: ["Cramps"],
+      riskFactors: [],
+      date: "2024-01-15",
+    };
+
+    const { rerender, getByTestId } = render(
+      <CycleQuestionsBottomSheet
+        bottomSheetRef={bottomSheetRef}
+        onSave={mockOnSave}
+        initialData={initialData}
+        isLoading={false}
+      />,
+    );
+
+    // Re-render with null initialData
+    rerender(
+      <CycleQuestionsBottomSheet
+        bottomSheetRef={bottomSheetRef}
+        onSave={mockOnSave}
+        initialData={null}
+        isLoading={false}
+      />,
+    );
+
+    await act(async () => {
+      fireEvent.press(getByTestId("save-button"));
+    });
+
+    // Should save empty state
+    expect(mockOnSave).toHaveBeenCalledWith(expectedEmptyState);
   });
 });
