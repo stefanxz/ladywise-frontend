@@ -258,9 +258,7 @@ export default function CalendarScreen() {
                           size={50}
                           buttonColor="#FCA5A5"
                           textColor="black"
-                          onPress={() =>
-                            console.log("Add Questionnaire Response")
-                          } // TODO Replace with logic
+                          onPress={() => openQuestionnaire(new Date())}
                         />
                       </View>
                     </View>

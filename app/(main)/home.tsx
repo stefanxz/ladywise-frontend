@@ -252,8 +252,8 @@ const Home = () => {
 
           <View className="absolute bottom-4 right-4">
             <FloatingAddButton
-              buttonColor={theme.button}
-              textColor={theme.buttonText}
+              buttonColor={theme.highlight}
+              textColor={theme.highlightTextColor}
               onPress={() => openQuestionnaire(new Date())}
             />
           </View>
