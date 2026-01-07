@@ -34,13 +34,8 @@ export default function CalendarScreen() {
   const flatListRef = useRef<FlatList>(null);
 
   // Data logic
-  const { 
-    periods, 
-    periodDateSet, 
-    predictionDateSet, 
-    refreshData, 
-    today 
-  } = usePeriodData();
+  const { periods, periodDateSet, predictionDateSet, refreshData, today } =
+    usePeriodData();
 
   // Pagination logic
   const {
@@ -90,7 +85,7 @@ export default function CalendarScreen() {
         isOngoing={isOngoing}
         themeColor={theme.highlight}
         onPress={handleDatePress}
-        onCloseTooltip={() => setTooltip(t => ({ ...t, visible: false }))}
+        onCloseTooltip={() => setTooltip((t) => ({ ...t, visible: false }))}
         today={today}
       />
     ),
@@ -104,7 +99,7 @@ export default function CalendarScreen() {
       handleDatePress,
       today,
       setTooltip,
-    ]
+    ],
   );
 
   return (
@@ -165,7 +160,7 @@ export default function CalendarScreen() {
               // This hides the tooltip when the user starts scrolling
               onScrollBeginDrag={() => {
                 if (tooltip.visible) {
-                  setTooltip(t => ({ ...t, visible: false }));
+                  setTooltip((t) => ({ ...t, visible: false }));
                 }
               }}
               // This keeps the scroll position stable when we add new items to the top of the list
@@ -180,13 +175,11 @@ export default function CalendarScreen() {
               contentContainerStyle={{
                 paddingBottom: isLogMode ? 340 : 180,
               }}
-              
               // Performance props
               initialNumToRender={2}
               maxToRenderPerBatch={3}
               windowSize={3}
               removeClippedSubviews={true}
-              
               // Loader indicators
               ListHeaderComponent={
                 isLoadingPast ? (
@@ -245,7 +238,9 @@ export default function CalendarScreen() {
                         size={50}
                         buttonColor="#FCA5A5"
                         textColor="black"
-                        onPress={() => console.log("Add Questionnaire Response")} // TODO Replace with logic
+                        onPress={() =>
+                          console.log("Add Questionnaire Response")
+                        } // TODO Replace with logic
                       />
                     </View>
                   </View>
