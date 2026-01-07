@@ -1,15 +1,13 @@
 import React from "react";
 import { View, Text, Pressable, Dimensions, Platform } from "react-native";
 import { Feather } from "@expo/vector-icons";
+import { Colors } from "@/constants/colors";
+import { Sizes } from "@/constants/sizes";
 
 // Constants for layout
-const TOOLTIP_WIDTH = 230;
-const TOOLTIP_HEIGHT = 44; // Approx height
-const ARROW_SIZE = 6;
-const VERTICAL_SPACING = Platform.OS === "ios" ? 72 : 47; // Space between day and arrow tip
-const SCREEN_PADDING = 10;
+const VERTICAL_SPACING =
+  Platform.OS === "ios" ? Sizes.tooltipIosPadding : Sizes.tooltipAndroidPadding; // Space between day and arrow tip
 const SCREEN_WIDTH = Dimensions.get("window").width;
-const TOOLTIP_COLOR = "#292524"; // Stone-800 Hex code for the arrow color to match the bg-stone-800 class
 
 type PeriodActionTooltipProps = {
   visible: boolean;
@@ -31,30 +29,34 @@ export default function PeriodActionTooltip({
   if (!visible || !position) return null;
 
   // Calculate top position: above the day, accounting for arrow and spacing
-  const top = position.y - TOOLTIP_HEIGHT - ARROW_SIZE - VERTICAL_SPACING;
+  const top =
+    position.y -
+    Sizes.tooltipHeight -
+    Sizes.tooltipArrowSize -
+    VERTICAL_SPACING;
 
   // We center the tooltip horizontally relative to the day (x - width/2)
-  let left = position.x - TOOLTIP_WIDTH / 2;
+  let left = position.x - Sizes.tooltipWidth / 2;
 
   // Clamp left: don't let it go past the left padding
-  if (left < SCREEN_PADDING) {
-    left = SCREEN_PADDING;
+  if (left < Sizes.tooltipScreenPadding) {
+    left = Sizes.tooltipScreenPadding;
   }
 
   // Clamp right: don't let it go past the right padding
-  if (left + TOOLTIP_WIDTH > SCREEN_WIDTH - SCREEN_PADDING) {
-    left = SCREEN_WIDTH - TOOLTIP_WIDTH - SCREEN_PADDING;
+  if (left + Sizes.tooltipWidth > SCREEN_WIDTH - Sizes.tooltipScreenPadding) {
+    left = SCREEN_WIDTH - Sizes.tooltipWidth - Sizes.tooltipScreenPadding;
   }
 
   // Calculate arrow offset
   // The box might have shifted, but the arrow must still point to 'position.x'
-  const boxCenter = left + TOOLTIP_WIDTH / 2;
+  const boxCenter = left + Sizes.tooltipWidth / 2;
   const arrowOffset = position.x - boxCenter;
 
   return (
     <View
       className="absolute items-center z-50"
-      style={{ top, left, width: TOOLTIP_WIDTH }}
+      style={{ top, left, width: Sizes.tooltipWidth }}
       pointerEvents="box-none" // Ensures the invisible container doesn't block touches
     >
       <View className="bg-stone-800 rounded-xl shadow-xl flex-row items-center overflow-hidden py-1 px-1">
@@ -125,13 +127,13 @@ export default function PeriodActionTooltip({
           height: 0,
           backgroundColor: "transparent",
           borderStyle: "solid",
-          borderLeftWidth: ARROW_SIZE,
-          borderRightWidth: ARROW_SIZE,
-          borderTopWidth: ARROW_SIZE,
+          borderLeftWidth: Sizes.tooltipArrowSize,
+          borderRightWidth: Sizes.tooltipArrowSize,
+          borderTopWidth: Sizes.tooltipArrowSize,
           borderLeftColor: "transparent",
           borderRightColor: "transparent",
-          borderTopColor: TOOLTIP_COLOR,
-          marginTop: -1, // Slight overlap with the tootip to prevent 1px cracks
+          borderTopColor: Colors.tooltipColor,
+          marginTop: -1, // Slight overlap with the tooltip to prevent 1px cracks
         }}
       />
     </View>

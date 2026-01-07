@@ -14,6 +14,8 @@ export const Colors = {
 
   lightGreen: "#F0FDF4",
   lightRed: "#FEF2F2",
+
+  tooltipColor: "#292524",
 };
 
 // colors for text (and later, maybe dots) per level
