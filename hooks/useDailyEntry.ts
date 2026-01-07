@@ -1,16 +1,23 @@
 import { useState, useRef, useCallback } from "react";
 import { BottomSheetModal } from "@gorhom/bottom-sheet";
 import { format } from "date-fns";
-import { getDailyEntry, createDailyEntry, updateDailyEntry } from "@/lib/api";
+import { getDailyEntry, createDailyEntry } from "@/lib/api";
 import { DailyCycleAnswers } from "@/components/CycleQuestionsBottomSheet/CycleQuestionsBottomSheet.types";
 import { mapAnswersToPayload, mapApiToAnswers } from "@/utils/helpers";
 
+/**
+ * Hook that manages the lifecycle of the cycle questionnaire.
+ *
+ * @param refreshData - An optional callback to refresh external data
+ */
 export function useDailyEntry(refreshData?: () => Promise<void>) {
   const bottomSheetRef = useRef<BottomSheetModal>(null);
+
   const [isLoading, setIsLoading] = useState(false);
+
   const [selectedDayData, setSelectedDayData] =
     useState<DailyCycleAnswers | null>(null);
-  const [isUpdating, setIsUpdating] = useState(false);
+
   const [contextDate, setContextDate] = useState<string>("");
 
   const openQuestionnaire = useCallback(async (date: Date) => {
@@ -24,16 +31,25 @@ export function useDailyEntry(refreshData?: () => Promise<void>) {
     try {
       const data = await getDailyEntry(dateStr);
       if (data) {
+        // Map backend enums back to UI labels
         const formattedAnswers = mapApiToAnswers(data, dateStr);
         setSelectedDayData(formattedAnswers);
-        setIsUpdating(true);
       } else {
-        setSelectedDayData(null);
-        setIsUpdating(false);
+        setSelectedDayData({
+          flow: null,
+          symptoms: [],
+          riskFactors: [],
+          date: dateStr,
+        });
       }
     } catch (err) {
-      setSelectedDayData(null);
-      setIsUpdating(false);
+      // 404/Error means no entry yet
+      setSelectedDayData({
+        flow: null,
+        symptoms: [],
+        riskFactors: [],
+        date: dateStr,
+      });
     } finally {
       setIsLoading(false);
     }
@@ -41,19 +57,20 @@ export function useDailyEntry(refreshData?: () => Promise<void>) {
 
   const handleSave = async (answers: DailyCycleAnswers) => {
     try {
-      // Map your UI answers to the API payload format here
+      // Map UI answers back to API payload
       const payload = mapAnswersToPayload({ ...answers, date: contextDate });
 
-      if (isUpdating) {
-        await updateDailyEntry(payload);
-      } else {
-        await createDailyEntry(payload);
-      }
+      /**
+       * Based on your backend PeriodLogController:
+       * We use logDailyEntryByDate (@PostMapping("/entries"))
+       * which handles both creating new and updating existing entries.
+       */
+      await createDailyEntry(payload);
 
       if (refreshData) await refreshData();
     } catch (error) {
       console.error("Failed to save entry:", error);
-      throw error; // Re-throws so the UI can handle errors if needed
+      throw error;
     }
   };
 

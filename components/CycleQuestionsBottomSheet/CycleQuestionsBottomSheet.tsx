@@ -1,11 +1,11 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { View, Text, Pressable, ActivityIndicator } from "react-native";
+import { ActivityIndicator, Pressable, Text, View } from "react-native";
+import type { BottomSheetBackdropProps } from "@gorhom/bottom-sheet";
 import {
+  BottomSheetBackdrop,
   BottomSheetModal,
   BottomSheetScrollView,
-  BottomSheetBackdrop,
 } from "@gorhom/bottom-sheet";
-import type { BottomSheetBackdropProps } from "@gorhom/bottom-sheet";
 import {
   CycleQuestionsBottomSheetProps,
   DailyCycleAnswers,
@@ -15,6 +15,8 @@ import { CycleQuestion } from "@/components/CycleQuestionsBottomSheet/CycleQuest
 import questionsData from "@/data/cycle-questions.json";
 import { Droplet } from "lucide-react-native";
 import { Colors } from "@/constants/colors";
+import { useToast } from "@/hooks/useToast";
+import { format, isToday, parseISO } from "date-fns";
 
 /**
  * CycleQuestionsBottomSheet
@@ -47,6 +49,10 @@ export function CycleQuestionsBottomSheet({
   isLoading,
 }: CycleQuestionsBottomSheetProps) {
   const questions = questionsData as unknown as QuestionConfig[];
+
+  const { showToast } = useToast();
+
+  const [isSaving, setIsSaving] = useState(false);
 
   const [answers, setAnswers] = useState<DailyCycleAnswers>({
     flow: null,
@@ -88,10 +94,31 @@ export function CycleQuestionsBottomSheet({
   };
 
   const handleSave = async () => {
-    // Parent handles the logic of create vs update based on what it knows
-    await onSave(answers);
-    bottomSheetRef.current?.close();
+    setIsSaving(true);
+    try {
+      await onSave(answers);
+      bottomSheetRef.current?.close();
+      showToast("Saved successfully!", "success");
+    } catch (error) {
+      showToast("Save failed.", "error");
+    } finally {
+      setIsSaving(false);
+    }
   };
+
+  const headerSubtitle = useMemo(() => {
+    if (!answers.date) return null;
+
+    const parsedDate = parseISO(answers.date);
+
+    // If it's today, we can either show nothing or a subtle "Today"
+    if (isToday(parsedDate)) {
+      return "Today";
+    }
+
+    // If it's another day, show a friendly format like "Monday, Jan 5th"
+    return format(parsedDate, "EEEE, MMM do");
+  }, [answers.date]);
 
   return (
     <BottomSheetModal
@@ -102,16 +129,31 @@ export function CycleQuestionsBottomSheet({
       snapPoints={snapPoints}
       backgroundStyle={{ backgroundColor: Colors.background }}
     >
-      <View className="mt-4 pb-2 px-4 flex-row items-center justify-center gap-2">
-        <Droplet size={24} color="#FD7577" fill="#FD7577" />
-        <Text className="text-[20px] font-inter-semibold tracking-tight">
-          Daily Cycle Check-In
-        </Text>
+      {/* Header */}
+      <View className="mt-4 pb-2 px-4 items-center justify-center">
+        <View className="flex-row items-center gap-2">
+          <Droplet size={20} color="#FD7577" fill="#FD7577" />
+          <Text className="text-[20px] font-inter-semibold tracking-tight text-headingText">
+            Daily Cycle Check-In
+          </Text>
+        </View>
+
+        {/* The Date Subtitle */}
+        {headerSubtitle && (
+          <View className="mt-1 bg-stone-100 px-3 py-0.5 round  ed-full">
+            <Text className="text-[13px] font-inter-medium text-stone-500">
+              {headerSubtitle}
+            </Text>
+          </View>
+        )}
       </View>
 
       {isLoading ? (
-        <View className="flex-1 items-center justify-center p-20">
-          <ActivityIndicator color="#FD7577" />
+        <View className="flex-1 items-center justify-center">
+          <ActivityIndicator size="large" color="#FD7577" />
+          <Text className="mt-4 text-stone-500 font-inter-medium">
+            Loading your entries...
+          </Text>
         </View>
       ) : (
         <BottomSheetScrollView
@@ -120,14 +162,12 @@ export function CycleQuestionsBottomSheet({
             paddingTop: 4,
             paddingBottom: 24,
           }}
-          showsVerticalScrollIndicator={false}
         >
-          <Text className="mb-8 px-8 text-[12px] text-inactiveText flex items-center text-center">
+          <Text className="mb-8 px-8 text-[12px] text-inactiveText text-center">
             Answer a few quick questions and help us track your cycle and spot
-            any important changes.
+            any changes.
           </Text>
 
-          {/* Questions */}
           {questions.map((q) => (
             <CycleQuestion
               key={q.key}
@@ -145,9 +185,16 @@ export function CycleQuestionsBottomSheet({
         <Pressable
           testID="save-button"
           onPress={handleSave}
-          className={`flex-1 rounded-xl py-3 items-center justify-center bg-brand`}
+          disabled={isSaving}
+          className={`flex-1 rounded-xl py-3 items-center justify-center ${isSaving ? "bg-brand opacity-60" : "bg-brand"}`}
         >
-          <Text className="text-white font-inter-semibold">Save answers</Text>
+          {isSaving ? (
+            <Text className="text-white font-inter-semibold">
+              Saving answers...
+            </Text>
+          ) : (
+            <Text className="text-white font-inter-semibold">Save answers</Text>
+          )}
         </Pressable>
       </View>
     </BottomSheetModal>
