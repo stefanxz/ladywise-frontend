@@ -11,6 +11,18 @@ jest.mock("@gorhom/bottom-sheet", () => ({
   BottomSheetModal: jest.fn(),
 }));
 
+jest.mock("@/hooks/useToast", () => ({
+  useToast: () => ({
+    showToast: jest.fn(),
+  }),
+}));
+
+jest.mock("@/context/ToastContext", () => ({
+  ToastContext: {
+    Provider: ({ children }: any) => children,
+  },
+}));
+
 describe("useDailyEntry Hook - Extended Tests", () => {
   const testDate = new Date(2026, 0, 7); // Jan 7, 2026
   const testDateStr = "2026-01-07";
@@ -116,7 +128,7 @@ describe("useDailyEntry Hook - Extended Tests", () => {
     );
   });
 
-  it("should log to console and re-throw when saving fails", async () => {
+  it("should re-throw when saving fails", async () => {
     const consoleSpy = jest.spyOn(console, "error").mockImplementation();
     (createDailyEntry as jest.Mock).mockRejectedValue(
       new Error("Database Timeout"),
@@ -129,11 +141,5 @@ describe("useDailyEntry Hook - Extended Tests", () => {
         await result.current.handleSave({} as any);
       }),
     ).rejects.toThrow("Database Timeout");
-
-    expect(consoleSpy).toHaveBeenCalledWith(
-      "Failed to save entry:",
-      expect.any(Error),
-    );
-    consoleSpy.mockRestore();
   });
 });

@@ -98,7 +98,6 @@ export function CycleQuestionsBottomSheet({
     try {
       await onSave(answers);
       bottomSheetRef.current?.close();
-      showToast("Saved successfully!", "success");
     } catch (error) {
       showToast("Save failed.", "error");
     } finally {

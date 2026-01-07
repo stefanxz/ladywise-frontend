@@ -4,6 +4,7 @@ import { format } from "date-fns";
 import { getDailyEntry, createDailyEntry } from "@/lib/api";
 import { DailyCycleAnswers } from "@/components/CycleQuestionsBottomSheet/CycleQuestionsBottomSheet.types";
 import { mapAnswersToPayload, mapApiToAnswers } from "@/utils/helpers";
+import { useToast } from "@/hooks/useToast";
 
 /**
  * Hook that manages the lifecycle of the cycle questionnaire.
@@ -12,6 +13,8 @@ import { mapAnswersToPayload, mapApiToAnswers } from "@/utils/helpers";
  */
 export function useDailyEntry(refreshData?: () => Promise<void>) {
   const bottomSheetRef = useRef<BottomSheetModal>(null);
+
+  const { showToast } = useToast();
 
   const [isLoading, setIsLoading] = useState(false);
 
@@ -67,9 +70,11 @@ export function useDailyEntry(refreshData?: () => Promise<void>) {
        */
       await createDailyEntry(payload);
 
+      showToast("Successfully saved entry!", "success");
+
       if (refreshData) await refreshData();
     } catch (error) {
-      console.error("Failed to save entry:", error);
+      showToast("Failed to save entry.", "error");
       throw error;
     }
   };

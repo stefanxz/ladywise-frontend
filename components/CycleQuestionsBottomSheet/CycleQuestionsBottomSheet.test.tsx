@@ -6,6 +6,18 @@ jest.mock("lucide-react-native", () => ({
   Droplet: () => <></>,
 }));
 
+jest.mock("@/hooks/useToast", () => ({
+  useToast: () => ({
+    showToast: jest.fn(),
+  }),
+}));
+
+jest.mock("@/context/ToastContext", () => ({
+  ToastContext: {
+    Provider: ({ children }: any) => children,
+  },
+}));
+
 jest.mock("@gorhom/bottom-sheet", () => {
   const React = require("react");
   const { View } = require("react-native");
