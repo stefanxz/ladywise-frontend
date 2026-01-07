@@ -1,6 +1,7 @@
 import React from "react";
-import { ActivityIndicator, Pressable, Text } from "react-native";
+import { ActivityIndicator, Pressable, Text, View } from "react-native";
 import type { LogNewPeriodButtonProps } from "./LogNewPeriodButton.types";
+import { Feather } from "@expo/vector-icons";
 
 /**
  * A simple, reusable “Log period +” button
@@ -33,6 +34,7 @@ export default function LogNewPeriodButton({
   disabled,
   accessibilityLabel = "Log period",
   testID = "log-new-period-button",
+  style,
 }: LogNewPeriodButtonProps) {
   // Block any presses when the button is loading or disabled
   const blocked = !!loading || !!disabled;
@@ -49,15 +51,18 @@ export default function LogNewPeriodButton({
       testID={testID}
       // Layout & visuals
       className={[
-        "items-center justify-center px-6 py-3 rounded-full shadow-md",
+        "flex-row items-center justify-center px-6 py-3 rounded-full shadow-md",
         "active:opacity-95", // visual feedback on press
         blocked ? "opacity-60" : "", // visually dimmed when blocked
       ].join(" ")}
       // Inline style for dynamic color — avoids NativeWind dynamic-class issues
-      style={{
-        backgroundColor: color,
-        minHeight: 20, // ensures vertical balance
-      }}
+      style={[
+        {
+          backgroundColor: color,
+          minHeight: 20, // ensures vertical balance
+        },
+        style,
+      ]}
       // Slightly larger touch area than the visible button
       hitSlop={6}
       // Ripple effect for Android feedback
@@ -67,27 +72,23 @@ export default function LogNewPeriodButton({
       {loading ? (
         <ActivityIndicator color="#ffffff" />
       ) : (
-        <Text
-          className="text-white font-semibold text-base"
-          style={{
-            position: "relative",
-            top: -2,
-            lineHeight: 20, // aligns text vertically in the middle
-            textAlignVertical: "center",
-          }}
-        >
-          Log period
+        <View className="flex-row items-center">
           <Text
-            className="text-white text-lg font-extrabold"
+            className="text-black font-semibold text-base"
             style={{
-              lineHeight: 20, // keeps the + symbol aligned with text
-              textAlignVertical: "center",
-              marginLeft: 4, // add spacing between "Log period" and ＋
+              lineHeight: 20, // aligns text vertically in the middle
+              includeFontPadding: false, // android fix for vertical alignment            }}
             }}
           >
-            ＋
+            Log period
           </Text>
-        </Text>
+          <Feather
+            name="plus"
+            size={20}
+            color="black"
+            style={{ marginLeft: 4, fontWeight: "bold" }}
+          />
+        </View>
       )}
     </Pressable>
   );

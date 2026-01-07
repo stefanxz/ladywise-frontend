@@ -34,3 +34,28 @@ export type DailyLogResponse = {
   symptoms: Symptom[];
   riskFactors: RiskFactor[];
 };
+
+export interface DailyEntryDTO {
+  date: string; // YYYY-MM-DD
+  flow: FlowLevel;
+  symptoms: Symptom[];
+  riskFactors: RiskFactor[];
+}
+
+export interface PeriodLogResponse {
+  id: string;
+  startDate: string; // YYYY-MM-DD
+  endDate: string | null; // Null if ongoing
+  dailyEntries: DailyEntryDTO[];
+}
+
+export interface PredictedPeriodDTO {
+  startDate: string;
+  endDate: string;
+  cycleLengthUsed: number;
+}
+
+export interface PeriodLogRequest {
+  startDate: string; // YYYY-MM-DD
+  endDate: string | null;
+}

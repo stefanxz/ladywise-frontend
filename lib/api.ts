@@ -16,7 +16,7 @@ import { ReportRequest } from "./types/reports";
 import { CycleStatusDTO } from "./types/cycle";
 import { getAuthData } from "./auth";
 import { ApiRiskResponse, RiskHistoryPoint } from "./types/risks";
-import { DailyLogRequest, DailyLogResponse } from "@/lib/types/period";
+import { PeriodLogResponse, PredictedPeriodDTO, PeriodLogRequest, DailyLogRequest, DailyLogResponse } from "./types/period";
 
 /**
  * api
@@ -325,6 +325,36 @@ export async function checkCycleQuestionnaireAccess(): Promise<{
   }
 }
 
+export async function getPeriodHistory() {
+  const { data } = await api.get<PeriodLogResponse[]>("/api/cycle/history");
+  return data;
+}
+
+export async function getPredictions(cycles: number = 6) {
+  const { data } = await api.get<PredictedPeriodDTO[]>("/api/cycle/predictions", {
+    params: { cycles },
+  })
+  console.log("Predictions are: " + JSON.stringify(data));
+
+  return data;
+}
+
+export async function logNewPeriod(payload: PeriodLogRequest) {
+  const { data } = await api.post<PeriodLogResponse>("/api/periods", payload);
+  return data;
+}
+
+// Update an existing period
+export async function updatePeriod(periodId: string, payload: PeriodLogRequest) {
+  const { data } = await api.put<PeriodLogResponse>(`/api/periods/${periodId}`, payload);
+  return data;
+}
+
+// Delete a period
+export async function deletePeriod(periodId: string) {
+  const { data } = await api.delete(`/api/periods/${periodId}`);
+  return data;
+}
 /**
  * Sends a PDF health report to the specified clinician's email.
  * @param token - User's auth token
