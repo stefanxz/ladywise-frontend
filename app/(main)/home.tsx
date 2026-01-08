@@ -8,7 +8,7 @@ import React, {
 import { ActivityIndicator, ScrollView, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
-import { useFocusEffect } from "expo-router";
+import { useRouter, useFocusEffect } from "expo-router";
 import { BottomSheetModal } from "@gorhom/bottom-sheet";
 
 // Contexts
@@ -52,6 +52,7 @@ import { useDailyEntry } from "@/hooks/useDailyEntry";
  * @returns {JSX.Element} The rendered home screen
  */
 const Home = () => {
+  const router = useRouter();
   const { token, userId, isLoading: isAuthLoading } = useAuth();
   const { theme, setPhase } = useTheme();
 
@@ -198,7 +199,8 @@ const Home = () => {
             contentContainerStyle={{ paddingBottom: 100 }}
           >
             <View className="pt-10">
-              <Header name={userName} onHelpPress={() => {}} theme={theme} />
+              
+              <Header name={userName} onHelpPress={() => router.push('/tutorials')} theme={theme} />
 
               <Text className="text-base text-gray-500 px-5 mb-5 pt-5">
                 {new Date().toLocaleDateString("en-US", {

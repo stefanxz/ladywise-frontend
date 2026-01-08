@@ -76,6 +76,20 @@ export default function HomeLayout() {
             ),
           }}
         />
+        <Tabs.Screen
+          name="tutorials/index"
+          options={{
+            href: null,
+            title: "Tutorials",
+          }}
+        />
+        <Tabs.Screen
+          name="tutorials/videos"
+          options={{
+            href: null,
+            title: "Tutorials",
+          }}
+        />
       </Tabs>
     </BottomSheetModalProvider>
   );
