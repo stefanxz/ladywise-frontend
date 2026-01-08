@@ -74,7 +74,7 @@ export default function DiagnosticsScreen({
         if (Array.isArray(data) && data.length > 0) {
           setHistory(data);
         } else if (!Array.isArray(data)) {
-          console.warn("API returned non-array data:", data);
+          // console.warn("API returned non-array data:", data);
           setHistory(mockHistory);
           setError("Received invalid data from server. Showing sample data.");
         } else {
@@ -85,7 +85,7 @@ export default function DiagnosticsScreen({
           );
         }
       } catch (err: unknown) {
-        console.error("Failed to load risk history", err);
+        // console.error("Failed to load risk history", err);
 
         // Fallback to mock data if API fails, as requested for development
         setHistory(mockHistory);

@@ -121,7 +121,7 @@ const Home = () => {
           setInitialApiData(mapApiToInsights(apiData));
         }
       } catch (err) {
-        console.error("Initial load failed", err);
+        // console.error("Initial load failed", err);
       } finally {
         setIsLoading(false);
       }
@@ -145,7 +145,7 @@ const Home = () => {
             setPhase("neutral" as any);
             setCalendarDays(generateCalendarDays([]));
           } else {
-            console.error("Cycle fetch error", err);
+            // console.error("Cycle fetch error", err);
           }
         }
       };
@@ -199,8 +199,11 @@ const Home = () => {
             contentContainerStyle={{ paddingBottom: 100 }}
           >
             <View className="pt-10">
-              
-              <Header name={userName} onHelpPress={() => router.push('/tutorials')} theme={theme} />
+              <Header
+                name={userName}
+                onHelpPress={() => router.push("/tutorials")}
+                theme={theme}
+              />
 
               <Text className="text-base text-gray-500 px-5 mb-5 pt-5">
                 {new Date().toLocaleDateString("en-US", {
