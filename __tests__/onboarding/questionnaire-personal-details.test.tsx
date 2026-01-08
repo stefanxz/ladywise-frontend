@@ -112,13 +112,15 @@ describe("QuestionnairePersonalDetails screen", () => {
     expect(router.push).not.toHaveBeenCalled();
   });
 
-  it("shows 'Age is out of range' when age is below 8", () => {
+  it("shows 'Age is out of range' when age is below 13", () => {
     const { pressContinue, getByText, typeAge } = setup();
 
-    typeAge("7");
+    typeAge("11");
     pressContinue();
 
-    expect(getByText("Age is out of range.")).toBeTruthy();
+    expect(
+      getByText("Sorry, you must be at least 13 to use Ladywise."),
+    ).toBeTruthy();
     expect(router.push).not.toHaveBeenCalled();
   });
 
@@ -128,7 +130,9 @@ describe("QuestionnairePersonalDetails screen", () => {
     typeAge("57");
     pressContinue();
 
-    expect(getByText("Age is out of range.")).toBeTruthy();
+    expect(
+      getByText("Sorry, you must be at most 56 to use Ladywise."),
+    ).toBeTruthy();
     expect(router.push).not.toHaveBeenCalled();
   });
 
@@ -353,7 +357,9 @@ describe("QuestionnairePersonalDetails screen", () => {
     typeHeight("1");
     pressContinue();
 
-    expect(getByText("Age is out of range.")).toBeTruthy();
+    expect(
+      getByText("Sorry, you must be at least 13 to use Ladywise."),
+    ).toBeTruthy();
     expect(getByText("Weight is out of range.")).toBeTruthy();
     expect(getByText("Height is out of range.")).toBeTruthy();
     expect(router.push).not.toHaveBeenCalled();
