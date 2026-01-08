@@ -30,14 +30,16 @@ export default function TutorialsScreen() {
   };
 
   useEffect(() => {
-    fetch("http://localhost:8080/api/tutorials") // CHANGE
+    fetch("http://localhost:8080/api/tutorials")
       .then((response) => response.json())
       .then((data) => {
+        console.log("Fetched tutorials:", data); // Add logging
         setTutorials(data);
         setLoading(false);
       })
       .catch((error) => {
         console.error("Error fetching tutorials:", error);
+        setTutorials([]); // Set to empty array on error
         setLoading(false);
       });
   }, []);
@@ -73,7 +75,6 @@ export default function TutorialsScreen() {
                     onPress: tutorial.videoUrl
                       ? () => handleVideoPress(tutorial.videoUrl)
                       : undefined,
-                    // Remove videoUrl from here - it's already in the onPress closure
                   }}
                   showDivider={index < array.length - 1}
                 />
