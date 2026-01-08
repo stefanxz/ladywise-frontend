@@ -73,6 +73,11 @@ export default function Questionnaire() {
     const weightNum = Number(weight);
     const heightNum = Number(height);
 
+    // Earliest age with menstrual flow = 8, but keep it as 13 due to client request
+    const minAge = 13;
+    // Latest age with menstrual flow = 56
+    const maxAge = 56;
+
     let hasError = false;
     if (!age.trim()) {
       setAgeError("Please enter your age.");
@@ -84,11 +89,11 @@ export default function Questionnaire() {
       if (!Number.isInteger(ageNum) || ageNum < 1) {
         setAgeError("Age must be a whole positive number.");
         hasError = true;
-        // Earliest age with menstrual flow = 8
-        // Latest age with menstrual flow = 56
-      } else if (Number.isInteger(ageNum) && (ageNum < 8 || ageNum > 56)) {
-        setAgeError("Age is out of range.");
+      } else if (ageNum < minAge) {
+        setAgeError(`Sorry, you must be at least ${minAge} to use Ladywise.`);
         hasError = true;
+      } else if (ageNum > maxAge) {
+        setAgeError(`Sorry, you must be at most ${maxAge} to use Ladywise.`);
       }
     }
 
