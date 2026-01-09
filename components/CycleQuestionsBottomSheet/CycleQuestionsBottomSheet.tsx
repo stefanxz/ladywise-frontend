@@ -1,11 +1,11 @@
-import React, { useCallback, useMemo, useState } from "react";
-import { View, Text, Pressable } from "react-native";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { ActivityIndicator, Pressable, Text, View } from "react-native";
+import type { BottomSheetBackdropProps } from "@gorhom/bottom-sheet";
 import {
+  BottomSheetBackdrop,
   BottomSheetModal,
   BottomSheetScrollView,
-  BottomSheetBackdrop,
 } from "@gorhom/bottom-sheet";
-import type { BottomSheetBackdropProps } from "@gorhom/bottom-sheet";
 import {
   CycleQuestionsBottomSheetProps,
   DailyCycleAnswers,
@@ -15,6 +15,8 @@ import { CycleQuestion } from "@/components/CycleQuestionsBottomSheet/CycleQuest
 import questionsData from "@/data/cycle-questions.json";
 import { Droplet } from "lucide-react-native";
 import { Colors } from "@/constants/colors";
+import { useToast } from "@/hooks/useToast";
+import { format, isToday, parseISO } from "date-fns";
 
 /**
  * CycleQuestionsBottomSheet
@@ -26,6 +28,8 @@ import { Colors } from "@/constants/colors";
  * @param {CycleQuestionsBottomSheetProps} props - Component props
  * @param {React.RefObject} props.bottomSheetRef - Ref to control the BottomSheetModal from parent
  * @param {function} props.onSave - Async function called when "Save answers" is pressed
+ * @param {DailyCycleAnswers | null} props.initialData - Initial data passed by parent
+ * @param {boolean} props.isLoading - Loading state passed by parent
  * @returns {JSX.Element} The rendered bottom sheet
  *
  * @example
@@ -41,8 +45,14 @@ import { Colors } from "@/constants/colors";
 export function CycleQuestionsBottomSheet({
   bottomSheetRef,
   onSave,
+  initialData,
+  isLoading,
 }: CycleQuestionsBottomSheetProps) {
   const questions = questionsData as unknown as QuestionConfig[];
+
+  const { showToast } = useToast();
+
+  const [isSaving, setIsSaving] = useState(false);
 
   const [answers, setAnswers] = useState<DailyCycleAnswers>({
     flow: null,
@@ -50,7 +60,15 @@ export function CycleQuestionsBottomSheet({
     riskFactors: [],
     date: "",
   });
-  const [saving, setSaving] = useState(false);
+
+  // Sync state when parent provides new initialData
+  useEffect(() => {
+    if (initialData) {
+      setAnswers(initialData);
+    } else {
+      setAnswers({ flow: null, symptoms: [], riskFactors: [], date: "" });
+    }
+  }, [initialData]);
 
   const snapPoints = useMemo(() => ["80%"], []);
 
@@ -76,21 +94,30 @@ export function CycleQuestionsBottomSheet({
   };
 
   const handleSave = async () => {
-    setSaving(true);
+    setIsSaving(true);
     try {
-      const answersWithDate = {
-        ...answers,
-        date: new Date().toISOString().split("T")[0], // today
-      };
-
-      await onSave(answersWithDate); // saving is delegated to parent
+      await onSave(answers);
       bottomSheetRef.current?.close();
-    } catch (err) {
-      // console.error("save failed", err);
+    } catch (error) {
+      showToast("Save failed.", "error");
     } finally {
-      setSaving(false);
+      setIsSaving(false);
     }
   };
+
+  const headerSubtitle = useMemo(() => {
+    if (!answers.date) return null;
+
+    const parsedDate = parseISO(answers.date);
+
+    // If it's today, we can either show nothing or a subtle "Today"
+    if (isToday(parsedDate)) {
+      return "Today";
+    }
+
+    // If it's another day, show a friendly format like "Monday, Jan 5th"
+    return format(parsedDate, "EEEE, MMM do");
+  }, [answers.date]);
 
   return (
     <BottomSheetModal
@@ -101,46 +128,66 @@ export function CycleQuestionsBottomSheet({
       snapPoints={snapPoints}
       backgroundStyle={{ backgroundColor: Colors.background }}
     >
-      <View className="mt-4 pb-2 px-4 flex-row items-center justify-center gap-2">
-        <Droplet size={24} color="#FD7577" fill="#FD7577" />
-        <Text className="text-[20px] font-inter-semibold tracking-tight">
-          Daily Cycle Check-In
-        </Text>
+      {/* Header */}
+      <View className="mt-4 pb-2 px-4 items-center justify-center">
+        <View className="flex-row items-center gap-2">
+          <Droplet size={20} color="#FD7577" fill="#FD7577" />
+          <Text className="text-[20px] font-inter-semibold tracking-tight text-headingText">
+            Daily Cycle Check-In
+          </Text>
+        </View>
+
+        {/* The Date Subtitle */}
+        {headerSubtitle && (
+          <View className="mt-1 bg-stone-100 px-3 py-0.5 round  ed-full">
+            <Text className="text-[13px] font-inter-medium text-stone-500">
+              {headerSubtitle}
+            </Text>
+          </View>
+        )}
       </View>
 
-      <BottomSheetScrollView
-        contentContainerStyle={{
-          paddingHorizontal: 16,
-          paddingTop: 4,
-          paddingBottom: 24,
-        }}
-        showsVerticalScrollIndicator={false}
-      >
-        <Text className="mb-8 px-8 text-[12px] text-inactiveText flex items-center text-center">
-          Answer a few quick questions and help us track your cycle and spot any
-          important changes.
-        </Text>
+      {isLoading ? (
+        <View className="flex-1 items-center justify-center">
+          <ActivityIndicator size="large" color="#FD7577" />
+          <Text className="mt-4 text-stone-500 font-inter-medium">
+            Loading your entries...
+          </Text>
+        </View>
+      ) : (
+        <BottomSheetScrollView
+          contentContainerStyle={{
+            paddingHorizontal: 16,
+            paddingTop: 4,
+            paddingBottom: 24,
+          }}
+        >
+          <Text className="mb-8 px-8 text-[12px] text-inactiveText text-center">
+            Answer a few quick questions and help us track your cycle and spot
+            any changes.
+          </Text>
 
-        {/* Questions */}
-        {questions.map((q) => (
-          <CycleQuestion
-            key={q.key}
-            question={q.question}
-            options={q.options}
-            multiSelect={q.multiSelect}
-            onSelect={(value) => handleSelect(q.key, value)}
-          />
-        ))}
-      </BottomSheetScrollView>
+          {questions.map((q) => (
+            <CycleQuestion
+              key={q.key}
+              question={q.question}
+              options={q.options}
+              multiSelect={q.multiSelect}
+              value={answers[q.key as keyof DailyCycleAnswers]}
+              onSelect={(value) => handleSelect(q.key, value)}
+            />
+          ))}
+        </BottomSheetScrollView>
+      )}
 
       <View className="mt-4 flex-row gap-3 px-4 pb-8">
         <Pressable
           testID="save-button"
           onPress={handleSave}
-          disabled={saving}
-          className={`flex-1 rounded-xl py-3 items-center justify-center ${saving ? "bg-brand opacity-60" : "bg-brand"}`}
+          disabled={isSaving}
+          className={`flex-1 rounded-xl py-3 items-center justify-center ${isSaving ? "bg-brand opacity-60" : "bg-brand"}`}
         >
-          {saving ? (
+          {isSaving ? (
             <Text className="text-white font-inter-semibold">
               Saving answers...
             </Text>

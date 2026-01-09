@@ -16,6 +16,7 @@ import { CycleQuestionProps } from "@/components/CycleQuestionsBottomSheet/Cycle
  * @param {boolean} [props.multiSelect] - Whether the question allows multiple selections
  * @param {function} [props.onSelect] - Callback that returns the currently selected value(s)
  * @param {string} [props.resetOption] - Resets chosen answers and selects the reset option
+ * @param {string | string[] | null} value - Data value passed down by parent
  * @returns {JSX.Element} The rendered question component
  */
 export function CycleQuestion({
@@ -24,41 +25,44 @@ export function CycleQuestion({
   multiSelect = false,
   onSelect,
   resetOption = "None of the above",
+  value,
 }: CycleQuestionProps) {
-  const [selected, setSelected] = useState<string[] | string | null>(
-    multiSelect ? [] : null,
-  );
-
   const handleSelect = (option: string) => {
     if (multiSelect) {
-      let newSelection: string[];
+      let newSelection: string[] = Array.isArray(value) ? [...value] : [];
+
       if (option === resetOption) {
         newSelection = [resetOption];
       } else {
-        newSelection = Array.isArray(selected) ? [...selected] : [];
-        if (selected?.includes(resetOption)) newSelection = [];
+        // If "None" was selected previously, clear it when selecting a real symptom
+        if (newSelection.includes(resetOption)) {
+          newSelection = [];
+        }
+
         if (newSelection.includes(option)) {
           newSelection = newSelection.filter((o) => o !== option);
         } else {
           newSelection.push(option);
         }
       }
-      setSelected(newSelection);
       onSelect?.(newSelection);
     } else {
-      setSelected(option);
+      // Single select: if they tap the same one, maybe deselect it?
+      // Or just set the new one.
       onSelect?.(option);
     }
   };
 
   const isSelected = (option: string) => {
-    if (multiSelect) return (selected as string[]).includes(option);
-    return selected === option;
+    if (multiSelect) {
+      return Array.isArray(value) && value.includes(option);
+    }
+    return value === option;
   };
 
   return (
     <View className="mb-6">
-      <Text className="text-[16px] font-semibold text-headingText mb-3">
+      <Text className="text-[16px] font-inter-semibold text-headingText mb-3">
         {question}
       </Text>
       <View className="flex-row flex-wrap gap-2">

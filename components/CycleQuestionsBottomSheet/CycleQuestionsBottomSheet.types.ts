@@ -4,6 +4,8 @@ import { BottomSheetModal } from "@gorhom/bottom-sheet";
 export type CycleQuestionsBottomSheetProps = {
   bottomSheetRef: React.RefObject<BottomSheetModal | null>;
   onSave: (answers: DailyCycleAnswers) => Promise<void>;
+  initialData: DailyCycleAnswers | null;
+  isLoading: boolean;
 };
 
 export type CycleQuestionProps = {
@@ -12,6 +14,7 @@ export type CycleQuestionProps = {
   multiSelect?: boolean;
   onSelect?: (selected: string[] | string) => void;
   resetOption?: string;
+  value: string | string[] | null;
 };
 
 export type CycleQuestionOptionPillProps = {

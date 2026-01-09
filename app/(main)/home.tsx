@@ -1,15 +1,8 @@
-import React, {
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-  useMemo,
-} from "react";
+import React, { useCallback, useEffect, useState, useMemo } from "react";
 import { ActivityIndicator, ScrollView, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import { useFocusEffect } from "expo-router";
-import { BottomSheetModal } from "@gorhom/bottom-sheet";
 
 // Contexts
 import { useAuth } from "@/context/AuthContext";
@@ -29,17 +22,12 @@ import { FloatingAddButton } from "@/components/FloatingAddButton/FloatingAddBut
 import { CycleQuestionsBottomSheet } from "@/components/CycleQuestionsBottomSheet/CycleQuestionsBottomSheet";
 
 // Utils & Types
-import {
-  createDailyEntry,
-  getCycleStatus,
-  getRiskData,
-  getUserById,
-} from "@/lib/api";
+import { getCycleStatus, getRiskData, getUserById } from "@/lib/api";
 import { CycleStatusDTO } from "@/lib/types/cycle";
 import { RiskData } from "@/lib/types/risks";
-import { DailyCycleAnswers } from "@/components/CycleQuestionsBottomSheet/CycleQuestionsBottomSheet.types";
-import { mapAnswersToPayload, mapApiToInsights } from "@/utils/helpers";
+import { mapApiToInsights } from "@/utils/helpers";
 import { formatPhaseName, generateCalendarDays } from "@/utils/mainPageHelpers";
+import { useDailyEntry } from "@/hooks/useDailyEntry";
 
 /**
  * Home
@@ -64,14 +52,17 @@ const Home = () => {
   const [calendarDays, setCalendarDays] = useState<DayData[]>(
     generateCalendarDays(),
   );
-  const [error, setError] = useState<string | null>(null);
   const [userName, setUserName] = useState<string>("");
 
-  const bottomSheetModalRef = useRef<BottomSheetModal>(null);
-  const openSheet = useCallback(
-    () => bottomSheetModalRef.current?.present(),
-    [],
-  );
+  const {
+    bottomSheetRef,
+    isLoading: isBottomSheetLoading,
+    selectedDayData,
+    openQuestionnaire,
+    handleSave,
+  } = useDailyEntry(undefined, () => {
+    setIsLoading(true);
+  });
 
   const displayedInsights: RiskData[] = useMemo(() => {
     if (realtimeRisks) {
@@ -124,7 +115,7 @@ const Home = () => {
     };
 
     loadInitialData();
-  }, [token, userId, isAuthLoading]);
+  }, [token, userId, isAuthLoading, realtimeRisks]);
 
   useFocusEffect(
     useCallback(() => {
@@ -149,18 +140,6 @@ const Home = () => {
       fetchCycleData();
     }, [setPhase, token, isAuthLoading]),
   );
-
-  const handleAddDailyEntry = async (answers: DailyCycleAnswers) => {
-    const payload = mapAnswersToPayload(answers);
-    try {
-      await createDailyEntry(payload);
-
-      setIsCalculating(true);
-    } catch (error: any) {
-      setError(error.message ?? "Could not save daily answer entry.");
-      setIsCalculating(false);
-    }
-  };
 
   // Reset calculating state when new data arrives
   useEffect(() => {
@@ -249,17 +228,19 @@ const Home = () => {
 
           <View className="absolute bottom-4 right-4">
             <FloatingAddButton
-              buttonColor={theme.button}
-              textColor={theme.buttonText}
-              onPress={openSheet}
+              buttonColor={theme.highlight}
+              textColor={theme.highlightTextColor}
+              onPress={() => openQuestionnaire(new Date())}
             />
           </View>
         </SafeAreaView>
       </LinearGradient>
 
       <CycleQuestionsBottomSheet
-        bottomSheetRef={bottomSheetModalRef}
-        onSave={handleAddDailyEntry}
+        bottomSheetRef={bottomSheetRef}
+        initialData={selectedDayData}
+        isLoading={isBottomSheetLoading}
+        onSave={handleSave}
       />
     </>
   );

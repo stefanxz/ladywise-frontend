@@ -16,7 +16,13 @@ import { ReportRequest } from "./types/reports";
 import { CycleStatusDTO } from "./types/cycle";
 import { getAuthData } from "./auth";
 import { ApiRiskResponse, RiskHistoryPoint } from "./types/risks";
-import { PeriodLogResponse, PredictedPeriodDTO, PeriodLogRequest, DailyLogRequest, DailyLogResponse } from "./types/period";
+import {
+  PeriodLogResponse,
+  PredictedPeriodDTO,
+  PeriodLogRequest,
+  DailyLogRequest,
+  DailyLogResponse,
+} from "./types/period";
 
 /**
  * api
@@ -331,9 +337,12 @@ export async function getPeriodHistory() {
 }
 
 export async function getPredictions(cycles: number = 6) {
-  const { data } = await api.get<PredictedPeriodDTO[]>("/api/cycle/predictions", {
-    params: { cycles },
-  })
+  const { data } = await api.get<PredictedPeriodDTO[]>(
+    "/api/cycle/predictions",
+    {
+      params: { cycles },
+    },
+  );
   console.log("Predictions are: " + JSON.stringify(data));
 
   return data;
@@ -345,8 +354,14 @@ export async function logNewPeriod(payload: PeriodLogRequest) {
 }
 
 // Update an existing period
-export async function updatePeriod(periodId: string, payload: PeriodLogRequest) {
-  const { data } = await api.put<PeriodLogResponse>(`/api/periods/${periodId}`, payload);
+export async function updatePeriod(
+  periodId: string,
+  payload: PeriodLogRequest,
+) {
+  const { data } = await api.put<PeriodLogResponse>(
+    `/api/periods/${periodId}`,
+    payload,
+  );
   return data;
 }
 

@@ -39,6 +39,41 @@ export const mapAnswersToPayload = (
   };
 };
 
+// Reverse mappings for API to UI transformations
+const REVERSE_FLOW_MAP = Object.fromEntries(
+  Object.entries(FLOW_MAP).map(([k, v]) => [v, k]),
+);
+const REVERSE_SYMPTOM_MAP = Object.fromEntries(
+  Object.entries(SYMPTOM_MAP).map(([k, v]) => [v, k]),
+);
+const REVERSE_RISK_MAP = Object.fromEntries(
+  Object.entries(RISK_MAP).map(([k, v]) => [v, k]),
+);
+
+/**
+ * Transforms backend API data into UI-compatible state.
+ */
+export const mapApiToAnswers = (data: any, date: string): DailyCycleAnswers => {
+  // Map the symptoms
+  const mappedSymptoms = (data.symptoms || []).map(
+    (s: string) => REVERSE_SYMPTOM_MAP[s] || s,
+  );
+
+  // Map the risk factors
+  const mappedRiskFactors = (data.riskFactors || []).map(
+    (r: string) => REVERSE_RISK_MAP[r] || r,
+  );
+
+  return {
+    date: date,
+    flow: data.flow ? (REVERSE_FLOW_MAP[data.flow] ?? null) : null,
+    
+    // If the array is empty, default to "None of the above"
+    symptoms: mappedSymptoms.length === 0 ? ["None of the above"] : mappedSymptoms,
+    riskFactors: mappedRiskFactors.length === 0 ? ["None of the above"] : mappedRiskFactors,
+  };
+};
+
 const mapScoreToLevel = (score: number): RiskLevel => {
   switch (score) {
     case 3:
@@ -63,12 +98,12 @@ export const mapApiToInsights = (apiData: ApiRiskResponse): RiskData[] => {
   const anemiaCard: RiskData = {
     id: "anemia",
     title: "Anemia Risk",
-    // 1. Map the integer score to string level
+    // Map the integer score to string level
     level: mapScoreToLevel(apiData.anemiaRisk),
-    // 2. Safely extract description from the Insight object (if present)
+    // Safely extract description from the Insight object (if present)
     description:
       apiData.latestAnemiaInsight?.description || "No recent analysis.",
-    // 3. Extract trend
+    // Extract trend
     trend: apiData.latestAnemiaInsight?.trend,
   };
 

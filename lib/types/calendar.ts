@@ -17,4 +17,5 @@ export type TooltipState = {
   visible: boolean;
   position: { x: number; y: number } | null;
   periodId: string | null;
+  date: Date | null;
 };
