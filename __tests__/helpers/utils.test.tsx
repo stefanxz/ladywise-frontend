@@ -15,7 +15,7 @@ describe("mapAnswersToPayload", () => {
       expect(result.flow).toBe("LIGHT");
     });
 
-    it('should map "None" flow to null', () => {
+    it('should map "None" flow to "NONE"', () => {
       const answers: DailyCycleAnswers = {
         date: "2024-03-15",
         flow: "None",
@@ -24,7 +24,7 @@ describe("mapAnswersToPayload", () => {
       };
 
       const result = mapAnswersToPayload(answers);
-      expect(result.flow).toBeNull();
+      expect(result.flow).toBe("NONE");
     });
 
     it("should handle null flow", () => {
