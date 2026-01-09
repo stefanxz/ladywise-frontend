@@ -1,4 +1,4 @@
-export type FlowLevel = "LIGHT" | "NORMAL" | "HEAVY" | "SPOTTING" | null;
+export type FlowLevel = "LIGHT" | "NORMAL" | "HEAVY" | "NONE" | null;
 export type RiskFactor =
   | "ESTROGEN_PILL"
   | "SURGERY_OR_INJURY"

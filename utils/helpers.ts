@@ -39,7 +39,7 @@ export const mapAnswersToPayload = (
   };
 };
 
-// Assuming these maps exist in your file
+// Reverse mappings for API to UI transformations
 const REVERSE_FLOW_MAP = Object.fromEntries(
   Object.entries(FLOW_MAP).map(([k, v]) => [v, k]),
 );
