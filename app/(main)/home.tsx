@@ -85,7 +85,7 @@ const Home = () => {
           title: "Anemia Risk",
           level: realtimeRisks.anemia.risk,
           description:
-            realtimeRisks.anemia.summary_sentence ||
+            realtimeRisks.anemia.key_inputs?.join(", ") ||
             "No significant risk factors identified.",
         },
         {
@@ -93,7 +93,7 @@ const Home = () => {
           title: "Thrombosis Risk",
           level: realtimeRisks.thrombosis.risk,
           description:
-            realtimeRisks.thrombosis.summary_sentence ||
+            realtimeRisks.thrombosis.key_inputs?.join(", ") ||
             "No significant risk factors identified.",
         },
       ];
