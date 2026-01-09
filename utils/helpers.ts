@@ -54,15 +54,23 @@ const REVERSE_RISK_MAP = Object.fromEntries(
  * Transforms backend API data into UI-compatible state.
  */
 export const mapApiToAnswers = (data: any, date: string): DailyCycleAnswers => {
+  // Map the symptoms
+  const mappedSymptoms = (data.symptoms || []).map(
+    (s: string) => REVERSE_SYMPTOM_MAP[s] || s,
+  );
+
+  // Map the risk factors
+  const mappedRiskFactors = (data.riskFactors || []).map(
+    (r: string) => REVERSE_RISK_MAP[r] || r,
+  );
+
   return {
     date: date,
     flow: data.flow ? (REVERSE_FLOW_MAP[data.flow] ?? null) : null,
-    symptoms: (data.symptoms || []).map(
-      (s: string) => REVERSE_SYMPTOM_MAP[s] || s,
-    ),
-    riskFactors: (data.riskFactors || []).map(
-      (r: string) => REVERSE_RISK_MAP[r] || r,
-    ),
+    
+    // If the array is empty, default to "None of the above"
+    symptoms: mappedSymptoms.length === 0 ? ["None of the above"] : mappedSymptoms,
+    riskFactors: mappedRiskFactors.length === 0 ? ["None of the above"] : mappedRiskFactors,
   };
 };
 
