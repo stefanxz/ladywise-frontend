@@ -1,13 +1,12 @@
 import { ScrollView, Text, View, Modal, Pressable } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import React, { useState, useEffect } from "react";
-import { SettingItem as SettingItemType } from "@/constants/types/settings-types";
-import { SettingItem } from "@/components/Settings/SettingItem"; // We reuse the Settings page
-import { Href } from "expo-router";
+import { SettingItem } from "@/components/Settings/SettingItem"; // We reuse the Settings component (looks a bit spagheti but it's basically the same thing)
 import { AppBar } from "@/components/AppBarBackButton/AppBarBackButton";
-import { useVideoPlayer, VideoView } from "expo-video"; // video player
+import { useVideoPlayer, VideoView } from "expo-video"; // video player, I think this is good enough
 import { Ionicons } from "@expo/vector-icons";
 import { Tutorial } from "./tutorials.types";
+import { getTutorials } from "@/lib/api";
 
 /**
  * TutorialsScreen
@@ -30,18 +29,21 @@ export default function TutorialsScreen() {
   };
 
   useEffect(() => {
-    fetch("http://localhost:8080/api/tutorials")
-      .then((response) => response.json())
-      .then((data) => {
-        console.log("Fetched tutorials:", data); // Add logging
+    // Changed to the async style, not sure if it is better, than using .then()
+    const loadTutorials = async () => {
+      try {
+        const data = await getTutorials();
+        console.log("Fetched tutorials:", data);
         setTutorials(data);
-        setLoading(false);
-      })
-      .catch((error) => {
+      } catch (error) {
         console.error("Error fetching tutorials:", error);
-        setTutorials([]); // Set to empty array on error
+        setTutorials([]);
+      } finally {
         setLoading(false);
-      });
+      }
+    };
+
+    loadTutorials();
   }, []);
 
   return (
