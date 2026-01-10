@@ -232,13 +232,15 @@ const Home = () => {
             </View>
           </ScrollView>
 
-          <View className="absolute bottom-4 right-4">
-            <FloatingAddButton
-              buttonColor={theme.highlight}
-              textColor={theme.highlightTextColor}
-              onPress={() => openQuestionnaire(new Date())}
-            />
-          </View>
+          {cycleStatus?.currentPhase === "MENSTRUAL" && (
+            <View className="absolute bottom-4 right-4">
+              <FloatingAddButton
+                buttonColor={theme.highlight}
+                textColor={theme.highlightTextColor}
+                onPress={() => openQuestionnaire(new Date())}
+              />
+            </View>
+          )}
         </SafeAreaView>
       </LinearGradient>
 
