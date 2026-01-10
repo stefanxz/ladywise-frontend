@@ -1,34 +1,38 @@
-import { renderHook, act } from '@testing-library/react-native';
-import { Alert } from 'react-native';
-import { usePeriodInteraction } from '@/hooks/calendar/usePeriodInteraction';
-import { logNewPeriod, deletePeriod } from '@/lib/api';
-import { startOfDay, addDays, subDays } from 'date-fns';
+import { renderHook, act } from "@testing-library/react-native";
+import { Alert } from "react-native";
+import { usePeriodInteraction } from "@/hooks/calendar/usePeriodInteraction";
+import { logNewPeriod, deletePeriod } from "@/lib/api";
+import { startOfDay, addDays, subDays } from "date-fns";
 
 // Mocks
-jest.mock('@/lib/api');
-jest.spyOn(Alert, 'alert');
+jest.mock("@/lib/api");
+jest.spyOn(Alert, "alert");
 
-describe('usePeriodInteraction Hook', () => {
+describe("usePeriodInteraction Hook", () => {
   const today = startOfDay(new Date());
   const mockRefresh = jest.fn();
-  
+
   // Dummy existing periods
   const existingPeriods = [
-    { 
-      id: 'p1', 
-      start: subDays(today, 5), 
-      end: subDays(today, 2), 
-      isOngoing: false 
-    }
+    {
+      id: "p1",
+      start: subDays(today, 5),
+      end: subDays(today, 2),
+      isOngoing: false,
+    },
   ];
 
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
-  it('should toggle log mode correctly', () => {
-    const { result } = renderHook(() => 
-      usePeriodInteraction({ periods: [], refreshData: mockRefresh })
+  it("should toggle log mode correctly", () => {
+    const { result } = renderHook(() =>
+      usePeriodInteraction({
+        periods: [],
+        refreshData: mockRefresh,
+        initialLogMode: false,
+      }),
     );
 
     act(() => {
@@ -36,7 +40,7 @@ describe('usePeriodInteraction Hook', () => {
     });
 
     expect(result.current.isLogMode).toBe(true);
-    
+
     act(() => {
       result.current.handleCancelLog();
     });
@@ -44,13 +48,19 @@ describe('usePeriodInteraction Hook', () => {
     expect(result.current.isLogMode).toBe(false);
   });
 
-  it('should validate overlapping periods', async () => {
-    const { result } = renderHook(() => 
-      usePeriodInteraction({ periods: existingPeriods, refreshData: mockRefresh })
+  it("should validate overlapping periods", async () => {
+    const { result } = renderHook(() =>
+      usePeriodInteraction({
+        periods: existingPeriods,
+        refreshData: mockRefresh,
+        initialLogMode: false,
+      }),
     );
 
     // Enter log mode
-    act(() => { result.current.handleLogPeriodStart(); });
+    act(() => {
+      result.current.handleLogPeriodStart();
+    });
 
     // Select dates that overlap with 'p1' (subDays 5 to 2)
     // We select subDays 3
@@ -65,17 +75,23 @@ describe('usePeriodInteraction Hook', () => {
 
     expect(Alert.alert).toHaveBeenCalledWith(
       "Period already logged!",
-      expect.stringContaining("already tracked a period")
+      expect.stringContaining("already tracked a period"),
     );
     expect(logNewPeriod).not.toHaveBeenCalled();
   });
 
-  it('should validate adjacent periods', async () => {
-    const { result } = renderHook(() => 
-      usePeriodInteraction({ periods: existingPeriods, refreshData: mockRefresh })
+  it("should validate adjacent periods", async () => {
+    const { result } = renderHook(() =>
+      usePeriodInteraction({
+        periods: existingPeriods,
+        refreshData: mockRefresh,
+        initialLogMode: false,
+      }),
     );
 
-    act(() => { result.current.handleLogPeriodStart(); });
+    act(() => {
+      result.current.handleLogPeriodStart();
+    });
 
     // Select date exactly 1 day after existing period ends
     // existing ends at subDays(2), so we pick subDays(1)
@@ -89,13 +105,17 @@ describe('usePeriodInteraction Hook', () => {
 
     expect(Alert.alert).toHaveBeenCalledWith(
       "Looks like one continuous period!",
-      expect.stringContaining("extending that period")
+      expect.stringContaining("extending that period"),
     );
   });
 
-  it('should delete period after confirmation', async () => {
-    const { result } = renderHook(() => 
-      usePeriodInteraction({ periods: existingPeriods, refreshData: mockRefresh })
+  it("should delete period after confirmation", async () => {
+    const { result } = renderHook(() =>
+      usePeriodInteraction({
+        periods: existingPeriods,
+        refreshData: mockRefresh,
+        initialLogMode: false,
+      }),
     );
 
     // Simulate opening tooltip
@@ -110,14 +130,14 @@ describe('usePeriodInteraction Hook', () => {
 
     // Extract 'Delete' button from Alert calls
     const alertButtons = (Alert.alert as jest.Mock).mock.calls[0][2];
-    const deleteBtn = alertButtons.find((b: any) => b.text === 'Delete');
+    const deleteBtn = alertButtons.find((b: any) => b.text === "Delete");
 
     // Confirm Delete
     await act(async () => {
       await deleteBtn.onPress();
     });
 
-    expect(deletePeriod).toHaveBeenCalledWith('p1');
+    expect(deletePeriod).toHaveBeenCalledWith("p1");
     expect(mockRefresh).toHaveBeenCalled();
   });
 });
