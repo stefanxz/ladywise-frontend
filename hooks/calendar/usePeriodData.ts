@@ -20,6 +20,8 @@ export function usePeriodData() {
   const [periods, setPeriods] = useState<ParsedPeriod[]>([]);
   const [predictions, setPredictions] = useState<ParsedPrediction[]>([]);
 
+  const [currentPhase, setCurrentPhase] = useState<string | null>(null);
+
   // Fetch and parse data
   const fetchData = useCallback(async () => {
     if (isAuthLoading || !token) return;
@@ -29,6 +31,9 @@ export function usePeriodData() {
       // Update the theme context so we have the correct theme.highlight
       if (status?.currentPhase) {
         setPhase(status.currentPhase.toLowerCase() as any);
+        setCurrentPhase(status.currentPhase.toLowerCase());
+      } else {
+        setCurrentPhase(null);
       }
 
       // Fetch period history
@@ -77,5 +82,6 @@ export function usePeriodData() {
     predictionDateSet,
     refreshData: fetchData,
     today, // Exporting today ensures the UI uses the exact same reference
+    currentPhase,
   };
 }

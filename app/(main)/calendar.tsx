@@ -1,4 +1,4 @@
-import React, { useCallback, useRef } from "react";
+import React, { useCallback, useRef, useState } from "react";
 import {
   View,
   Text,
@@ -36,8 +36,14 @@ export default function CalendarScreen() {
   const flatListRef = useRef<FlatList>(null);
 
   // Data logic
-  const { periods, periodDateSet, predictionDateSet, refreshData, today } =
-    usePeriodData();
+  const {
+    periods,
+    periodDateSet,
+    predictionDateSet,
+    refreshData,
+    today,
+    currentPhase,
+  } = usePeriodData();
 
   // Pagination logic
   const {
@@ -75,6 +81,9 @@ export default function CalendarScreen() {
     openQuestionnaire,
     handleSave,
   } = useDailyEntry(refreshData);
+
+  // Determine if the floating button should be shown
+  const showFloatingButton = currentPhase === "menstrual";
 
   // Edit daily cycle questionnaire handler
   const handleEditDailyQuestionnaire = () => {
@@ -253,14 +262,16 @@ export default function CalendarScreen() {
                       />
 
                       {/* Cycle questionnaire button */}
-                      <View className="absolute right-0">
-                        <FloatingAddButton
-                          size={50}
-                          buttonColor={theme.highlight}
-                          textColor="black"
-                          onPress={() => openQuestionnaire(new Date())}
-                        />
-                      </View>
+                      {showFloatingButton && (
+                        <View className="absolute right-0">
+                          <FloatingAddButton
+                            size={50}
+                            buttonColor={theme.highlight}
+                            textColor="black"
+                            onPress={() => openQuestionnaire(new Date())}
+                          />
+                        </View>
+                      )}
                     </View>
                   ) : (
                     // Logging/editing mode
@@ -308,7 +319,9 @@ export default function CalendarScreen() {
                           className="w-[48%]  py-3 rounded-full items-center shadow-md"
                         >
                           {isSaving ? (
-                            <ActivityIndicator color="white" />
+                            <ActivityIndicator
+                              color={theme.highlightTextColor}
+                            />
                           ) : (
                             <Text
                               style={{ color: theme.highlightTextColor }}
