@@ -134,9 +134,7 @@ export function BinaryChoiceGroup({
             }
             className={cn(
               "w-full rounded-2xl border border-transparent px-4 py-3",
-              value === option.value
-                ? "bg-brand/10 border-brand"
-                : "bg-gray-50",
+              value === option.value ? "bg-brand/10 border-brand" : "bg-white",
             )}
           >
             <Text
@@ -196,7 +194,7 @@ export function MultiSelectGroup({
               accessibilityState={{ selected: isSelected }}
               className={cn(
                 "w-full rounded-2xl border border-transparent px-4 py-3",
-                isSelected ? "bg-brand/10 border-brand" : "bg-gray-50",
+                isSelected ? "bg-brand/10 border-brand" : "bg-white",
               )}
             >
               <Text
