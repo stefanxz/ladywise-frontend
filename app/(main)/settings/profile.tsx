@@ -20,6 +20,8 @@ import { ANEMIA_RISK_OPTIONS } from "@/data/anemia-risk-options";
 import { THROMBOSIS_RISK_OPTIONS } from "@/data/thrombosis-risk-options";
 import { useToast } from "@/hooks/useToast";
 
+const NONE_OPTION = "none";
+
 /**
  * Screen for managing user profile information (questionnaire data).
  * Fetches current user data and displays it.
@@ -104,24 +106,108 @@ export default function ProfileSettings() {
     setBiosensorCup(healthDocument.health.biosensorCup ?? null);
   };
 
-  // Handlers for local state updates
-  // TODO: None of the above should cancel all other choices
   const toggleAnemiaCondition = (id: string) => {
-    setAnemiaConditions((prev) =>
-      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id],
-    );
+    setAnemiaConditions((prev) => {
+      // If "None" is clicked
+      if (id === NONE_OPTION) {
+        // If "None" is already selected, deselect it
+        if (prev.includes(NONE_OPTION)) {
+          return [];
+        }
+        // Otherwise, select only "None" (clear all others)
+        return [NONE_OPTION];
+      }
+
+      // If any other option is clicked
+      // Remove "None" if it was selected, then toggle the clicked option
+      const withoutNone = prev.filter((i) => i !== NONE_OPTION);
+      if (withoutNone.includes(id)) {
+        return withoutNone.filter((i) => i !== id);
+      } else {
+        return [...withoutNone, id];
+      }
+    });
   };
 
   const toggleThrombosisCondition = (id: string) => {
-    setThrombosisConditions((prev) =>
-      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id],
-    );
+    setThrombosisConditions((prev) => {
+      // If "None" is clicked
+      if (id === NONE_OPTION) {
+        // If "None" is already selected, deselect it
+        if (prev.includes(NONE_OPTION)) {
+          return [];
+        }
+        // Otherwise, select only "None" (clear all others)
+        return [NONE_OPTION];
+      }
+
+      // If any other option is clicked
+      // Remove "None" if it was selected, then toggle the clicked option
+      const withoutNone = prev.filter((i) => i !== NONE_OPTION);
+      if (withoutNone.includes(id)) {
+        return withoutNone.filter((i) => i !== id);
+      } else {
+        return [...withoutNone, id];
+      }
+    });
   };
 
-  // TODO: age, weight, height, first name last name should be obligatory (cant send empty payload)
+  const validateForm = (): boolean => {
+    const newErrors: { [key: string]: string } = {};
+
+    // Required fields
+    if (!firstName.trim()) {
+      newErrors.firstName = "First name is required";
+    }
+
+    if (!lastName.trim()) {
+      newErrors.lastName = "Last name is required";
+    }
+
+    if (!age.trim()) {
+      newErrors.age = "Age is required";
+    } else {
+      const ageNum = parseInt(age, 10);
+      if (isNaN(ageNum)) {
+        newErrors.age = "Age must be a valid number";
+      } else if (ageNum < 13 || ageNum > 56) {
+        newErrors.age = `Age must be between 13 and 56`;
+      }
+    }
+
+    if (!weight.trim()) {
+      newErrors.weight = "Weight is required";
+    } else {
+      const weightNum = parseFloat(weight);
+      if (isNaN(weightNum)) {
+        newErrors.weight = "Weight must be a valid number";
+      } else if (weightNum < 5 || weightNum > 540) {
+        newErrors.weight = `Weight must be between 5 and 540 kg`;
+      }
+    }
+
+    if (!height.trim()) {
+      newErrors.height = "Height is required";
+    } else {
+      const heightNum = parseFloat(height);
+      if (isNaN(heightNum)) {
+        newErrors.height = "Height must be a valid number";
+      } else if (heightNum < 62 || heightNum > 216) {
+        newErrors.height = `Height must be between 62 and 216 cm`;
+      }
+    }
+
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleSave = async () => {
     if (!user || !userId) {
       showToast("Unable to save: user data not loaded", "error");
+      return;
+    }
+
+    if (!validateForm()) {
+      showToast("Please fix the errors before saving", "error");
       return;
     }
 
