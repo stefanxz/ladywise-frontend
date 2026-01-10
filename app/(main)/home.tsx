@@ -132,7 +132,7 @@ const Home = () => {
             setPhase("neutral" as any);
             setCalendarDays(generateCalendarDays([]));
           } else {
-            console.error("Cycle fetch error", err);
+            // console.error("Cycle fetch error", err);
           }
         }
       };

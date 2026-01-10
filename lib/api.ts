@@ -1,7 +1,8 @@
 import axios from "axios";
-import type {
+import {
   ChangePasswordPayload,
   ChangePasswordResponse,
+  HealthDocument,
   LoginPayload,
   LoginResponse,
   PasswordResetRequestPayload,
@@ -95,6 +96,15 @@ export async function updateUser(payload: UserPayload) {
     "/api/users/updateUser",
     payload,
   );
+  return data;
+}
+
+/**
+ * Retrieves the User Health data from the backend.
+ * TODO: Change return type
+ */
+export async function getUserHealth(): Promise<HealthDocument> {
+  const { data } = await api.get<HealthDocument>("/api/health");
   return data;
 }
 

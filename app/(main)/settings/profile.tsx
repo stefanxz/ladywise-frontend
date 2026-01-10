@@ -2,8 +2,8 @@ import React, { useEffect, useState } from "react";
 import { View, Text, ActivityIndicator } from "react-native";
 import { SettingsPageLayout } from "@/components/Settings/SettingsPageLayout";
 import { useAuth } from "@/context/AuthContext";
-import { getUserById } from "@/lib/api";
-import { UserResponse } from "@/lib/types/payloads";
+import { getUserById, getUserHealth } from "@/lib/api";
+import { HealthDocument, UserResponse } from "@/lib/types/payloads";
 import { UnitInputField } from "@/components/UnitInputField/UnitInputField";
 import { ThemedTextInput } from "@/components/ThemedTextInput/ThemedTextInput";
 import { ThemedPressable } from "@/components/ThemedPressable/ThemedPressable";
@@ -52,8 +52,10 @@ export default function ProfileSettings() {
       try {
         setLoading(true);
         const userData = await getUserById(token, userId);
+        const userHealthDocument = await getUserHealth();
+
         setUser(userData);
-        populateFields(userData);
+        populateFields(userData, userHealthDocument);
       } catch (error) {
         showToast("Failed to load profile data", "error");
       } finally {
@@ -64,43 +66,36 @@ export default function ProfileSettings() {
     fetchData();
   }, [showToast, token, userId]);
 
-  const populateFields = (data: UserResponse) => {
+  const populateFields = (
+    data: UserResponse,
+    healthDocument: HealthDocument,
+  ) => {
     setFirstName(data.firstName || "");
     setLastName(data.lastName || "");
 
-    // TODO: change this as we don't fetch this way
-    const attrs = data.attributes || {};
+    const personalDetails = healthDocument.health.personalDetails;
 
-    // TODO: change this as we don't fetch this way
-    const personal = attrs.personalDetails || attrs;
-    setAge(personal.age ? String(personal.age) : "");
-    setWeight(personal.weight ? String(personal.weight) : "");
-    setHeight(personal.height ? String(personal.height) : "");
+    setAge(personalDetails.age ? String(personalDetails.age) : "");
+    setWeight(personalDetails.weight ? String(personalDetails.weight) : "");
+    setHeight(personalDetails.height ? String(personalDetails.height) : "");
 
-    // TODO: change this as we don't fetch this way
-    const family = attrs.familyHistory || attrs;
-    setFamilyAnemia(family.familyHistoryAnemia ?? family.anemia ?? null);
-    setFamilyThrombosis(
-      family.familyHistoryThrombosis ?? family.thrombosis ?? null,
-    );
+    const family = healthDocument.health.familyHistory;
+    setFamilyAnemia(family.familyHistoryAnemia ?? null);
+    setFamilyThrombosis(family.familyHistoryThrombosis ?? null);
 
     // Conditions
-    const anemiaConditions =
-      family.anemiaConditions || attrs.anemiaConditions || [];
+    const anemiaConditions = family.anemiaConditions ?? [];
     setAnemiaConditions(
       Array.isArray(anemiaConditions) ? anemiaConditions : [],
     );
 
-    const thrombosisConditions =
-      family.thrombosisConditions || attrs.thrombosisConditions || [];
+    const thrombosisConditions = family.thrombosisConditions ?? [];
     setThrombosisConditions(
       Array.isArray(thrombosisConditions) ? thrombosisConditions : [],
     );
 
-    // Other
-    const health = attrs.health || attrs;
-    setEstrogenPill(health.estrogenPill ?? attrs.estrogenPill ?? null);
-    setBiosensorCup(health.biosensorCup ?? attrs.biosensorCup ?? null);
+    setEstrogenPill(healthDocument.health.estrogenPill ?? null);
+    setBiosensorCup(healthDocument.health.biosensorCup ?? null);
   };
 
   // Handlers for local state updates (UI interaction only for now)

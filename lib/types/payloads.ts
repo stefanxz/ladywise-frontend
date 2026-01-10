@@ -87,6 +87,11 @@ export type QuestionnairePayload = {
   history?: [];
 };
 
+/**
+ * Alias so return types make more sense
+ */
+export type HealthDocument = QuestionnairePayload;
+
 export type QuestionnaireResponse = {
   id: string;
   userId: string;
