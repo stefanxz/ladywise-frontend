@@ -1,10 +1,4 @@
-import React, {
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-  useMemo,
-} from "react";
+import React, { useCallback, useEffect, useState, useMemo } from "react";
 import { ActivityIndicator, ScrollView, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
@@ -29,16 +23,10 @@ import { FloatingAddButton } from "@/components/FloatingAddButton/FloatingAddBut
 import { CycleQuestionsBottomSheet } from "@/components/CycleQuestionsBottomSheet/CycleQuestionsBottomSheet";
 
 // Utils & Types
-import {
-  createDailyEntry,
-  getCycleStatus,
-  getRiskData,
-  getUserById,
-} from "@/lib/api";
+import { getCycleStatus, getRiskData, getUserById } from "@/lib/api";
 import { CycleStatusDTO } from "@/lib/types/cycle";
 import { RiskData } from "@/lib/types/risks";
-import { DailyCycleAnswers } from "@/components/CycleQuestionsBottomSheet/CycleQuestionsBottomSheet.types";
-import { mapAnswersToPayload, mapApiToInsights } from "@/utils/helpers";
+import { mapApiToInsights } from "@/utils/helpers";
 import { formatPhaseName, generateCalendarDays } from "@/utils/mainPageHelpers";
 import { useDailyEntry } from "@/hooks/useDailyEntry";
 
@@ -66,7 +54,6 @@ const Home = () => {
   const [calendarDays, setCalendarDays] = useState<DayData[]>(
     generateCalendarDays(),
   );
-  const [error, setError] = useState<string | null>(null);
   const [userName, setUserName] = useState<string>("");
 
   const {
@@ -75,7 +62,9 @@ const Home = () => {
     selectedDayData,
     openQuestionnaire,
     handleSave,
-  } = useDailyEntry();
+  } = useDailyEntry(undefined, () => {
+    setIsLoading(true);
+  });
 
   const displayedInsights: RiskData[] = useMemo(() => {
     if (realtimeRisks) {
@@ -128,7 +117,7 @@ const Home = () => {
     };
 
     loadInitialData();
-  }, [token, userId, isAuthLoading]);
+  }, [token, userId, isAuthLoading, realtimeRisks]);
 
   useFocusEffect(
     useCallback(() => {
@@ -153,18 +142,6 @@ const Home = () => {
       fetchCycleData();
     }, [setPhase, token, isAuthLoading]),
   );
-
-  const handleAddDailyEntry = async (answers: DailyCycleAnswers) => {
-    const payload = mapAnswersToPayload(answers);
-    try {
-      await createDailyEntry(payload);
-
-      setIsCalculating(true);
-    } catch (error: any) {
-      setError(error.message ?? "Could not save daily answer entry.");
-      setIsCalculating(false);
-    }
-  };
 
   // Reset calculating state when new data arrives
   useEffect(() => {

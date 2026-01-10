@@ -10,8 +10,12 @@ import { useToast } from "@/hooks/useToast";
  * Hook that manages the lifecycle of the cycle questionnaire.
  *
  * @param refreshData - An optional callback to refresh external data
+ * @param onSaveSuccess - An optional callback that gets fired on successful save
  */
-export function useDailyEntry(refreshData?: () => Promise<void>) {
+export function useDailyEntry(
+  refreshData?: () => Promise<void>,
+  onSaveSuccess?: () => void,
+) {
   const bottomSheetRef = useRef<BottomSheetModal>(null);
 
   const { showToast } = useToast();
@@ -67,6 +71,7 @@ export function useDailyEntry(refreshData?: () => Promise<void>) {
       showToast("Successfully saved entry!", "success");
 
       if (refreshData) await refreshData();
+      if (onSaveSuccess) onSaveSuccess(); // callback gets called here, e.g., for triggering LLM updates
     } catch (error) {
       showToast("Failed to save entry.", "error");
       throw error;

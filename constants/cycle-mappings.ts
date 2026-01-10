@@ -1,7 +1,7 @@
 import { FlowLevel, RiskFactor, Symptom } from "@/lib/types/period";
 
 export const FLOW_MAP: Record<string, FlowLevel> = {
-  None: null,
+  None: "NONE",
   Light: "LIGHT",
   Normal: "NORMAL",
   Heavy: "HEAVY",
