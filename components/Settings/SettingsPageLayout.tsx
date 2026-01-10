@@ -100,7 +100,10 @@ export function SettingsPageLayout({
       </ScrollView>
 
       {floatingAction && (
-        <View className="absolute bottom-0 w-full justify-end" pointerEvents="box-none">
+        <View
+          className="absolute bottom-0 w-full justify-end"
+          pointerEvents="box-none"
+        >
           <View className="w-full h-[100px]" pointerEvents="box-none">
             <LinearGradient
               colors={[
