@@ -102,7 +102,9 @@ export const mapApiToInsights = (apiData: ApiRiskResponse): RiskData[] => {
     level: mapScoreToLevel(apiData.anemiaRisk),
     // Safely extract description from the Insight object (if present)
     description:
-      apiData.latestAnemiaInsight?.description || "No recent analysis.",
+      apiData.latest_anemia_risk_details?.key_inputs?.join(", ") ||
+      apiData.latestAnemiaInsight?.description ||
+      "No recent analysis.",
     // Extract trend
     trend: apiData.latestAnemiaInsight?.trend,
   };
@@ -112,7 +114,9 @@ export const mapApiToInsights = (apiData: ApiRiskResponse): RiskData[] => {
     title: "Thrombosis Risk",
     level: mapScoreToLevel(apiData.thrombosisRisk),
     description:
-      apiData.latestThrombosisInsight?.description || "No recent analysis.",
+      apiData.latest_thrombosis_risk_details?.key_inputs?.join(", ") ||
+      apiData.latestThrombosisInsight?.description ||
+      "No recent analysis.",
     trend: apiData.latestThrombosisInsight?.trend,
   };
 

@@ -2,7 +2,8 @@ import React, { useCallback, useEffect, useState, useMemo } from "react";
 import { ActivityIndicator, ScrollView, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
-import { useFocusEffect } from "expo-router";
+import { useRouter, useFocusEffect } from "expo-router";
+import { BottomSheetModal } from "@gorhom/bottom-sheet";
 
 // Contexts
 import { useAuth } from "@/context/AuthContext";
@@ -39,6 +40,7 @@ import { useDailyEntry } from "@/hooks/useDailyEntry";
  * @returns {JSX.Element} The rendered home screen
  */
 const Home = () => {
+  const router = useRouter();
   const { token, userId, isLoading: isAuthLoading } = useAuth();
   const { theme, setPhase } = useTheme();
 
@@ -72,7 +74,7 @@ const Home = () => {
           title: "Anemia Risk",
           level: realtimeRisks.anemia.risk,
           description:
-            realtimeRisks.anemia.summary_sentence ||
+            realtimeRisks.anemia.key_inputs?.join(", ") ||
             "No significant risk factors identified.",
         },
         {
@@ -80,7 +82,7 @@ const Home = () => {
           title: "Thrombosis Risk",
           level: realtimeRisks.thrombosis.risk,
           description:
-            realtimeRisks.thrombosis.summary_sentence ||
+            realtimeRisks.thrombosis.key_inputs?.join(", ") ||
             "No significant risk factors identified.",
         },
       ];
@@ -108,7 +110,7 @@ const Home = () => {
           setInitialApiData(mapApiToInsights(apiData));
         }
       } catch (err) {
-        console.error("Initial load failed", err);
+        // console.error("Initial load failed", err);
       } finally {
         setIsLoading(false);
       }
@@ -132,7 +134,7 @@ const Home = () => {
             setPhase("neutral" as any);
             setCalendarDays(generateCalendarDays([]));
           } else {
-            console.error("Cycle fetch error", err);
+            // console.error("Cycle fetch error", err);
           }
         }
       };
@@ -174,7 +176,11 @@ const Home = () => {
             contentContainerStyle={{ paddingBottom: 100 }}
           >
             <View className="pt-10">
-              <Header name={userName} onHelpPress={() => {}} theme={theme} />
+              <Header
+                name={userName}
+                onHelpPress={() => router.push("/tutorials")}
+                theme={theme}
+              />
 
               <Text className="text-base text-gray-500 px-5 mb-5 pt-5">
                 {new Date().toLocaleDateString("en-US", {
