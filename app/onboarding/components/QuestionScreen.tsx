@@ -118,8 +118,10 @@ export function BinaryChoiceGroup({
   ];
 
   return (
-    <View className="gap-y-3">
-      <Text className="text-inter-semibold text-regularText">{question}</Text>
+    <View className={cn(question ? "gap-y-3" : "")}>
+      {question ? (
+        <Text className="text-inter-semibold text-regularText">{question}</Text>
+      ) : null}
       <View className="gap-y-2">
         {options.map((option) => (
           <Pressable
@@ -132,7 +134,9 @@ export function BinaryChoiceGroup({
             }
             className={cn(
               "w-full rounded-2xl border border-transparent px-4 py-3",
-              value === option.value ? "bg-brand/10 border-brand" : "bg-white",
+              value === option.value
+                ? "bg-brand/10 border-brand"
+                : "bg-gray-50",
             )}
           >
             <Text
@@ -177,8 +181,10 @@ export function MultiSelectGroup({
   onToggle,
 }: MultiSelectGroupProps) {
   return (
-    <View className="gap-y-3">
-      <Text className="text-inter-semibold text-regularText">{question}</Text>
+    <View className={cn(selected ? "gap-y-3" : "")}>
+      {question ? (
+        <Text className="text-inter-semibold text-regularText">{question}</Text>
+      ) : null}
       <View className="gap-y-2">
         {options.map((option) => {
           const isSelected = selected.includes(option.id);
@@ -190,7 +196,7 @@ export function MultiSelectGroup({
               accessibilityState={{ selected: isSelected }}
               className={cn(
                 "w-full rounded-2xl border border-transparent px-4 py-3",
-                isSelected ? "bg-brand/10 border-brand" : "bg-white",
+                isSelected ? "bg-brand/10 border-brand" : "bg-gray-50",
               )}
             >
               <Text
