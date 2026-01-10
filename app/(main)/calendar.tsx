@@ -28,9 +28,13 @@ import { usePeriodInteraction } from "@/hooks/calendar/usePeriodInteraction";
 import { useTheme } from "@/context/ThemeContext";
 import { CycleQuestionsBottomSheet } from "@/components/CycleQuestionsBottomSheet/CycleQuestionsBottomSheet";
 import { useDailyEntry } from "@/hooks/useDailyEntry";
+import { useLocalSearchParams } from "expo-router";
 
 // Main calendar screen component
 export default function CalendarScreen() {
+  const params = useLocalSearchParams();
+  const shouldStartInLogMode = params["log-mode"] === "true";
+
   const insets = useSafeAreaInsets();
   const { theme } = useTheme();
   const flatListRef = useRef<FlatList>(null);
@@ -72,7 +76,11 @@ export default function CalendarScreen() {
     handleDeletePeriod,
     handleSaveLog,
     handleDatePress,
-  } = usePeriodInteraction({ periods, refreshData });
+  } = usePeriodInteraction({
+    periods,
+    refreshData,
+    initialLogMode: shouldStartInLogMode,
+  });
 
   const {
     bottomSheetRef,

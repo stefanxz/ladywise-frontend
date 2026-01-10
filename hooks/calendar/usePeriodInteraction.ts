@@ -18,6 +18,7 @@ import { ParsedPeriod, TooltipState } from "@/lib/types/calendar";
 interface UsePeriodInteractionProps {
   periods: ParsedPeriod[];
   refreshData: () => Promise<void>;
+  initialLogMode: boolean;
 }
 
 /**
@@ -26,11 +27,12 @@ interface UsePeriodInteractionProps {
 export function usePeriodInteraction({
   periods,
   refreshData,
+  initialLogMode = false,
 }: UsePeriodInteractionProps) {
   const today = useMemo(() => startOfDay(new Date()), []);
 
   // Mode and selection state
-  const [isLogMode, setIsLogMode] = useState(false);
+  const [isLogMode, setIsLogMode] = useState(initialLogMode);
   const [editingPeriodId, setEditingPeriodId] = useState<string | null>(null);
   const [selection, setSelection] = useState<{
     start: Date | null;
