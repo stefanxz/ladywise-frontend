@@ -26,7 +26,7 @@ export function usePeriodData() {
     try {
       // For theme color
       const status = await getCycleStatus();
-      // Update the tehme context so we have the correct theme.highlight
+      // Update the theme context so we have the correct theme.highlight
       if (status?.currentPhase) {
         setPhase(status.currentPhase.toLowerCase() as any);
       }
@@ -56,7 +56,6 @@ export function usePeriodData() {
     } catch (err) {
       console.error("Failed to fetch cycle calendar data: " + err);
     }
-
   }, [token, isAuthLoading, setPhase, today]);
 
   // Initial load
@@ -66,7 +65,10 @@ export function usePeriodData() {
 
   // Optimized lookup sets (O(1))
   const periodDateSet = useMemo(() => generateDateSet(periods), [periods]);
-  const predictionDateSet = useMemo(() => generateDateSet(predictions), [predictions]);
+  const predictionDateSet = useMemo(
+    () => generateDateSet(predictions),
+    [predictions],
+  );
 
   return {
     periods,

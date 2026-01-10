@@ -247,7 +247,7 @@ export default function CalendarScreen() {
                     <View className="w-full flex-row items-center justify-center relative">
                       {/* Log period button */}
                       <LogNewPeriodButton
-                        color="#FCA5A5"
+                        color={theme.highlight}
                         onPress={handleLogPeriodStart}
                         style={{ width: "42%" }}
                       />
@@ -256,7 +256,7 @@ export default function CalendarScreen() {
                       <View className="absolute right-0">
                         <FloatingAddButton
                           size={50}
-                          buttonColor="#FCA5A5"
+                          buttonColor={theme.highlight}
                           textColor="black"
                           onPress={() => openQuestionnaire(new Date())}
                         />
@@ -300,12 +300,20 @@ export default function CalendarScreen() {
                         <TouchableOpacity
                           onPress={handleSaveLog}
                           disabled={isSaving}
-                          className="w-[48%] bg-red-400 py-3 rounded-full items-center shadow-sm"
+                          style={[
+                            {
+                              backgroundColor: theme.highlight,
+                            },
+                          ]}
+                          className="w-[48%]  py-3 rounded-full items-center shadow-md"
                         >
                           {isSaving ? (
                             <ActivityIndicator color="white" />
                           ) : (
-                            <Text className="text-white font-bold text-lg">
+                            <Text
+                              style={{ color: theme.highlightTextColor }}
+                              className="font-bold text-lg"
+                            >
                               Save
                             </Text>
                           )}
