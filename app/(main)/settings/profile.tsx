@@ -2,7 +2,12 @@ import React, { useEffect, useState } from "react";
 import { View, Text, ActivityIndicator } from "react-native";
 import { SettingsPageLayout } from "@/components/Settings/SettingsPageLayout";
 import { useAuth } from "@/context/AuthContext";
-import { getUserById, getUserHealth } from "@/lib/api";
+import {
+  getUserById,
+  getUserHealth,
+  updateHealthDocument,
+  updateUser,
+} from "@/lib/api";
 import { HealthDocument, UserResponse } from "@/lib/types/payloads";
 import { UnitInputField } from "@/components/UnitInputField/UnitInputField";
 import { ThemedTextInput } from "@/components/ThemedTextInput/ThemedTextInput";
@@ -23,6 +28,7 @@ export default function ProfileSettings() {
   const { token, userId } = useAuth();
   const { showToast } = useToast();
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [user, setUser] = useState<UserResponse | null>(null);
 
   // Local state for form fields
@@ -98,7 +104,8 @@ export default function ProfileSettings() {
     setBiosensorCup(healthDocument.health.biosensorCup ?? null);
   };
 
-  // Handlers for local state updates (UI interaction only for now)
+  // Handlers for local state updates
+  // TODO: None of the above should cancel all other choices
   const toggleAnemiaCondition = (id: string) => {
     setAnemiaConditions((prev) =>
       prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id],
@@ -109,6 +116,51 @@ export default function ProfileSettings() {
     setThrombosisConditions((prev) =>
       prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id],
     );
+  };
+
+  // TODO: age, weight, height, first name last name should be obligatory (cant send empty payload)
+  const handleSave = async () => {
+    if (!user || !userId) {
+      showToast("Unable to save: user data not loaded", "error");
+      return;
+    }
+
+    try {
+      setSaving(true);
+
+      // Update user's basic info (first name, last name)
+      await updateUser({
+        id: userId,
+        email: user.email,
+        firstName: firstName.trim(),
+        lastName: lastName.trim(),
+      });
+
+      // Update health document
+      await updateHealthDocument({
+        personalDetails: {
+          age: age ? parseInt(age, 10) : undefined,
+          weight: weight ? parseFloat(weight) : undefined,
+          height: height ? parseFloat(height) : undefined,
+        },
+        familyHistory: {
+          familyHistoryAnemia: familyAnemia ?? undefined,
+          familyHistoryThrombosis: familyThrombosis ?? undefined,
+          anemiaConditions:
+            anemiaConditions.length > 0 ? anemiaConditions : undefined,
+          thrombosisConditions:
+            thrombosisConditions.length > 0 ? thrombosisConditions : undefined,
+        },
+        estrogenPill: estrogenPill ?? undefined,
+        biosensorCup: biosensorCup ?? undefined,
+      });
+
+      showToast("Changes saved successfully!", "success");
+    } catch (error) {
+      showToast("Failed to save changes", "error");
+    } finally {
+      setSaving(false);
+    }
   };
 
   if (loading) {
@@ -126,7 +178,8 @@ export default function ProfileSettings() {
       floatingAction={
         <ThemedPressable
           label="Save"
-          onPress={() => showToast("Changes saved!", "success")}
+          onPress={handleSave}
+          disabled={saving}
           className="shadow-lg w-[45%]"
         />
       }
@@ -159,17 +212,6 @@ export default function ProfileSettings() {
               testID="last-name-input"
             />
           </View>
-          <View>
-            <Text className="text-sm font-medium text-gray-700 mb-1">
-              Email
-            </Text>
-            <ThemedTextInput
-              value={user?.email || ""}
-              onChangeText={() => {}}
-              className="bg-gray-100 text-gray-500"
-            />
-          </View>
-
           <View className="mt-2">
             <Text className="text-sm font-medium text-gray-700 mb-1">Age</Text>
             <ThemedTextInput

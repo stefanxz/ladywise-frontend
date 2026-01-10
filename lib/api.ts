@@ -10,6 +10,7 @@ import {
   QuestionnaireResponse,
   RegisterPayload,
   ResetPasswordPayload,
+  UpdateHealthRequest,
   UserPayload,
   UserResponse,
 } from "./types/payloads";
@@ -101,10 +102,17 @@ export async function updateUser(payload: UserPayload) {
 
 /**
  * Retrieves the User Health data from the backend.
- * TODO: Change return type
  */
 export async function getUserHealth(): Promise<HealthDocument> {
   const { data } = await api.get<HealthDocument>("/api/health");
+  return data;
+}
+
+/**
+ * Updates health document for the authenticated user.
+ */
+export async function updateHealthDocument(payload: UpdateHealthRequest) {
+  const { data } = await api.patch<HealthDocument>("/api/health", payload);
   return data;
 }
 
