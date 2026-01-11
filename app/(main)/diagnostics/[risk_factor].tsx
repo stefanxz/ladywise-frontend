@@ -12,7 +12,7 @@ import { Feather } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { captureRef } from "react-native-view-shot";
 
-import { Colors } from "@/constants/colors";
+import { Colors, riskColors } from "@/constants/colors";
 import { RiskLineChart } from "@/components/charts/RiskLineChart";
 import FactorCard from "@/components/Diagnostics/FactorCard";
 import { FactorCardProps } from "@/components/Diagnostics/types";
@@ -22,6 +22,11 @@ import { getRiskHistory } from "@/lib/api";
 import { mockHistory } from "@/constants/mock-data";
 import ShareReportModal from "@/components/ShareReport/ShareReportModal";
 import type { ReportType } from "@/lib/types/reports";
+import {
+  DiagnosticsResponseDTO,
+  RiskNum,
+  FlowNum,
+} from "@/lib/types/diagnostics";
 
 const chartWidth = Dimensions.get("window").width - 80; // Screen padding (20*2) + Card padding (20*2)
 
@@ -53,7 +58,7 @@ const ExtendedDiagnosticsScreen = () => {
     : "Diagnostics";
 
   const { token, userId } = useAuth();
-  const [history, setHistory] = useState<any[]>([]);
+  const [history, setHistory] = useState<DiagnosticsResponseDTO[]>([]);
   const [loading, setLoading] = useState(true);
   const [insights, setInsights] = useState("");
   const [factors, setFactors] = useState<(FactorCardProps & { id: string })[]>(
@@ -65,61 +70,146 @@ const ExtendedDiagnosticsScreen = () => {
 
   // This should be aligned with the logic in the main diagnostics screen
   const riskLabels: Record<number, string> = {
-    0: "Low",
-    1: "Medium",
-    2: "High",
+    0: "Unknown",
+    1: "Low",
+    2: "Medium",
+    3: "High",
   };
   const formatRiskTick = (value: string) => {
     const rounded = Math.round(Number(value));
     return riskLabels[rounded] ?? "";
   };
 
+  // Helper to format UTC date
+  const formatDateUTC = (dateStr: string) => {
+    // Handle potential object format if somehow leaked (defensive)
+    const dStr =
+      typeof dateStr === "object" && (dateStr as any).$date
+        ? (dateStr as any).$date
+        : String(dateStr);
+    const d = new Date(dStr);
+
+    // Use UTC methods to avoid timezone shift
+    if (isNaN(d.getTime())) return "";
+
+    const month = d.toLocaleString("en-US", {
+      month: "short",
+      timeZone: "UTC",
+    });
+    const day = d.getUTCDate();
+
+    return `${month} ${day}`;
+  };
+
   useEffect(() => {
     const loadData = async () => {
       setLoading(true);
 
-      // Simulate or Real Fetch
-      // Attempt fetch from API, fallback to mock data if it fails or returns empty
-      let fetchedHistory = [];
+      let fetchedHistory: DiagnosticsResponseDTO[] = [];
       try {
         if (token && userId) {
+          console.log(
+            "[ExtendedDiagnostics] Fetching details for:",
+            risk_factor,
+            "User:",
+            userId,
+          );
           const data = await getRiskHistory(token, userId);
-          if (Array.isArray(data) && data.length > 0) fetchedHistory = data;
-          else fetchedHistory = mockHistory;
+          console.log("[ExtendedDiagnostics] API Data received:", data);
+
+          if (Array.isArray(data) && data.length > 0) {
+            // Sort by date ascending
+            fetchedHistory = data.sort(
+              (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
+            );
+          } else {
+            console.warn(
+              "[ExtendedDiagnostics] Fallback: Data is empty or invalid array.",
+            );
+            fetchedHistory = mockHistory;
+          }
         } else {
+          console.warn("[ExtendedDiagnostics] Fallback: No token or userId.");
           fetchedHistory = mockHistory;
         }
       } catch (e) {
-        console.warn("Failed to fetch history in details:", e);
+        console.error("[ExtendedDiagnostics] Fallback: Fetch error:", e);
         fetchedHistory = mockHistory;
       }
       setHistory(fetchedHistory);
 
-      // Also set insights/factors based on risk_factor
-      if (risk_factor === "anemia-risk") {
-        setFactors([
-          { ...FACTORS_REGISTRY.tired, value: "Present" },
-          { ...FACTORS_REGISTRY.dizziness, value: "Present" },
-          { ...FACTORS_REGISTRY.shortness_breath, value: "Absent" },
-        ]);
-        setInsights(
-          "Your anemia risk profile shows some fluctuations. Key factors include reported tiredness and dizziness. Consider discussing these with your healthcare provider.",
-        );
-      } else if (risk_factor === "thrombosis-risk") {
-        setFactors([
-          { ...FACTORS_REGISTRY.estrogen_pill, value: "Present" },
-          { ...FACTORS_REGISTRY.surgery_injury, value: "Present" },
-          {
-            ...FACTORS_REGISTRY.family_history_thrombosis,
-            value: "Thrombosis",
-          },
-        ]);
-        setInsights(
-          "Your thrombosis risk is currently elevated due to factors like estrogen pill usage and recent surgery. It is crucial to monitor for symptoms and consult your doctor.",
-        );
+      // Process latest entry for insights and factors
+      if (fetchedHistory.length > 0) {
+        const latest = fetchedHistory[fetchedHistory.length - 1];
+        let summary: string | null | undefined = "";
+        let keys: string[] | null | undefined = [];
+
+        if (risk_factor === "anemia-risk") {
+          summary = latest.anemiaSummary;
+          keys = latest.anemiaKeyInputs;
+        } else if (risk_factor === "thrombosis-risk") {
+          summary = latest.thrombosisSummary;
+          keys = latest.thrombosisKeyInputs;
+        }
+
+        setInsights(summary ?? "No specific insights available for this date.");
+
+        const parsedFactors: any[] = [];
+        if (keys && Array.isArray(keys)) {
+          // Flatten all key strings into one logical text for easier searching, or search each.
+          // The backend returns sentences like "Symptoms: One-sided leg pain, Dizzy".
+          // We'll search for keywords associated with our FACTORS_REGISTRY.
+
+          const combinedText = keys.join(" ").toLowerCase();
+
+          // Define keywords mapping to Registry IDs
+          const keywords: Record<string, string[]> = {
+            tired: ["tired", "fatigue"],
+            dizziness: ["dizzy", "dizziness"],
+            shortness_breath: ["shortness of breath", "breathing"],
+            surgery_injury: ["surgery", "injury"],
+            estrogen_pill: ["estrogen", "pill", "hormonal"],
+            family_history_anemia: ["family history"], // Context dependent? usually risk_factor separates them
+            family_history_thrombosis: ["family history"],
+            blood_clot: ["blood clot", "clotting"],
+            postpartum: ["postpartum", "pregnancy"],
+            chest_pain: ["chest pain"],
+            unilateral_leg_pain: ["leg pain", "one-sided", "unilateral"],
+            swelling: ["swelling"],
+            flow_heavy: ["heavy flow"],
+            flow_light: ["light flow"],
+          };
+
+          Object.keys(keywords).forEach((factorId) => {
+            // If we are looking at anemia, we might skip thrombosis factors if they are unique, but most are shared symptoms
+            // except family history which requires context.
+            if (
+              factorId === "family_history_anemia" &&
+              risk_factor !== "anemia-risk"
+            )
+              return;
+            if (
+              factorId === "family_history_thrombosis" &&
+              risk_factor !== "thrombosis-risk"
+            )
+              return;
+
+            const match = keywords[factorId].some((kw) =>
+              combinedText.includes(kw),
+            );
+            if (match) {
+              const def = FACTORS_REGISTRY[factorId];
+              if (def) {
+                parsedFactors.push({ ...def, value: def.defaultValue });
+              }
+            }
+          });
+        }
+
+        setFactors(parsedFactors);
       } else {
+        setInsights("No data available.");
         setFactors([]);
-        setInsights("No data available for this risk factor.");
       }
 
       setLoading(false);
@@ -128,32 +218,38 @@ const ExtendedDiagnosticsScreen = () => {
     if (risk_factor) loadData();
   }, [risk_factor, token, userId]);
 
-  // Derived Data for Graph
+  /* Derived Data for Graph */
   const riskData = React.useMemo(() => {
     if (!history.length) return { labels: [], data: [] };
 
-    const labels = history.map((item) =>
-      new Date(item.recordedAt).toLocaleDateString("en-US", {
-        month: "short",
-        day: "numeric",
-      }),
-    );
+    // Filter history to exclude "Unknown" (0) risks for the graph
+    const filteredHistory = history.filter((h) => {
+      if (risk_factor === "anemia-risk") return (h.anemiaRisk ?? 0) > 0;
+      if (risk_factor === "thrombosis-risk") return (h.thrombosisRisk ?? 0) > 0;
+      return false;
+    });
+
+    const labels = filteredHistory.map((item) => formatDateUTC(item.date));
 
     let data: number[] = [];
     if (risk_factor === "anemia-risk") {
-      data = history.map((h) => h.anemiaRisk);
+      data = filteredHistory.map((h) => h.anemiaRisk ?? 0);
     } else if (risk_factor === "thrombosis-risk") {
-      data = history.map((h) => h.thrombosisRisk);
+      data = filteredHistory.map((h) => h.thrombosisRisk ?? 0);
     }
 
     return { labels, data };
   }, [history, risk_factor]);
 
+  const currentRiskLevel = React.useMemo(() => {
+    if (!riskData.data.length) return 0 as RiskNum;
+    return riskData.data[riskData.data.length - 1] as RiskNum;
+  }, [riskData.data]);
+
   const currentRisk = React.useMemo(() => {
-    if (!riskData.data.length) return "N/A";
-    const val = riskData.data[riskData.data.length - 1];
-    return riskLabels[val] ?? "N/A";
-  }, [riskData.data, riskLabels]);
+    if (!riskData.data.length) return "N/A"; // Or "Unknown" if user prefers
+    return riskLabels[currentRiskLevel] ?? "N/A";
+  }, [currentRiskLevel, riskLabels, riskData.data.length]);
 
   // Determine report type based on risk_factor
   const reportType: ReportType = React.useMemo(() => {
@@ -201,7 +297,12 @@ const ExtendedDiagnosticsScreen = () => {
           <View className="flex-row justify-between items-start mb-4">
             <View>
               <Text className="text-xs text-regularText">Current Risk</Text>
-              <Text className="text-xl font-bold text-brand">
+              <Text
+                className="text-xl font-bold"
+                style={{
+                  color: riskColors[currentRiskLevel] ?? Colors.textHeading,
+                }}
+              >
                 {currentRisk}
               </Text>
             </View>
@@ -224,7 +325,7 @@ const ExtendedDiagnosticsScreen = () => {
               />
             ) : (
               <Text className="text-center text-inactiveText mt-5">
-                No graph data available.
+                No data available for this period.
               </Text>
             )}
           </View>

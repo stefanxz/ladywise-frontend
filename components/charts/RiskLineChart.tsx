@@ -61,20 +61,34 @@ export function RiskLineChart({
     padding: isInteractive ? 2 : 0,
   };
 
+  // Create dataset with invisible dummy points to force Y-axis range [1, 3]
+  const chartData = {
+    labels,
+    datasets: [
+      {
+        data,
+        color: (opacity = 1) => `rgba(164, 90, 107, ${opacity})`, // Brand color for line
+      },
+      {
+        data: [1, 3], // Force min 1, max 3
+        color: () => "transparent",
+        strokeWidth: 0,
+        withDots: false,
+      },
+    ],
+  };
+
   return (
     <View style={containerStyle}>
       <LineChart
-        data={{
-          labels,
-          datasets: [{ data }],
-        }}
+        data={chartData}
         width={width}
         height={height}
         chartConfig={chartConfig}
         bezier
-        fromZero
+        fromZero={false} // Allow starting from 1
         withShadow={false}
-        segments={segments}
+        segments={segments} // Should be 2 segments to show 1, 2, 3 ticks
         formatYLabel={formatYLabel}
         verticalLabelRotation={verticalLabelRotation}
       />

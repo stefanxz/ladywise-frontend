@@ -126,7 +126,7 @@ const Home = () => {
         try {
           const status = await getCycleStatus();
           setCycleStatus(status);
-          setPhase(status.currentPhase.toLowerCase() as any);
+          setPhase((status.currentPhase?.toLowerCase() ?? "menstrual") as any);
           setCalendarDays(generateCalendarDays(status.periodDates));
         } catch (err: any) {
           if (err.response?.status === 404) {
@@ -208,7 +208,7 @@ const Home = () => {
                 }
                 subtitle={
                   cycleStatus
-                    ? `${cycleStatus.daysUntilNextEvent} days until ${cycleStatus.nextEvent.toLowerCase()}`
+                    ? `${cycleStatus.daysUntilNextEvent} days until ${cycleStatus.nextEvent?.toLowerCase() ?? "event"}`
                     : "Log your first period to begin tracking."
                 }
                 theme={theme}
