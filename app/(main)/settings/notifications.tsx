@@ -5,9 +5,11 @@ import { Colors } from "@/constants/colors";
 import {
   getNotificationSettings,
   updateNotificationSetting,
+} from "@/lib/notifications";
+import {
   NotificationFrequency,
   NotificationType,
-} from "@/lib/notifications";
+} from "@/lib/types/notification";
 
 /**
  * FrequencyOptionPill
