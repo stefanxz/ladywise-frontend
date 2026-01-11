@@ -192,7 +192,7 @@ const Home = () => {
               <CalendarStrip
                 days={calendarDays}
                 themeColor={theme.highlight}
-                onDayPress={() => { }}
+                onDayPress={() => {}}
               />
 
               <PhaseCard

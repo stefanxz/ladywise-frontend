@@ -22,7 +22,11 @@ import { getRiskHistory } from "@/lib/api";
 import { mockHistory } from "@/constants/mock-data";
 import ShareReportModal from "@/components/ShareReport/ShareReportModal";
 import type { ReportType } from "@/lib/types/reports";
-import { DiagnosticsResponseDTO, RiskNum, FlowNum } from "@/lib/types/diagnostics";
+import {
+  DiagnosticsResponseDTO,
+  RiskNum,
+  FlowNum,
+} from "@/lib/types/diagnostics";
 
 const chartWidth = Dimensions.get("window").width - 80; // Screen padding (20*2) + Card padding (20*2)
 
@@ -48,9 +52,9 @@ const ExtendedDiagnosticsScreen = () => {
   // Format title from risk_factor (e.g., 'anemia-risk' -> 'Anemia Risk')
   const title = risk_factor
     ? risk_factor
-      .split("-")
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(" ")
+        .split("-")
+        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(" ")
     : "Diagnostics";
 
   const { token, userId } = useAuth();
@@ -79,13 +83,19 @@ const ExtendedDiagnosticsScreen = () => {
   // Helper to format UTC date
   const formatDateUTC = (dateStr: string) => {
     // Handle potential object format if somehow leaked (defensive)
-    const dStr = (typeof dateStr === 'object' && (dateStr as any).$date) ? (dateStr as any).$date : String(dateStr);
+    const dStr =
+      typeof dateStr === "object" && (dateStr as any).$date
+        ? (dateStr as any).$date
+        : String(dateStr);
     const d = new Date(dStr);
 
     // Use UTC methods to avoid timezone shift
     if (isNaN(d.getTime())) return "";
 
-    const month = d.toLocaleString('en-US', { month: 'short', timeZone: 'UTC' });
+    const month = d.toLocaleString("en-US", {
+      month: "short",
+      timeZone: "UTC",
+    });
     const day = d.getUTCDate();
 
     return `${month} ${day}`;
@@ -98,15 +108,24 @@ const ExtendedDiagnosticsScreen = () => {
       let fetchedHistory: DiagnosticsResponseDTO[] = [];
       try {
         if (token && userId) {
-          console.log("[ExtendedDiagnostics] Fetching details for:", risk_factor, "User:", userId);
+          console.log(
+            "[ExtendedDiagnostics] Fetching details for:",
+            risk_factor,
+            "User:",
+            userId,
+          );
           const data = await getRiskHistory(token, userId);
           console.log("[ExtendedDiagnostics] API Data received:", data);
 
           if (Array.isArray(data) && data.length > 0) {
             // Sort by date ascending
-            fetchedHistory = data.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+            fetchedHistory = data.sort(
+              (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
+            );
           } else {
-            console.warn("[ExtendedDiagnostics] Fallback: Data is empty or invalid array.");
+            console.warn(
+              "[ExtendedDiagnostics] Fallback: Data is empty or invalid array.",
+            );
             fetchedHistory = mockHistory;
           }
         } else {
@@ -161,13 +180,23 @@ const ExtendedDiagnosticsScreen = () => {
             flow_light: ["light flow"],
           };
 
-          Object.keys(keywords).forEach(factorId => {
+          Object.keys(keywords).forEach((factorId) => {
             // If we are looking at anemia, we might skip thrombosis factors if they are unique, but most are shared symptoms
             // except family history which requires context.
-            if (factorId === "family_history_anemia" && risk_factor !== "anemia-risk") return;
-            if (factorId === "family_history_thrombosis" && risk_factor !== "thrombosis-risk") return;
+            if (
+              factorId === "family_history_anemia" &&
+              risk_factor !== "anemia-risk"
+            )
+              return;
+            if (
+              factorId === "family_history_thrombosis" &&
+              risk_factor !== "thrombosis-risk"
+            )
+              return;
 
-            const match = keywords[factorId].some(kw => combinedText.includes(kw));
+            const match = keywords[factorId].some((kw) =>
+              combinedText.includes(kw),
+            );
             if (match) {
               const def = FACTORS_REGISTRY[factorId];
               if (def) {
@@ -178,7 +207,6 @@ const ExtendedDiagnosticsScreen = () => {
         }
 
         setFactors(parsedFactors);
-
       } else {
         setInsights("No data available.");
         setFactors([]);
@@ -271,7 +299,9 @@ const ExtendedDiagnosticsScreen = () => {
               <Text className="text-xs text-regularText">Current Risk</Text>
               <Text
                 className="text-xl font-bold"
-                style={{ color: riskColors[currentRiskLevel] ?? Colors.textHeading }}
+                style={{
+                  color: riskColors[currentRiskLevel] ?? Colors.textHeading,
+                }}
               >
                 {currentRisk}
               </Text>

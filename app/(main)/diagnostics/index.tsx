@@ -15,7 +15,11 @@ import { useAuth } from "@/context/AuthContext";
 import { getRiskHistory } from "@/lib/api";
 import { Colors, riskColors, flowColors } from "@/constants/colors";
 import { mockHistory } from "@/constants/mock-data";
-import type { DiagnosticsResponseDTO, RiskNum, FlowNum } from "@/lib/types/diagnostics";
+import type {
+  DiagnosticsResponseDTO,
+  RiskNum,
+  FlowNum,
+} from "@/lib/types/diagnostics";
 import ShareReportModal from "@/components/ShareReport/ShareReportModal";
 
 const riskLabels: Record<RiskNum, string> = {
@@ -50,7 +54,9 @@ export default function DiagnosticsScreen({
 }: DiagnosticsScreenProps) {
   const { token, userId } = useAuth();
 
-  const [history, setHistory] = useState<DiagnosticsResponseDTO[]>(historyProp ?? []);
+  const [history, setHistory] = useState<DiagnosticsResponseDTO[]>(
+    historyProp ?? [],
+  );
   const [loading, setLoading] = useState(!historyProp);
   const [error, setError] = useState<string | null>(null);
   const [showShareModal, setShowShareModal] = useState(false);
@@ -70,7 +76,12 @@ export default function DiagnosticsScreen({
         setLoading(true);
         setError(null);
 
-        console.log("[Diagnostics] Starting fetch. UserID:", userId, "Token exists:", !!token);
+        console.log(
+          "[Diagnostics] Starting fetch. UserID:",
+          userId,
+          "Token exists:",
+          !!token,
+        );
 
         const data = await getRiskHistory(token, userId);
         console.log("[Diagnostics] API Response Data:", data);
@@ -78,10 +89,15 @@ export default function DiagnosticsScreen({
         if (Array.isArray(data) && data.length > 0) {
           console.log("[Diagnostics] Using real API data. Count:", data.length);
           // Sort by date ascending
-          const sorted = data.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+          const sorted = data.sort(
+            (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
+          );
           setHistory(sorted);
         } else if (!Array.isArray(data)) {
-          console.warn("[Diagnostics] Fallback triggered: API returned non-array data:", data);
+          console.warn(
+            "[Diagnostics] Fallback triggered: API returned non-array data:",
+            data,
+          );
           setHistory(mockHistory);
 
           // Debugging aid: Show the first 100 characters of the received data to understand its shape
@@ -91,9 +107,13 @@ export default function DiagnosticsScreen({
           } catch (e) {
             dataStr = String(data);
           }
-          setError(`Received invalid data (not array): ${dataStr}... Showing sample data.`);
+          setError(
+            `Received invalid data (not array): ${dataStr}... Showing sample data.`,
+          );
         } else {
-          console.warn("[Diagnostics] Fallback triggered: API returned empty list.");
+          console.warn(
+            "[Diagnostics] Fallback triggered: API returned empty list.",
+          );
           // If API returns empty array, fallback to mock data as requested
           setHistory(mockHistory);
           setError(
@@ -101,7 +121,10 @@ export default function DiagnosticsScreen({
           );
         }
       } catch (err: unknown) {
-        console.error("[Diagnostics] Fallback triggered: API Request Failed", err);
+        console.error(
+          "[Diagnostics] Fallback triggered: API Request Failed",
+          err,
+        );
 
         // Fallback to mock data if API fails, as requested for development
         setHistory(mockHistory);
@@ -134,13 +157,19 @@ export default function DiagnosticsScreen({
   // Helper to format UTC date
   const formatDateUTC = (dateStr: string) => {
     // Handle potential object format if somehow leaked (defensive)
-    const dStr = (typeof dateStr === 'object' && (dateStr as any).$date) ? (dateStr as any).$date : String(dateStr);
+    const dStr =
+      typeof dateStr === "object" && (dateStr as any).$date
+        ? (dateStr as any).$date
+        : String(dateStr);
     const d = new Date(dStr);
 
     // Use UTC methods to avoid timezone shift
     if (isNaN(d.getTime())) return "";
 
-    const month = d.toLocaleString('en-US', { month: 'short', timeZone: 'UTC' });
+    const month = d.toLocaleString("en-US", {
+      month: "short",
+      timeZone: "UTC",
+    });
     const day = d.getUTCDate();
 
     return `${month} ${day}`;
@@ -189,7 +218,9 @@ export default function DiagnosticsScreen({
   const thrombosisHistory = history.filter(
     (item) => (item.thrombosisRisk ?? 0) > 0,
   );
-  const thrombosisLabels = thrombosisHistory.map((item) => formatDateUTC(item.date));
+  const thrombosisLabels = thrombosisHistory.map((item) =>
+    formatDateUTC(item.date),
+  );
   const thrombosisData = thrombosisHistory.map(
     (item) => item.thrombosisRisk ?? 0,
   );
