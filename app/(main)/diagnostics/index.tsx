@@ -13,10 +13,9 @@ import { Feather } from "@expo/vector-icons";
 import { RiskLineChart } from "@/components/charts/RiskLineChart";
 import { useAuth } from "@/context/AuthContext";
 import { getRiskHistory } from "@/lib/api";
-import type { RiskHistoryPoint } from "@/lib/types/risks";
 import { Colors, riskColors, flowColors } from "@/constants/colors";
 import { mockHistory } from "@/constants/mock-data";
-import type { RiskNum, FlowNum } from "@/lib/types/diagnostics";
+import type { DiagnosticsResponseDTO, RiskNum, FlowNum } from "@/lib/types/diagnostics";
 import ShareReportModal from "@/components/ShareReport/ShareReportModal";
 
 const riskLabels: Record<RiskNum, string> = {
@@ -33,7 +32,7 @@ const flowLabels: Record<FlowNum, string> = {
 };
 
 type DiagnosticsScreenProps = {
-  initialHistory?: RiskHistoryPoint[];
+  initialHistory?: DiagnosticsResponseDTO[];
 };
 
 /**
@@ -50,7 +49,7 @@ export default function DiagnosticsScreen({
 }: DiagnosticsScreenProps) {
   const { token, userId } = useAuth();
 
-  const [history, setHistory] = useState<RiskHistoryPoint[]>(historyProp ?? []);
+  const [history, setHistory] = useState<DiagnosticsResponseDTO[]>(historyProp ?? []);
   const [loading, setLoading] = useState(!historyProp);
   const [error, setError] = useState<string | null>(null);
   const [showShareModal, setShowShareModal] = useState(false);
@@ -69,15 +68,29 @@ export default function DiagnosticsScreen({
       try {
         setLoading(true);
         setError(null);
+
+        console.log("[Diagnostics] Starting fetch. UserID:", userId, "Token exists:", !!token);
+
         const data = await getRiskHistory(token, userId);
+        console.log("[Diagnostics] API Response Data:", data);
 
         if (Array.isArray(data) && data.length > 0) {
+          console.log("[Diagnostics] Using real API data. Count:", data.length);
           setHistory(data);
         } else if (!Array.isArray(data)) {
-          // console.warn("API returned non-array data:", data);
+          console.warn("[Diagnostics] Fallback triggered: API returned non-array data:", data);
           setHistory(mockHistory);
-          setError("Received invalid data from server. Showing sample data.");
+
+          // Debugging aid: Show the first 100 characters of the received data to understand its shape
+          let dataStr = "";
+          try {
+            dataStr = JSON.stringify(data, null, 2).substring(0, 200);
+          } catch (e) {
+            dataStr = String(data);
+          }
+          setError(`Received invalid data (not array): ${dataStr}... Showing sample data.`);
         } else {
+          console.warn("[Diagnostics] Fallback triggered: API returned empty list.");
           // If API returns empty array, fallback to mock data as requested
           setHistory(mockHistory);
           setError(
@@ -85,13 +98,14 @@ export default function DiagnosticsScreen({
           );
         }
       } catch (err: unknown) {
-        // console.error("Failed to load risk history", err);
+        console.error("[Diagnostics] Fallback triggered: API Request Failed", err);
 
         // Fallback to mock data if API fails, as requested for development
         setHistory(mockHistory);
 
         if (isAxiosError(err)) {
           const status = err.response?.status;
+          console.log("[Diagnostics] Error Status:", status);
           if (status === 401) {
             setError("Your session has expired. Please log in again.");
           } else {
@@ -155,20 +169,20 @@ export default function DiagnosticsScreen({
   }
 
   const labels = history.map((item) =>
-    new Date(item.recordedAt).toLocaleDateString("en-US", {
+    new Date(item.date).toLocaleDateString("en-US", {
       month: "short",
       day: "numeric",
     }),
   );
 
-  const thrombosisData = history.map((item) => item.thrombosisRisk);
-  const anemiaData = history.map((item) => item.anemiaRisk);
-  const flowData = history.map((item) => item.menstrualFlow);
+  const thrombosisData = history.map((item) => item.thrombosisRisk ?? 0);
+  const anemiaData = history.map((item) => item.anemiaRisk ?? 0);
+  const flowData = history.map((item) => item.flowLevel ?? 0);
 
   const latest = history[history.length - 1];
-  const latestThrombosis = latest.thrombosisRisk as RiskNum;
-  const latestAnemia = latest.anemiaRisk as RiskNum;
-  const latestFlow = latest.menstrualFlow as FlowNum;
+  const latestThrombosis = (latest.thrombosisRisk ?? 0) as RiskNum;
+  const latestAnemia = (latest.anemiaRisk ?? 0) as RiskNum;
+  const latestFlow = (latest.flowLevel ?? 0) as FlowNum;
 
   return (
     <SafeAreaView className="flex-1 bg-background" edges={["top"]}>

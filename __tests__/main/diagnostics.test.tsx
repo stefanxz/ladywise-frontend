@@ -4,7 +4,7 @@ import { AxiosError } from "axios";
 import DiagnosticsScreen from "@/app/(main)/diagnostics/index";
 import * as api from "@/lib/api";
 import { useAuth } from "@/context/AuthContext";
-import { RiskHistoryPoint } from "@/lib/types/risks";
+import { DiagnosticsResponseDTO } from "@/lib/types/diagnostics";
 
 // Mock dependencies
 jest.mock("@/context/AuthContext", () => ({
@@ -47,18 +47,24 @@ jest.mock("expo-router", () => ({
 const mockUseAuth = useAuth as jest.Mock;
 const mockGetRiskHistory = api.getRiskHistory as jest.Mock;
 
-const mockHistory: RiskHistoryPoint[] = [
+const mockHistory: DiagnosticsResponseDTO[] = [
   {
-    recordedAt: "2025-10-28T10:00:00Z",
+    id: "1",
+    userId: "test",
+    date: "2025-10-28",
+    lastUpdated: "2025-10-28T10:00:00Z",
     anemiaRisk: 1, // Medium
     thrombosisRisk: 0, // Low
-    menstrualFlow: 2, // Normal
+    flowLevel: 2, // Normal
   },
   {
-    recordedAt: "2025-10-30T10:00:00Z",
+    id: "2",
+    userId: "test",
+    date: "2025-10-30",
+    lastUpdated: "2025-10-30T10:00:00Z",
     anemiaRisk: 2, // High
     thrombosisRisk: 1, // Medium
-    menstrualFlow: 2, // Normal
+    flowLevel: 2, // Normal
   },
 ];
 
@@ -74,7 +80,7 @@ describe("DiagnosticsScreen fetch behavior", () => {
 
   it("shows a loading indicator while fetching data", () => {
     // Mock a pending promise that never resolves to keep it in a loading state
-    mockGetRiskHistory.mockReturnValue(new Promise(() => {}));
+    mockGetRiskHistory.mockReturnValue(new Promise(() => { }));
     render(<DiagnosticsScreen />);
     expect(screen.getByTestId("loading-indicator")).toBeTruthy();
   });

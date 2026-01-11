@@ -22,6 +22,7 @@ import { getRiskHistory } from "@/lib/api";
 import { mockHistory } from "@/constants/mock-data";
 import ShareReportModal from "@/components/ShareReport/ShareReportModal";
 import type { ReportType } from "@/lib/types/reports";
+import { DiagnosticsResponseDTO, RiskNum, FlowNum } from "@/lib/types/diagnostics";
 
 const chartWidth = Dimensions.get("window").width - 80; // Screen padding (20*2) + Card padding (20*2)
 
@@ -47,13 +48,13 @@ const ExtendedDiagnosticsScreen = () => {
   // Format title from risk_factor (e.g., 'anemia-risk' -> 'Anemia Risk')
   const title = risk_factor
     ? risk_factor
-        .split("-")
-        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-        .join(" ")
+      .split("-")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ")
     : "Diagnostics";
 
   const { token, userId } = useAuth();
-  const [history, setHistory] = useState<any[]>([]);
+  const [history, setHistory] = useState<DiagnosticsResponseDTO[]>([]);
   const [loading, setLoading] = useState(true);
   const [insights, setInsights] = useState("");
   const [factors, setFactors] = useState<(FactorCardProps & { id: string })[]>(
@@ -78,48 +79,56 @@ const ExtendedDiagnosticsScreen = () => {
     const loadData = async () => {
       setLoading(true);
 
-      // Simulate or Real Fetch
-      // Attempt fetch from API, fallback to mock data if it fails or returns empty
-      let fetchedHistory = [];
+      let fetchedHistory: DiagnosticsResponseDTO[] = [];
       try {
         if (token && userId) {
+          console.log("[ExtendedDiagnostics] Fetching details for:", risk_factor, "User:", userId);
           const data = await getRiskHistory(token, userId);
-          if (Array.isArray(data) && data.length > 0) fetchedHistory = data;
-          else fetchedHistory = mockHistory;
+          console.log("[ExtendedDiagnostics] API Data received:", data);
+          if (Array.isArray(data) && data.length > 0) {
+            fetchedHistory = data;
+          } else {
+            console.warn("[ExtendedDiagnostics] Fallback: Data is empty or invalid array.");
+            fetchedHistory = mockHistory;
+          }
         } else {
+          console.warn("[ExtendedDiagnostics] Fallback: No token or userId.");
           fetchedHistory = mockHistory;
         }
       } catch (e) {
-        console.warn("Failed to fetch history in details:", e);
+        console.error("[ExtendedDiagnostics] Fallback: Fetch error:", e);
         fetchedHistory = mockHistory;
       }
       setHistory(fetchedHistory);
 
-      // Also set insights/factors based on risk_factor
-      if (risk_factor === "anemia-risk") {
-        setFactors([
-          { ...FACTORS_REGISTRY.tired, value: "Present" },
-          { ...FACTORS_REGISTRY.dizziness, value: "Present" },
-          { ...FACTORS_REGISTRY.shortness_breath, value: "Absent" },
-        ]);
-        setInsights(
-          "Your anemia risk profile shows some fluctuations. Key factors include reported tiredness and dizziness. Consider discussing these with your healthcare provider.",
-        );
-      } else if (risk_factor === "thrombosis-risk") {
-        setFactors([
-          { ...FACTORS_REGISTRY.estrogen_pill, value: "Present" },
-          { ...FACTORS_REGISTRY.surgery_injury, value: "Present" },
-          {
-            ...FACTORS_REGISTRY.family_history_thrombosis,
-            value: "Thrombosis",
-          },
-        ]);
-        setInsights(
-          "Your thrombosis risk is currently elevated due to factors like estrogen pill usage and recent surgery. It is crucial to monitor for symptoms and consult your doctor.",
-        );
+      // Process latest entry for insights and factors
+      if (fetchedHistory.length > 0) {
+        const latest = fetchedHistory[fetchedHistory.length - 1];
+        let summary: string | null | undefined = "";
+        let keys: string[] | null | undefined = [];
+
+        if (risk_factor === "anemia-risk") {
+          summary = latest.anemiaSummary;
+          keys = latest.anemiaKeyInputs;
+        } else if (risk_factor === "thrombosis-risk") {
+          summary = latest.thrombosisSummary;
+          keys = latest.thrombosisKeyInputs;
+        }
+
+        setInsights(summary ?? "No specific insights available for this date.");
+
+        if (keys && Array.isArray(keys)) {
+          const mappedFactors = keys
+            .map((k) => FACTORS_REGISTRY[k])
+            .filter((f) => f !== undefined)
+            .map((f) => ({ ...f, value: f.defaultValue }));
+          setFactors(mappedFactors as any);
+        } else {
+          setFactors([]);
+        }
       } else {
+        setInsights("No data available.");
         setFactors([]);
-        setInsights("No data available for this risk factor.");
       }
 
       setLoading(false);
@@ -133,7 +142,7 @@ const ExtendedDiagnosticsScreen = () => {
     if (!history.length) return { labels: [], data: [] };
 
     const labels = history.map((item) =>
-      new Date(item.recordedAt).toLocaleDateString("en-US", {
+      new Date(item.date).toLocaleDateString("en-US", {
         month: "short",
         day: "numeric",
       }),
@@ -141,9 +150,9 @@ const ExtendedDiagnosticsScreen = () => {
 
     let data: number[] = [];
     if (risk_factor === "anemia-risk") {
-      data = history.map((h) => h.anemiaRisk);
+      data = history.map((h) => h.anemiaRisk ?? 0);
     } else if (risk_factor === "thrombosis-risk") {
-      data = history.map((h) => h.thrombosisRisk);
+      data = history.map((h) => h.thrombosisRisk ?? 0);
     }
 
     return { labels, data };
