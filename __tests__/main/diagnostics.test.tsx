@@ -53,8 +53,8 @@ const mockHistory: DiagnosticsResponseDTO[] = [
     userId: "test",
     date: "2025-10-28",
     lastUpdated: "2025-10-28T10:00:00Z",
-    anemiaRisk: 1, // Medium
-    thrombosisRisk: 0, // Low
+    anemiaRisk: 1, // Low
+    thrombosisRisk: 0, // Unknown
     flowLevel: 2, // Normal
   },
   {
@@ -62,8 +62,8 @@ const mockHistory: DiagnosticsResponseDTO[] = [
     userId: "test",
     date: "2025-10-30",
     lastUpdated: "2025-10-30T10:00:00Z",
-    anemiaRisk: 2, // High
-    thrombosisRisk: 1, // Medium
+    anemiaRisk: 3, // High (was 2 which is Medium)
+    thrombosisRisk: 1, // Low
     flowLevel: 2, // Normal
   },
 ];
@@ -97,9 +97,8 @@ describe("DiagnosticsScreen fetch behavior", () => {
     // Check that the charts are rendered
     expect(screen.getAllByTestId("mock-line-chart").length).toBe(3);
 
-    // Check for the latest risk values displayed on the screen
     expect(screen.getByText("Thrombosis Risk")).toBeTruthy();
-    expect(screen.getByText("Medium")).toBeTruthy(); // From the last entry: thrombosisRisk: 1
+    expect(screen.getByText("Low")).toBeTruthy(); // From the last entry: thrombosisRisk: 1
 
     expect(screen.getByText("Anemia Risk")).toBeTruthy();
     expect(screen.getByText("High")).toBeTruthy(); // From the last entry: anemiaRisk: 2
