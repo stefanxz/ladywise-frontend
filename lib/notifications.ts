@@ -1,17 +1,20 @@
 import { api } from "./api"; // Imports the axios instance from your existing lib/api.ts
-import { NotificationType } from "./types/notification";
+import {
+  NotificationType,
+  NotificationFrequency,
+} from "./types/notification";
 
 export interface RegisterTokenRequest {
   token: string;
 }
 
 export interface NotificationSettingsResponse {
-  preferences: Record<NotificationType, boolean>;
+  preferences: Record<NotificationType, NotificationFrequency>;
 }
 
 export interface UpdateSettingRequest {
   type: NotificationType;
-  enabled: boolean;
+  frequency: NotificationFrequency;
 }
 
 /**
@@ -31,7 +34,7 @@ export const registerPushToken = async (token: string) => {
 /**
  * Retrieves current notification preferences.
  *
- * @returns {Promise<Record<NotificationType, boolean>>} Map of preferences
+ * @returns {Promise<Record<NotificationType, NotificationFrequency>>} Map of preferences
  */
 export const getNotificationSettings = async () => {
   const { data } = await api.get<NotificationSettingsResponse>(
@@ -44,16 +47,16 @@ export const getNotificationSettings = async () => {
  * Updates a specific notification preference.
  *
  * @param {NotificationType} type - The notification type to update
- * @param {boolean} enabled - Whether it should be enabled
+ * @param {NotificationFrequency} frequency - The desired frequency
  * @returns {Promise<void>}
  */
 export const updateNotificationSetting = async (
   type: NotificationType,
-  enabled: boolean,
+  frequency: NotificationFrequency,
 ) => {
   const { data } = await api.patch<void>("/api/notifications/settings", {
     type,
-    enabled,
+    frequency,
   } as UpdateSettingRequest);
   return data;
 };

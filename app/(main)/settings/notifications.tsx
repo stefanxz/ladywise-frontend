@@ -1,9 +1,16 @@
-import { Switch, Text, View, Pressable } from "react-native";
-import React, { useState } from "react";
+import { Switch, Text, View, Pressable, ActivityIndicator } from "react-native";
+import React, { useState, useEffect } from "react";
 import { SettingsPageLayout } from "@/components/Settings/SettingsPageLayout";
 import { Colors } from "@/constants/colors";
-
-type NotificationFrequency = "DAILY" | "MONTHLY" | "NONE";
+import {
+  getNotificationSettings,
+  updateNotificationSetting,
+} from "@/lib/notifications";
+import {
+  NotificationFrequency,
+  NotificationType,
+} from "@/lib/types/notification";
+import { useToast } from "@/hooks/useToast";
 
 /**
  * FrequencyOptionPill
@@ -49,37 +56,97 @@ function FrequencyOptionPill({
  */
 export default function NotificationsSettings() {
   const [questionnaireFrequency, setQuestionnaireFrequency] =
-    useState<NotificationFrequency>("DAILY");
+    useState<NotificationFrequency>(NotificationFrequency.DAILY);
   const [phaseNotificationsEnabled, setPhaseNotificationsEnabled] =
     useState(true);
+  const [isLoading, setIsLoading] = useState(true);
   const [isUpdating, setIsUpdating] = useState(false);
+  const { showToast } = useToast();
+
+  useEffect(() => {
+    fetchSettings();
+  }, []);
+
+  const fetchSettings = async () => {
+    try {
+      const settings = await getNotificationSettings();
+      if (settings) {
+        // Questionnaire settings
+        const qFreq = settings[NotificationType.CYCLE_QUESTIONNAIRE_REMINDER];
+        if (qFreq) {
+          setQuestionnaireFrequency(qFreq);
+        }
+
+        // Phase settings
+        const pFreq = settings[NotificationType.CYCLE_PHASE_UPDATE];
+        if (pFreq) {
+          setPhaseNotificationsEnabled(pFreq !== NotificationFrequency.NONE);
+        }
+      }
+    } catch (error) {
+      console.error("Failed to fetch notification settings", error);
+      showToast("Failed to load settings", "error");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleUpdateFrequency = async (freq: NotificationFrequency) => {
-    setIsUpdating(true);
+    // Optimistic update
+    const previousFreq = questionnaireFrequency;
     setQuestionnaireFrequency(freq);
+    setIsUpdating(true);
+
     try {
-      // TODO: Backend integration
-      // await updateNotificationSetting("CYCLE_QUESTIONNAIRE_REMINDER", freq);
+      await updateNotificationSetting(
+        NotificationType.CYCLE_QUESTIONNAIRE_REMINDER,
+        freq,
+      );
     } catch (error) {
       console.error("Failed to update frequency", error);
+      setQuestionnaireFrequency(previousFreq);
+      showToast("Failed to update setting", "error");
     } finally {
       setIsUpdating(false);
     }
   };
 
   const handleTogglePhaseNotifications = async (value: boolean) => {
-    setIsUpdating(true);
+    // Optimistic update
+    const previousValue = phaseNotificationsEnabled;
     setPhaseNotificationsEnabled(value);
+    setIsUpdating(true);
+
+    const targetFrequency = value
+      ? NotificationFrequency.DAILY
+      : NotificationFrequency.NONE;
+
     try {
-      // TODO: Backend integration
-      // await updateNotificationSetting("CYCLE_PHASE_UPDATE", value ? "DAILY" : "NONE");
+      await updateNotificationSetting(
+        NotificationType.CYCLE_PHASE_UPDATE,
+        targetFrequency,
+      );
     } catch (error) {
       console.error("Failed to update phase notifications", error);
-      setPhaseNotificationsEnabled(!value);
+      setPhaseNotificationsEnabled(previousValue);
+      showToast("Failed to update setting", "error");
     } finally {
       setIsUpdating(false);
     }
   };
+
+  if (isLoading) {
+    return (
+      <SettingsPageLayout
+        title="Notifications"
+        description="Manage how and when you receive updates from LadyWise."
+      >
+        <View className="flex-1 justify-center items-center py-10">
+          <ActivityIndicator size="large" color={Colors.brand} />
+        </View>
+      </SettingsPageLayout>
+    );
+  }
 
   return (
     <SettingsPageLayout
@@ -99,20 +166,20 @@ export default function NotificationsSettings() {
         <View className="flex-row flex-wrap gap-2">
           <FrequencyOptionPill
             label="Daily"
-            selected={questionnaireFrequency === "DAILY"}
-            onPress={() => handleUpdateFrequency("DAILY")}
+            selected={questionnaireFrequency === NotificationFrequency.DAILY}
+            onPress={() => handleUpdateFrequency(NotificationFrequency.DAILY)}
             testID="freq-daily"
           />
           <FrequencyOptionPill
             label="Monthly"
-            selected={questionnaireFrequency === "MONTHLY"}
-            onPress={() => handleUpdateFrequency("MONTHLY")}
+            selected={questionnaireFrequency === NotificationFrequency.MONTHLY}
+            onPress={() => handleUpdateFrequency(NotificationFrequency.MONTHLY)}
             testID="freq-monthly"
           />
           <FrequencyOptionPill
             label="Off"
-            selected={questionnaireFrequency === "NONE"}
-            onPress={() => handleUpdateFrequency("NONE")}
+            selected={questionnaireFrequency === NotificationFrequency.NONE}
+            onPress={() => handleUpdateFrequency(NotificationFrequency.NONE)}
             testID="freq-none"
           />
         </View>

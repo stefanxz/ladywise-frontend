@@ -4,7 +4,7 @@ import {
   updateNotificationSetting,
   sendTestNotification,
 } from "@/lib/notifications";
-import { NotificationType } from "@/lib/types/notification";
+import { NotificationType, NotificationFrequency } from "@/lib/types/notification";
 import { api } from "@/lib/api";
 
 // Mock the axios instance
@@ -43,7 +43,7 @@ describe("Notification API Helpers", () => {
     it("fetches settings and returns preferences", async () => {
       const mockResponse = {
         data: {
-          preferences: { CYCLE_PHASE_UPDATE: true },
+          preferences: { CYCLE_PHASE_UPDATE: NotificationFrequency.DAILY },
         },
       };
       (api.get as jest.Mock).mockResolvedValueOnce(mockResponse);
@@ -51,7 +51,7 @@ describe("Notification API Helpers", () => {
       const result = await getNotificationSettings();
 
       expect(api.get).toHaveBeenCalledWith("/api/notifications/settings");
-      expect(result).toEqual({ CYCLE_PHASE_UPDATE: true });
+      expect(result).toEqual({ CYCLE_PHASE_UPDATE: NotificationFrequency.DAILY });
     });
   });
 
@@ -61,12 +61,12 @@ describe("Notification API Helpers", () => {
 
       await updateNotificationSetting(
         NotificationType.CYCLE_PHASE_UPDATE,
-        false,
+        NotificationFrequency.NONE,
       );
 
       expect(api.patch).toHaveBeenCalledWith("/api/notifications/settings", {
         type: "CYCLE_PHASE_UPDATE",
-        enabled: false,
+        frequency: NotificationFrequency.NONE,
       });
     });
   });
