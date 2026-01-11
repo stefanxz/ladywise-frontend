@@ -20,9 +20,10 @@ export const Colors = {
 
 // colors for text (and later, maybe dots) per level
 export const riskColors: Record<RiskNum, string> = {
-  0: "#16a34a", // green
-  1: "#eab308", // yellow
-  2: "#dc2626", // red
+  0: "#9CA3AF", // unknown - gray
+  1: "#16a34a", // low - green
+  2: "#F59E0B", // medium - amber/orange
+  3: "#dc2626", // high - red
 };
 
 export const flowColors: Record<FlowNum, string> = {

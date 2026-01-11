@@ -27,8 +27,8 @@ export const mockHistory: DiagnosticsResponseDTO[] = [
     userId: "mock",
     date: "2025-10-28",
     lastUpdated: "2025-10-28T10:00:00Z",
-    anemiaRisk: 1,
-    thrombosisRisk: 0,
+    anemiaRisk: 2, // Medium
+    thrombosisRisk: 1, // Low
     flowLevel: 2,
     anemiaSummary: "Moderate anemia risk detected. You reported feeling tired.",
     thrombosisSummary: "Thrombosis risk is currently low. No significant factors reported.",
@@ -40,8 +40,8 @@ export const mockHistory: DiagnosticsResponseDTO[] = [
     userId: "mock",
     date: "2025-10-29",
     lastUpdated: "2025-10-29T10:00:00Z",
-    anemiaRisk: 1,
-    thrombosisRisk: 1,
+    anemiaRisk: 2, // Medium
+    thrombosisRisk: 2, // Medium
     flowLevel: 3,
     anemiaSummary: "Anemia risk remains moderate. Continued fatigue observed.",
     thrombosisSummary: "Thrombosis risk increased slightly due to reporting medication use.",
@@ -53,8 +53,8 @@ export const mockHistory: DiagnosticsResponseDTO[] = [
     userId: "mock",
     date: "2025-10-30",
     lastUpdated: "2025-10-30T10:00:00Z",
-    anemiaRisk: 2,
-    thrombosisRisk: 1,
+    anemiaRisk: 3, // High
+    thrombosisRisk: 2, // Medium
     flowLevel: 2,
     anemiaSummary: "High anemia risk. Symptoms now include dizziness and fatigue.",
     thrombosisSummary: "Thrombosis risk remains stable at medium level.",
@@ -66,8 +66,8 @@ export const mockHistory: DiagnosticsResponseDTO[] = [
     userId: "mock",
     date: "2025-10-31",
     lastUpdated: "2025-10-31T10:00:00Z",
-    anemiaRisk: 1,
-    thrombosisRisk: 2,
+    anemiaRisk: 2, // Medium
+    thrombosisRisk: 3, // High
     flowLevel: 1,
     anemiaSummary: "Anemia risk has improved slightly.",
     thrombosisSummary: "High thrombosis risk detected. Combination of factors present.",
@@ -79,8 +79,8 @@ export const mockHistory: DiagnosticsResponseDTO[] = [
     userId: "mock",
     date: "2025-11-01",
     lastUpdated: "2025-11-01T10:00:00Z",
-    anemiaRisk: 0,
-    thrombosisRisk: 2,
+    anemiaRisk: 1, // Low
+    thrombosisRisk: 3, // High
     flowLevel: 0,
     anemiaSummary: "Anemia risk is low. No significant symptoms reported.",
     thrombosisSummary: "Critical thrombosis risk. Please consult a healthcare provider immediately.",

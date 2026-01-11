@@ -19,9 +19,10 @@ import type { DiagnosticsResponseDTO, RiskNum, FlowNum } from "@/lib/types/diagn
 import ShareReportModal from "@/components/ShareReport/ShareReportModal";
 
 const riskLabels: Record<RiskNum, string> = {
-  0: "Low",
-  1: "Medium",
-  2: "High",
+  0: "Unknown",
+  1: "Low",
+  2: "Medium",
+  3: "High",
 };
 
 const flowLabels: Record<FlowNum, string> = {
@@ -168,15 +169,34 @@ export default function DiagnosticsScreen({
     );
   }
 
-  const labels = history.map((item) =>
+  const thrombosisHistory = history.filter(
+    (item) => (item.thrombosisRisk ?? 0) > 0,
+  );
+  const thrombosisLabels = thrombosisHistory.map((item) =>
     new Date(item.date).toLocaleDateString("en-US", {
       month: "short",
       day: "numeric",
     }),
   );
+  const thrombosisData = thrombosisHistory.map(
+    (item) => item.thrombosisRisk ?? 0,
+  );
 
-  const thrombosisData = history.map((item) => item.thrombosisRisk ?? 0);
-  const anemiaData = history.map((item) => item.anemiaRisk ?? 0);
+  const anemiaHistory = history.filter((item) => (item.anemiaRisk ?? 0) > 0);
+  const anemiaLabels = anemiaHistory.map((item) =>
+    new Date(item.date).toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+    }),
+  );
+  const anemiaData = anemiaHistory.map((item) => item.anemiaRisk ?? 0);
+
+  const flowLabels = history.map((item) =>
+    new Date(item.date).toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+    }),
+  );
   const flowData = history.map((item) => item.flowLevel ?? 0);
 
   const latest = history[history.length - 1];
@@ -232,7 +252,7 @@ export default function DiagnosticsScreen({
               </View>
 
               <RiskLineChart
-                labels={labels}
+                labels={thrombosisLabels}
                 data={thrombosisData}
                 segments={2}
                 formatYLabel={formatRiskTick}
@@ -276,7 +296,7 @@ export default function DiagnosticsScreen({
               </View>
 
               <RiskLineChart
-                labels={labels}
+                labels={anemiaLabels}
                 data={anemiaData}
                 segments={2}
                 formatYLabel={formatRiskTick}
@@ -307,7 +327,7 @@ export default function DiagnosticsScreen({
             </View>
 
             <RiskLineChart
-              labels={labels}
+              labels={flowLabels}
               data={flowData}
               segments={3}
               formatYLabel={formatFlowTick}

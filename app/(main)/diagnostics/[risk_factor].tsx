@@ -12,7 +12,7 @@ import { Feather } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { captureRef } from "react-native-view-shot";
 
-import { Colors } from "@/constants/colors";
+import { Colors, riskColors } from "@/constants/colors";
 import { RiskLineChart } from "@/components/charts/RiskLineChart";
 import FactorCard from "@/components/Diagnostics/FactorCard";
 import { FactorCardProps } from "@/components/Diagnostics/types";
@@ -66,9 +66,10 @@ const ExtendedDiagnosticsScreen = () => {
 
   // This should be aligned with the logic in the main diagnostics screen
   const riskLabels: Record<number, string> = {
-    0: "Low",
-    1: "Medium",
-    2: "High",
+    0: "Unknown",
+    1: "Low",
+    2: "Medium",
+    3: "High",
   };
   const formatRiskTick = (value: string) => {
     const rounded = Math.round(Number(value));
@@ -172,11 +173,18 @@ const ExtendedDiagnosticsScreen = () => {
     if (risk_factor) loadData();
   }, [risk_factor, token, userId]);
 
-  // Derived Data for Graph
+  /* Derived Data for Graph */
   const riskData = React.useMemo(() => {
     if (!history.length) return { labels: [], data: [] };
 
-    const labels = history.map((item) =>
+    // Filter history to exclude "Unknown" (0) risks for the graph
+    const filteredHistory = history.filter((h) => {
+      if (risk_factor === "anemia-risk") return (h.anemiaRisk ?? 0) > 0;
+      if (risk_factor === "thrombosis-risk") return (h.thrombosisRisk ?? 0) > 0;
+      return false;
+    });
+
+    const labels = filteredHistory.map((item) =>
       new Date(item.date).toLocaleDateString("en-US", {
         month: "short",
         day: "numeric",
@@ -185,19 +193,23 @@ const ExtendedDiagnosticsScreen = () => {
 
     let data: number[] = [];
     if (risk_factor === "anemia-risk") {
-      data = history.map((h) => h.anemiaRisk ?? 0);
+      data = filteredHistory.map((h) => h.anemiaRisk ?? 0);
     } else if (risk_factor === "thrombosis-risk") {
-      data = history.map((h) => h.thrombosisRisk ?? 0);
+      data = filteredHistory.map((h) => h.thrombosisRisk ?? 0);
     }
 
     return { labels, data };
   }, [history, risk_factor]);
 
+  const currentRiskLevel = React.useMemo(() => {
+    if (!riskData.data.length) return 0 as RiskNum;
+    return riskData.data[riskData.data.length - 1] as RiskNum;
+  }, [riskData.data]);
+
   const currentRisk = React.useMemo(() => {
-    if (!riskData.data.length) return "N/A";
-    const val = riskData.data[riskData.data.length - 1];
-    return riskLabels[val] ?? "N/A";
-  }, [riskData.data, riskLabels]);
+    if (!riskData.data.length) return "N/A"; // Or "Unknown" if user prefers
+    return riskLabels[currentRiskLevel] ?? "N/A";
+  }, [currentRiskLevel, riskLabels, riskData.data.length]);
 
   // Determine report type based on risk_factor
   const reportType: ReportType = React.useMemo(() => {
@@ -245,7 +257,10 @@ const ExtendedDiagnosticsScreen = () => {
           <View className="flex-row justify-between items-start mb-4">
             <View>
               <Text className="text-xs text-regularText">Current Risk</Text>
-              <Text className="text-xl font-bold text-brand">
+              <Text
+                className="text-xl font-bold"
+                style={{ color: riskColors[currentRiskLevel] ?? Colors.textHeading }}
+              >
                 {currentRisk}
               </Text>
             </View>
@@ -268,7 +283,7 @@ const ExtendedDiagnosticsScreen = () => {
               />
             ) : (
               <Text className="text-center text-inactiveText mt-5">
-                No graph data available.
+                No data available for this period.
               </Text>
             )}
           </View>
