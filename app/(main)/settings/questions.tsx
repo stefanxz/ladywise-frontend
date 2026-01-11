@@ -7,7 +7,7 @@ import { useVideoPlayer, VideoView } from "expo-video"; // video player, I think
 import { Ionicons } from "@expo/vector-icons";
 import { getTutorials } from "@/lib/api";
 
-// Tutorial type definition, I'm not sure where to put the .types file, so I just have it here, lmk if I should move it
+// Tutorial types
 export type Tutorial = {
   id: string;
   title: string;
@@ -37,14 +37,11 @@ export default function TutorialsScreen() {
   };
 
   useEffect(() => {
-    // Changed to the async style, not sure if it is better, than using .then()
     const loadTutorials = async () => {
       try {
         const data = await getTutorials();
-        console.log("Fetched tutorials:", data);
         setTutorials(data);
       } catch (error) {
-        console.error("Error fetching tutorials:", error);
         setTutorials([]);
       } finally {
         setLoading(false);
