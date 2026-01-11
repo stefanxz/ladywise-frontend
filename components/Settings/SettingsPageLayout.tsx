@@ -4,6 +4,7 @@ import { Feather } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { SettingsPageLayoutProps } from "@/components/Settings/SettingsPageLayout.types";
 import { Colors } from "@/constants/colors";
+import { LinearGradient } from "expo-linear-gradient";
 
 /**
  * Reusable Layout component for settings pages. This layout provides a
@@ -29,7 +30,8 @@ export function SettingsPageLayout({
   title,
   description,
   children,
-}: SettingsPageLayoutProps) {
+  floatingAction,
+}: SettingsPageLayoutProps & { floatingAction?: React.ReactNode }) {
   const router = useRouter();
 
   return (
@@ -96,6 +98,34 @@ export function SettingsPageLayout({
           {children}
         </View>
       </ScrollView>
+
+      {floatingAction && (
+        <View
+          className="absolute bottom-0 w-full justify-end"
+          pointerEvents="box-none"
+        >
+          <View className="w-full h-[100px]" pointerEvents="box-none">
+            <LinearGradient
+              colors={[
+                "rgba(249, 249, 249, 0)",
+                "rgba(249, 249, 249, 0.7)",
+                "rgba(249, 249, 249, 0.9)",
+                "#F9F9F9",
+              ]}
+              locations={[0, 0.3, 0.6, 1.0]}
+              style={{
+                position: "absolute",
+                width: "100%",
+                height: "100%",
+              }}
+              pointerEvents="none"
+            />
+            <View className="absolute bottom-0 w-full px-8 pb-8 z-10 items-center">
+              {floatingAction}
+            </View>
+          </View>
+        </View>
+      )}
     </View>
   );
 }
