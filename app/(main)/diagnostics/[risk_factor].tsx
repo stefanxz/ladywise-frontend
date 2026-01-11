@@ -117,15 +117,50 @@ const ExtendedDiagnosticsScreen = () => {
 
         setInsights(summary ?? "No specific insights available for this date.");
 
+        const parsedFactors: any[] = [];
         if (keys && Array.isArray(keys)) {
-          const mappedFactors = keys
-            .map((k) => FACTORS_REGISTRY[k])
-            .filter((f) => f !== undefined)
-            .map((f) => ({ ...f, value: f.defaultValue }));
-          setFactors(mappedFactors as any);
-        } else {
-          setFactors([]);
+          // Flatten all key strings into one logical text for easier searching, or search each.
+          // The backend returns sentences like "Symptoms: One-sided leg pain, Dizzy".
+          // We'll search for keywords associated with our FACTORS_REGISTRY.
+
+          const combinedText = keys.join(" ").toLowerCase();
+
+          // Define keywords mapping to Registry IDs
+          const keywords: Record<string, string[]> = {
+            tired: ["tired", "fatigue"],
+            dizziness: ["dizzy", "dizziness"],
+            shortness_breath: ["shortness of breath", "breathing"],
+            surgery_injury: ["surgery", "injury"],
+            estrogen_pill: ["estrogen", "pill", "hormonal"],
+            family_history_anemia: ["family history"], // Context dependent? usually risk_factor separates them
+            family_history_thrombosis: ["family history"],
+            blood_clot: ["blood clot", "clotting"],
+            postpartum: ["postpartum", "pregnancy"],
+            chest_pain: ["chest pain"],
+            unilateral_leg_pain: ["leg pain", "one-sided", "unilateral"],
+            swelling: ["swelling"],
+            flow_heavy: ["heavy flow"],
+            flow_light: ["light flow"],
+          };
+
+          Object.keys(keywords).forEach(factorId => {
+            // If we are looking at anemia, we might skip thrombosis factors if they are unique, but most are shared symptoms
+            // except family history which requires context.
+            if (factorId === "family_history_anemia" && risk_factor !== "anemia-risk") return;
+            if (factorId === "family_history_thrombosis" && risk_factor !== "thrombosis-risk") return;
+
+            const match = keywords[factorId].some(kw => combinedText.includes(kw));
+            if (match) {
+              const def = FACTORS_REGISTRY[factorId];
+              if (def) {
+                parsedFactors.push({ ...def, value: def.defaultValue });
+              }
+            }
+          });
         }
+
+        setFactors(parsedFactors);
+
       } else {
         setInsights("No data available.");
         setFactors([]);
