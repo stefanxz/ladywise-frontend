@@ -20,6 +20,48 @@ export interface DateRange {
 }
 
 /**
+ * Parses a "YYYY-MM-DD" string directly into a Date object representing
+ * midnight in the user's local timezone
+ * * This prevents dates from shifting with +-1 days due to UTC offsets
+ */
+export const parseToLocalWithoutTime = (dateStr: string): Date => {
+  if (!dateStr) return new Date();
+
+  // Split the string to get purely year, month, and day
+  const parts = dateStr.split('T')[0].split('-');
+
+  // Construct a Date in local timezone
+  const year = parseInt(parts[0], 10);
+  const month = parseInt(parts[1], 10) - 1; 
+  const day = parseInt(parts[2], 10);
+
+  return new Date(year, month, day);
+};
+
+/**
+ * Helper to safely handle fetch errors
+ * Includes a 'context' param for clear debugging
+ */
+export const safeFetch = async <T>(
+  promise: Promise<T>,
+  fallbackValue: T,
+  context: string
+): Promise<T> => {
+  try {
+    return await promise;
+  } catch (err: any) {
+    // If the error is a 404, it just means there is no data yet for a new user
+    // We return the fallback value (null or empty array) and suppress the error
+    if (err.response && err.response.status === 404) {
+      return fallbackValue;
+    }
+    // For other errors (500s, network issues) we log them for debugging
+    console.warn(`Error fetching ${context}:`, err.message || err);
+    return fallbackValue;
+  }
+};
+
+/**
  * Generates the grid of days for a specific month, including empty padding slots.
  * Adjusts for Monday-start weeks.
  */
