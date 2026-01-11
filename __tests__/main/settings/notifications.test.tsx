@@ -13,13 +13,11 @@ import {
 } from "@/lib/notifications";
 import { NotificationFrequency } from "@/lib/types/notification";
 
-// Mock the notification API
 jest.mock("@/lib/notifications", () => ({
   getNotificationSettings: jest.fn(),
   updateNotificationSetting: jest.fn(),
 }));
 
-// Mock SettingsPageLayout
 jest.mock("@/components/Settings/SettingsPageLayout", () => ({
   SettingsPageLayout: (props: any) => {
     const { View, Text } = require("react-native");
@@ -31,6 +29,13 @@ jest.mock("@/components/Settings/SettingsPageLayout", () => ({
       </View>
     );
   },
+}));
+
+const mockShowToast = jest.fn();
+jest.mock("@/hooks/useToast", () => ({
+  useToast: () => ({
+    showToast: mockShowToast,
+  }),
 }));
 
 const mockGetSettings = getNotificationSettings as jest.Mock;
@@ -93,19 +98,20 @@ describe("NotificationsSettings", () => {
   });
 
   describe("Error Handling", () => {
-    it("displays error message when fetching settings fails", async () => {
+    it("displays error toast when fetching settings fails", async () => {
       mockGetSettings.mockRejectedValueOnce(new Error("Network error"));
 
       render(<NotificationsSettings />);
 
       await waitFor(() => {
-        expect(
-          screen.getByText("Failed to load notification settings"),
-        ).toBeTruthy();
+        expect(mockShowToast).toHaveBeenCalledWith(
+          "Failed to load notification settings",
+          "error",
+        );
       });
     });
 
-    it("displays error and reverts state when update fails", async () => {
+    it("displays error toast and reverts state when update fails", async () => {
       mockUpdateSetting.mockRejectedValueOnce(new Error("Update failed"));
 
       render(<NotificationsSettings />);
@@ -120,9 +126,18 @@ describe("NotificationsSettings", () => {
       });
 
       await waitFor(() => {
-        expect(
-          screen.getByText("Failed to update setting. Please try again."),
-        ).toBeTruthy();
+        expect(mockShowToast).toHaveBeenCalledWith(
+          "Failed to update setting. Please try again.",
+          "error",
+        );
+      });
+
+      // Verify the state was reverted back to DAILY
+      await waitFor(() => {
+        expect(mockUpdateSetting).toHaveBeenCalledWith(
+          "CYCLE_QUESTIONNAIRE_REMINDER",
+          "MONTHLY",
+        );
       });
     });
   });
