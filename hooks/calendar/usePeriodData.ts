@@ -35,7 +35,8 @@ export function usePeriodData() {
       setPhase(status.currentPhase.toLowerCase() as any);
       setCurrentPhase(status.currentPhase.toLowerCase());
     } else {
-      // Reset to default if no status found
+      // Reset to default if an error or no data
+      setPhase("neutral" as any);
       setCurrentPhase(null);
     }
 
