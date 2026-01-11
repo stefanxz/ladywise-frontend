@@ -213,7 +213,7 @@ const Home = () => {
                     : "Log your first period to begin tracking."
                 }
                 theme={theme}
-                onLogPeriodPress={() => { }}
+                onLogPeriodPress={() => router.push("/calendar?log-mode=true")}
                 onCardPress={() => { }}
               />
             </View>
