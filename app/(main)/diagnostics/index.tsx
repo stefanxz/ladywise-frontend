@@ -77,7 +77,9 @@ export default function DiagnosticsScreen({
 
         if (Array.isArray(data) && data.length > 0) {
           console.log("[Diagnostics] Using real API data. Count:", data.length);
-          setHistory(data);
+          // Sort by date ascending
+          const sorted = data.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+          setHistory(sorted);
         } else if (!Array.isArray(data)) {
           console.warn("[Diagnostics] Fallback triggered: API returned non-array data:", data);
           setHistory(mockHistory);
@@ -129,6 +131,21 @@ export default function DiagnosticsScreen({
     load();
   }, [token, userId, historyProp]);
 
+  // Helper to format UTC date
+  const formatDateUTC = (dateStr: string) => {
+    // Handle potential object format if somehow leaked (defensive)
+    const dStr = (typeof dateStr === 'object' && (dateStr as any).$date) ? (dateStr as any).$date : String(dateStr);
+    const d = new Date(dStr);
+
+    // Use UTC methods to avoid timezone shift
+    if (isNaN(d.getTime())) return "";
+
+    const month = d.toLocaleString('en-US', { month: 'short', timeZone: 'UTC' });
+    const day = d.getUTCDate();
+
+    return `${month} ${day}`;
+  };
+
   const formatRiskTick = (value: string) => {
     const rounded = Math.round(Number(value)) as RiskNum;
     return riskLabels[rounded] ?? "";
@@ -172,31 +189,17 @@ export default function DiagnosticsScreen({
   const thrombosisHistory = history.filter(
     (item) => (item.thrombosisRisk ?? 0) > 0,
   );
-  const thrombosisLabels = thrombosisHistory.map((item) =>
-    new Date(item.date).toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-    }),
-  );
+  const thrombosisLabels = thrombosisHistory.map((item) => formatDateUTC(item.date));
   const thrombosisData = thrombosisHistory.map(
     (item) => item.thrombosisRisk ?? 0,
   );
 
   const anemiaHistory = history.filter((item) => (item.anemiaRisk ?? 0) > 0);
-  const anemiaLabels = anemiaHistory.map((item) =>
-    new Date(item.date).toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-    }),
-  );
+  const anemiaLabels = anemiaHistory.map((item) => formatDateUTC(item.date));
   const anemiaData = anemiaHistory.map((item) => item.anemiaRisk ?? 0);
 
-  const flowLabels = history.map((item) =>
-    new Date(item.date).toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-    }),
-  );
+  // Renamed to flowChartLabels to avoid shadowing the global flowLabels constant
+  const flowChartLabels = history.map((item) => formatDateUTC(item.date));
   const flowData = history.map((item) => item.flowLevel ?? 0);
 
   const latest = history[history.length - 1];
@@ -327,7 +330,7 @@ export default function DiagnosticsScreen({
             </View>
 
             <RiskLineChart
-              labels={flowLabels}
+              labels={flowChartLabels}
               data={flowData}
               segments={3}
               formatYLabel={formatFlowTick}

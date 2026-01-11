@@ -76,6 +76,21 @@ const ExtendedDiagnosticsScreen = () => {
     return riskLabels[rounded] ?? "";
   };
 
+  // Helper to format UTC date
+  const formatDateUTC = (dateStr: string) => {
+    // Handle potential object format if somehow leaked (defensive)
+    const dStr = (typeof dateStr === 'object' && (dateStr as any).$date) ? (dateStr as any).$date : String(dateStr);
+    const d = new Date(dStr);
+
+    // Use UTC methods to avoid timezone shift
+    if (isNaN(d.getTime())) return "";
+
+    const month = d.toLocaleString('en-US', { month: 'short', timeZone: 'UTC' });
+    const day = d.getUTCDate();
+
+    return `${month} ${day}`;
+  };
+
   useEffect(() => {
     const loadData = async () => {
       setLoading(true);
@@ -86,8 +101,10 @@ const ExtendedDiagnosticsScreen = () => {
           console.log("[ExtendedDiagnostics] Fetching details for:", risk_factor, "User:", userId);
           const data = await getRiskHistory(token, userId);
           console.log("[ExtendedDiagnostics] API Data received:", data);
+
           if (Array.isArray(data) && data.length > 0) {
-            fetchedHistory = data;
+            // Sort by date ascending
+            fetchedHistory = data.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
           } else {
             console.warn("[ExtendedDiagnostics] Fallback: Data is empty or invalid array.");
             fetchedHistory = mockHistory;
@@ -184,12 +201,7 @@ const ExtendedDiagnosticsScreen = () => {
       return false;
     });
 
-    const labels = filteredHistory.map((item) =>
-      new Date(item.date).toLocaleDateString("en-US", {
-        month: "short",
-        day: "numeric",
-      }),
-    );
+    const labels = filteredHistory.map((item) => formatDateUTC(item.date));
 
     let data: number[] = [];
     if (risk_factor === "anemia-risk") {
