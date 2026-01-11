@@ -3,7 +3,6 @@ import { ActivityIndicator, ScrollView, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter, useFocusEffect } from "expo-router";
-import { BottomSheetModal } from "@gorhom/bottom-sheet";
 
 // Contexts
 import { useAuth } from "@/context/AuthContext";
@@ -213,7 +212,7 @@ const Home = () => {
                     : "Log your first period to begin tracking."
                 }
                 theme={theme}
-                onLogPeriodPress={() => {}}
+                onLogPeriodPress={() => router.push("/calendar?log-mode=true")}
                 onCardPress={() => {}}
               />
             </View>
@@ -232,13 +231,15 @@ const Home = () => {
             </View>
           </ScrollView>
 
-          <View className="absolute bottom-4 right-4">
-            <FloatingAddButton
-              buttonColor={theme.highlight}
-              textColor={theme.highlightTextColor}
-              onPress={() => openQuestionnaire(new Date())}
-            />
-          </View>
+          {cycleStatus?.currentPhase === "MENSTRUAL" && (
+            <View className="absolute bottom-4 right-4">
+              <FloatingAddButton
+                buttonColor={theme.highlight}
+                textColor={theme.highlightTextColor}
+                onPress={() => openQuestionnaire(new Date())}
+              />
+            </View>
+          )}
         </SafeAreaView>
       </LinearGradient>
 
