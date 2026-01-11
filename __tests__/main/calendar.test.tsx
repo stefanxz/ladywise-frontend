@@ -13,6 +13,7 @@ import {
   deletePeriod,
 } from "@/lib/api";
 import { format, addDays, subDays, startOfDay } from "date-fns";
+import { useLocalSearchParams } from "expo-router";
 
 /**
  * Calendar Screen Integration Tests
@@ -31,6 +32,10 @@ jest.mock("@/context/ToastContext", () => ({
   ToastContext: {
     Provider: ({ children }: any) => children,
   },
+}));
+
+jest.mock("expo-router", () => ({
+  useLocalSearchParams: jest.fn(),
 }));
 
 // Suppress specific "not wrapped in act" warnings
@@ -141,6 +146,10 @@ jest.mock("@/components/Calendar/CalendarMonth", () => {
 
 // Spy on Alert to test confirmation dialogs and validation errors
 jest.spyOn(Alert, "alert");
+
+beforeEach(() => {
+  (useLocalSearchParams as jest.Mock).mockResolvedValue({});
+});
 
 // Tests
 
@@ -399,6 +408,83 @@ describe("CalendarScreen", () => {
         expect(
           require("@/utils/calendarHelpers").generateMonths,
         ).toHaveBeenCalledTimes(2);
+      });
+    });
+  });
+
+  describe("URL Parameters", () => {
+    it("should start in log mode when log-mode=true parameter is present", async () => {
+      (useLocalSearchParams as jest.Mock).mockReturnValue({
+        "log-mode": "true",
+      });
+
+      const { getByText, queryByTestId } = render(<CalendarScreen />);
+
+      await waitFor(() => expect(getPeriodHistory).toHaveBeenCalled());
+
+      // Verify log mode UI is visible on initial render
+      expect(getByText("Cancel")).toBeTruthy();
+      expect(getByText("Save")).toBeTruthy();
+      expect(getByText("Mark as ongoing")).toBeTruthy();
+
+      // Verify the normal mode button is NOT visible
+      expect(queryByTestId("log-period-button")).toBeNull();
+    });
+
+    it("should start in normal mode when log-mode parameter is absent", async () => {
+      (useLocalSearchParams as jest.Mock).mockReturnValue({});
+
+      const { getByTestId, queryByText } = render(<CalendarScreen />);
+
+      await waitFor(() => expect(getPeriodHistory).toHaveBeenCalled());
+
+      // Verify normal mode UI is visible
+      expect(getByTestId("log-period-button")).toBeTruthy();
+
+      // Verify log mode UI is NOT visible
+      expect(queryByText("Mark as ongoing")).toBeNull();
+      expect(queryByText("Cancel")).toBeNull();
+    });
+
+    it("should start in normal mode when log-mode=false", async () => {
+      (useLocalSearchParams as jest.Mock).mockReturnValue({
+        "log-mode": "false",
+      });
+
+      const { getByTestId, queryByText } = render(<CalendarScreen />);
+
+      await waitFor(() => expect(getPeriodHistory).toHaveBeenCalled());
+
+      // Verify normal mode UI is visible
+      expect(getByTestId("log-period-button")).toBeTruthy();
+
+      // Verify log mode UI is NOT visible
+      expect(queryByText("Mark as ongoing")).toBeNull();
+    });
+
+    it("should allow user to save period when starting from URL parameter", async () => {
+      (useLocalSearchParams as jest.Mock).mockReturnValue({
+        "log-mode": "true",
+      });
+      (logNewPeriod as jest.Mock).mockResolvedValue({ success: true });
+
+      const { getAllByTestId, getByText } = render(<CalendarScreen />);
+
+      await waitFor(() => expect(getPeriodHistory).toHaveBeenCalled());
+
+      // Select dates
+      fireEvent.press(getAllByTestId("day-yesterday")[0]);
+      fireEvent.press(getAllByTestId("day-today")[0]);
+
+      // Save
+      fireEvent.press(getByText("Save"));
+
+      // Verify API was called correctly
+      await waitFor(() => {
+        expect(logNewPeriod).toHaveBeenCalledWith({
+          startDate: format(subDays(today, 1), "yyyy-MM-dd"),
+          endDate: format(today, "yyyy-MM-dd"),
+        });
       });
     });
   });

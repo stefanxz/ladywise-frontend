@@ -20,15 +20,20 @@ export function usePeriodData() {
   const [periods, setPeriods] = useState<ParsedPeriod[]>([]);
   const [predictions, setPredictions] = useState<ParsedPrediction[]>([]);
 
+  const [currentPhase, setCurrentPhase] = useState<string | null>(null);
+
   // Fetch and parse data
   const fetchData = useCallback(async () => {
     if (isAuthLoading || !token) return;
     try {
       // For theme color
       const status = await getCycleStatus();
-      // Update the tehme context so we have the correct theme.highlight
+      // Update the theme context so we have the correct theme.highlight
       if (status?.currentPhase) {
         setPhase(status.currentPhase.toLowerCase() as any);
+        setCurrentPhase(status.currentPhase.toLowerCase());
+      } else {
+        setCurrentPhase(null);
       }
 
       // Fetch period history
@@ -56,7 +61,6 @@ export function usePeriodData() {
     } catch (err) {
       console.error("Failed to fetch cycle calendar data: " + err);
     }
-
   }, [token, isAuthLoading, setPhase, today]);
 
   // Initial load
@@ -66,7 +70,10 @@ export function usePeriodData() {
 
   // Optimized lookup sets (O(1))
   const periodDateSet = useMemo(() => generateDateSet(periods), [periods]);
-  const predictionDateSet = useMemo(() => generateDateSet(predictions), [predictions]);
+  const predictionDateSet = useMemo(
+    () => generateDateSet(predictions),
+    [predictions],
+  );
 
   return {
     periods,
@@ -75,5 +82,6 @@ export function usePeriodData() {
     predictionDateSet,
     refreshData: fetchData,
     today, // Exporting today ensures the UI uses the exact same reference
+    currentPhase,
   };
 }
