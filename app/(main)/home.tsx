@@ -129,9 +129,12 @@ const Home = () => {
           setPhase(status.currentPhase.toLowerCase() as any);
           setCalendarDays(generateCalendarDays(status.periodDates));
         } catch (err: any) {
-          if (err.response?.status === 404) {
+          const status = err.response?.status;
+
+          if (status === 404 || status === 400) {
             setPhase("neutral" as any);
             setCalendarDays(generateCalendarDays([]));
+            setCycleStatus(null);
           } else {
             // console.error("Cycle fetch error", err);
           }
