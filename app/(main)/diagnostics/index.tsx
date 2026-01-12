@@ -87,10 +87,10 @@ export default function DiagnosticsScreen({
             if (status === 401) {
               showToast("Your session has expired. Please log in again.", "error");
             } else {
-              showToast("Failed to load diagnostic data.", "error");
+              showToast("Failed to load diagnostic data. Please try again.", "error");
             }
           } else {
-            showToast("An unexpected error occurred.", "error");
+            showToast("An unexpected error occurred. Please try again.", "error");
           }
         } finally {
           if (isActive) setLoading(false);
