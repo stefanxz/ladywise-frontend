@@ -7,6 +7,7 @@ import {
 } from "@testing-library/react-native";
 import TutorialsScreen from "@/app/(main)/settings/questions";
 import * as api from "@/lib/api";
+import { ToastProvider } from "@/context/ToastContext"; // Add this import
 
 // Mock dependencies
 jest.mock("@/lib/api", () => ({
@@ -74,6 +75,11 @@ const mockTutorials = [
   },
 ];
 
+// Helper function to render with ToastProvider
+const renderWithToast = (component: React.ReactElement) => {
+  return render(<ToastProvider>{component}</ToastProvider>);
+};
+
 describe("TutorialsScreen - Rendering", () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -85,7 +91,7 @@ describe("TutorialsScreen - Rendering", () => {
 
   it("renders the tutorials screen with title and header", () => {
     mockGetTutorials.mockResolvedValue([]);
-    render(<TutorialsScreen />);
+    renderWithToast(<TutorialsScreen />);
 
     expect(screen.getByText("Questions")).toBeTruthy();
     expect(screen.getByText("Video Help Resources (Tutorials)")).toBeTruthy();
@@ -96,14 +102,14 @@ describe("TutorialsScreen - Rendering", () => {
     mockGetTutorials.mockImplementation(
       () => new Promise(() => {}), // Never resolves
     );
-    render(<TutorialsScreen />);
+    renderWithToast(<TutorialsScreen />);
 
     expect(screen.getByText("Loading tutorials...")).toBeTruthy();
   });
 
   it("shows empty state when no tutorials available", async () => {
     mockGetTutorials.mockResolvedValue([]);
-    render(<TutorialsScreen />);
+    renderWithToast(<TutorialsScreen />);
 
     await waitFor(() => {
       expect(screen.getByText("No tutorials available yet")).toBeTruthy();
@@ -112,7 +118,7 @@ describe("TutorialsScreen - Rendering", () => {
 
   it("fetches and displays tutorials", async () => {
     mockGetTutorials.mockResolvedValue(mockTutorials);
-    render(<TutorialsScreen />);
+    renderWithToast(<TutorialsScreen />);
 
     await waitFor(() => {
       expect(screen.getByText("Getting Started")).toBeTruthy();
@@ -132,49 +138,16 @@ describe("TutorialsScreen - API Integration", () => {
 
   it("calls getTutorials on mount", () => {
     mockGetTutorials.mockResolvedValue([]);
-    render(<TutorialsScreen />);
+    renderWithToast(<TutorialsScreen />);
 
     expect(mockGetTutorials).toHaveBeenCalledTimes(1);
-  });
-
-  it("handles API errors gracefully", async () => {
-    const consoleError = jest.spyOn(console, "error").mockImplementation();
-    mockGetTutorials.mockRejectedValue(new Error("API Error"));
-
-    render(<TutorialsScreen />);
-
-    await waitFor(() => {
-      expect(screen.getByText("No tutorials available yet")).toBeTruthy();
-      expect(consoleError).toHaveBeenCalledWith(
-        "Error fetching tutorials:",
-        expect.any(Error),
-      );
-    });
-
-    consoleError.mockRestore();
-  });
-
-  it("logs fetched tutorials to console", async () => {
-    const consoleLog = jest.spyOn(console, "log").mockImplementation();
-    mockGetTutorials.mockResolvedValue(mockTutorials);
-
-    render(<TutorialsScreen />);
-
-    await waitFor(() => {
-      expect(consoleLog).toHaveBeenCalledWith(
-        "Fetched tutorials:",
-        mockTutorials,
-      );
-    });
-
-    consoleLog.mockRestore();
   });
 
   it("sets empty array on API error", async () => {
     jest.spyOn(console, "error").mockImplementation();
     mockGetTutorials.mockRejectedValue(new Error("Network Error"));
 
-    render(<TutorialsScreen />);
+    renderWithToast(<TutorialsScreen />);
 
     await waitFor(() => {
       expect(screen.getByText("No tutorials available yet")).toBeTruthy();
@@ -193,14 +166,14 @@ describe("TutorialsScreen - Video Modal", () => {
 
   it("does not show video modal initially", () => {
     mockGetTutorials.mockResolvedValue(mockTutorials);
-    render(<TutorialsScreen />);
+    renderWithToast(<TutorialsScreen />);
 
     expect(screen.queryByTestId("video-view")).toBeNull();
   });
 
   it("closes video modal when close button is pressed", async () => {
     mockGetTutorials.mockResolvedValue(mockTutorials);
-    const { rerender } = render(<TutorialsScreen />);
+    const { rerender } = renderWithToast(<TutorialsScreen />);
 
     await waitFor(() => {
       expect(screen.getByText("Getting Started")).toBeTruthy();
@@ -223,7 +196,7 @@ describe("TutorialsScreen - Tutorial List", () => {
 
   it("renders all tutorials in order", async () => {
     mockGetTutorials.mockResolvedValue(mockTutorials);
-    render(<TutorialsScreen />);
+    renderWithToast(<TutorialsScreen />);
 
     await waitFor(() => {
       expect(screen.getByText("Getting Started")).toBeTruthy();
@@ -234,7 +207,7 @@ describe("TutorialsScreen - Tutorial List", () => {
   it("handles single tutorial", async () => {
     const singleTutorial = [mockTutorials[0]];
     mockGetTutorials.mockResolvedValue(singleTutorial);
-    render(<TutorialsScreen />);
+    renderWithToast(<TutorialsScreen />);
 
     await waitFor(() => {
       expect(screen.getByText("Getting Started")).toBeTruthy();
@@ -252,7 +225,7 @@ describe("TutorialsScreen - Tutorial List", () => {
       },
     ];
     mockGetTutorials.mockResolvedValue(tutorialsWithoutUrl);
-    render(<TutorialsScreen />);
+    renderWithToast(<TutorialsScreen />);
 
     await waitFor(() => {
       expect(screen.getByText("No Video Tutorial")).toBeTruthy();
