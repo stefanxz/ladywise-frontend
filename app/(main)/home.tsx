@@ -40,7 +40,7 @@ import { useDailyEntry } from "@/hooks/useDailyEntry";
  */
 const Home = () => {
   const router = useRouter();
-  const { token, userId, isLoading: isAuthLoading } = useAuth();
+  const { token, userId, isLoading: isAuthLoading, email } = useAuth();
   const { theme, setPhase } = useTheme();
 
   const { realtimeRisks, isConnected } = useHealthRealtime(userId, token);
@@ -53,7 +53,10 @@ const Home = () => {
   const [calendarDays, setCalendarDays] = useState<DayData[]>(
     generateCalendarDays(),
   );
-  const [userName, setUserName] = useState<string>("");
+  // Initialize with email username to avoid "Hello, there" flash
+  const [userName, setUserName] = useState<string>(
+    email ? email.split("@")[0] : "",
+  );
 
   const {
     bottomSheetRef,
@@ -92,57 +95,56 @@ const Home = () => {
   }, [realtimeRisks, initialApiData]);
 
   useEffect(() => {
-    const loadInitialData = async () => {
-      if (isAuthLoading || !token || !userId) return;
+    const loadRisks = async () => {
+      if (isAuthLoading || !token || !userId || realtimeRisks) return;
 
       try {
-        // Fetch User Profile
-        const user = await getUserById(token, userId);
-        const safeName =
-          user.firstName || user.lastName
-            ? `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim()
-            : (user.email?.split("@")[0] ?? "there");
-        setUserName(safeName);
-
-        if (!realtimeRisks) {
-          const apiData = await getRiskData(token, userId);
-          setInitialApiData(mapApiToInsights(apiData));
-        }
+        const apiData = await getRiskData(token, userId);
+        setInitialApiData(mapApiToInsights(apiData));
       } catch (err) {
-        // console.error("Initial load failed", err);
+        // console.error("Risk load failed", err);
       } finally {
         setIsLoading(false);
       }
     };
 
-    loadInitialData();
+    loadRisks();
   }, [token, userId, isAuthLoading, realtimeRisks]);
 
   useFocusEffect(
     useCallback(() => {
-      if (isAuthLoading || !token) return;
+      if (isAuthLoading || !token || !userId) return;
 
-      const fetchCycleData = async () => {
+      const fetchData = async () => {
         try {
+          // Fetch User Profile
+          const user = await getUserById(token, userId);
+          const safeName =
+            user.firstName || user.lastName
+              ? `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim()
+              : ((user.email || email)?.split("@")[0] ?? "there");
+          setUserName(safeName);
+
+          // Fetch Cycle Status
           const status = await getCycleStatus();
           setCycleStatus(status);
           setPhase(status.currentPhase.toLowerCase() as any);
           setCalendarDays(generateCalendarDays(status.periodDates));
         } catch (err: any) {
-          const status = err.response?.status;
-
-          if (status === 404 || status === 400) {
-            setPhase("neutral" as any);
-            setCalendarDays(generateCalendarDays([]));
-            setCycleStatus(null);
-          } else {
-            // console.error("Cycle fetch error", err);
+          // Handle Cycle Status specifically if needed, or general errors
+          if (typeof err?.response?.status === "number") {
+            const status = err.response.status;
+            if (status === 404 || status === 400) {
+              setPhase("neutral" as any);
+              setCalendarDays(generateCalendarDays([]));
+              setCycleStatus(null);
+            }
           }
         }
       };
 
-      fetchCycleData();
-    }, [setPhase, token, isAuthLoading]),
+      fetchData();
+    }, [setPhase, token, userId, isAuthLoading, email]),
   );
 
   // Reset calculating state when new data arrives
@@ -210,7 +212,7 @@ const Home = () => {
                     : "Ready to start?"
                 }
                 subtitle={
-                  cycleStatus
+                  cycleStatus?.nextEvent
                     ? `${cycleStatus.daysUntilNextEvent} days until ${cycleStatus.nextEvent.toLowerCase()}`
                     : "Log your first period to begin tracking."
                 }
