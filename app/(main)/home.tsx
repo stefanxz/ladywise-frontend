@@ -126,7 +126,7 @@ const Home = () => {
         try {
           const status = await getCycleStatus();
           setCycleStatus(status);
-          setPhase((status.currentPhase?.toLowerCase() ?? "menstrual") as any);
+          setPhase((status.currentPhase?.toLowerCase() ?? "neutral") as any);
           setCalendarDays(generateCalendarDays(status.periodDates));
         } catch (err: any) {
           if (err.response?.status === 404) {
@@ -192,7 +192,7 @@ const Home = () => {
               <CalendarStrip
                 days={calendarDays}
                 themeColor={theme.highlight}
-                onDayPress={() => {}}
+                onDayPress={() => { }}
               />
 
               <PhaseCard
@@ -213,7 +213,7 @@ const Home = () => {
                 }
                 theme={theme}
                 onLogPeriodPress={() => router.push("/calendar?log-mode=true")}
-                onCardPress={() => {}}
+                onCardPress={() => { }}
               />
             </View>
 
