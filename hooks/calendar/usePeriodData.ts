@@ -7,7 +7,17 @@ import { generateDateSet, parseToLocalWithoutTime, safeFetch } from "@/utils/cal
 import { ParsedPeriod, ParsedPrediction } from "@/lib/types/calendar";
 
 /**
- * Manages the fetching, parsing, and caching of period and predicted period data
+ * Manages the fetching, parsing, and caching of period and predicted period data.
+ * Converts backend API responses into locally usable Date objects and optimized lookup sets.
+ *
+ * @returns An object containing:
+ * - `periods`: Array of parsed period objects
+ * - `predictions`: Array of parsed prediction objects
+ * - `periodDateSet`: Set of strings (yyyy-MM-dd) for O(1) period day lookup
+ * - `predictionDateSet`: Set of strings (yyyy-MM-dd) for O(1) prediction day lookup
+ * - `refreshData`: Function to re-fetch data from the backend
+ * - `today`: Reference to the current date (start of day)
+ * - `currentPhase`: The current cycle phase (e.g., "menstrual", "follicular")
  */
 export function usePeriodData() {
   const { token, isLoading: isAuthLoading } = useAuth();
@@ -29,7 +39,7 @@ export function usePeriodData() {
     // Fetch the cycle status
     // We treat 404 as null
     const status = await safeFetch(getCycleStatus(), null, "cycle status");
-    
+
     // Update theme based on current phase
     if (status?.currentPhase) {
       setPhase(status.currentPhase.toLowerCase() as any);
@@ -43,7 +53,7 @@ export function usePeriodData() {
     // Fetch period history
     // We treat 404 as empty array
     const history = await safeFetch(getPeriodHistory(), [], "period history");
-    
+
     // Parse periods
     const parsedPeriods = history.map((p) => ({
       id: p.id, // Store ID

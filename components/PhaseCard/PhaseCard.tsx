@@ -3,12 +3,21 @@ import { View, Text, TouchableOpacity } from "react-native";
 import { Feather, Ionicons } from "@expo/vector-icons";
 import { type Theme } from "@/lib/themes";
 
+/**
+ * Properties for the PhaseCard component.
+ */
 type PhaseCardProps = {
+  /** Name of the current phase (e.g., "Menstrual Phase"). */
   phaseName: string;
+  /** Current day status text (e.g., "Day 1"). */
   dayOfPhase: string;
+  /** Additional context or subtitle (e.g., "Period start"). */
   subtitle: string;
+  /** Theme object for current card styling. */
   theme: Theme;
+  /** Callback for logging a new period (Log period + button). */
   onLogPeriodPress: () => void;
+  /** Callback when the main card area is pressed. */
   onCardPress: () => void;
 };
 

@@ -9,12 +9,21 @@ const VERTICAL_SPACING =
   Platform.OS === "ios" ? Sizes.tooltipIosPadding : Sizes.tooltipAndroidPadding; // Space between day and arrow tip
 const SCREEN_WIDTH = Dimensions.get("window").width;
 
+/**
+ * Properties for the PeriodActionTooltip component.
+ */
 type PeriodActionTooltipProps = {
+  /** Whether the tooltip is currently visible. */
   visible: boolean;
+  /** The absolute coordinates (x, y) where the tooltip should appear. */
   position: { x: number; y: number } | null;
+  /** Callback when "Period" edit option is selected. */
   onEditPeriod: () => void;
+  /** Callback when "Entry" edit option is selected. */
   onEditCycleQuestionnaire: () => void;
+  /** Callback when "Delete" option is selected. */
   onDelete: () => void;
+  /** Callback to close the tooltip. */
   onClose: () => void;
 };
 
