@@ -7,6 +7,7 @@ import { useVideoPlayer, VideoView } from "expo-video";
 import { Ionicons } from "@expo/vector-icons";
 import { getTutorials } from "@/lib/api";
 import { useToast } from "@/hooks/useToast";
+import { SettingsPageLayout } from "@/components/Settings/SettingsPageLayout";
 
 // Tutorial types
 export type Tutorial = {
@@ -57,44 +58,38 @@ export default function TutorialsScreen() {
   }, []);
 
   return (
-    <SafeAreaView className="flex-1 bg-background">
-      <AppBar />
-      <ScrollView className="flex-1 px-4 pt-4 w-full">
-        <Text className="text-3xl font-bold text-headingText mb-6">
-          Questions
+    <SettingsPageLayout
+      title="Questions"
+      description="Watch our tutorial videos to get started with Ladywise."
+    >
+      {/* Tutorial Resources */}
+      <View>
+        <Text className="text-sm text-inactiveText pb-2 font-bold">
+          Video Help Resources (Tutorials)
         </Text>
 
-        {/* Tutorial Resources */}
-        <View>
-          <Text className="text-sm text-inactiveText pb-2 font-bold">
-            Video Help Resources (Tutorials)
-          </Text>
-
-          <View className="bg-white rounded-2xl shadow-sm px-4 mb-6">
-            {loading ? (
-              <Text className="text-center py-4">Loading tutorials...</Text>
-            ) : tutorials.length === 0 ? (
-              <Text className="text-center py-4">
-                No tutorials available yet
-              </Text>
-            ) : (
-              tutorials.map((tutorial, index, array) => (
-                <SettingItem
-                  key={tutorial.id || index}
-                  item={{
-                    name: tutorial.title,
-                    icon: "video" as const,
-                    onPress: tutorial.videoUrl
-                      ? () => handleVideoPress(tutorial.videoUrl)
-                      : undefined,
-                  }}
-                  showDivider={index < array.length - 1}
-                />
-              ))
-            )}
-          </View>
+        <View className="bg-white rounded-2xl shadow-sm px-4 mb-6">
+          {loading ? (
+            <Text className="text-center py-4">Loading tutorials...</Text>
+          ) : tutorials.length === 0 ? (
+            <Text className="text-center py-4">No tutorials available yet</Text>
+          ) : (
+            tutorials.map((tutorial, index, array) => (
+              <SettingItem
+                key={tutorial.id || index}
+                item={{
+                  name: tutorial.title,
+                  icon: "video" as const,
+                  onPress: tutorial.videoUrl
+                    ? () => handleVideoPress(tutorial.videoUrl)
+                    : undefined,
+                }}
+                showDivider={index < array.length - 1}
+              />
+            ))
+          )}
         </View>
-      </ScrollView>
+      </View>
 
       {/* Video Modal */}
       <Modal
@@ -122,6 +117,6 @@ export default function TutorialsScreen() {
           </View>
         </View>
       </Modal>
-    </SafeAreaView>
+    </SettingsPageLayout>
   );
 }
