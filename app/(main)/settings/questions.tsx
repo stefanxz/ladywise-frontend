@@ -1,11 +1,12 @@
 import { ScrollView, Text, View, Modal, Pressable } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import React, { useState, useEffect } from "react";
-import { SettingItem } from "@/components/Settings/SettingItem"; // We reuse the Settings component (looks a bit spagheti but it's basically the same thing)
+import { SettingItem } from "@/components/Settings/SettingItem";
 import { AppBar } from "@/components/AppBarBackButton/AppBarBackButton";
-import { useVideoPlayer, VideoView } from "expo-video"; // video player, I think this is good enough
+import { useVideoPlayer, VideoView } from "expo-video";
 import { Ionicons } from "@expo/vector-icons";
 import { getTutorials } from "@/lib/api";
+import { useToast } from "@/hooks/useToast";
 
 // Tutorial types
 export type Tutorial = {
@@ -26,6 +27,9 @@ export default function TutorialsScreen() {
   const [currentVideoUrl, setCurrentVideoUrl] = useState("");
   const [tutorials, setTutorials] = useState<Tutorial[]>([]);
   const [loading, setLoading] = useState(true);
+  const { showToast } = useToast();
+
+  const errorMessage = "Unable to load tutorials. Please try again later";
 
   const player = useVideoPlayer(currentVideoUrl, (player) => {
     player.loop = false;
@@ -43,6 +47,7 @@ export default function TutorialsScreen() {
         setTutorials(data);
       } catch (error) {
         setTutorials([]);
+        showToast(errorMessage, "error");
       } finally {
         setLoading(false);
       }
@@ -110,7 +115,7 @@ export default function TutorialsScreen() {
 
             <VideoView
               player={player}
-              style={{ width: "100%", height: 550, borderRadius: 12 }} // 550 seems like is a good size for the vertical videos we will have
+              style={{ width: "100%", height: 550, borderRadius: 12 }}
               allowsFullscreen
               allowsPictureInPicture
             />
