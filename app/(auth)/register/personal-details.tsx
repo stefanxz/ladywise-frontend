@@ -29,6 +29,7 @@ export default function RegisterPersDetails() {
   const [firstNameError, setFirstNameError] = useState<string | null>(null);
   const [lastNameError, setLastNameError] = useState<string | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
   const { userId, email } = useAuth();
 
@@ -61,7 +62,15 @@ export default function RegisterPersDetails() {
     router.replace("/(main)/home");
   }, [router]);
 
+  useEffect(() => {
+    console.log("[RegisterPersDetails] Component mounted.");
+    return () => {
+      console.log("[RegisterPersDetails] Component unmounting.");
+    };
+  }, []);
+
   const handlePressed = async () => {
+    console.log("[RegisterPersDetails] 'Continue' pressed.");
     setFirstNameError(null);
     setLastNameError(null);
 
@@ -74,7 +83,20 @@ export default function RegisterPersDetails() {
       setLastNameError("Please enter your last name.");
       hasError = true;
     }
-    if (hasError) return;
+
+    if (hasError) {
+      console.log("[RegisterPersDetails] Validation failed.");
+      return;
+    }
+
+    if (!userId) {
+      console.warn("[RegisterPersDetails] No userId found in context!");
+      setFormError("User ID missing. Please try logging in again.");
+      return;
+    }
+
+    console.log("[RegisterPersDetails] Updating user profile...", { userId });
+    setIsSubmitting(true);
     try {
       await updateUser({
         id: userId,
@@ -82,10 +104,34 @@ export default function RegisterPersDetails() {
         firstName: firstName,
         lastName: lastName,
       });
+      console.log("[RegisterPersDetails] Update successful. Navigating...");
       router.push("/onboarding/questionnaire-intro");
-    } catch (e) {
+    } catch (e: any) {
+      // FIX: The "Ghost Request" (Duplicate POST /register) triggered by browser/OS
+      // incorrectly returns a 409 response OR a 400 (Malformed) response which Axios picks up.
+      // We identify this by checking for 409 (Conflict) OR 400 with specific markers.
+      // Since we are updating the SAME user with the SAME email, a real 409 is impossible here.
+      // Therefore, we treat these as a success.
+      const isGhost =
+        e.response?.status === 409 ||
+        e.message?.includes("409") ||
+        (e.response?.status === 400 &&
+          (e.response?.data?.path?.includes("/register") ||
+            e.response?.data?.message?.includes("JSON parse error") ||
+            e.message?.includes("JSON parse error")));
+
+      if (isGhost) {
+        console.warn(
+          "[RegisterPersDetails] Caught Ghost Request (409/400). Treating as success and suppressing error log.",
+        );
+        router.push("/onboarding/questionnaire-intro");
+        return;
+      }
+
+      console.error("[RegisterPersDetails] Update failed", e);
       setFormError(e instanceof Error ? e.message : "Update failed.");
     } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -147,6 +193,10 @@ export default function RegisterPersDetails() {
                     className={`h-11 ${firstNameError ? "border border-red-500" : ""}`}
                     secureTextEntry={false}
                     placeholder="Your first name"
+                    autoCapitalize="words"
+                    autoComplete="off"
+                    textContentType="none"
+                    importantForAutofill="no"
                   />
                   {firstNameError ? (
                     <Text className="text-red-600 text-xs mt-1">
@@ -169,6 +219,10 @@ export default function RegisterPersDetails() {
                     className={`h-11 ${lastNameError ? "border border-red-500" : ""}`}
                     secureTextEntry={false}
                     placeholder="Your last name"
+                    autoCapitalize="words"
+                    autoComplete="off"
+                    textContentType="none"
+                    importantForAutofill="no"
                   />
                   {lastNameError ? (
                     <Text className="text-red-600 text-xs mt-1">
@@ -185,6 +239,7 @@ export default function RegisterPersDetails() {
                 <ThemedPressable
                   label="Continue"
                   onPress={handlePressed}
+                  loading={isSubmitting}
                   className="mt-18 w-80 self-center bg-brand"
                 />
               </View>

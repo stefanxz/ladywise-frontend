@@ -3,7 +3,11 @@ import { startOfDay, endOfDay } from "date-fns";
 import { useAuth } from "@/context/AuthContext";
 import { useTheme } from "@/context/ThemeContext";
 import { getCycleStatus, getPeriodHistory, getPredictions } from "@/lib/api";
-import { generateDateSet, parseToLocalWithoutTime, safeFetch } from "@/utils/calendarHelpers";
+import {
+  generateDateSet,
+  parseToLocalWithoutTime,
+  safeFetch,
+} from "@/utils/calendarHelpers";
 import { ParsedPeriod, ParsedPrediction } from "@/lib/types/calendar";
 
 /**
@@ -29,7 +33,7 @@ export function usePeriodData() {
     // Fetch the cycle status
     // We treat 404 as null
     const status = await safeFetch(getCycleStatus(), null, "cycle status");
-    
+
     // Update theme based on current phase
     if (status?.currentPhase) {
       setPhase(status.currentPhase.toLowerCase() as any);
@@ -43,7 +47,7 @@ export function usePeriodData() {
     // Fetch period history
     // We treat 404 as empty array
     const history = await safeFetch(getPeriodHistory(), [], "period history");
-    
+
     // Parse periods
     const parsedPeriods = history.map((p) => ({
       id: p.id, // Store ID
@@ -56,7 +60,11 @@ export function usePeriodData() {
 
     // Fetch predictions (next 6 months)
     // We treat 404 as empty array
-    const predictionData = await safeFetch(getPredictions(6), [], "predictions");
+    const predictionData = await safeFetch(
+      getPredictions(6),
+      [],
+      "predictions",
+    );
 
     // Parse predictions
     const parsedPredictions = predictionData.map((p) => ({

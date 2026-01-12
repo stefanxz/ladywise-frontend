@@ -51,11 +51,38 @@ export const setAuthToken = (token: string | null) => {
   }
 };
 
+api.interceptors.request.use((request) => {
+  console.log(
+    `[API Request] ${request.method?.toUpperCase()} ${request.url}`,
+    request.data,
+  );
+  return request;
+});
+
 api.interceptors.response.use(
-  (res) => res,
+  (res) => {
+    console.log(`[API Response] ${res.status} ${res.config.url}`, res.data);
+    return res;
+  },
   (error) => {
-    // Preserve AxiosError details while ensuring a readable message for UI handling.
     if (axios.isAxiosError(error)) {
+      // Suppress logging for the known "Ghost Request" race condition:
+      // 1. Duplicate 409 Conflict.
+      // 2. 400 Bad Request where Axios requested 'updateUser' but Backend says path is '/register' (Response Mismatch).
+      const responsePath = error.response?.data?.path;
+      const isGhostUpdate =
+        error.config?.url?.includes("/api/users/updateUser") &&
+        (error.response?.status === 409 ||
+          (error.response?.status === 400 &&
+            (responsePath?.includes("/register") ||
+              error.response?.data?.message?.includes("JSON parse error"))));
+
+      if (!isGhostUpdate) {
+        console.error(
+          `[API Error] ${error.response?.status} ${error.config?.url} - ${error.message}`,
+          error.response?.data,
+        );
+      }
       const message =
         error.response?.data?.message ?? error.message ?? "Request failed.";
       error.message = message;

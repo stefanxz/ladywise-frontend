@@ -48,6 +48,13 @@ export default function RegisterIndex() {
   >(null);
   const [formError, setFormError] = useState<string | null>(null);
 
+  useEffect(() => {
+    console.log("[RegisterIndex] Component MOUNTED");
+    return () => {
+      console.log("[RegisterIndex] Component UNMOUNTED");
+    };
+  }, []);
+
   const termsModalRef = useRef<TermsConditionsPopUpRef>(null);
 
   const router = useRouter();
@@ -90,7 +97,17 @@ export default function RegisterIndex() {
     if (confirmPasswordError) setConfirmPasswordError(null);
   };
 
+  const isSubmittingRef = useRef(false);
+
   const handleContinue = async () => {
+    console.log("[RegisterIndex] 'Continue' pressed");
+
+    // Prevent double submission via Ref (Synchronous check)
+    if (isSubmittingRef.current) {
+      console.warn("[RegisterIndex] Blocked double submission attempt.");
+      return;
+    }
+
     setFormError(null);
     setEmailError(null);
     setPasswordError(null);
@@ -117,24 +134,44 @@ export default function RegisterIndex() {
       hasError = true;
     }
 
-    if (hasError) return;
+    if (hasError) {
+      console.log("[RegisterIndex] Validation failed", {
+        emailError,
+        passwordError,
+      });
+      return;
+    }
 
+    console.log("[RegisterIndex] Validation passed. Starting registration...");
+    isSubmittingRef.current = true;
     setRegistering(true);
+
     try {
+      console.log("[RegisterIndex] Calling registerUser API...");
       const loginResponse = await registerUser({
         email: email.trim(),
         password: password.trim(),
         consentGiven: termsConditions,
         consentVersion: termsData.version,
       });
+      console.log(
+        "[RegisterIndex] Registration successful. UserId: ",
+        loginResponse.userId,
+      );
 
       await signIn(
         loginResponse.token,
-        loginResponse.userId,
+        loginResponse.userId || (loginResponse as any).id,
         loginResponse.email,
       );
+
+      console.log("[RegisterIndex] Navigating to personal-details...");
       router.replace("/(auth)/register/personal-details");
     } catch (e: unknown) {
+      console.error("[RegisterIndex] Registration failed", e);
+      // Reset the lock on failure so user can try again
+      isSubmittingRef.current = false;
+
       if (axios.isAxiosError(e)) {
         const status = e.response?.status;
         const message =
@@ -153,6 +190,9 @@ export default function RegisterIndex() {
 
       setFormError("Registration failed.");
     } finally {
+      // Note: We do NOT reset isSubmittingRef.current = false on success
+      // because we want to block further clicks while navigating away.
+      // It will be reset when the component unmounts and is recreated next time.
       setRegistering(false);
     }
   };
@@ -200,6 +240,14 @@ export default function RegisterIndex() {
                 placeholder="Your email"
                 error={emailError}
                 testID="email-input"
+                inputProps={
+                  {
+                    autoCapitalize: "none",
+                    autoComplete: "off",
+                    textContentType: "none",
+                    importantForAutofill: "no",
+                  } as any
+                }
               />
 
               {/* Password input field */}
@@ -209,6 +257,14 @@ export default function RegisterIndex() {
                 onChangeText={onChangePassword}
                 error={passwordError}
                 testID="password-input"
+                inputProps={
+                  {
+                    autoCapitalize: "none",
+                    autoComplete: "off",
+                    textContentType: "none",
+                    importantForAutofill: "no",
+                  } as any
+                }
               />
 
               {/* Password confirmation input field */}
@@ -218,6 +274,14 @@ export default function RegisterIndex() {
                 onChangeText={onChangeConfirm}
                 error={confirmPasswordError}
                 testID="confirm-password-input"
+                inputProps={
+                  {
+                    autoCapitalize: "none",
+                    autoComplete: "off",
+                    textContentType: "none",
+                    importantForAutofill: "no",
+                  } as any
+                }
               />
             </View>
 

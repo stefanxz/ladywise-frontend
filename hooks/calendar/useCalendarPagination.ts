@@ -44,7 +44,7 @@ export function useCalendarPagination() {
         return [
           ...generateMonths(
             subMonths(currentMonths[0].date, BATCH_SIZE),
-            BATCH_SIZE
+            BATCH_SIZE,
           ),
           ...currentMonths,
         ];
@@ -74,7 +74,7 @@ export function useCalendarPagination() {
           ...currentMonths,
           ...generateMonths(
             addMonths(currentMonths[currentMonths.length - 1].date, 1),
-            BATCH_SIZE
+            BATCH_SIZE,
           ),
         ];
       });

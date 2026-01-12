@@ -69,7 +69,6 @@ const mockedValidation = jest.mocked(validation);
 const mockedAsyncStorage = jest.mocked(asyncStorage);
 
 describe("LoginScreen", () => {
-
   beforeEach(() => {
     jest.clearAllMocks();
     mockSignIn.mockClear();
@@ -213,7 +212,6 @@ describe("LoginScreen", () => {
 
       const errorMessage = await findByText("Invalid email or password");
       expect(errorMessage).toBeTruthy();
-
 
       expect(mockRouter.replace).not.toHaveBeenCalled();
       expect(mockedAsyncStorage.incrementFailedLoginCount).toHaveBeenCalled();

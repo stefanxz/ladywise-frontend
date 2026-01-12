@@ -67,10 +67,14 @@ export const mapApiToAnswers = (data: any, date: string): DailyCycleAnswers => {
   return {
     date: date,
     flow: data.flow ? (REVERSE_FLOW_MAP[data.flow] ?? null) : null,
-    
+
     // If the array is empty, default to "None of the above"
-    symptoms: mappedSymptoms.length === 0 ? ["None of the above"] : mappedSymptoms,
-    riskFactors: mappedRiskFactors.length === 0 ? ["None of the above"] : mappedRiskFactors,
+    symptoms:
+      mappedSymptoms.length === 0 ? ["None of the above"] : mappedSymptoms,
+    riskFactors:
+      mappedRiskFactors.length === 0
+        ? ["None of the above"]
+        : mappedRiskFactors,
   };
 };
 

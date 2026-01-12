@@ -1,16 +1,16 @@
-import { 
-  eachDayOfInterval, 
-  endOfMonth, 
-  format, 
-  getDay, 
-  startOfMonth, 
-  addMonths, 
-  isSameDay, 
+import {
+  eachDayOfInterval,
+  endOfMonth,
+  format,
+  getDay,
+  startOfMonth,
+  addMonths,
+  isSameDay,
   isBefore,
   areIntervalsOverlapping,
   addDays,
-  subDays
-} from 'date-fns';
+  subDays,
+} from "date-fns";
 
 // Interface for objects that have a start and end date (Periods, Predictions)
 export interface DateRange {
@@ -28,11 +28,11 @@ export const parseToLocalWithoutTime = (dateStr: string): Date => {
   if (!dateStr) return new Date();
 
   // Split the string to get purely year, month, and day
-  const parts = dateStr.split('T')[0].split('-');
+  const parts = dateStr.split("T")[0].split("-");
 
   // Construct a Date in local timezone
   const year = parseInt(parts[0], 10);
-  const month = parseInt(parts[1], 10) - 1; 
+  const month = parseInt(parts[1], 10) - 1;
   const day = parseInt(parts[2], 10);
 
   return new Date(year, month, day);
@@ -45,7 +45,7 @@ export const parseToLocalWithoutTime = (dateStr: string): Date => {
 export const safeFetch = async <T>(
   promise: Promise<T>,
   fallbackValue: T,
-  context: string
+  context: string,
 ): Promise<T> => {
   try {
     return await promise;
@@ -68,13 +68,13 @@ export const safeFetch = async <T>(
 export const generateDaysForMonth = (monthDate: Date) => {
   const start = startOfMonth(monthDate);
   const end = endOfMonth(monthDate);
-  
+
   const days = eachDayOfInterval({ start, end });
 
   // Adjust start index for Monday (0) to Sunday (6) alignment
-  const startDayIndex = getDay(start); 
+  const startDayIndex = getDay(start);
   const adjustedStartIndex = startDayIndex === 0 ? 6 : startDayIndex - 1;
- 
+
   // Create padding (nulls) for days before the 1st of the month
   const padding = Array(adjustedStartIndex).fill(null);
 
@@ -88,10 +88,10 @@ export const generateMonths = (startDate: Date, count: number) => {
   return Array.from({ length: count }).map((_, index) => {
     const monthDate = addMonths(startDate, index);
     return {
-      id: format(monthDate, 'yyyy-MM'),
+      id: format(monthDate, "yyyy-MM"),
       date: monthDate,
-      titleMonth: format(monthDate, 'MMMM'),
-      titleYear: format(monthDate, 'yyyy'),
+      titleMonth: format(monthDate, "MMMM"),
+      titleYear: format(monthDate, "yyyy"),
       days: generateDaysForMonth(monthDate),
     };
   });
@@ -104,10 +104,10 @@ export const generateMonths = (startDate: Date, count: number) => {
 export const generateDateSet = (ranges: DateRange[]): Set<string> => {
   const set = new Set<string>();
 
-  ranges.forEach(range => {
+  ranges.forEach((range) => {
     try {
       const days = eachDayOfInterval({ start: range.start, end: range.end });
-      days.forEach(d => set.add(format(d, 'yyyy-MM-dd')));
+      days.forEach((d) => set.add(format(d, "yyyy-MM-dd")));
     } catch (e) {
       console.warn("Invalid interval skipped", range);
     }

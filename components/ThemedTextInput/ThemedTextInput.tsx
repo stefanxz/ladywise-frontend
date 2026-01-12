@@ -30,6 +30,7 @@ export function ThemedTextInput({
   disabled,
   className,
   testID,
+  ...rest
 }: ThemedTextInputProps) {
   return (
     <TextInput
@@ -47,6 +48,7 @@ export function ThemedTextInput({
         disabled ? "opacity-60" : "",
         className || "",
       ].join(" ")}
+      {...rest}
     />
   );
 }

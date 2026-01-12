@@ -122,7 +122,7 @@ const Home = () => {
           const safeName =
             user.firstName || user.lastName
               ? `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim()
-              : (user.email || email)?.split("@")[0] ?? "there";
+              : ((user.email || email)?.split("@")[0] ?? "there");
           setUserName(safeName);
 
           // Fetch Cycle Status
@@ -131,15 +131,15 @@ const Home = () => {
           setPhase(status.currentPhase.toLowerCase() as any);
           setCalendarDays(generateCalendarDays(status.periodDates));
         } catch (err: any) {
-           // Handle Cycle Status specifically if needed, or general errors
-           if (typeof err?.response?.status === 'number') {
-             const status = err.response.status;
-             if (status === 404 || status === 400) {
-                setPhase("neutral" as any);
-                setCalendarDays(generateCalendarDays([]));
-                setCycleStatus(null);
-             }
-           }
+          // Handle Cycle Status specifically if needed, or general errors
+          if (typeof err?.response?.status === "number") {
+            const status = err.response.status;
+            if (status === 404 || status === 400) {
+              setPhase("neutral" as any);
+              setCalendarDays(generateCalendarDays([]));
+              setCycleStatus(null);
+            }
+          }
         }
       };
 

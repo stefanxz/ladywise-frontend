@@ -67,7 +67,7 @@ jest.mock("@/utils/calendarHelpers", () => {
   const { addDays } = require("date-fns");
   return {
     generateDateSet: jest.fn(() => new Set()),
-    
+
     // We manually parse "YYYY-MM-DD" to (year, month, day) integers
     parseToLocalWithoutTime: jest.fn((dateString) => {
       if (!dateString) return new Date();

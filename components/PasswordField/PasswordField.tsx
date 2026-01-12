@@ -25,6 +25,7 @@ export function PasswordField({
   placeholder = "Your password",
   error,
   testID,
+  inputProps,
 }: PasswordFieldProps) {
   const [show, setShow] = useState(false);
 
@@ -40,6 +41,7 @@ export function PasswordField({
           className={`h-11 pr-10 ${error ? "border border-red-500" : ""}`}
           secureTextEntry={!show}
           testID={testID}
+          {...inputProps}
         />
         <View className="absolute right-0 top-0 bottom-0 justify-center pr-3">
           <Pressable

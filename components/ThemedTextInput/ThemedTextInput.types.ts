@@ -1,5 +1,7 @@
+import { TextInputProps } from "react-native";
+
 // This interface can be used by all text input fields in the project, including Email and Password
-export interface ThemedTextInputProps {
+export interface ThemedTextInputProps extends TextInputProps {
   value: string;
   onChangeText: (text: string) => void;
   placeholder?: string;
