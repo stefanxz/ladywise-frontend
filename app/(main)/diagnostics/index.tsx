@@ -21,20 +21,9 @@ import type {
 } from "@/lib/types/diagnostics";
 import ShareReportModal from "@/components/ShareReport/ShareReportModal";
 import { useToast } from "@/hooks/useToast";
+import { RISK_LABELS, FLOW_LABELS } from "@/constants/diagnostics";
 
-const riskLabels: Record<RiskNum, string> = {
-  0: "Unknown",
-  1: "Low",
-  2: "Medium",
-  3: "High",
-};
 
-const flowLabels: Record<FlowNum, string> = {
-  0: "None",
-  1: "Light",
-  2: "Normal",
-  3: "Heavy",
-};
 
 type DiagnosticsScreenProps = {
   initialHistory?: DiagnosticsResponseDTO[];
@@ -139,12 +128,12 @@ export default function DiagnosticsScreen({
 
   const formatRiskTick = (value: string) => {
     const rounded = Math.round(Number(value)) as RiskNum;
-    return riskLabels[rounded] ?? "";
+    return RISK_LABELS[rounded] ?? "";
   };
 
   const formatFlowTick = (value: string) => {
     const rounded = Math.round(Number(value)) as FlowNum;
-    return flowLabels[rounded] ?? "";
+    return FLOW_LABELS[rounded] ?? "";
   };
 
   if (loading) {
@@ -227,7 +216,7 @@ export default function DiagnosticsScreen({
                     className="text-xl font-semibold"
                     style={{ color: riskColors[latestThrombosis] }}
                   >
-                    {riskLabels[latestThrombosis]}
+                    {RISK_LABELS[latestThrombosis]}
                   </Text>
                 </View>
                 {/* placeholder for "same as last month" etc. */}
@@ -272,7 +261,7 @@ export default function DiagnosticsScreen({
                     className="text-xl font-semibold"
                     style={{ color: riskColors[latestAnemia] }}
                   >
-                    {riskLabels[latestAnemia]}
+                    {RISK_LABELS[latestAnemia]}
                   </Text>
                 </View>
                 <Text className="text-xs text-inactiveText">
@@ -303,7 +292,7 @@ export default function DiagnosticsScreen({
                   className="text-xl font-semibold"
                   style={{ color: flowColors[latestFlow] }}
                 >
-                  {flowLabels[latestFlow]}
+                  {FLOW_LABELS[latestFlow]}
                 </Text>
               </View>
               <Text className="text-xs text-inactiveText">

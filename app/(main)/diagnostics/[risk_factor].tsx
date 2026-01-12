@@ -21,6 +21,7 @@ import { useAuth } from "@/context/AuthContext";
 import { getRiskHistory } from "@/lib/api";
 import ShareReportModal from "@/components/ShareReport/ShareReportModal";
 import { useToast } from "@/hooks/useToast";
+import { RISK_LABELS } from "@/constants/diagnostics";
 import type { ReportType } from "@/lib/types/reports";
 import {
   DiagnosticsResponseDTO,
@@ -70,15 +71,9 @@ const ExtendedDiagnosticsScreen = () => {
   const chartRef = useRef<View>(null);
 
   // This should be aligned with the logic in the main diagnostics screen
-  const riskLabels: Record<number, string> = {
-    0: "Unknown",
-    1: "Low",
-    2: "Medium",
-    3: "High",
-  };
   const formatRiskTick = (value: string) => {
-    const rounded = Math.round(Number(value));
-    return riskLabels[rounded] ?? "";
+    const rounded = Math.round(Number(value)) as RiskNum; // Cast to RiskNum to match type
+    return RISK_LABELS[rounded] ?? "";
   };
 
   // Helper to format UTC date
@@ -255,8 +250,8 @@ const ExtendedDiagnosticsScreen = () => {
 
   const currentRisk = React.useMemo(() => {
     if (!riskData.data.length) return "N/A"; // Or "Unknown" if user prefers
-    return riskLabels[currentRiskLevel] ?? "N/A";
-  }, [currentRiskLevel, riskLabels, riskData.data.length]);
+    return RISK_LABELS[currentRiskLevel] ?? "N/A";
+  }, [currentRiskLevel, riskData.data.length]);
 
   // Determine report type based on risk_factor
   const reportType: ReportType = React.useMemo(() => {
