@@ -87,6 +87,11 @@ export type QuestionnairePayload = {
   history?: [];
 };
 
+/**
+ * Alias so return types make more sense
+ */
+export type HealthDocument = QuestionnairePayload;
+
 export type QuestionnaireResponse = {
   id: string;
   userId: string;
@@ -111,4 +116,20 @@ export type ChangePasswordPayload = {
 
 export type ChangePasswordResponse = {
   changedAt: string; // ISO timestamp
+};
+
+export type UpdateHealthRequest = {
+  personalDetails?: {
+    age?: number;
+    weight?: number;
+    height?: number;
+  };
+  familyHistory?: {
+    familyHistoryAnemia?: boolean;
+    familyHistoryThrombosis?: boolean;
+    anemiaConditions?: string[];
+    thrombosisConditions?: string[];
+  };
+  estrogenPill?: boolean;
+  biosensorCup?: boolean;
 };

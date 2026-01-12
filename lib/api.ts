@@ -1,7 +1,8 @@
 import axios from "axios";
-import type {
+import {
   ChangePasswordPayload,
   ChangePasswordResponse,
+  HealthDocument,
   LoginPayload,
   LoginResponse,
   PasswordResetRequestPayload,
@@ -9,6 +10,7 @@ import type {
   QuestionnaireResponse,
   RegisterPayload,
   ResetPasswordPayload,
+  UpdateHealthRequest,
   UserPayload,
   UserResponse,
 } from "./types/payloads";
@@ -33,7 +35,7 @@ import { DiagnosticsResponseDTO } from "./types/diagnostics";
  */
 export const api = axios.create({
   baseURL: process.env.EXPO_PUBLIC_API_URL,
-  timeout: 10000,
+  timeout: 40000,
   headers: {
     "Content-Type": "application/json",
     "ngrok-skip-browser-warning": "true",
@@ -99,6 +101,22 @@ export async function updateUser(payload: UserPayload) {
     "/api/users/updateUser",
     payload,
   );
+  return data;
+}
+
+/**
+ * Retrieves the User Health data from the backend.
+ */
+export async function getUserHealth(): Promise<HealthDocument> {
+  const { data } = await api.get<HealthDocument>("/api/health");
+  return data;
+}
+
+/**
+ * Updates health document for the authenticated user.
+ */
+export async function updateHealthDocument(payload: UpdateHealthRequest) {
+  const { data } = await api.patch<HealthDocument>("/api/health", payload);
   return data;
 }
 
@@ -357,11 +375,22 @@ export async function checkCycleQuestionnaireAccess(): Promise<{
   }
 }
 
+/**
+ * Retrieves the user's entire history of logged periods.
+ *
+ * @returns A promise resolving to an array of period log responses.
+ */
 export async function getPeriodHistory() {
   const { data } = await api.get<PeriodLogResponse[]>("/api/cycle/history");
   return data;
 }
 
+/**
+ * Fetches predicted future period dates based on historical data.
+ *
+ * @param cycles - The number of future cycles to predict (default: 6).
+ * @returns A promise resolving to an array of predicted period objects.
+ */
 export async function getPredictions(cycles: number = 6) {
   const { data } = await api.get<PredictedPeriodDTO[]>(
     "/api/cycle/predictions",
@@ -374,12 +403,24 @@ export async function getPredictions(cycles: number = 6) {
   return data;
 }
 
+/**
+ * Logs a new period entry.
+ *
+ * @param payload - The period data to log (start date, end date, notes).
+ * @returns The created period log response.
+ */
 export async function logNewPeriod(payload: PeriodLogRequest) {
   const { data } = await api.post<PeriodLogResponse>("/api/periods", payload);
   return data;
 }
 
-// Update an existing period
+/**
+ * Updates an existing period entry.
+ *
+ * @param periodId - The ID of the period to update.
+ * @param payload - The updated period data.
+ * @returns The updated period log response.
+ */
 export async function updatePeriod(
   periodId: string,
   payload: PeriodLogRequest,
@@ -391,7 +432,12 @@ export async function updatePeriod(
   return data;
 }
 
-// Delete a period
+/**
+ * Deletes a period entry.
+ *
+ * @param periodId - The ID of the period to delete.
+ * @returns The response data from the deletion request.
+ */
 export async function deletePeriod(periodId: string) {
   const { data } = await api.delete(`/api/periods/${periodId}`);
   return data;
@@ -409,5 +455,15 @@ export async function shareReport(
   const { data } = await api.post<string>("/api/reports/share", payload, {
     headers: { Authorization: `Bearer ${token}` },
   });
+  return data;
+}
+
+/**
+ * Fetches all available tutorials.
+ *
+ * @returns {Promise<Tutorial[]>} Array of tutorial objects
+ */
+export async function getTutorials() {
+  const { data } = await api.get("/api/tutorials");
   return data;
 }

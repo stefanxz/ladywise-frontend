@@ -118,8 +118,10 @@ export function BinaryChoiceGroup({
   ];
 
   return (
-    <View className="gap-y-3">
-      <Text className="text-inter-semibold text-regularText">{question}</Text>
+    <View className={cn(question ? "gap-y-3" : "")}>
+      {question ? (
+        <Text className="text-inter-semibold text-regularText">{question}</Text>
+      ) : null}
       <View className="gap-y-2">
         {options.map((option) => (
           <Pressable
@@ -177,8 +179,10 @@ export function MultiSelectGroup({
   onToggle,
 }: MultiSelectGroupProps) {
   return (
-    <View className="gap-y-3">
-      <Text className="text-inter-semibold text-regularText">{question}</Text>
+    <View className={cn(selected ? "gap-y-3" : "")}>
+      {question ? (
+        <Text className="text-inter-semibold text-regularText">{question}</Text>
+      ) : null}
       <View className="gap-y-2">
         {options.map((option) => {
           const isSelected = selected.includes(option.id);

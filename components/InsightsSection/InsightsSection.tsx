@@ -3,10 +3,16 @@ import React from "react";
 import { Text, View, ActivityIndicator } from "react-native";
 import RiskCard from "../RiskCard/RiskCard";
 
+/**
+ * Properties for the InsightsSection component.
+ */
 interface InsightsSectionProps {
+  /** Array of risk data objects to display as cards. */
   insights: RiskData[];
+  /** Whether initial data is being fetched. */
   isLoading: boolean;
-  isCalculating?: boolean; // New prop to show "AI Analysis in progress"
+  /** Whether detailed AI analysis is currently in progress. */
+  isCalculating?: boolean;
 }
 
 /**

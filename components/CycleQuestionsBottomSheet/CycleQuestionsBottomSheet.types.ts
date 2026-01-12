@@ -30,9 +30,16 @@ export type QuestionConfig = {
   multiSelect?: boolean;
 };
 
+/**
+ * Represents the complete set of answers for a daily cycle log.
+ */
 export type DailyCycleAnswers = {
+  /** Flow level (e.g., Light, Medium, Heavy) or null. */
   flow: string | null;
+  /** List of selected symptoms. */
   symptoms: string[];
+  /** List of selected risk factors. */
   riskFactors: string[];
-  date: string; // date of the cycle questionnaire being updated, NOT the day on which the user updates it
+  /** Date of the cycle questionnaire being updated (ISO string). */
+  date: string;
 };

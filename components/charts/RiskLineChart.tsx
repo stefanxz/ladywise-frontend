@@ -5,14 +5,25 @@ import { Colors } from "@/constants/colors";
 
 const screenWidth = Dimensions.get("window").width;
 
+/**
+ * Properties for the RiskLineChart component.
+ */
 type RiskLineChartProps = {
+  /** Array of numerical data points to plot. */
   data: number[];
+  /** Array of X-axis labels (e.g. days or months). */
   labels: string[];
+  /** Number of horizontal segments (grid lines). */
   segments: number;
+  /** Formatter function for Y-axis labels. */
   formatYLabel: (value: string) => string;
+  /** Chart width in pixels. Defaults to screen width - 80. */
   width?: number;
+  /** Chart height in pixels. Defaults to 220. */
   height?: number;
+  /** Whether to enable touch interactions. */
   isInteractive?: boolean;
+  /** Rotation angle for X-axis labels (e.g., 45 or 90). */
   verticalLabelRotation?: number;
 };
 

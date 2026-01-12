@@ -10,14 +10,12 @@ if (typeof global.TextEncoder === "undefined") {
 }
 
 /**
- * useHealthRealtime
- *
  * Custom hook to manage real-time health data connections via WebSocket (STOMP).
  * Subscribes to risk updates and trend insights for the specific user.
  *
- * @param {string | null} userId - The ID of the authenticated user
- * @param {string | null} token - Authentication token
- * @returns {Object} Real-time health data and connection status
+ * @param userId - The ID of the authenticated user.
+ * @param token - Authentication token.
+ * @returns An object containing real-time risk data, trends, and connection status.
  */
 export const useHealthRealtime = (
   userId: string | null,

@@ -3,7 +3,12 @@ import { Text, View } from "react-native";
 import { RiskData } from "@/lib/types/risks";
 
 // We keep 'trend' in the interface for type safety, but we ignore it in render
+/**
+ * Properties for the RiskCard component.
+ * Extends the basic RiskData type.
+ */
 interface RiskCardProps extends RiskData {
+  /** Optional trend indicator (e.g. "FLAT", "UP"). Currently unused in render. */
   trend?: string;
 }
 

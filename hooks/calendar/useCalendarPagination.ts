@@ -8,7 +8,14 @@ const PRELOAD_FUTURE_MONTHS = 6; // Load 6 months forward for initial render
 const BATCH_SIZE = 6; // Load 6 months at a time
 
 /**
- * Manages the infinite scroll state, loading locks, and month generation
+ * Manages the infinite scroll state, loading locks, and month generation for the calendar.
+ *
+ * @returns An object containing:
+ * - `months`: Array of month objects to display
+ * - `isListReady`: Boolean indicating if the initial list preparation is done
+ * - `isLoadingPast/Future`: Loading states for pagination
+ * - `loadMorePast/Future`: Callbacks to trigger pagination
+ * - `PRELOAD_PAST_MONTHS`: Constant for initial scroll index calculation
  */
 export function useCalendarPagination() {
   const today = useMemo(() => startOfDay(new Date()), []);

@@ -6,6 +6,14 @@ import { useTheme } from "@/context/ThemeContext"; // 1. Import hook
 // The week days we use
 const WEEK_DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
+/**
+ * CalendarHeader
+ *
+ * Renders the header for the Calendar screen, including the title,
+ * a help button, and the row of weekday labels (Mon-Sun).
+ *
+ * @returns {JSX.Element} The rendered header component
+ */
 const CalendarHeader = () => {
   const { theme } = useTheme();
   return (
