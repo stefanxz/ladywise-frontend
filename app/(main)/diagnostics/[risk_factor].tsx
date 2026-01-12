@@ -19,8 +19,8 @@ import { FactorCardProps } from "@/components/Diagnostics/types";
 import { FACTORS_REGISTRY } from "@/constants/factors-registry";
 import { useAuth } from "@/context/AuthContext";
 import { getRiskHistory } from "@/lib/api";
-import { mockHistory } from "@/constants/mock-data";
 import ShareReportModal from "@/components/ShareReport/ShareReportModal";
+import { useToast } from "@/hooks/useToast";
 import type { ReportType } from "@/lib/types/reports";
 import {
   DiagnosticsResponseDTO,
@@ -58,6 +58,7 @@ const ExtendedDiagnosticsScreen = () => {
     : "Diagnostics";
 
   const { token, userId } = useAuth();
+  const { showToast } = useToast();
   const [history, setHistory] = useState<DiagnosticsResponseDTO[]>([]);
   const [loading, setLoading] = useState(true);
   const [insights, setInsights] = useState("");
@@ -111,14 +112,7 @@ const ExtendedDiagnosticsScreen = () => {
         let fetchedHistory: DiagnosticsResponseDTO[] = [];
         try {
           if (token && userId) {
-            console.log(
-              "[ExtendedDiagnostics] Fetching details for:",
-              risk_factor,
-              "User:",
-              userId,
-            );
             const data = await getRiskHistory(token, userId);
-            console.log("[ExtendedDiagnostics] API Data received:", data);
 
             if (!isActive) return;
 
@@ -128,19 +122,18 @@ const ExtendedDiagnosticsScreen = () => {
                 (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
               );
             } else {
-              console.warn(
-                "[ExtendedDiagnostics] Fallback: Data is empty or invalid array.",
-              );
-              fetchedHistory = mockHistory;
+              // If empty array, it's fine, we just show empty state.
+              // If non-array, it's an error.
+              if (!Array.isArray(data)) {
+                showToast("Received invalid data from server.", "error");
+              }
             }
           } else {
-            console.warn("[ExtendedDiagnostics] Fallback: No token or userId.");
-            fetchedHistory = mockHistory;
+            // specific fallback for no token
           }
         } catch (e) {
           if (!isActive) return;
-          console.error("[ExtendedDiagnostics] Fallback: Fetch error:", e);
-          fetchedHistory = mockHistory;
+          showToast("Failed to load detailed history.", "error");
         }
 
         if (isActive) {

@@ -14,13 +14,13 @@ import { RiskLineChart } from "@/components/charts/RiskLineChart";
 import { useAuth } from "@/context/AuthContext";
 import { getRiskHistory } from "@/lib/api";
 import { Colors, riskColors, flowColors } from "@/constants/colors";
-import { mockHistory } from "@/constants/mock-data";
 import type {
   DiagnosticsResponseDTO,
   RiskNum,
   FlowNum,
 } from "@/lib/types/diagnostics";
 import ShareReportModal from "@/components/ShareReport/ShareReportModal";
+import { useToast } from "@/hooks/useToast";
 
 const riskLabels: Record<RiskNum, string> = {
   0: "Unknown",
@@ -53,12 +53,12 @@ export default function DiagnosticsScreen({
   initialHistory: historyProp,
 }: DiagnosticsScreenProps) {
   const { token, userId } = useAuth();
+  const { showToast } = useToast();
 
   const [history, setHistory] = useState<DiagnosticsResponseDTO[]>(
     historyProp ?? [],
   );
   const [loading, setLoading] = useState(!historyProp);
-  const [error, setError] = useState<string | null>(null);
   const [showShareModal, setShowShareModal] = useState(false);
 
   useFocusEffect(
@@ -70,88 +70,38 @@ export default function DiagnosticsScreen({
       const load = async () => {
         if (!token || !userId) {
           if (isActive) {
-            setHistory(mockHistory);
             setLoading(false);
           }
           return;
         }
 
         try {
-          // Only show loading spinner on first load or if we want to show it every time
-          // For better UX during "refresh", we might keep the old data visible, 
-          // but sticking to simple "setLoading(true)" ensures the user knows it's updating.
           if (isActive) setLoading(true);
 
-          setError(null);
-
-          console.log(
-            "[Diagnostics] Starting fetch. UserID:",
-            userId,
-            "Token exists:",
-            !!token,
-          );
-
           const data = await getRiskHistory(token, userId);
-          console.log("[Diagnostics] API Response Data:", data);
 
           if (!isActive) return;
 
-          if (Array.isArray(data) && data.length > 0) {
-            console.log("[Diagnostics] Using real API data. Count:", data.length);
-            // Sort by date ascending
+          if (Array.isArray(data)) {
             const sorted = data.sort(
               (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
             );
             setHistory(sorted);
-          } else if (!Array.isArray(data)) {
-            console.warn(
-              "[Diagnostics] Fallback triggered: API returned non-array data:",
-              data,
-            );
-            setHistory(mockHistory);
-
-            let dataStr = "";
-            try {
-              dataStr = JSON.stringify(data, null, 2).substring(0, 200);
-            } catch (e) {
-              dataStr = String(data);
-            }
-            setError(
-              `Received invalid data (not array): ${dataStr}... Showing sample data.`,
-            );
           } else {
-            console.warn(
-              "[Diagnostics] Fallback triggered: API returned empty list.",
-            );
-            setHistory(mockHistory);
-            setError(
-              "No history data was found. Showing sample data for demonstration.",
-            );
+            showToast("Received invalid data from server.", "error");
           }
         } catch (err: unknown) {
           if (!isActive) return;
-          console.error(
-            "[Diagnostics] Fallback triggered: API Request Failed",
-            err,
-          );
-
-          setHistory(mockHistory);
 
           if (isAxiosError(err)) {
             const status = err.response?.status;
             if (status === 401) {
-              setError("Your session has expired. Please log in again.");
+              showToast("Your session has expired. Please log in again.", "error");
             } else {
-              setError(
-                `We couldn't load your data. Showing sample data. Error: ${err.message}`,
-              );
+              showToast("Failed to load diagnostic data.", "error");
             }
-          } else if (err instanceof Error) {
-            setError(
-              `An unexpected error occurred: ${err.message}. Showing sample data.`,
-            );
           } else {
-            setError("An unexpected error occurred. Showing sample data.");
+            showToast("An unexpected error occurred.", "error");
           }
         } finally {
           if (isActive) setLoading(false);
@@ -209,14 +159,7 @@ export default function DiagnosticsScreen({
     );
   }
 
-  if (error && error.includes("session has expired")) {
-    return (
-      <View className="flex-1 justify-center items-center bg-background px-6">
-        <Text className="text-lg text-regularText text-center">{error}</Text>
-      </View>
-    );
-  }
-
+  // If no history, show empty state
   if (!history.length) {
     return (
       <View className="flex-1 justify-center items-center bg-background px-6">
@@ -257,10 +200,6 @@ export default function DiagnosticsScreen({
           <Text className="text-3xl font-bold text-headingText mb-6">
             Diagnostics
           </Text>
-
-          {error && (
-            <Text className="text-center text-red-500 mb-4">{error}</Text>
-          )}
 
           {/* --- Thrombosis Card --- */}
           <Link

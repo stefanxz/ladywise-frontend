@@ -15,6 +15,11 @@ jest.mock("@/lib/api", () => ({
   getRiskHistory: jest.fn(),
 }));
 
+const mockShowToast = jest.fn();
+jest.mock("@/hooks/useToast", () => ({
+  useToast: () => ({ showToast: mockShowToast }),
+}));
+
 jest.mock("@/components/charts/RiskLineChart", () => ({
   RiskLineChart: (props: any) => {
     const { View, Text } = require("react-native");
@@ -107,51 +112,48 @@ describe("DiagnosticsScreen fetch behavior", () => {
     expect(screen.getByText("High")).toBeTruthy(); // From the last entry: anemiaRisk: 2
   });
 
-  it("displays a fallback message and mock data if the API returns an empty array", async () => {
+  it("displays an empty state if the API returns an empty array", async () => {
     mockGetRiskHistory.mockResolvedValue([]);
     render(<DiagnosticsScreen />);
 
     await waitFor(() => {
       expect(
-        screen.getByText(
-          "No history data was found. Showing sample data for demonstration.",
-        ),
+        screen.getByText("No diagnostic data available yet."),
       ).toBeTruthy();
     });
 
-    // It should also render the charts with mock data.
-    expect(screen.getAllByTestId("mock-line-chart").length).toBe(3);
+    // It should NOT render the charts
+    expect(screen.queryAllByTestId("mock-line-chart").length).toBe(0);
   });
 
-  it("displays a specific error and mock data on a failed fetch", async () => {
+  it("displays a specific error toast and no charts on a failed fetch", async () => {
     mockGetRiskHistory.mockRejectedValue(new Error("Network error"));
     render(<DiagnosticsScreen />);
 
-    // Wait for the error message to appear
+    // Wait for the loading to finish (should hide invalid data toast if any, but here we expect error toast)
     await waitFor(() => {
-      expect(
-        screen.getByText(
-          "An unexpected error occurred: Network error. Showing sample data.",
-        ),
-      ).toBeTruthy();
+      expect(mockShowToast).toHaveBeenCalledWith(
+        "An unexpected error occurred.",
+        "error"
+      );
     });
 
-    // Verify that it falls back to showing charts with mock data
-    expect(screen.getAllByTestId("mock-line-chart").length).toBe(3);
+    // Verify that it does NOT show charts
+    expect(screen.queryAllByTestId("mock-line-chart").length).toBe(0);
   });
 
-  it("displays a session expired error on 401 status and does not show charts", async () => {
+  it("displays a session expired toast on 401 status", async () => {
     const error = new AxiosError("Unauthorized");
     error.response = { status: 401 } as any;
     mockGetRiskHistory.mockRejectedValue(error);
 
     render(<DiagnosticsScreen />);
 
-    // Wait for the specific session expired error message
     await waitFor(() => {
-      expect(
-        screen.getByText("Your session has expired. Please log in again."),
-      ).toBeTruthy();
+      expect(mockShowToast).toHaveBeenCalledWith(
+        "Your session has expired. Please log in again.",
+        "error"
+      );
     });
 
     // Ensure that no charts are rendered in this case

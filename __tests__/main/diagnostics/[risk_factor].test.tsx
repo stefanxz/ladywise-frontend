@@ -23,9 +23,7 @@ jest.mock("expo-router", () => ({
   },
 }));
 
-jest.mock("@/constants/mock-data", () => ({
-  mockHistory: [],
-}));
+// jest.mock("@/constants/mock-data", ...); // Not needed anymore
 
 // Mock API and Auth
 jest.mock("@/context/AuthContext", () => ({
@@ -125,12 +123,7 @@ describe("ExtendedDiagnosticsScreen", () => {
     render(<ExtendedDiagnosticsScreen />);
 
     expect(screen.getByTestId("loading-indicator")).toBeTruthy();
-    // Use queryByText with regex or exact string, keeping the original check logic
-    // The original test queried for "Your anemia risk profile" which might not exist in the new UI
-    // Let's check for title instead which is safer
-    // expect(screen.queryByText("Anemia Risk")).toBeNull();  <-- REMOVED because title is always shown
 
-    // Cleanup
     resolvePromise(mockHistoryData);
     await waitFor(() =>
       expect(screen.queryByTestId("loading-indicator")).toBeNull(),
