@@ -9,10 +9,15 @@ jest.mock('@/context/AuthContext');
 jest.mock('@/context/ThemeContext');
 jest.mock('@/lib/api');
 
-// Mock helper to return an empty set
-jest.mock('@/utils/calendarHelpers', () => ({
-  generateDateSet: jest.fn(() => new Set()),
-}));
+// Mock the heavy utility function in calendarHelpers
+jest.mock('@/utils/calendarHelpers', () => {
+  const actual = jest.requireActual('@/utils/calendarHelpers');
+  return {
+    ...actual,
+    // Only mock the heavy Set generation function
+    generateDateSet: jest.fn(() => new Set()),
+  };
+});
 
 describe('usePeriodData Hook', () => {
   const mockSetPhase = jest.fn();
@@ -70,10 +75,10 @@ describe('usePeriodData Hook', () => {
   });
 
   it('should handle API errors', async () => {
-    // Spy on console.error
-    const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
+    // Spy on console.warn
+    const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
     
-    // Mock the rejection
+    // Mock the rejection (e.g., Network Error)
     (getPeriodHistory as jest.Mock).mockRejectedValue(new Error('Network Error'));
 
     const { result } = renderHook(() => usePeriodData());
@@ -86,10 +91,11 @@ describe('usePeriodData Hook', () => {
     // Verify the catch block was actually hit
     // This proves the app didn't crash and actually caught the error
     expect(consoleSpy).toHaveBeenCalledWith(
-      expect.stringContaining("Failed to fetch cycle calendar data")
+      expect.stringContaining("Error fetching period history"), 
+      expect.anything()
     );
 
-    // Verify state remains safe (empty)
+    // Verify state remains safe (empty) because safeFetch returns [] on error
     expect(result.current.periods).toEqual([]);
     
     consoleSpy.mockRestore();

@@ -264,6 +264,7 @@ export default function CalendarScreen() {
                     <View className="w-full flex-row items-center justify-center relative">
                       {/* Log period button */}
                       <LogNewPeriodButton
+                        key={periods.length}
                         color={theme.highlight}
                         onPress={handleLogPeriodStart}
                         style={{ width: "42%" }}
