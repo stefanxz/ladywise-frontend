@@ -19,8 +19,15 @@ jest.mock("expo-router", () => ({
     Screen: () => null, // Mock the Screen component
   },
   useFocusEffect: (effect: () => void) => {
+    const React = require("react");
     React.useEffect(effect, []);
   },
+}));
+
+jest.mock("@/hooks/useToast", () => ({
+  useToast: () => ({
+    showToast: jest.fn(),
+  }),
 }));
 
 // jest.mock("@/constants/mock-data", ...); // Not needed anymore

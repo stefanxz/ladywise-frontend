@@ -197,7 +197,7 @@ const Home = () => {
               <CalendarStrip
                 days={calendarDays}
                 themeColor={theme.highlight}
-                onDayPress={() => { }}
+                onDayPress={() => {}}
               />
 
               <PhaseCard
@@ -218,7 +218,7 @@ const Home = () => {
                 }
                 theme={theme}
                 onLogPeriodPress={() => router.push("/calendar?log-mode=true")}
-                onCardPress={() => { }}
+                onCardPress={() => {}}
               />
             </View>
 

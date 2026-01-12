@@ -48,6 +48,7 @@ jest.mock("expo-router", () => ({
     Screen: () => null,
   },
   useFocusEffect: (effect: () => void) => {
+    const React = require("react");
     React.useEffect(effect, []);
   },
 }));
@@ -133,7 +134,7 @@ describe("DiagnosticsScreen fetch behavior", () => {
     // Wait for the loading to finish (should hide invalid data toast if any, but here we expect error toast)
     await waitFor(() => {
       expect(mockShowToast).toHaveBeenCalledWith(
-        "An unexpected error occurred.",
+        "An unexpected error occurred. Please try again.",
         "error"
       );
     });

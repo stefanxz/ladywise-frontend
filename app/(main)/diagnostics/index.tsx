@@ -23,8 +23,6 @@ import ShareReportModal from "@/components/ShareReport/ShareReportModal";
 import { useToast } from "@/hooks/useToast";
 import { RISK_LABELS, FLOW_LABELS } from "@/constants/diagnostics";
 
-
-
 type DiagnosticsScreenProps = {
   initialHistory?: DiagnosticsResponseDTO[];
 };
@@ -85,12 +83,21 @@ export default function DiagnosticsScreen({
           if (isAxiosError(err)) {
             const status = err.response?.status;
             if (status === 401) {
-              showToast("Your session has expired. Please log in again.", "error");
+              showToast(
+                "Your session has expired. Please log in again.",
+                "error",
+              );
             } else {
-              showToast("Failed to load diagnostic data. Please try again.", "error");
+              showToast(
+                "Failed to load diagnostic data. Please try again.",
+                "error",
+              );
             }
           } else {
-            showToast("An unexpected error occurred. Please try again.", "error");
+            showToast(
+              "An unexpected error occurred. Please try again.",
+              "error",
+            );
           }
         } finally {
           if (isActive) setLoading(false);
@@ -102,7 +109,7 @@ export default function DiagnosticsScreen({
       return () => {
         isActive = false;
       };
-    }, [token, userId, historyProp])
+    }, [token, userId, historyProp]),
   );
 
   // Helper to format UTC date

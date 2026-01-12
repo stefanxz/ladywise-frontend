@@ -7,7 +7,12 @@ import {
   TouchableOpacity,
   Dimensions,
 } from "react-native";
-import { Stack, useLocalSearchParams, useRouter, useFocusEffect } from "expo-router";
+import {
+  Stack,
+  useLocalSearchParams,
+  useRouter,
+  useFocusEffect,
+} from "expo-router";
 import { Feather } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { captureRef } from "react-native-view-shot";
@@ -53,9 +58,9 @@ const ExtendedDiagnosticsScreen = () => {
   // Format title from risk_factor (e.g., 'anemia-risk' -> 'Anemia Risk')
   const title = risk_factor
     ? risk_factor
-      .split("-")
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(" ")
+        .split("-")
+        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(" ")
     : "Diagnostics";
 
   const { token, userId } = useAuth();
@@ -114,7 +119,8 @@ const ExtendedDiagnosticsScreen = () => {
             if (Array.isArray(data) && data.length > 0) {
               // Sort by date ascending
               fetchedHistory = data.sort(
-                (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
+                (a, b) =>
+                  new Date(a.date).getTime() - new Date(b.date).getTime(),
               );
             } else {
               // If empty array, it's fine, we just show empty state.
@@ -148,7 +154,9 @@ const ExtendedDiagnosticsScreen = () => {
               keys = latest.thrombosisKeyInputs;
             }
 
-            setInsights(summary ?? "No specific insights available for this date.");
+            setInsights(
+              summary ?? "No specific insights available for this date.",
+            );
 
             const parsedFactors: any[] = [];
             if (keys && Array.isArray(keys)) {
@@ -217,7 +225,7 @@ const ExtendedDiagnosticsScreen = () => {
       return () => {
         isActive = false;
       };
-    }, [risk_factor, token, userId])
+    }, [risk_factor, token, userId]),
   );
 
   /* Derived Data for Graph */
