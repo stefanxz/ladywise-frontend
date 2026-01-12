@@ -403,3 +403,13 @@ export async function shareReport(
   });
   return data;
 }
+
+/**
+ * Fetches all available tutorials.
+ *
+ * @returns {Promise<Tutorial[]>} Array of tutorial objects
+ */
+export async function getTutorials() {
+  const { data } = await api.get("/api/tutorials");
+  return data;
+}

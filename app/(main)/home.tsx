@@ -180,7 +180,7 @@ const Home = () => {
             <View className="pt-10">
               <Header
                 name={userName}
-                onHelpPress={() => router.push("/tutorials")}
+                onHelpPress={() => router.push("settings/questions")}
                 theme={theme}
               />
 
