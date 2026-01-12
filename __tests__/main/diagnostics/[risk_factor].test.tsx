@@ -18,6 +18,9 @@ jest.mock("expo-router", () => ({
   Stack: {
     Screen: () => null, // Mock the Screen component
   },
+  useFocusEffect: (effect: () => void) => {
+    React.useEffect(effect, []);
+  },
 }));
 
 jest.mock("@/constants/mock-data", () => ({

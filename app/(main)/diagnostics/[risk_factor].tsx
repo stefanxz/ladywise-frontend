@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   Dimensions,
 } from "react-native";
-import { Stack, useLocalSearchParams, useRouter } from "expo-router";
+import { Stack, useLocalSearchParams, useRouter, useFocusEffect } from "expo-router";
 import { Feather } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { captureRef } from "react-native-view-shot";
@@ -52,9 +52,9 @@ const ExtendedDiagnosticsScreen = () => {
   // Format title from risk_factor (e.g., 'anemia-risk' -> 'Anemia Risk')
   const title = risk_factor
     ? risk_factor
-        .split("-")
-        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-        .join(" ")
+      .split("-")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ")
     : "Diagnostics";
 
   const { token, userId } = useAuth();
@@ -101,122 +101,136 @@ const ExtendedDiagnosticsScreen = () => {
     return `${month} ${day}`;
   };
 
-  useEffect(() => {
-    const loadData = async () => {
-      setLoading(true);
+  useFocusEffect(
+    React.useCallback(() => {
+      let isActive = true;
 
-      let fetchedHistory: DiagnosticsResponseDTO[] = [];
-      try {
-        if (token && userId) {
-          console.log(
-            "[ExtendedDiagnostics] Fetching details for:",
-            risk_factor,
-            "User:",
-            userId,
-          );
-          const data = await getRiskHistory(token, userId);
-          console.log("[ExtendedDiagnostics] API Data received:", data);
+      const loadData = async () => {
+        if (isActive) setLoading(true);
 
-          if (Array.isArray(data) && data.length > 0) {
-            // Sort by date ascending
-            fetchedHistory = data.sort(
-              (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
+        let fetchedHistory: DiagnosticsResponseDTO[] = [];
+        try {
+          if (token && userId) {
+            console.log(
+              "[ExtendedDiagnostics] Fetching details for:",
+              risk_factor,
+              "User:",
+              userId,
             );
+            const data = await getRiskHistory(token, userId);
+            console.log("[ExtendedDiagnostics] API Data received:", data);
+
+            if (!isActive) return;
+
+            if (Array.isArray(data) && data.length > 0) {
+              // Sort by date ascending
+              fetchedHistory = data.sort(
+                (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
+              );
+            } else {
+              console.warn(
+                "[ExtendedDiagnostics] Fallback: Data is empty or invalid array.",
+              );
+              fetchedHistory = mockHistory;
+            }
           } else {
-            console.warn(
-              "[ExtendedDiagnostics] Fallback: Data is empty or invalid array.",
-            );
+            console.warn("[ExtendedDiagnostics] Fallback: No token or userId.");
             fetchedHistory = mockHistory;
           }
-        } else {
-          console.warn("[ExtendedDiagnostics] Fallback: No token or userId.");
+        } catch (e) {
+          if (!isActive) return;
+          console.error("[ExtendedDiagnostics] Fallback: Fetch error:", e);
           fetchedHistory = mockHistory;
         }
-      } catch (e) {
-        console.error("[ExtendedDiagnostics] Fallback: Fetch error:", e);
-        fetchedHistory = mockHistory;
-      }
-      setHistory(fetchedHistory);
 
-      // Process latest entry for insights and factors
-      if (fetchedHistory.length > 0) {
-        const latest = fetchedHistory[fetchedHistory.length - 1];
-        let summary: string | null | undefined = "";
-        let keys: string[] | null | undefined = [];
+        if (isActive) {
+          setHistory(fetchedHistory);
 
-        if (risk_factor === "anemia-risk") {
-          summary = latest.anemiaSummary;
-          keys = latest.anemiaKeyInputs;
-        } else if (risk_factor === "thrombosis-risk") {
-          summary = latest.thrombosisSummary;
-          keys = latest.thrombosisKeyInputs;
-        }
+          // Process latest entry for insights and factors
+          if (fetchedHistory.length > 0) {
+            const latest = fetchedHistory[fetchedHistory.length - 1];
+            let summary: string | null | undefined = "";
+            let keys: string[] | null | undefined = [];
 
-        setInsights(summary ?? "No specific insights available for this date.");
-
-        const parsedFactors: any[] = [];
-        if (keys && Array.isArray(keys)) {
-          // Flatten all key strings into one logical text for easier searching, or search each.
-          // The backend returns sentences like "Symptoms: One-sided leg pain, Dizzy".
-          // We'll search for keywords associated with our FACTORS_REGISTRY.
-
-          const combinedText = keys.join(" ").toLowerCase();
-
-          // Define keywords mapping to Registry IDs
-          const keywords: Record<string, string[]> = {
-            tired: ["tired", "fatigue"],
-            dizziness: ["dizzy", "dizziness"],
-            shortness_breath: ["shortness of breath", "breathing"],
-            surgery_injury: ["surgery", "injury"],
-            estrogen_pill: ["estrogen", "pill", "hormonal"],
-            family_history_anemia: ["family history"], // Context dependent? usually risk_factor separates them
-            family_history_thrombosis: ["family history"],
-            blood_clot: ["blood clot", "clotting"],
-            postpartum: ["postpartum", "pregnancy"],
-            chest_pain: ["chest pain"],
-            unilateral_leg_pain: ["leg pain", "one-sided", "unilateral"],
-            swelling: ["swelling"],
-            flow_heavy: ["heavy flow"],
-            flow_light: ["light flow"],
-          };
-
-          Object.keys(keywords).forEach((factorId) => {
-            // If we are looking at anemia, we might skip thrombosis factors if they are unique, but most are shared symptoms
-            // except family history which requires context.
-            if (
-              factorId === "family_history_anemia" &&
-              risk_factor !== "anemia-risk"
-            )
-              return;
-            if (
-              factorId === "family_history_thrombosis" &&
-              risk_factor !== "thrombosis-risk"
-            )
-              return;
-
-            const match = keywords[factorId].some((kw) =>
-              combinedText.includes(kw),
-            );
-            if (match) {
-              const def = FACTORS_REGISTRY[factorId];
-              if (def) {
-                parsedFactors.push({ ...def, value: def.defaultValue });
-              }
+            if (risk_factor === "anemia-risk") {
+              summary = latest.anemiaSummary;
+              keys = latest.anemiaKeyInputs;
+            } else if (risk_factor === "thrombosis-risk") {
+              summary = latest.thrombosisSummary;
+              keys = latest.thrombosisKeyInputs;
             }
-          });
+
+            setInsights(summary ?? "No specific insights available for this date.");
+
+            const parsedFactors: any[] = [];
+            if (keys && Array.isArray(keys)) {
+              // Flatten all key strings into one logical text for easier searching, or search each.
+              // The backend returns sentences like "Symptoms: One-sided leg pain, Dizzy".
+              // We'll search for keywords associated with our FACTORS_REGISTRY.
+
+              const combinedText = keys.join(" ").toLowerCase();
+
+              // Define keywords mapping to Registry IDs
+              const keywords: Record<string, string[]> = {
+                tired: ["tired", "fatigue"],
+                dizziness: ["dizzy", "dizziness"],
+                shortness_breath: ["shortness of breath", "breathing"],
+                surgery_injury: ["surgery", "injury"],
+                estrogen_pill: ["estrogen", "pill", "hormonal"],
+                family_history_anemia: ["family history"], // Context dependent? usually risk_factor separates them
+                family_history_thrombosis: ["family history"],
+                blood_clot: ["blood clot", "clotting"],
+                postpartum: ["postpartum", "pregnancy"],
+                chest_pain: ["chest pain"],
+                unilateral_leg_pain: ["leg pain", "one-sided", "unilateral"],
+                swelling: ["swelling"],
+                flow_heavy: ["heavy flow"],
+                flow_light: ["light flow"],
+              };
+
+              Object.keys(keywords).forEach((factorId) => {
+                // If we are looking at anemia, we might skip thrombosis factors if they are unique, but most are shared symptoms
+                // except family history which requires context.
+                if (
+                  factorId === "family_history_anemia" &&
+                  risk_factor !== "anemia-risk"
+                )
+                  return;
+                if (
+                  factorId === "family_history_thrombosis" &&
+                  risk_factor !== "thrombosis-risk"
+                )
+                  return;
+
+                const match = keywords[factorId].some((kw) =>
+                  combinedText.includes(kw),
+                );
+                if (match) {
+                  const def = FACTORS_REGISTRY[factorId];
+                  if (def) {
+                    parsedFactors.push({ ...def, value: def.defaultValue });
+                  }
+                }
+              });
+            }
+
+            setFactors(parsedFactors);
+          } else {
+            setInsights("No data available.");
+            setFactors([]);
+          }
+
+          setLoading(false);
         }
+      };
 
-        setFactors(parsedFactors);
-      } else {
-        setInsights("No data available.");
-        setFactors([]);
-      }
+      if (risk_factor) loadData();
 
-      setLoading(false);
-    };
-
-    if (risk_factor) loadData();
-  }, [risk_factor, token, userId]);
+      return () => {
+        isActive = false;
+      };
+    }, [risk_factor, token, userId])
+  );
 
   /* Derived Data for Graph */
   const riskData = React.useMemo(() => {

@@ -42,6 +42,9 @@ jest.mock("expo-router", () => ({
   Stack: {
     Screen: () => null,
   },
+  useFocusEffect: (effect: () => void) => {
+    React.useEffect(effect, []);
+  },
 }));
 
 const mockUseAuth = useAuth as jest.Mock;

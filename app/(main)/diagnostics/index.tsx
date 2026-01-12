@@ -6,7 +6,7 @@ import {
   ScrollView,
   TouchableOpacity,
 } from "react-native";
-import { Link } from "expo-router";
+import { Link, useFocusEffect } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { isAxiosError } from "axios";
 import { Feather } from "@expo/vector-icons";
@@ -61,98 +61,110 @@ export default function DiagnosticsScreen({
   const [error, setError] = useState<string | null>(null);
   const [showShareModal, setShowShareModal] = useState(false);
 
-  useEffect(() => {
-    if (historyProp) return; // Don't fetch if history is passed as a prop
+  useFocusEffect(
+    React.useCallback(() => {
+      if (historyProp) return; // Don't fetch if history is passed as a prop
 
-    if (!token || !userId) {
-      // Not logged in, but for development purposes, show mock data.
-      setHistory(mockHistory);
-      setLoading(false);
-      return;
-    }
+      let isActive = true;
 
-    const load = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-
-        console.log(
-          "[Diagnostics] Starting fetch. UserID:",
-          userId,
-          "Token exists:",
-          !!token,
-        );
-
-        const data = await getRiskHistory(token, userId);
-        console.log("[Diagnostics] API Response Data:", data);
-
-        if (Array.isArray(data) && data.length > 0) {
-          console.log("[Diagnostics] Using real API data. Count:", data.length);
-          // Sort by date ascending
-          const sorted = data.sort(
-            (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
-          );
-          setHistory(sorted);
-        } else if (!Array.isArray(data)) {
-          console.warn(
-            "[Diagnostics] Fallback triggered: API returned non-array data:",
-            data,
-          );
-          setHistory(mockHistory);
-
-          // Debugging aid: Show the first 100 characters of the received data to understand its shape
-          let dataStr = "";
-          try {
-            dataStr = JSON.stringify(data, null, 2).substring(0, 200);
-          } catch (e) {
-            dataStr = String(data);
+      const load = async () => {
+        if (!token || !userId) {
+          if (isActive) {
+            setHistory(mockHistory);
+            setLoading(false);
           }
-          setError(
-            `Received invalid data (not array): ${dataStr}... Showing sample data.`,
-          );
-        } else {
-          console.warn(
-            "[Diagnostics] Fallback triggered: API returned empty list.",
-          );
-          // If API returns empty array, fallback to mock data as requested
-          setHistory(mockHistory);
-          setError(
-            "No history data was found. Showing sample data for demonstration.",
-          );
+          return;
         }
-      } catch (err: unknown) {
-        console.error(
-          "[Diagnostics] Fallback triggered: API Request Failed",
-          err,
-        );
 
-        // Fallback to mock data if API fails, as requested for development
-        setHistory(mockHistory);
+        try {
+          // Only show loading spinner on first load or if we want to show it every time
+          // For better UX during "refresh", we might keep the old data visible, 
+          // but sticking to simple "setLoading(true)" ensures the user knows it's updating.
+          if (isActive) setLoading(true);
 
-        if (isAxiosError(err)) {
-          const status = err.response?.status;
-          console.log("[Diagnostics] Error Status:", status);
-          if (status === 401) {
-            setError("Your session has expired. Please log in again.");
-          } else {
+          setError(null);
+
+          console.log(
+            "[Diagnostics] Starting fetch. UserID:",
+            userId,
+            "Token exists:",
+            !!token,
+          );
+
+          const data = await getRiskHistory(token, userId);
+          console.log("[Diagnostics] API Response Data:", data);
+
+          if (!isActive) return;
+
+          if (Array.isArray(data) && data.length > 0) {
+            console.log("[Diagnostics] Using real API data. Count:", data.length);
+            // Sort by date ascending
+            const sorted = data.sort(
+              (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
+            );
+            setHistory(sorted);
+          } else if (!Array.isArray(data)) {
+            console.warn(
+              "[Diagnostics] Fallback triggered: API returned non-array data:",
+              data,
+            );
+            setHistory(mockHistory);
+
+            let dataStr = "";
+            try {
+              dataStr = JSON.stringify(data, null, 2).substring(0, 200);
+            } catch (e) {
+              dataStr = String(data);
+            }
             setError(
-              `We couldn't load your data. Showing sample data. Error: ${err.message}`,
+              `Received invalid data (not array): ${dataStr}... Showing sample data.`,
+            );
+          } else {
+            console.warn(
+              "[Diagnostics] Fallback triggered: API returned empty list.",
+            );
+            setHistory(mockHistory);
+            setError(
+              "No history data was found. Showing sample data for demonstration.",
             );
           }
-        } else if (err instanceof Error) {
-          setError(
-            `An unexpected error occurred: ${err.message}. Showing sample data.`,
+        } catch (err: unknown) {
+          if (!isActive) return;
+          console.error(
+            "[Diagnostics] Fallback triggered: API Request Failed",
+            err,
           );
-        } else {
-          setError("An unexpected error occurred. Showing sample data.");
-        }
-      } finally {
-        setLoading(false);
-      }
-    };
 
-    load();
-  }, [token, userId, historyProp]);
+          setHistory(mockHistory);
+
+          if (isAxiosError(err)) {
+            const status = err.response?.status;
+            if (status === 401) {
+              setError("Your session has expired. Please log in again.");
+            } else {
+              setError(
+                `We couldn't load your data. Showing sample data. Error: ${err.message}`,
+              );
+            }
+          } else if (err instanceof Error) {
+            setError(
+              `An unexpected error occurred: ${err.message}. Showing sample data.`,
+            );
+          } else {
+            setError("An unexpected error occurred. Showing sample data.");
+          }
+        } finally {
+          if (isActive) setLoading(false);
+        }
+      };
+
+      load();
+
+      return () => {
+        isActive = false;
+      };
+    }, [token, userId, historyProp])
+  );
 
   // Helper to format UTC date
   const formatDateUTC = (dateStr: string) => {
