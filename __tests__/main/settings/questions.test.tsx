@@ -7,7 +7,7 @@ import {
 } from "@testing-library/react-native";
 import TutorialsScreen from "@/app/(main)/settings/questions";
 import * as api from "@/lib/api";
-import { ToastProvider } from "@/context/ToastContext"; // Add this import
+import { ToastProvider } from "@/context/ToastContext";
 
 // Mock dependencies
 jest.mock("@/lib/api", () => ({
@@ -23,7 +23,7 @@ jest.mock("expo-video", () => ({
   VideoView: (props: any) => {
     const { View, Text } = require("react-native");
     return (
-      <View testID="video-view">
+      <View testID="video-view" style={props.style}>
         <Text>Video Player</Text>
       </View>
     );
@@ -41,12 +41,28 @@ jest.mock("@/components/AppBarBackButton/AppBarBackButton", () => ({
   },
 }));
 
+jest.mock("@/components/Settings/SettingsPageLayout", () => ({
+  SettingsPageLayout: ({ children, title, description }: any) => {
+    const { View, Text } = require("react-native");
+    return (
+      <View testID="settings-page-layout">
+        <Text>{title}</Text>
+        <Text>{description}</Text>
+        {children}
+      </View>
+    );
+  },
+}));
+
 jest.mock("@/components/Settings/SettingItem", () => ({
   SettingItem: (props: any) => {
     const { TouchableOpacity, Text, View } = require("react-native");
     return (
       <View>
-        <TouchableOpacity onPress={props.item.onPress}>
+        <TouchableOpacity
+          testID={`setting-item-${props.item.name}`}
+          onPress={props.item.onPress}
+        >
           <Text>{props.item.name}</Text>
         </TouchableOpacity>
       </View>
@@ -55,6 +71,14 @@ jest.mock("@/components/Settings/SettingItem", () => ({
 }));
 
 jest.mock("@expo/vector-icons", () => ({ Ionicons: "Ionicons" }));
+
+// Mock useToast hook
+const mockShowToast = jest.fn();
+jest.mock("@/hooks/useToast", () => ({
+  useToast: () => ({
+    showToast: mockShowToast,
+  }),
+}));
 
 const mockGetTutorials = api.getTutorials as jest.Mock;
 
@@ -94,8 +118,12 @@ describe("TutorialsScreen - Rendering", () => {
     renderWithToast(<TutorialsScreen />);
 
     expect(screen.getByText("Questions")).toBeTruthy();
+    expect(
+      screen.getByText(
+        "Watch our tutorial videos to get started with Ladywise.",
+      ),
+    ).toBeTruthy();
     expect(screen.getByText("Video Help Resources (Tutorials)")).toBeTruthy();
-    expect(screen.getByTestId("app-bar")).toBeTruthy();
   });
 
   it("shows loading state initially", () => {
@@ -143,15 +171,23 @@ describe("TutorialsScreen - API Integration", () => {
     expect(mockGetTutorials).toHaveBeenCalledTimes(1);
   });
 
-  it("sets empty array on API error", async () => {
-    jest.spyOn(console, "error").mockImplementation();
+  it("shows toast and sets empty array on API error", async () => {
+    const consoleErrorSpy = jest
+      .spyOn(console, "error")
+      .mockImplementation(() => {});
     mockGetTutorials.mockRejectedValue(new Error("Network Error"));
 
     renderWithToast(<TutorialsScreen />);
 
     await waitFor(() => {
       expect(screen.getByText("No tutorials available yet")).toBeTruthy();
+      expect(mockShowToast).toHaveBeenCalledWith(
+        "Unable to load tutorials. Please try again later",
+        "error",
+      );
     });
+
+    consoleErrorSpy.mockRestore();
   });
 });
 
@@ -164,24 +200,56 @@ describe("TutorialsScreen - Video Modal", () => {
     jest.restoreAllMocks();
   });
 
-  it("does not show video modal initially", () => {
+  it("does not show video modal initially", async () => {
     mockGetTutorials.mockResolvedValue(mockTutorials);
     renderWithToast(<TutorialsScreen />);
-
-    expect(screen.queryByTestId("video-view")).toBeNull();
-  });
-
-  it("closes video modal when close button is pressed", async () => {
-    mockGetTutorials.mockResolvedValue(mockTutorials);
-    const { rerender } = renderWithToast(<TutorialsScreen />);
 
     await waitFor(() => {
       expect(screen.getByText("Getting Started")).toBeTruthy();
     });
 
-    // We can't easily test modal opening without SettingItem testIDs,
-    // so we'll just test that the close button exists when modal is shown
-    // This test validates the modal structure
+    expect(screen.queryByTestId("video-view")).toBeNull();
+  });
+
+  it("opens video modal when tutorial is pressed", async () => {
+    mockGetTutorials.mockResolvedValue(mockTutorials);
+    renderWithToast(<TutorialsScreen />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Getting Started")).toBeTruthy();
+    });
+
+    const tutorialItem = screen.getByTestId("setting-item-Getting Started");
+    fireEvent.press(tutorialItem);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("video-view")).toBeTruthy();
+    });
+  });
+
+  it("closes video modal when close button is pressed", async () => {
+    mockGetTutorials.mockResolvedValue(mockTutorials);
+    renderWithToast(<TutorialsScreen />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Getting Started")).toBeTruthy();
+    });
+
+    // Open modal
+    const tutorialItem = screen.getByTestId("setting-item-Getting Started");
+    fireEvent.press(tutorialItem);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("video-view")).toBeTruthy();
+    });
+
+    // Close modal
+    const closeButton = screen.getByTestId("close-video-modal");
+    fireEvent.press(closeButton);
+
+    await waitFor(() => {
+      expect(screen.queryByTestId("video-view")).toBeNull();
+    });
   });
 });
 
@@ -230,5 +298,29 @@ describe("TutorialsScreen - Tutorial List", () => {
     await waitFor(() => {
       expect(screen.getByText("No Video Tutorial")).toBeTruthy();
     });
+  });
+
+  it("does not trigger onPress for tutorials without videoUrl", async () => {
+    const tutorialsWithoutUrl = [
+      {
+        id: "3",
+        title: "No Video Tutorial",
+        description: "This has no video",
+        videoUrl: "",
+        order: 3,
+      },
+    ];
+    mockGetTutorials.mockResolvedValue(tutorialsWithoutUrl);
+    renderWithToast(<TutorialsScreen />);
+
+    await waitFor(() => {
+      expect(screen.getByText("No Video Tutorial")).toBeTruthy();
+    });
+
+    const tutorialItem = screen.getByTestId("setting-item-No Video Tutorial");
+    fireEvent.press(tutorialItem);
+
+    // Modal should not open
+    expect(screen.queryByTestId("video-view")).toBeNull();
   });
 });
