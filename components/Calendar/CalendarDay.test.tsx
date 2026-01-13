@@ -130,5 +130,5 @@ render(
       date,
       expect.objectContaining({ x: 70, y: 100 })
     );
-  }),
+  });
 });
