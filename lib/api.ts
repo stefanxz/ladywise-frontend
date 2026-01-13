@@ -184,22 +184,17 @@ export async function getRiskData(
 /**
  * Retrieves historical risk data for charting.
  *
- * @param {string} token - Auth token
- * @param {string} userId - User ID
  * @returns {Promise<DiagnosticsResponseDTO[]>} Array of historical risk data points
+ * @param view
  */
 export async function getRiskHistory(
-  token: string,
-  userId: string,
+  view: string = "daily",
 ): Promise<DiagnosticsResponseDTO[]> {
-  const config = {
-    headers: { Authorization: `Bearer ${token}` },
-  };
-
-  const { data } = await api.get<DiagnosticsResponseDTO[]>(
-    `/api/diagnostics`,
-    config,
-  );
+  const { data } = await api.get<DiagnosticsResponseDTO[]>(`/api/diagnostics`, {
+    params: {
+      view,
+    },
+  });
 
   return data;
 }

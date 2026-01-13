@@ -66,7 +66,7 @@ export default function DiagnosticsScreen({
         try {
           if (isActive) setLoading(true);
 
-          const data = await getRiskHistory(token, userId);
+          const data = await getRiskHistory();
 
           if (!isActive) return;
 

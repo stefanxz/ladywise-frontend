@@ -7,12 +7,7 @@ import {
   TouchableOpacity,
   Dimensions,
 } from "react-native";
-import {
-  Stack,
-  useLocalSearchParams,
-  useRouter,
-  useFocusEffect,
-} from "expo-router";
+import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { Feather } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { captureRef } from "react-native-view-shot";
@@ -20,22 +15,15 @@ import { captureRef } from "react-native-view-shot";
 import { Colors, riskColors } from "@/constants/colors";
 import { RiskLineChart } from "@/components/charts/RiskLineChart";
 import FactorCard from "@/components/Diagnostics/FactorCard";
-import { FactorCardProps } from "@/components/Diagnostics/types";
-import { FACTORS_REGISTRY } from "@/constants/factors-registry";
-import { useAuth } from "@/context/AuthContext";
-import { getRiskHistory } from "@/lib/api";
+import { FactorCardProps, ViewMode } from "@/components/Diagnostics/types";
 import ShareReportModal from "@/components/ShareReport/ShareReportModal";
-import { useToast } from "@/hooks/useToast";
 import { RISK_LABELS } from "@/constants/diagnostics";
 import type { ReportType } from "@/lib/types/reports";
-import {
-  DiagnosticsResponseDTO,
-  RiskNum,
-  FlowNum,
-} from "@/lib/types/diagnostics";
+import { RiskNum } from "@/lib/types/diagnostics";
 import { formatDateUTC } from "@/utils/helpers";
 import { useRiskData } from "@/hooks/useRiskData";
 import { parseFactorsFromKeywords } from "@/utils/mapBackendToFactors";
+import ViewModeDropdown from "@/components/Diagnostics/ViewModeDropdown";
 
 const chartWidth = Dimensions.get("window").width - 80; // Screen padding (20*2) + Card padding (20*2)
 
@@ -66,14 +54,16 @@ const ExtendedDiagnosticsScreen = () => {
         .join(" ")
     : "Diagnostics";
 
-  const { history, loading } = useRiskData(risk_factor);
   const [insights, setInsights] = useState("");
   const [factors, setFactors] = useState<(FactorCardProps & { id: string })[]>(
     [],
   );
   const [showShareModal, setShowShareModal] = useState(false);
   const [graphBase64, setGraphBase64] = useState<string | undefined>(undefined);
+  const [view, setView] = useState<ViewMode>("daily");
   const chartRef = useRef<View>(null);
+
+  const { history, loading } = useRiskData(risk_factor, view);
 
   // This should be aligned with the logic in the main diagnostics screen
   const formatRiskTick = (value: string) => {
@@ -192,11 +182,7 @@ const ExtendedDiagnosticsScreen = () => {
                 {currentRisk}
               </Text>
             </View>
-            <TouchableOpacity className="bg-gray-200 py-1.5 px-3 rounded-[20px]">
-              <Text className="text-xs font-medium text-regularText">
-                Monthly
-              </Text>
-            </TouchableOpacity>
+            <ViewModeDropdown value={view} onChange={setView} />
           </View>
           <View className="items-center" ref={chartRef} collapsable={false}>
             {riskData.data.length > 0 ? (
