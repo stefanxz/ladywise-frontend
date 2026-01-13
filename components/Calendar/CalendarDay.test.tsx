@@ -118,7 +118,7 @@ render(
         themeColor={THEME_COLOR}
         onPress={mockOnPress}
       />
-),
+);
 
     // find touchable element wrapped around the text
     const dayButton = screen.getByText("15");
