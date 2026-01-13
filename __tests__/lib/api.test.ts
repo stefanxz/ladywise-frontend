@@ -1,16 +1,14 @@
 /**
  * @file api.test.ts
- * Tests for lib/api.ts 
+ * Tests for lib/api.ts
  */
 
 import * as apiModule from "@/lib/api";
 import * as authModule from "@/lib/auth";
-import { RegisterPayload, LoginPayload, UserPayload } from "@/lib/types/payloads";
-import { PeriodLogRequest } from "@/lib/types/period";
-import { api } from "@/lib/api";
+import { RegisterPayload, LoginPayload, UserPayload, ChangePasswordPayload, UpdateHealthRequest, PasswordResetRequestPayload, ResetPasswordPayload } from "@/lib/types/payloads";
+import { DailyLogRequest, PeriodLogRequest } from "@/lib/types/period";
+import { api } from "@/lib/api"; 
 
-
-// mock axios module 
 jest.mock("axios", () => {
   const mockInstance = {
     get: jest.fn(),
@@ -18,10 +16,10 @@ jest.mock("axios", () => {
     put: jest.fn(),
     patch: jest.fn(),
     delete: jest.fn(),
-    defaults: { 
-      headers: { 
-        common: {} 
-      } 
+    defaults: {
+      headers: {
+        common: {},
+      },
     },
     interceptors: {
       request: { use: jest.fn(), eject: jest.fn() },
@@ -30,7 +28,6 @@ jest.mock("axios", () => {
   };
 
   return {
-    // return the factory that produces mock instance
     create: jest.fn(() => mockInstance),
     isAxiosError: jest.fn((payload) => !!payload?.isAxiosError),
     defaults: { headers: { common: {} } },
@@ -41,16 +38,13 @@ jest.mock("@/lib/auth", () => ({
   getAuthData: jest.fn(),
 }));
 
-
 describe("API Library", () => {
+  // We need to cast the imported api to any or just access the mock methods directly
+  // Since we mocked axios.create to return an object with jest.fns, api.* methods are already mocks.
   
   afterEach(() => {
     jest.clearAllMocks();
   });
-
-  // ==========================================
-  // General API Tests 
-  // ==========================================
 
   describe("Authentication", () => {
     it("registerUser posts to /api/auth/register", async () => {
@@ -61,7 +55,6 @@ describe("API Library", () => {
         consentVersion: "v1" 
       };
       
-      // spy/mock the implementation on the imported 'api' object
       (api.post as jest.Mock).mockResolvedValue({ data: { token: "abc" } });
 
       const res = await apiModule.registerUser(payload);
@@ -80,7 +73,6 @@ describe("API Library", () => {
     });
 
     it("setAuthToken sets and removes headers", () => {
-      // we must cast headers.common to any to avoid TS errors
       const commonHeaders = api.defaults.headers.common as any;
 
       apiModule.setAuthToken("xyz");
@@ -88,6 +80,33 @@ describe("API Library", () => {
 
       apiModule.setAuthToken(null);
       expect(commonHeaders["Authorization"]).toBeUndefined();
+    });
+
+    it("requestPasswordReset posts to /api/auth/password-reset-request", async () => {
+      const payload: PasswordResetRequestPayload = { email: "test@example.com" };
+      (api.post as jest.Mock).mockResolvedValue({ data: "Email sent" });
+
+      const res = await apiModule.requestPasswordReset(payload);
+      expect(api.post).toHaveBeenCalledWith("/api/auth/password-reset-request", payload);
+      expect(res).toBe("Email sent");
+    });
+
+    it("resetPassword posts to /api/auth/password-reset", async () => {
+      const payload: ResetPasswordPayload = { token: "token123", newPassword: "newPass" };
+      (api.post as jest.Mock).mockResolvedValue({ data: "Success" });
+
+      const res = await apiModule.resetPassword(payload);
+      expect(api.post).toHaveBeenCalledWith("/api/auth/password-reset", payload);
+      expect(res).toBe("Success");
+    });
+
+    it("changePassword posts to /api/auth/change-password", async () => {
+      const payload: ChangePasswordPayload = { currentPassword: "old", newPassword: "new" };
+      (api.post as jest.Mock).mockResolvedValue({ data: "Success" });
+
+      const res = await apiModule.changePassword(payload);
+      expect(api.post).toHaveBeenCalledWith("/api/auth/change-password", payload);
+      expect(res).toBe("Success");
     });
   });
 
@@ -118,14 +137,26 @@ describe("API Library", () => {
 
   describe("Health Data", () => {
     it("getUserHealth fetches /api/health", async () => {
-      (api.get as jest.Mock).mockResolvedValue({ data: { weight: 60 } });
+      (api.get as jest.Mock).mockResolvedValue({ data: { personalDetails: { weight: 60 } } });
       const res = await apiModule.getUserHealth();
       expect(api.get).toHaveBeenCalledWith("/api/health");
-      expect(res).toEqual({ weight: 60 });
+      expect(res).toEqual({ personalDetails: { weight: 60 } });
+    });
+
+    it("updateHealthDocument patches /api/health", async () => {
+      const payload: UpdateHealthRequest = { 
+        personalDetails: { weight: 65 },
+        familyHistory: undefined,
+        estrogenPill: undefined 
+      };
+      (api.patch as jest.Mock).mockResolvedValue({ data: { personalDetails: { weight: 65 } } });
+
+      const res = await apiModule.updateHealthDocument(payload);
+      expect(api.patch).toHaveBeenCalledWith("/api/health", payload);
+      expect(res).toEqual({ personalDetails: { weight: 65 } });
     });
 
     it("submitQuestionnaire posts to /api/questionnaire", async () => {
-      // @ts-ignore - partial mock
       const payload = { health: { personalDetails: { age: 25 } } };
       (api.post as jest.Mock).mockResolvedValue({ data: { id: "q1" } });
       
@@ -135,7 +166,37 @@ describe("API Library", () => {
     });
   });
 
+  describe("Risks & Reports", () => {
+    it("getRiskData fetches /api/users/:id/risks", async () => {
+      (api.get as jest.Mock).mockResolvedValue({ data: { anemiaRisk: 1 } });
+      await apiModule.getRiskData("token", "u1");
+      expect(api.get).toHaveBeenCalledWith("/api/users/u1/risks", expect.anything());
+    });
+
+    it("getRiskHistory fetches /api/users/:id/risks/history", async () => {
+      (api.get as jest.Mock).mockResolvedValue({ data: [] });
+      await apiModule.getRiskHistory("token", "u1");
+      expect(api.get).toHaveBeenCalledWith("/api/users/u1/risks/history", expect.anything());
+    });
+
+    it("shareReport posts to /api/reports/share", async () => {
+      const payload = { clinicianEmail: "doc@test.com", reportType: "FULL" };
+      (api.post as jest.Mock).mockResolvedValue({ data: "Sent" });
+      
+      const res = await apiModule.shareReport("token", payload as any);
+      expect(api.post).toHaveBeenCalledWith("/api/reports/share", payload, expect.anything());
+      expect(res).toBe("Sent");
+    });
+  });
+
   describe("Period & Cycle", () => {
+    it("getCycleStatus fetches /api/cycle/status", async () => {
+      (api.get as jest.Mock).mockResolvedValue({ data: { phase: "MENSTRUAL" } });
+      const res = await apiModule.getCycleStatus();
+      expect(api.get).toHaveBeenCalledWith("/api/cycle/status");
+      expect(res).toEqual({ phase: "MENSTRUAL" });
+    });
+
     it("getPeriodHistory fetches /api/cycle/history", async () => {
       (api.get as jest.Mock).mockResolvedValue({ data: [] });
       await apiModule.getPeriodHistory();
@@ -146,6 +207,34 @@ describe("API Library", () => {
       (api.get as jest.Mock).mockResolvedValue({ data: { flow: "LIGHT" } });
       await apiModule.getDailyEntry("2024-01-01");
       expect(api.get).toHaveBeenCalledWith("/api/periods/entries/2024-01-01");
+    });
+
+    it("createDailyEntry posts to /api/periods/entries", async () => {
+        const payload: DailyLogRequest = { 
+          date: "2024-01-01", 
+          flow: "HEAVY",
+          symptoms: [],
+          riskFactors: []
+        };
+        (api.post as jest.Mock).mockResolvedValue({ data: { id: "d1" } });
+        
+        const res = await apiModule.createDailyEntry(payload);
+        expect(api.post).toHaveBeenCalledWith("/api/periods/entries", payload);
+        expect(res).toEqual({ id: "d1" });
+    });
+
+    it("updateDailyEntry puts to /api/periods/:id/entries", async () => {
+        const payload: DailyLogRequest = { 
+          date: "2024-01-01", 
+          flow: "NORMAL",
+          symptoms: [],
+          riskFactors: []
+        };
+        (api.put as jest.Mock).mockResolvedValue({ data: { id: "d1" } });
+        
+        const res = await apiModule.updateDailyEntry(payload, "p1");
+        expect(api.put).toHaveBeenCalledWith("/api/periods/p1/entries", payload);
+        expect(res).toEqual({ id: "d1" });
     });
 
     it("logNewPeriod posts to /api/periods", async () => {
@@ -167,29 +256,32 @@ describe("API Library", () => {
         await apiModule.deletePeriod("p1");
         expect(api.delete).toHaveBeenCalledWith("/api/periods/p1");
     });
-  });
 
-  describe("Risks & Reports", () => {
-    it("getRiskData fetches /api/users/:id/risks", async () => {
-      (api.get as jest.Mock).mockResolvedValue({ data: { anemiaRisk: 1 } });
-      await apiModule.getRiskData("token", "u1");
-      expect(api.get).toHaveBeenCalledWith("/api/users/u1/risks", expect.anything());
+    it("getPredictions fetches predictions with default cycles param", async () => {
+      (api.get as jest.Mock).mockResolvedValue({ data: [] });
+      await apiModule.getPredictions(); // No arg = default 6
+      expect(api.get).toHaveBeenCalledWith("/api/cycle/predictions", {
+        params: { cycles: 6 },
+      });
     });
 
-    it("shareReport posts to /api/reports/share", async () => {
-      // @ts-ignore
-      const payload = { clinicianEmail: "doc@test.com", reportType: "FULL" };
-      (api.post as jest.Mock).mockResolvedValue({ data: "Sent" });
-      
-      const res = await apiModule.shareReport("token", payload as any);
-      expect(api.post).toHaveBeenCalledWith("/api/reports/share", payload, expect.anything());
-      expect(res).toBe("Sent");
-    });
+    it("getPredictions fetches predictions with custom cycles param", async () => {
+        (api.get as jest.Mock).mockResolvedValue({ data: [] });
+        await apiModule.getPredictions(12);
+        expect(api.get).toHaveBeenCalledWith("/api/cycle/predictions", {
+          params: { cycles: 12 },
+        });
+      });
   });
 
-  // ==========================================
-  // Questionnaire specific logic tests 
-  // ==========================================
+  describe("Misc", () => {
+    it("getTutorials fetches /api/tutorials", async () => {
+        (api.get as jest.Mock).mockResolvedValue({ data: [] });
+        const res = await apiModule.getTutorials();
+        expect(api.get).toHaveBeenCalledWith("/api/tutorials");
+        expect(res).toEqual([]);
+    });
+  });
 
   describe("Questionnaire Logic (Legacy Tests)", () => {
     
