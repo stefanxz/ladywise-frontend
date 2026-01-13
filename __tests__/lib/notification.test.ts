@@ -43,7 +43,7 @@ describe("Notification API Helpers", () => {
     it("fetches settings and returns preferences", async () => {
       const mockResponse = {
         data: {
-          preferences: { CYCLE_PHASE_UPDATE: true },
+          preferences: { [NotificationType.CYCLE_PHASE_UPDATE]: true },
         },
       };
       (api.get as jest.Mock).mockResolvedValueOnce(mockResponse);
@@ -51,7 +51,7 @@ describe("Notification API Helpers", () => {
       const result = await getNotificationSettings();
 
       expect(api.get).toHaveBeenCalledWith("/api/notifications/settings");
-      expect(result).toEqual({ CYCLE_PHASE_UPDATE: true });
+      expect(result).toEqual({ [NotificationType.CYCLE_PHASE_UPDATE]: true });
     });
   });
 
@@ -65,7 +65,7 @@ describe("Notification API Helpers", () => {
       );
 
       expect(api.patch).toHaveBeenCalledWith("/api/notifications/settings", {
-        type: "CYCLE_PHASE_UPDATE",
+        type: NotificationType.CYCLE_PHASE_UPDATE, // Uses Enum for robustness
         enabled: false,
       });
     });
@@ -79,6 +79,16 @@ describe("Notification API Helpers", () => {
 
       expect(api.post).toHaveBeenCalledWith("/api/notifications/force-test");
       expect(result).toBe("Sent!");
+    });
+  });
+
+  // verify API errors are propagated correctly
+  describe("Error Handling", () => {
+    it("throws error when API call fails", async () => {
+      const mockError = new Error("Network Error");
+      (api.get as jest.Mock).mockRejectedValueOnce(mockError);
+
+      await expect(getNotificationSettings()).rejects.toThrow("Network Error");
     });
   });
 });
