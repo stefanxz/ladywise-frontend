@@ -58,6 +58,8 @@ const ExtendedDiagnosticsScreen = () => {
   const [factors, setFactors] = useState<(FactorCardProps & { id: string })[]>(
     [],
   );
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [showReadMore, setShowReadMore] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
   const [graphBase64, setGraphBase64] = useState<string | undefined>(undefined);
   const [view, setView] = useState<ViewMode>("daily");
@@ -233,15 +235,25 @@ const ExtendedDiagnosticsScreen = () => {
             <View>
               <Text
                 className="text-sm leading-snug text-regularText"
-                numberOfLines={4}
+                numberOfLines={isExpanded ? undefined : 4}
+                onTextLayout={(e) => {
+                  // Check if text was truncated (more than 4 lines)
+                  if (!isExpanded && e.nativeEvent.lines.length > 4) {
+                    setShowReadMore(true);
+                  } else if (!isExpanded && e.nativeEvent.lines.length <= 4) {
+                    setShowReadMore(false);
+                  }
+                }}
               >
                 {insights}
               </Text>
-              <TouchableOpacity>
-                <Text className="text-sm text-red-600 mt-2 font-semibold">
-                  Read more
-                </Text>
-              </TouchableOpacity>
+              {showReadMore && (
+                <TouchableOpacity onPress={() => setIsExpanded(!isExpanded)}>
+                  <Text className="text-sm text-red-600 mt-2 font-semibold">
+                    {isExpanded ? "Show less" : "Read more"}
+                  </Text>
+                </TouchableOpacity>
+              )}
             </View>
           )}
         </View>
