@@ -148,14 +148,7 @@ describe("ShareReportModal", () => {
   it("calls shareReport with correct payload", async () => {
     mockShareReport.mockResolvedValue("Success");
 
-    render(
-      <ShareReportModal
-        {...defaultProps}
-        reportType="THROMBOSIS_ONLY"
-        graphImageBase64="base64image"
-        insightSummary="Test insight"
-      />,
-    );
+    render(<ShareReportModal {...defaultProps} reportType="THROMBOSIS_ONLY" />);
 
     fireEvent.changeText(
       screen.getByTestId("clinician-email-input"),
@@ -167,8 +160,6 @@ describe("ShareReportModal", () => {
       expect(mockShareReport).toHaveBeenCalledWith("fake-token", {
         clinicianEmail: "doctor@example.com",
         reportType: "THROMBOSIS_ONLY",
-        graphImageBase64: "base64image",
-        insightSummary: "Test insight",
       });
     });
   });

@@ -2,6 +2,7 @@ import { DailyCycleAnswers } from "@/components/CycleQuestionsBottomSheet/CycleQ
 import { FLOW_MAP, RISK_MAP, SYMPTOM_MAP } from "@/constants/cycle-mappings";
 import { DailyLogRequest } from "@/lib/types/period";
 import { ApiRiskResponse, RiskData, RiskLevel } from "@/lib/types/risks";
+import { format } from "date-fns"; // Assuming date-fns is available, or use native Intl
 
 /**
  * Utility to conditionally class names.
@@ -12,6 +13,8 @@ import { ApiRiskResponse, RiskData, RiskLevel } from "@/lib/types/risks";
  */
 export const cn = (...xs: (string | false | undefined | null)[]) =>
   xs.filter(Boolean).join(" ");
+
+
 
 /**
  * Transforms UI-level daily log answers into a backend-compatible payload.

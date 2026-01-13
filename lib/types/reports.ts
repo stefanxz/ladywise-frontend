@@ -19,18 +19,6 @@ export interface ReportRequest {
    * REQUIRED.
    */
   reportType: ReportType;
-
-  /**
-   * A snapshot of the graph currently visible on the user's screen.
-   * OPTIONAL. Should be a clean Base64 string.
-   */
-  graphImageBase64?: string;
-
-  /**
-   * The text summary of the insight displayed to the user.
-   * OPTIONAL. Included in the PDF context.
-   */
-  insightSummary?: string;
 }
 
 /**
@@ -40,6 +28,4 @@ export interface ShareReportModalProps {
   visible: boolean;
   onClose: () => void;
   reportType: ReportType;
-  graphImageBase64?: string;
-  insightSummary?: string;
 }
