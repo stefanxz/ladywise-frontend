@@ -43,9 +43,7 @@ export default function DiagnosticsScreen({
   const { token, userId } = useAuth();
   const { showToast } = useToast();
 
-  const [history, setHistory] = useState<RiskHistoryPoint[]>(
-    historyProp ?? [],
-  );
+  const [history, setHistory] = useState<RiskHistoryPoint[]>(historyProp ?? []);
   const [loading, setLoading] = useState(!historyProp);
   const [error, setError] = useState<string | null>(null);
   const [showShareModal, setShowShareModal] = useState(false);

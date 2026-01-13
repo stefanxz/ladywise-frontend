@@ -15,6 +15,12 @@ jest.mock("@/lib/api", () => ({
   getRiskHistory: jest.fn(),
 }));
 
+jest.mock("@/hooks/useToast", () => ({
+  useToast: () => ({
+    showToast: jest.fn(),
+  }),
+}));
+
 jest.mock("@/components/charts/RiskLineChart", () => ({
   RiskLineChart: (props: any) => {
     const { View, Text } = require("react-native");
@@ -74,7 +80,7 @@ describe("DiagnosticsScreen fetch behavior", () => {
 
   it("shows a loading indicator while fetching data", () => {
     // Mock a pending promise that never resolves to keep it in a loading state
-    mockGetRiskHistory.mockReturnValue(new Promise(() => {}));
+    mockGetRiskHistory.mockReturnValue(new Promise(() => { }));
     render(<DiagnosticsScreen />);
     expect(screen.getByTestId("loading-indicator")).toBeTruthy();
   });
