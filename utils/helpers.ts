@@ -14,19 +14,7 @@ import { format } from "date-fns"; // Assuming date-fns is available, or use nat
 export const cn = (...xs: (string | false | undefined | null)[]) =>
   xs.filter(Boolean).join(" ");
 
-/**
- * Formats a date string (YYYY-MM-DD) or Date object into a short UTC-based string (e.g., "Jan 1").
- * This ensures consistency regardless of local timezone.
- *
- * @param date - Input date string or object
- * @returns Formatted date string
- */
-export const formatDateUTC = (date: string | Date): string => {
-  const d = new Date(date);
-  // Manual formatting to ensure UTC consistency if needed, or simple local formatting
-  // Using simple locale string for now as mostly used for display
-  return d.toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "UTC" });
-};
+
 
 /**
  * Transforms UI-level daily log answers into a backend-compatible payload.
