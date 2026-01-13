@@ -19,7 +19,7 @@ export const accountSettings: SettingItem[] = [
   {
     name: "Questions",
     icon: "help-circle",
-    route: "/settings/questions" as Href,
+    route: "(main)/questions" as Href,
   },
 ];
 
