@@ -12,7 +12,6 @@ jest.mock("@/lib/themes", () => ({
   },
 }));
 
-const SELECTION_RED = "rgba(205, 22, 61, 0.9)";
 const PERIOD_HIGHLIGHT = "#E11D48";
 const THEME_COLOR = "#FCA5A5";
 
@@ -111,14 +110,14 @@ describe("CalendarDay component", () => {
   it("calculates coordinates and calls onPress when tapped", () => {
     const mockOnPress = jest.fn();
     const date = new Date("2023-10-15T12:00:00Z");
-    
-render(
-      <CalendarDay 
+
+    render(
+      <CalendarDay
         date={date}
         themeColor={THEME_COLOR}
         onPress={mockOnPress}
-      />
-);
+      />,
+    );
 
     // find touchable element wrapped around the text
     const dayButton = screen.getByText("15");
@@ -128,7 +127,7 @@ render(
     // expect measure to have been called (implied by the callback running)
     expect(mockOnPress).toHaveBeenCalledWith(
       date,
-      expect.objectContaining({ x: 70, y: 100 })
+      expect.objectContaining({ x: 70, y: 100 }),
     );
   });
 });
