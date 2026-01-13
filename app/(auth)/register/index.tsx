@@ -2,7 +2,6 @@ import { useAuth } from "@/context/AuthContext";
 import { AppBar } from "@/components/AppBarBackButton/AppBarBackButton";
 import { EmailField } from "@/components/EmailField/EmailField";
 import { PasswordField } from "@/components/PasswordField/PasswordField";
-import { SocialSignOn } from "@/components/SocialSignOn/SocialSignOn";
 import { TermsConditionsCheckbox } from "@/components/TermsConditionsCheckbox/TermsConditionsCheckbox";
 import { ThemedPressable } from "@/components/ThemedPressable/ThemedPressable";
 import { registerUser } from "@/lib/api";
@@ -191,7 +190,7 @@ export default function RegisterIndex() {
               </Text>
             </View>
 
-            <View className="gap-y-8 w-80 self-center">
+            <View className="gap-y-8 mt-4 w-80 self-center">
               {/* Email input field */}
               <EmailField
                 label="Email"
@@ -247,14 +246,6 @@ export default function RegisterIndex() {
                 {formError}
               </Text>
             ) : null}
-
-            {/* Social media sign on buttons */}
-            <SocialSignOn
-              onPress={(provider) => {
-                // TODO: Actual social media sign on
-                console.log("SSO pressed:", provider);
-              }}
-            />
           </View>
           <TermsConditionsPopUp
             ref={termsModalRef}

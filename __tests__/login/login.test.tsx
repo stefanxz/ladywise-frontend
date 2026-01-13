@@ -42,13 +42,9 @@ jest.mock("react-native-safe-area-context", () => {
   };
 });
 
-// Mock components not under test 
+// Mock components not under test
 jest.mock("@/components/AppBarBackButton/AppBarBackButton", () => ({
   AppBar: () => null,
-}));
-
-jest.mock("@/components/SocialSignOn/SocialSignOn", () => ({
-  SocialSignOn: () => null,
 }));
 
 // --- Mock modules --- //
@@ -71,7 +67,6 @@ const mockedValidation = jest.mocked(validation);
 const mockedAsyncStorage = jest.mocked(asyncStorage);
 
 describe("LoginScreen", () => {
-
   beforeEach(() => {
     jest.clearAllMocks();
     mockSignIn.mockClear();
@@ -216,7 +211,6 @@ describe("LoginScreen", () => {
       const errorMessage = await findByText("Invalid email or password");
       expect(errorMessage).toBeTruthy();
 
-
       expect(mockRouter.replace).not.toHaveBeenCalled();
       expect(mockedAsyncStorage.incrementFailedLoginCount).toHaveBeenCalled();
       expect(mockSignIn).not.toHaveBeenCalled();
@@ -232,7 +226,7 @@ describe("LoginScreen", () => {
       expect(passwordInput.props.secureTextEntry).toBe(true);
 
       const eyeIcon = getAllByTestId("feather-icon")[0];
-      
+
       fireEvent.press(eyeIcon);
 
       expect(passwordInput.props.secureTextEntry).toBe(false);
@@ -243,18 +237,18 @@ describe("LoginScreen", () => {
 
     it("navigates to password recovery when 'Forgot password?' is pressed", () => {
       const { getByText } = setup();
-      
+
       fireEvent.press(getByText("Forgot password?"));
-      
+
       expect(mockRouter.push).toHaveBeenCalledWith("/(auth)/password_recovery");
     });
 
     it("keeps login button disabled if password is empty", () => {
       const { typeEmail, getLoginBtn } = setup();
-      
+
       mockedValidation.isEmailValid.mockReturnValue(true);
       typeEmail("valid@example.com");
-      
+
       expect(getLoginBtn()).toHaveAccessibilityState({ disabled: true });
     });
   });
@@ -271,7 +265,9 @@ describe("LoginScreen", () => {
       typePassword("123456");
       pressLogin();
 
-      const errorMsg = await findByText("We couldn't reach the server. Please check your connection.");
+      const errorMsg = await findByText(
+        "We couldn't reach the server. Please check your connection.",
+      );
       expect(errorMsg).toBeTruthy();
     });
 
@@ -280,17 +276,17 @@ describe("LoginScreen", () => {
       mockedValidation.isEmailValid.mockReturnValue(true);
 
       const serverError = new AxiosError(
-        "Server Error", 
-        "500", 
-        undefined, 
-        undefined, 
-        { 
-          data: "Critical Database Failure", 
-          status: 500, 
-          statusText: "Server Error", 
-          headers: {}, 
-          config: {} as any 
-        }
+        "Server Error",
+        "500",
+        undefined,
+        undefined,
+        {
+          data: "Critical Database Failure",
+          status: 500,
+          statusText: "Server Error",
+          headers: {},
+          config: {} as any,
+        },
       );
       mockedApi.loginUser.mockRejectedValue(serverError);
 
