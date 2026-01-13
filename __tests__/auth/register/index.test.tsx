@@ -23,9 +23,6 @@ jest.mock("@/context/AuthContext", () => ({
 jest.mock("@/components/AppBarBackButton/AppBarBackButton", () => ({
   AppBar: () => null,
 }));
-jest.mock("@/components/SocialSignOn/SocialSignOn", () => ({
-  SocialSignOn: () => null,
-}));
 
 // Fully controllable checkbox to flip T&C state.
 jest.mock(

@@ -65,7 +65,7 @@ const Home = () => {
     openQuestionnaire,
     handleSave,
   } = useDailyEntry(undefined, () => {
-    setIsLoading(true);
+    setIsCalculating(true);
   });
 
   const displayedInsights: RiskData[] = useMemo(() => {
@@ -96,7 +96,14 @@ const Home = () => {
 
   useEffect(() => {
     const loadRisks = async () => {
-      if (isAuthLoading || !token || !userId || realtimeRisks) return;
+      if (isAuthLoading || !token || !userId) return;
+
+      // If we already have live data, we don't need to fetch from API
+      // Ensure loading state is cleared though
+      if (realtimeRisks) {
+        setIsLoading(false);
+        return;
+      }
 
       try {
         const apiData = await getRiskData(token, userId);
@@ -128,7 +135,7 @@ const Home = () => {
           // Fetch Cycle Status
           const status = await getCycleStatus();
           setCycleStatus(status);
-          setPhase(status.currentPhase.toLowerCase() as any);
+          setPhase((status.currentPhase?.toLowerCase() ?? "neutral") as any);
           setCalendarDays(generateCalendarDays(status.periodDates));
         } catch (err: any) {
           // Handle Cycle Status specifically if needed, or general errors
@@ -182,7 +189,7 @@ const Home = () => {
             <View className="pt-10">
               <Header
                 name={userName}
-                onHelpPress={() => router.push("/settings/questions")}
+                onHelpPress={() => router.push("/(main)/questions")}
                 theme={theme}
               />
 

@@ -2,6 +2,7 @@ import React from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 import { clsx } from "clsx";
 import { useTheme } from "@/context/ThemeContext"; // 1. Import hook
+import { useRouter } from "expo-router";
 
 // The week days we use
 const WEEK_DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
@@ -15,6 +16,7 @@ const WEEK_DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
  * @returns {JSX.Element} The rendered header component
  */
 const CalendarHeader = () => {
+  const router = useRouter();
   const { theme } = useTheme();
   return (
     // Matches the screen background
@@ -26,7 +28,7 @@ const CalendarHeader = () => {
 
         <TouchableOpacity
           onPress={() => {
-            console.log("Help pressed");
+            router.push("/(main)/questions");
           }}
           className="w-12 h-12 rounded-full bg-gray-100 justify-center text-sm items-center"
           style={{ backgroundColor: theme.highlight }}

@@ -75,3 +75,60 @@ export function mapBackendListToFactors(
 
   return activeFactors;
 }
+
+/**
+ * Parses factor keywords from backend strings and maps them to frontend registry definitions.
+ *
+ * @param keys - Array of key strings from the backend (e.g., "Symptoms: One-sided leg pain")
+ * @param riskFactor - The context risk factor (e.g., "anemia-risk" or "thrombosis-risk") to filter specific keys
+ * @returns Array of FactorCardProps ready for display
+ */
+export function parseFactorsFromKeywords(
+  keys: string[] | null | undefined,
+  riskFactor: string | undefined
+): (FactorCardProps & { id: string })[] {
+  const parsedFactors: (FactorCardProps & { id: string })[] = [];
+
+  if (!keys || !Array.isArray(keys)) return [];
+
+  const combinedText = keys.join(" ").toLowerCase();
+
+  // Define keywords mapping to Registry IDs
+  const keywords: Record<string, string[]> = {
+    tired: ["tired", "fatigue"],
+    dizziness: ["dizzy", "dizziness"],
+    shortness_breath: ["shortness of breath", "breathing"],
+    surgery_injury: ["surgery", "injury"],
+    estrogen_pill: ["estrogen", "pill", "hormonal"],
+    family_history_anemia: ["family history"],
+    family_history_thrombosis: ["family history"],
+    blood_clot: ["blood clot", "clotting"],
+    postpartum: ["postpartum", "pregnancy"],
+    chest_pain: ["chest pain"],
+    unilateral_leg_pain: ["leg pain", "one-sided", "unilateral"],
+    swelling: ["swelling"],
+    flow_heavy: ["heavy flow"],
+    flow_light: ["light flow"],
+  };
+
+  Object.keys(keywords).forEach((factorId) => {
+    // Context check for family history which is shared but context-dependent
+    if (factorId === "family_history_anemia" && riskFactor !== "anemia-risk")
+      return;
+    if (
+      factorId === "family_history_thrombosis" &&
+      riskFactor !== "thrombosis-risk"
+    )
+      return;
+
+    const match = keywords[factorId].some((kw) => combinedText.includes(kw));
+    if (match) {
+      const def = FACTORS_REGISTRY[factorId];
+      if (def) {
+        parsedFactors.push({ ...def, value: def.defaultValue, id: factorId });
+      }
+    }
+  });
+
+  return parsedFactors;
+}

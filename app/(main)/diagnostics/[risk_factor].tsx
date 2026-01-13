@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import {
   View,
   Text,
@@ -10,17 +10,20 @@ import {
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { Feather } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { captureRef } from "react-native-view-shot";
 
-import { Colors } from "@/constants/colors";
+import { Colors, riskColors } from "@/constants/colors";
 import { RiskLineChart } from "@/components/charts/RiskLineChart";
 import FactorCard from "@/components/Diagnostics/FactorCard";
-import { FactorCardProps } from "@/components/Diagnostics/types";
-import { FACTORS_REGISTRY } from "@/constants/factors-registry";
-import { useAuth } from "@/context/AuthContext";
-import { getRiskHistory } from "@/lib/api";
-import { mockHistory } from "@/constants/mock-data";
+import { FactorCardProps, ViewMode } from "@/components/Diagnostics/types";
 import ShareReportModal from "@/components/ShareReport/ShareReportModal";
+import { RISK_LABELS } from "@/constants/diagnostics";
 import type { ReportType } from "@/lib/types/reports";
+import { RiskNum } from "@/lib/types/diagnostics";
+import { formatDateUTC } from "@/utils/helpers";
+import { useRiskData } from "@/hooks/useRiskData";
+import { parseFactorsFromKeywords } from "@/utils/mapBackendToFactors";
+import ViewModeDropdown from "@/components/Diagnostics/ViewModeDropdown";
 
 const chartWidth = Dimensions.get("window").width - 80; // Screen padding (20*2) + Card padding (20*2)
 
@@ -51,106 +54,80 @@ const ExtendedDiagnosticsScreen = () => {
         .join(" ")
     : "Diagnostics";
 
-  const { token, userId } = useAuth();
-  const [history, setHistory] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
   const [insights, setInsights] = useState("");
   const [factors, setFactors] = useState<(FactorCardProps & { id: string })[]>(
     [],
   );
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [showReadMore, setShowReadMore] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
+  const [graphBase64, setGraphBase64] = useState<string | undefined>(undefined);
+  const [view, setView] = useState<ViewMode>("daily");
+  const chartRef = useRef<View>(null);
+
+  const { history, loading } = useRiskData(risk_factor, view);
 
   // This should be aligned with the logic in the main diagnostics screen
-  const riskLabels: Record<number, string> = {
-    0: "Low",
-    1: "Medium",
-    2: "High",
-  };
   const formatRiskTick = (value: string) => {
-    const rounded = Math.round(Number(value));
-    return riskLabels[rounded] ?? "";
+    const rounded = Math.round(Number(value)) as RiskNum;
+    return RISK_LABELS[rounded] ?? "";
   };
 
   useEffect(() => {
-    const loadData = async () => {
-      setLoading(true);
+    if (!loading && history.length > 0) {
+      const latest = history[history.length - 1];
+      let summary: string | null | undefined = "";
+      let keys: string[] | null | undefined = [];
 
-      // Simulate or Real Fetch
-      // Attempt fetch from API, fallback to mock data if it fails or returns empty
-      let fetchedHistory = [];
-      try {
-        if (token && userId) {
-          const data = await getRiskHistory(token, userId);
-          if (Array.isArray(data) && data.length > 0) fetchedHistory = data;
-          else fetchedHistory = mockHistory;
-        } else {
-          fetchedHistory = mockHistory;
-        }
-      } catch (e) {
-        console.warn("Failed to fetch history in details:", e);
-        fetchedHistory = mockHistory;
-      }
-      setHistory(fetchedHistory);
-
-      // Also set insights/factors based on risk_factor
       if (risk_factor === "anemia-risk") {
-        setFactors([
-          { ...FACTORS_REGISTRY.tired, value: "Present" },
-          { ...FACTORS_REGISTRY.dizziness, value: "Present" },
-          { ...FACTORS_REGISTRY.shortness_breath, value: "Absent" },
-        ]);
-        setInsights(
-          "Your anemia risk profile shows some fluctuations. Key factors include reported tiredness and dizziness. Consider discussing these with your healthcare provider.",
-        );
+        summary = latest.anemiaSummary;
+        keys = latest.anemiaKeyInputs;
       } else if (risk_factor === "thrombosis-risk") {
-        setFactors([
-          { ...FACTORS_REGISTRY.estrogen_pill, value: "Present" },
-          { ...FACTORS_REGISTRY.surgery_injury, value: "Present" },
-          {
-            ...FACTORS_REGISTRY.family_history_thrombosis,
-            value: "Thrombosis",
-          },
-        ]);
-        setInsights(
-          "Your thrombosis risk is currently elevated due to factors like estrogen pill usage and recent surgery. It is crucial to monitor for symptoms and consult your doctor.",
-        );
-      } else {
-        setFactors([]);
-        setInsights("No data available for this risk factor.");
+        summary = latest.thrombosisSummary;
+        keys = latest.thrombosisKeyInputs;
       }
 
-      setLoading(false);
-    };
+      setInsights(summary ?? "No specific insights available for this date.");
+      const parsedFactors = parseFactorsFromKeywords(keys, risk_factor);
+      setFactors(parsedFactors);
+    } else if (!loading && history.length === 0) {
+      setInsights("No data available.");
+      setFactors([]);
+    }
+  }, [history, loading, risk_factor]);
 
-    if (risk_factor) loadData();
-  }, [risk_factor, token, userId]);
-
-  // Derived Data for Graph
+  /* Derived Data for Graph */
   const riskData = React.useMemo(() => {
     if (!history.length) return { labels: [], data: [] };
 
-    const labels = history.map((item) =>
-      new Date(item.recordedAt).toLocaleDateString("en-US", {
-        month: "short",
-        day: "numeric",
-      }),
-    );
+    // Filter history to exclude "Unknown" (0) risks for the graph
+    const filteredHistory = history.filter((h) => {
+      if (risk_factor === "anemia-risk") return (h.anemiaRisk ?? 0) > 0;
+      if (risk_factor === "thrombosis-risk") return (h.thrombosisRisk ?? 0) > 0;
+      return false;
+    });
+
+    const labels = filteredHistory.map((item) => formatDateUTC(item.date));
 
     let data: number[] = [];
     if (risk_factor === "anemia-risk") {
-      data = history.map((h) => h.anemiaRisk);
+      data = filteredHistory.map((h) => h.anemiaRisk ?? 0);
     } else if (risk_factor === "thrombosis-risk") {
-      data = history.map((h) => h.thrombosisRisk);
+      data = filteredHistory.map((h) => h.thrombosisRisk ?? 0);
     }
 
     return { labels, data };
   }, [history, risk_factor]);
 
+  const currentRiskLevel = React.useMemo(() => {
+    if (!riskData.data.length) return 0 as RiskNum;
+    return riskData.data[riskData.data.length - 1] as RiskNum;
+  }, [riskData.data]);
+
   const currentRisk = React.useMemo(() => {
-    if (!riskData.data.length) return "N/A";
-    const val = riskData.data[riskData.data.length - 1];
-    return riskLabels[val] ?? "N/A";
-  }, [riskData.data, riskLabels]);
+    if (!riskData.data.length) return "N/A"; // Or "Unknown" if user prefers
+    return RISK_LABELS[currentRiskLevel] ?? "N/A";
+  }, [currentRiskLevel, riskData.data.length]);
 
   // Determine report type based on risk_factor
   const reportType: ReportType = React.useMemo(() => {
@@ -161,6 +138,19 @@ const ExtendedDiagnosticsScreen = () => {
 
   // Capture chart as Base64 when opening share modal
   const handleSharePress = async () => {
+    try {
+      if (chartRef.current) {
+        const base64 = await captureRef(chartRef, {
+          format: "png",
+          result: "base64",
+          quality: 0.8,
+        });
+        setGraphBase64(base64);
+      }
+    } catch (e) {
+      console.warn("Failed to capture chart:", e);
+      // Continue without graph capture
+    }
     setShowShareModal(true);
   };
 
@@ -185,17 +175,18 @@ const ExtendedDiagnosticsScreen = () => {
           <View className="flex-row justify-between items-start mb-4">
             <View>
               <Text className="text-xs text-regularText">Current Risk</Text>
-              <Text className="text-xl font-bold text-brand">
+              <Text
+                className="text-xl font-bold"
+                style={{
+                  color: riskColors[currentRiskLevel] ?? Colors.textHeading,
+                }}
+              >
                 {currentRisk}
               </Text>
             </View>
-            <TouchableOpacity className="bg-gray-200 py-1.5 px-3 rounded-[20px]">
-              <Text className="text-xs font-medium text-regularText">
-                Monthly
-              </Text>
-            </TouchableOpacity>
+            <ViewModeDropdown value={view} onChange={setView} />
           </View>
-          <View className="items-center">
+          <View className="items-center" ref={chartRef} collapsable={false}>
             {riskData.data.length > 0 ? (
               <RiskLineChart
                 labels={riskData.labels}
@@ -208,7 +199,7 @@ const ExtendedDiagnosticsScreen = () => {
               />
             ) : (
               <Text className="text-center text-inactiveText mt-5">
-                No graph data available.
+                No data available for this period.
               </Text>
             )}
           </View>
@@ -244,15 +235,25 @@ const ExtendedDiagnosticsScreen = () => {
             <View>
               <Text
                 className="text-sm leading-snug text-regularText"
-                numberOfLines={4}
+                numberOfLines={isExpanded ? undefined : 4}
+                onTextLayout={(e) => {
+                  // Check if text was truncated (more than 4 lines)
+                  if (!isExpanded && e.nativeEvent.lines.length > 4) {
+                    setShowReadMore(true);
+                  } else if (!isExpanded && e.nativeEvent.lines.length <= 4) {
+                    setShowReadMore(false);
+                  }
+                }}
               >
                 {insights}
               </Text>
-              <TouchableOpacity>
-                <Text className="text-sm text-red-600 mt-2 font-semibold">
-                  Read more
-                </Text>
-              </TouchableOpacity>
+              {showReadMore && (
+                <TouchableOpacity onPress={() => setIsExpanded(!isExpanded)}>
+                  <Text className="text-sm text-red-600 mt-2 font-semibold">
+                    {isExpanded ? "Show less" : "Read more"}
+                  </Text>
+                </TouchableOpacity>
+              )}
             </View>
           )}
         </View>
@@ -305,6 +306,8 @@ const ExtendedDiagnosticsScreen = () => {
           visible={showShareModal}
           onClose={() => setShowShareModal(false)}
           reportType={reportType}
+          graphImageBase64={graphBase64}
+          insightSummary={insights}
         />
       </ScrollView>
     </SafeAreaView>

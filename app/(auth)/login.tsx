@@ -1,6 +1,5 @@
 import { useAuth } from "@/context/AuthContext";
 import { AppBar } from "@/components/AppBarBackButton/AppBarBackButton";
-import { SocialSignOn } from "@/components/SocialSignOn/SocialSignOn";
 import { ThemedPressable } from "@/components/ThemedPressable/ThemedPressable";
 import { ThemedTextInput } from "@/components/ThemedTextInput/ThemedTextInput";
 import { loginUser } from "@/lib/api";
@@ -182,7 +181,7 @@ export default function LoginScreen() {
               </View>
 
               {/* Form Section */}
-              <View className="gap-y-8 w-80 self-center">
+              <View className="gap-y-8 mt-4 w-80 self-center">
                 {/* Email */}
                 <View>
                   <Text className="text-gray-700 mb-1 font-extrabold">
@@ -270,16 +269,6 @@ export default function LoginScreen() {
                   className="w-full bg-[#9B4F60]"
                 />
               </View>
-
-              {/* Bottom Section */}
-              <SocialSignOn
-                onPress={(provider) => {
-                  {
-                    /*TODO: Actual social media sign on*/
-                  }
-                  console.log("SSO pressed:", provider);
-                }}
-              />
             </View>
           </SafeAreaView>
         </ScrollView>

@@ -1,9 +1,10 @@
 import { FlowNum, RiskNum } from "@/lib/types/diagnostics";
 
 export const RISK_LABELS: Record<RiskNum, string> = {
-    0: "Low",
-    1: "Medium",
-    2: "High",
+    0: "Unknown",
+    1: "Low",
+    2: "Medium",
+    3: "High",
 };
 
 export const FLOW_LABELS: Record<FlowNum, string> = {

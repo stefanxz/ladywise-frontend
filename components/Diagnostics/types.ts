@@ -32,3 +32,17 @@ export interface FactorCardProps {
 export interface FactorsSectionProps {
   data: string[];
 }
+
+export type ViewMode = "daily" | "cycle";
+
+export type ViewModeDropdownProps = {
+  value: ViewMode;
+  onChange: (mode: ViewMode) => void;
+};
+
+export const VIEW_OPTIONS: { label: string; value: ViewMode }[] = [
+  { label: "Daily", value: "daily" },
+  { label: "Per Cycle/Monthly", value: "cycle" },
+];
+
+export const DROPDOWN_WIDTH = 128; // w-32 = 8rem = 128px

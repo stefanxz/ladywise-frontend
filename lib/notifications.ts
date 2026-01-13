@@ -1,18 +1,11 @@
-import { api } from "./api"; // Imports the axios instance from your existing lib/api.ts
-import { NotificationType } from "./types/notification";
-
-export interface RegisterTokenRequest {
-  token: string;
-}
-
-export interface NotificationSettingsResponse {
-  preferences: Record<NotificationType, boolean>;
-}
-
-export interface UpdateSettingRequest {
-  type: NotificationType;
-  enabled: boolean;
-}
+import { api } from "./api";
+import {
+  NotificationFrequency,
+  NotificationSettingsResponse,
+  NotificationType,
+  RegisterTokenRequest,
+  UpdateSettingRequest,
+} from "@/lib/types/notification";
 
 /**
  * Registers the device's push notification token with the backend.
@@ -44,16 +37,16 @@ export const getNotificationSettings = async () => {
  * Updates a specific notification preference.
  *
  * @param {NotificationType} type - The notification type to update
- * @param {boolean} enabled - Whether it should be enabled
+ * @param {NotificationType} frequency - The frequency of notifications
  * @returns {Promise<void>}
  */
 export const updateNotificationSetting = async (
   type: NotificationType,
-  enabled: boolean,
+  frequency: NotificationFrequency,
 ) => {
   const { data } = await api.patch<void>("/api/notifications/settings", {
     type,
-    enabled,
+    frequency,
   } as UpdateSettingRequest);
   return data;
 };

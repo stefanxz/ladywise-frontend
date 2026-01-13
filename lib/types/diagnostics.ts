@@ -1,8 +1,8 @@
 /**
  * Numeric representation of risk levels.
- * 0 = Low, 1 = Medium, 2 = High
+ * 0 = Default/None, 1 = Low, 2 = Medium, 3 = High
  */
-export type RiskNum = 0 | 1 | 2;
+export type RiskNum = 0 | 1 | 2 | 3;
 
 /**
  * Numeric representation of menstrual flow intensity.
@@ -10,20 +10,24 @@ export type RiskNum = 0 | 1 | 2;
  */
 export type FlowNum = 0 | 1 | 2 | 3;
 
-/**
- * Data Transfer Object for Diagnostic History response.
- */
 export interface DiagnosticsResponseDTO {
-    date: string; // YYYY-MM-DD
-    anemiaRisk: RiskNum; // 0, 1, 2
-    thrombosisRisk: RiskNum; // 0, 1, 2
-    flowLevel: FlowNum; // 0, 1, 2, 3
+    id: string;
+    userId: string;
+    date: string; // ISO Date "YYYY-MM-DD"
 
-    // Detailed insights
-    anemiaSummary?: string;
-    thrombosisSummary?: string;
+    // Risks
+    anemiaRisk?: number | null; // 0-3 scale likely
+    thrombosisRisk?: number | null;
 
-    // Contributing factors (keywords)
-    anemiaKeyInputs?: string[];
-    thrombosisKeyInputs?: string[];
+    // Flow
+    flowLevel?: number | null;
+    periodId?: string | null;
+
+    // Detailed Insights
+    anemiaKeyInputs?: string[] | null;
+    anemiaSummary?: string | null;
+    thrombosisKeyInputs?: string[] | null;
+    thrombosisSummary?: string | null;
+
+    lastUpdated: string; // ISO Timestamp
 }
