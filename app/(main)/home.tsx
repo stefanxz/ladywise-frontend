@@ -65,7 +65,7 @@ const Home = () => {
     openQuestionnaire,
     handleSave,
   } = useDailyEntry(undefined, () => {
-    setIsLoading(true);
+    setIsCalculating(true);
   });
 
   const displayedInsights: RiskData[] = useMemo(() => {
@@ -96,7 +96,14 @@ const Home = () => {
 
   useEffect(() => {
     const loadRisks = async () => {
-      if (isAuthLoading || !token || !userId || realtimeRisks) return;
+      if (isAuthLoading || !token || !userId) return;
+      
+      // If we already have live data, we don't need to fetch from API
+      // Ensure loading state is cleared though
+      if (realtimeRisks) {
+        setIsLoading(false);
+        return;
+      }
 
       try {
         const apiData = await getRiskData(token, userId);
