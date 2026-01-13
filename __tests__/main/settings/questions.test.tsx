@@ -5,7 +5,7 @@ import {
   fireEvent,
   waitFor,
 } from "@testing-library/react-native";
-import TutorialsScreen from "@/app/(main)/settings/questions";
+import TutorialsScreen from "@/app/(main)/questions";
 import * as api from "@/lib/api";
 import { ToastProvider } from "@/context/ToastContext";
 
