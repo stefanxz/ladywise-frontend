@@ -92,12 +92,9 @@ export default function NotificationsSettings() {
     return (
       <SettingsPageLayout
         title="Notifications"
-        description="Manage how and when you receive updates from LadyWise."
+        description="Loading settings..."
       >
-        <View className="flex-1 items-center justify-center py-12">
-          <ActivityIndicator size="large" color={Colors.brand} />
-          <Text className="text-inactiveText mt-4">Loading settings...</Text>
-        </View>
+        <ActivityIndicator size="large" color="#E63946" className="mt-10" />
       </SettingsPageLayout>
     );
   }
