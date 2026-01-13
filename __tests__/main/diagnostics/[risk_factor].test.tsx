@@ -18,11 +18,19 @@ jest.mock("expo-router", () => ({
   Stack: {
     Screen: () => null, // Mock the Screen component
   },
+  useFocusEffect: (effect: () => void) => {
+    const React = require("react");
+    React.useEffect(effect, []);
+  },
 }));
 
-jest.mock("@/constants/mock-data", () => ({
-  mockHistory: [],
+jest.mock("@/hooks/useToast", () => ({
+  useToast: () => ({
+    showToast: jest.fn(),
+  }),
 }));
+
+// jest.mock("@/constants/mock-data", ...); // Not needed anymore
 
 // Mock API and Auth
 jest.mock("@/context/AuthContext", () => ({
@@ -82,16 +90,21 @@ const mockRouter = {
 
 const mockHistoryData = [
   {
-    recordedAt: "2023-01-01T00:00:00.000Z",
-    anemiaRisk: 1, // Medium
-    thrombosisRisk: 0, // Low
+    date: "2023-01-01T00:00:00.000Z",
+    anemiaRisk: 1, // Low
+    thrombosisRisk: 0, // Unknown
     menstrualFlow: 1,
+    anemiaKeyInputs: [],
+    thrombosisKeyInputs: [],
   },
   {
-    recordedAt: "2023-01-02T00:00:00.000Z",
-    anemiaRisk: 2, // High
-    thrombosisRisk: 1, // Medium
+    date: "2023-01-02T00:00:00.000Z",
+    anemiaRisk: 3, // High (was 2)
+    thrombosisRisk: 1, // Low
     menstrualFlow: 2,
+    anemiaKeyInputs: ["tired", "dizzy"],
+    thrombosisKeyInputs: ["estrogen", "pill", "surgery"],
+    anemiaSummary: "You are experiencing fatigue.",
   },
 ];
 
@@ -117,9 +130,7 @@ describe("ExtendedDiagnosticsScreen", () => {
     render(<ExtendedDiagnosticsScreen />);
 
     expect(screen.getByTestId("loading-indicator")).toBeTruthy();
-    expect(screen.queryByText(/Your anemia risk profile/)).toBeNull();
 
-    // Cleanup
     resolvePromise(mockHistoryData);
     await waitFor(() =>
       expect(screen.queryByTestId("loading-indicator")).toBeNull(),
@@ -135,7 +146,7 @@ describe("ExtendedDiagnosticsScreen", () => {
     );
 
     expect(screen.getByText("Anemia Risk")).toBeTruthy();
-    // Latest anemia risk is 2 (High) in mockHistoryData[1]
+    // Latest anemia risk is 3 (High) in mockHistoryData[1]
     expect(screen.getByText("High")).toBeTruthy();
   });
 
@@ -149,8 +160,8 @@ describe("ExtendedDiagnosticsScreen", () => {
 
     const chart = screen.getByTestId("mock-risk-line-chart");
     expect(chart).toBeTruthy();
-    // Anemia risk data: [1, 2]
-    expect(chart.props.children.props.children).toBe(JSON.stringify([1, 2]));
+    // Anemia risk data: [1, 3] from the updated mock
+    expect(chart.props.children.props.children).toBe(JSON.stringify([1, 3]));
   });
 
   it("renders factor cards for anemia", async () => {
@@ -163,6 +174,7 @@ describe("ExtendedDiagnosticsScreen", () => {
 
     const factorCards = screen.getAllByTestId("mock-factor-card");
     expect(factorCards.length).toBeGreaterThan(0);
+    // matching keywords: "tired" -> Fatigue, "dizzy" -> Dizziness
     expect(screen.getByText("Fatigue")).toBeTruthy();
     expect(screen.getByText("Dizziness")).toBeTruthy();
   });
@@ -179,6 +191,7 @@ describe("ExtendedDiagnosticsScreen", () => {
 
     const factorCards = screen.getAllByTestId("mock-factor-card");
     expect(factorCards.length).toBeGreaterThan(0);
+    // matching keywords: "estrogen","pill" -> Estrogen Pill; "surgery" -> Surgery...
     expect(screen.getByText("Estrogen Pill")).toBeTruthy();
     expect(screen.getByText("Surgery or Severe Injury")).toBeTruthy();
   });
@@ -206,7 +219,7 @@ describe("ExtendedDiagnosticsScreen", () => {
       expect(screen.queryByTestId("loading-indicator")).toBeNull(),
     );
 
-    expect(screen.getByText("No graph data available.")).toBeTruthy();
+    expect(screen.getByText("No data available for this period.")).toBeTruthy();
     expect(screen.queryByTestId("mock-risk-line-chart")).toBeNull();
   });
 

@@ -25,6 +25,7 @@ import {
   DailyLogRequest,
   DailyLogResponse,
 } from "./types/period";
+import { DiagnosticsResponseDTO } from "./types/diagnostics";
 
 /**
  * api
@@ -35,7 +36,10 @@ import {
 export const api = axios.create({
   baseURL: process.env.EXPO_PUBLIC_API_URL,
   timeout: 40000,
-  headers: { "Content-Type": "application/json" },
+  headers: {
+    "Content-Type": "application/json",
+    "ngrok-skip-browser-warning": "true",
+  },
 });
 
 /**
@@ -180,21 +184,38 @@ export async function getRiskData(
 /**
  * Retrieves historical risk data for charting.
  *
- * @param {string} token - Auth token
- * @param {string} userId - User ID
- * @returns {Promise<RiskHistoryPoint[]>} Array of historical risk data points
+ * @returns {Promise<DiagnosticsResponseDTO[]>} Array of historical risk data points
+ * @param view
  */
 export async function getRiskHistory(
+  view: string = "daily",
+): Promise<DiagnosticsResponseDTO[]> {
+  const { data } = await api.get<DiagnosticsResponseDTO[]>(`/api/diagnostics`, {
+    params: {
+      view,
+    },
+  });
+
+  return data;
+}
+
+/**
+ * Retrieves the diagnostic log for a specific date.
+ *
+ * @param {string} token - Auth token
+ * @param {string} date - Date in YYYY-MM-DD format
+ * @returns {Promise<DiagnosticsResponseDTO>} Diagnostic data for the date
+ */
+export async function getDiagnosticForDate(
   token: string,
-  userId: string,
-): Promise<RiskHistoryPoint[]> {
+  date: string,
+): Promise<DiagnosticsResponseDTO> {
   const config = {
-    params: { userId },
     headers: { Authorization: `Bearer ${token}` },
   };
 
-  const { data } = await api.get<RiskHistoryPoint[]>(
-    `/api/users/${userId}/risks/history`,
+  const { data } = await api.get<DiagnosticsResponseDTO>(
+    `/api/diagnostics/${date}`,
     config,
   );
 

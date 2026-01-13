@@ -6,34 +6,26 @@ import {
   ScrollView,
   TouchableOpacity,
 } from "react-native";
-import { Link } from "expo-router";
+import { Link, useFocusEffect } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { isAxiosError } from "axios";
 import { Feather } from "@expo/vector-icons";
 import { RiskLineChart } from "@/components/charts/RiskLineChart";
 import { useAuth } from "@/context/AuthContext";
 import { getRiskHistory } from "@/lib/api";
-import type { RiskHistoryPoint } from "@/lib/types/risks";
 import { Colors, riskColors, flowColors } from "@/constants/colors";
-import { mockHistory } from "@/constants/mock-data";
-import type { RiskNum, FlowNum } from "@/lib/types/diagnostics";
+import type {
+  DiagnosticsResponseDTO,
+  RiskNum,
+  FlowNum,
+} from "@/lib/types/diagnostics";
 import ShareReportModal from "@/components/ShareReport/ShareReportModal";
-
-const riskLabels: Record<RiskNum, string> = {
-  0: "Low",
-  1: "Medium",
-  2: "High",
-};
-
-const flowLabels: Record<FlowNum, string> = {
-  0: "None",
-  1: "Light",
-  2: "Normal",
-  3: "Heavy",
-};
+import { useToast } from "@/hooks/useToast";
+import { RISK_LABELS, FLOW_LABELS } from "@/constants/diagnostics";
+import { formatDateUTC } from "@/utils/helpers";
 
 type DiagnosticsScreenProps = {
-  initialHistory?: RiskHistoryPoint[];
+  initialHistory?: DiagnosticsResponseDTO[];
 };
 
 /**
@@ -49,79 +41,86 @@ export default function DiagnosticsScreen({
   initialHistory: historyProp,
 }: DiagnosticsScreenProps) {
   const { token, userId } = useAuth();
+  const { showToast } = useToast();
 
-  const [history, setHistory] = useState<RiskHistoryPoint[]>(historyProp ?? []);
+  const [history, setHistory] = useState<DiagnosticsResponseDTO[]>(
+    historyProp ?? [],
+  );
   const [loading, setLoading] = useState(!historyProp);
-  const [error, setError] = useState<string | null>(null);
   const [showShareModal, setShowShareModal] = useState(false);
 
-  useEffect(() => {
-    if (historyProp) return; // Don't fetch if history is passed as a prop
+  useFocusEffect(
+    React.useCallback(() => {
+      if (historyProp) return; // Don't fetch if history is passed as a prop
 
-    if (!token || !userId) {
-      // Not logged in, but for development purposes, show mock data.
-      setHistory(mockHistory);
-      setLoading(false);
-      return;
-    }
+      let isActive = true;
 
-    const load = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        const data = await getRiskHistory(token, userId);
-
-        if (Array.isArray(data) && data.length > 0) {
-          setHistory(data);
-        } else if (!Array.isArray(data)) {
-          // console.warn("API returned non-array data:", data);
-          setHistory(mockHistory);
-          setError("Received invalid data from server. Showing sample data.");
-        } else {
-          // If API returns empty array, fallback to mock data as requested
-          setHistory(mockHistory);
-          setError(
-            "No history data was found. Showing sample data for demonstration.",
-          );
+      const load = async () => {
+        if (!token || !userId) {
+          if (isActive) {
+            setLoading(false);
+          }
+          return;
         }
-      } catch (err: unknown) {
-        // console.error("Failed to load risk history", err);
 
-        // Fallback to mock data if API fails, as requested for development
-        setHistory(mockHistory);
+        try {
+          if (isActive) setLoading(true);
 
-        if (isAxiosError(err)) {
-          const status = err.response?.status;
-          if (status === 401) {
-            setError("Your session has expired. Please log in again.");
+          const data = await getRiskHistory();
+
+          if (!isActive) return;
+
+          if (Array.isArray(data)) {
+            const sorted = data.sort(
+              (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
+            );
+            setHistory(sorted);
           } else {
-            setError(
-              `We couldn't load your data. Showing sample data. Error: ${err.message}`,
+            showToast("Received invalid data from server.", "error");
+          }
+        } catch (err: unknown) {
+          if (!isActive) return;
+
+          if (isAxiosError(err)) {
+            const status = err.response?.status;
+            if (status === 401) {
+              showToast(
+                "Your session has expired. Please log in again.",
+                "error",
+              );
+            } else {
+              showToast(
+                "Failed to load diagnostic data. Please try again.",
+                "error",
+              );
+            }
+          } else {
+            showToast(
+              "An unexpected error occurred. Please try again.",
+              "error",
             );
           }
-        } else if (err instanceof Error) {
-          setError(
-            `An unexpected error occurred: ${err.message}. Showing sample data.`,
-          );
-        } else {
-          setError("An unexpected error occurred. Showing sample data.");
+        } finally {
+          if (isActive) setLoading(false);
         }
-      } finally {
-        setLoading(false);
-      }
-    };
+      };
 
-    load();
-  }, [token, userId, historyProp]);
+      load();
+
+      return () => {
+        isActive = false;
+      };
+    }, [token, userId, historyProp]),
+  );
 
   const formatRiskTick = (value: string) => {
     const rounded = Math.round(Number(value)) as RiskNum;
-    return riskLabels[rounded] ?? "";
+    return RISK_LABELS[rounded] ?? "";
   };
 
   const formatFlowTick = (value: string) => {
     const rounded = Math.round(Number(value)) as FlowNum;
-    return flowLabels[rounded] ?? "";
+    return FLOW_LABELS[rounded] ?? "";
   };
 
   if (loading) {
@@ -136,14 +135,7 @@ export default function DiagnosticsScreen({
     );
   }
 
-  if (error && error.includes("session has expired")) {
-    return (
-      <View className="flex-1 justify-center items-center bg-background px-6">
-        <Text className="text-lg text-regularText text-center">{error}</Text>
-      </View>
-    );
-  }
-
+  // If no history, show empty state
   if (!history.length) {
     return (
       <View className="flex-1 justify-center items-center bg-background px-6">
@@ -154,21 +146,28 @@ export default function DiagnosticsScreen({
     );
   }
 
-  const labels = history.map((item) =>
-    new Date(item.recordedAt).toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-    }),
+  const thrombosisHistory = history.filter(
+    (item) => (item.thrombosisRisk ?? 0) > 0,
+  );
+  const thrombosisLabels = thrombosisHistory.map((item) =>
+    formatDateUTC(item.date),
+  );
+  const thrombosisData = thrombosisHistory.map(
+    (item) => item.thrombosisRisk ?? 0,
   );
 
-  const thrombosisData = history.map((item) => item.thrombosisRisk);
-  const anemiaData = history.map((item) => item.anemiaRisk);
-  const flowData = history.map((item) => item.menstrualFlow);
+  const anemiaHistory = history.filter((item) => (item.anemiaRisk ?? 0) > 0);
+  const anemiaLabels = anemiaHistory.map((item) => formatDateUTC(item.date));
+  const anemiaData = anemiaHistory.map((item) => item.anemiaRisk ?? 0);
+
+  // Renamed to flowChartLabels to avoid shadowing the global flowLabels constant
+  const flowChartLabels = history.map((item) => formatDateUTC(item.date));
+  const flowData = history.map((item) => item.flowLevel ?? 0);
 
   const latest = history[history.length - 1];
-  const latestThrombosis = latest.thrombosisRisk as RiskNum;
-  const latestAnemia = latest.anemiaRisk as RiskNum;
-  const latestFlow = latest.menstrualFlow as FlowNum;
+  const latestThrombosis = (latest.thrombosisRisk ?? 0) as RiskNum;
+  const latestAnemia = (latest.anemiaRisk ?? 0) as RiskNum;
+  const latestFlow = (latest.flowLevel ?? 0) as FlowNum;
 
   return (
     <SafeAreaView className="flex-1 bg-background" edges={["top"]}>
@@ -178,11 +177,7 @@ export default function DiagnosticsScreen({
             Diagnostics
           </Text>
 
-          {error && (
-            <Text className="text-center text-red-500 mb-4">{error}</Text>
-          )}
-
-          {/* --- Thrombosis Card --- */}
+          {/* Thrombosis Card */}
           <Link
             href={
               {
@@ -208,7 +203,7 @@ export default function DiagnosticsScreen({
                     className="text-xl font-semibold"
                     style={{ color: riskColors[latestThrombosis] }}
                   >
-                    {riskLabels[latestThrombosis]}
+                    {RISK_LABELS[latestThrombosis]}
                   </Text>
                 </View>
                 {/* placeholder for "same as last month" etc. */}
@@ -218,7 +213,7 @@ export default function DiagnosticsScreen({
               </View>
 
               <RiskLineChart
-                labels={labels}
+                labels={thrombosisLabels}
                 data={thrombosisData}
                 segments={2}
                 formatYLabel={formatRiskTick}
@@ -227,7 +222,7 @@ export default function DiagnosticsScreen({
             </TouchableOpacity>
           </Link>
 
-          {/* --- Anemia Card --- */}
+          {/* Anemia Card */}
           <Link
             href={
               {
@@ -253,7 +248,7 @@ export default function DiagnosticsScreen({
                     className="text-xl font-semibold"
                     style={{ color: riskColors[latestAnemia] }}
                   >
-                    {riskLabels[latestAnemia]}
+                    {RISK_LABELS[latestAnemia]}
                   </Text>
                 </View>
                 <Text className="text-xs text-inactiveText">
@@ -262,7 +257,7 @@ export default function DiagnosticsScreen({
               </View>
 
               <RiskLineChart
-                labels={labels}
+                labels={anemiaLabels}
                 data={anemiaData}
                 segments={2}
                 formatYLabel={formatRiskTick}
@@ -271,7 +266,7 @@ export default function DiagnosticsScreen({
             </TouchableOpacity>
           </Link>
 
-          {/* --- Flow Card --- */}
+          {/* Flow Card */}
           <View className="bg-white rounded-2xl shadow-sm p-4 mb-10">
             <Text className="text-lg font-semibold text-headingText mb-3">
               Menstrual Flow
@@ -284,7 +279,7 @@ export default function DiagnosticsScreen({
                   className="text-xl font-semibold"
                   style={{ color: flowColors[latestFlow] }}
                 >
-                  {flowLabels[latestFlow]}
+                  {FLOW_LABELS[latestFlow]}
                 </Text>
               </View>
               <Text className="text-xs text-inactiveText">
@@ -293,7 +288,7 @@ export default function DiagnosticsScreen({
             </View>
 
             <RiskLineChart
-              labels={labels}
+              labels={flowChartLabels}
               data={flowData}
               segments={3}
               formatYLabel={formatFlowTick}

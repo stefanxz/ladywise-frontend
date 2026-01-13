@@ -29,12 +29,12 @@ export const ToastItem: React.FC<ToastItemProps> = ({
   const config = {
     success: {
       icon: "checkmark-circle" as const,
-      color: riskColors[0],
+      color: Colors.green,
       bg: Colors.lightGreen,
     },
     error: {
       icon: "alert-circle" as const,
-      color: riskColors[2],
+      color: Colors.red,
       bg: Colors.lightRed,
     },
     info: {

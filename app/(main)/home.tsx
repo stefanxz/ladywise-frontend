@@ -135,7 +135,7 @@ const Home = () => {
           // Fetch Cycle Status
           const status = await getCycleStatus();
           setCycleStatus(status);
-          setPhase(status.currentPhase.toLowerCase() as any);
+          setPhase((status.currentPhase?.toLowerCase() ?? "neutral") as any);
           setCalendarDays(generateCalendarDays(status.periodDates));
         } catch (err: any) {
           // Handle Cycle Status specifically if needed, or general errors

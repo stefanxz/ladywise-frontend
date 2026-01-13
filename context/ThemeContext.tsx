@@ -4,7 +4,7 @@ import { themes, type Theme } from "@/lib/themes";
 type ThemeContextData = {
   theme: Theme;
   setPhase: (
-    phase: "ovulation" | "menstrual" | "luteal" | "follicular",
+    phase: "ovulation" | "menstrual" | "luteal" | "follicular" | "neutral",
   ) => void;
 };
 
@@ -16,7 +16,7 @@ type ThemeContextData = {
  */
 const ThemeContext = createContext<ThemeContextData>({
   theme: themes.neutral,
-  setPhase: () => {}, // Default empty function
+  setPhase: () => { }, // Default empty function
 });
 
 /**
@@ -32,7 +32,7 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
 
   // This is the function our app will call to change the theme
   const setPhase = (
-    phase: "ovulation" | "menstrual" | "luteal" | "follicular",
+    phase: "ovulation" | "menstrual" | "luteal" | "follicular" | "neutral",
   ) => {
     setCurrentTheme(themes[phase]); // Set the theme to the new phase colors
   };
