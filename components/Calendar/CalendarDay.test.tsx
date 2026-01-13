@@ -28,7 +28,7 @@ describe("CalendarDay component", () => {
     jest.useRealTimers();
   });
 
-  // setup: Measure Mocking 
+  // setup: Measure Mocking
   beforeEach(() => {
     jest.spyOn(View.prototype, "measure").mockImplementation((callback) => {
       callback(0, 0, 40, 40, 50, 100);
@@ -38,7 +38,6 @@ describe("CalendarDay component", () => {
   afterEach(() => {
     jest.restoreAllMocks();
   });
-
 
   it("renders nothing visible (placeholder) when date is null", () => {
     const { toJSON } = render(
@@ -113,17 +112,16 @@ describe("CalendarDay component", () => {
     const mockOnPress = jest.fn();
     const date = new Date("2023-10-15T12:00:00Z");
     
-    render(
+render(
       <CalendarDay 
-        date={date} 
-        themeColor={THEME_COLOR} 
-        onPress={mockOnPress} 
+        date={date}
+        themeColor={THEME_COLOR}
+        onPress={mockOnPress}
       />
-    );
+),
 
     // find touchable element wrapped around the text
     const dayButton = screen.getByText("15");
-    
     // simulate press
     fireEvent.press(dayButton);
 
@@ -132,5 +130,5 @@ describe("CalendarDay component", () => {
       date,
       expect.objectContaining({ x: 70, y: 100 })
     );
-  });
+  }),
 });
