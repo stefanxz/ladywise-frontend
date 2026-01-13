@@ -18,6 +18,18 @@ export type AuthStatus = "VALID" | "EXPIRED" | "NO_TOKEN";
 // Cache the availability check so we do not call into native modules repeatedly.
 let secureStoreAvailability: boolean | null = null;
 
+/**
+ * Internal helper to check if SecureStore is available on the current device/platform.
+ * Caches the result to avoid repeated native calls.
+ *
+ * @returns Promise resolving to true if SecureStore is available, false otherwise.
+ */
+/**
+ * Internal helper to check if SecureStore is available on the current device/platform.
+ * Caches the result to avoid repeated native calls.
+ *
+ * @returns Promise resolving to true if SecureStore is available, false otherwise.
+ */
 async function isSecureStoreAvailable(): Promise<boolean> {
   if (secureStoreAvailability === null) {
     if (Platform.OS === "web") {

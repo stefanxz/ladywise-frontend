@@ -67,6 +67,16 @@ jest.mock("@/utils/calendarHelpers", () => {
   const { addDays } = require("date-fns");
   return {
     generateDateSet: jest.fn(() => new Set()),
+    
+    // We manually parse "YYYY-MM-DD" to (year, month, day) integers
+    parseToLocalWithoutTime: jest.fn((dateString) => {
+      if (!dateString) return new Date();
+      const [year, month, day] = dateString.split("-").map(Number);
+      // Month is 0-indexed in JS Date constructor (0 = Jan)
+      return new Date(year, month - 1, day);
+    }),
+
+    safeFetch: jest.fn((promise) => promise),
     generateMonths: jest.fn((start, count) =>
       Array.from({ length: count }, (_, i) => ({
         id: `month-${i}`,
@@ -486,6 +496,76 @@ describe("CalendarScreen", () => {
           endDate: format(today, "yyyy-MM-dd"),
         });
       });
+    });
+  });
+  describe("Additional Edge Cases & UI Logic", () => {
+    it("should exit log mode and reset UI when Cancel is pressed", async () => {
+      const { getByTestId, getByText, queryByText } = render(<CalendarScreen />);
+      await waitFor(() => expect(getPeriodHistory).toHaveBeenCalled());
+
+      // enter Log Mode
+      fireEvent.press(getByTestId("log-period-button"));
+
+      // verify Cancel button exists
+      await waitFor(() => expect(getByText("Cancel")).toBeTruthy());
+
+      fireEvent.press(getByText("Cancel"));
+
+      // checkk UI reset: Save button gone, Log button back
+      await waitFor(() => {
+        expect(queryByText("Save")).toBeNull();
+        expect(getByTestId("log-period-button")).toBeTruthy();
+      });
+    });
+
+    it("should handle API failure gracefully (stay in log mode)", async () => {
+      // mock rejected promise
+      (logNewPeriod as jest.Mock).mockRejectedValue(new Error("Network Error"));
+
+      const { getByTestId, getAllByTestId, getByText } = render(
+        <CalendarScreen />
+      );
+      await waitFor(() => expect(getPeriodHistory).toHaveBeenCalled());
+
+      // enter log mode & select date
+      fireEvent.press(getByTestId("log-period-button"));
+      fireEvent.press(getAllByTestId("day-yesterday")[0]);
+
+      fireEvent.press(getByText("Save"));
+
+      // check we did NOT reset to normal mode 
+      await waitFor(() => {
+        expect(getByText("Save")).toBeTruthy();
+      });
+    });
+
+    it("should render the FloatingAddButton ONLY when phase is menstrual", async () => {
+      // override the mock to return menstrual phase
+      (getCycleStatus as jest.Mock).mockResolvedValue({
+        currentPhase: "menstrual",
+      });
+
+      const { toJSON } = render(<CalendarScreen />);
+      
+      await waitFor(() => expect(getCycleStatus).toHaveBeenCalled());
+
+      // check if FloatingAddButton is in the render tree
+      const tree = JSON.stringify(toJSON());
+      expect(tree).toContain("FloatingAddButton");
+    });
+    
+    it("should NOT render FloatingAddButton when phase is follicular", async () => {
+      // override the mock to return follicular phase
+      (getCycleStatus as jest.Mock).mockResolvedValue({
+        currentPhase: "follicular",
+      });
+
+      const { toJSON } = render(<CalendarScreen />);
+      await waitFor(() => expect(getCycleStatus).toHaveBeenCalled());
+
+      // check absence
+      const tree = JSON.stringify(toJSON());
+      expect(tree).not.toContain("FloatingAddButton");
     });
   });
 });

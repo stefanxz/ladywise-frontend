@@ -30,7 +30,21 @@ import { CycleQuestionsBottomSheet } from "@/components/CycleQuestionsBottomShee
 import { useDailyEntry } from "@/hooks/useDailyEntry";
 import { useLocalSearchParams } from "expo-router";
 
-// Main calendar screen component
+/**
+ * CalendarScreen
+ *
+ * The main screen for viewing and managing menstrual cycle data.
+ * Displays a vertical list of months, allows logging of periods, and provides
+ * visual feedback for cycle predictions and history.
+ *
+ * Features:
+ * - Infinite scrolling of past and future months
+ * - Period logging and editing (start/end dates, ongoing status)
+ * - Visual indicators for period days, predictions, and today
+ * - Tooltip interactions for editing/deleting entries
+ *
+ * @returns {JSX.Element} The rendered calendar screen
+ */
 export default function CalendarScreen() {
   const params = useLocalSearchParams();
   const shouldStartInLogMode = params["log-mode"] === "true";
@@ -264,6 +278,7 @@ export default function CalendarScreen() {
                     <View className="w-full flex-row items-center justify-center relative">
                       {/* Log period button */}
                       <LogNewPeriodButton
+                        key={periods.length}
                         color={theme.highlight}
                         onPress={handleLogPeriodStart}
                         style={{ width: "42%" }}

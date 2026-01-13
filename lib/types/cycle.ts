@@ -22,7 +22,7 @@ export interface PeriodRecord {
 export interface CycleStatusDTO {
   currentCycleDay: number;
   currentPhase: CyclePhase;
-  nextEvent: CycleEvent;
+  nextEvent?: CycleEvent;
   daysUntilNextEvent: number;
   nextEventDate: string;
   periodHistory: PeriodRecord[];

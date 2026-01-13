@@ -16,13 +16,11 @@ Notifications.setNotificationHandler({
 });
 
 /**
- * usePushNotifications
- *
  * Custom hook to handle Expo Push Notification registration and listeners.
  * Registers the device token with the backend and listens for incoming notifications.
  *
- * @param {boolean} isAuthenticated - Whether the user is authenticated (prerequisite for registration)
- * @returns {Object} Expo push token and the last received notification
+ * @param isAuthenticated - Whether the user is authenticated (prerequisite for registration).
+ * @returns An object containing the Expo push token and the last received notification.
  */
 export const usePushNotifications = (isAuthenticated: boolean) => {
   const [expoPushToken, setExpoPushToken] = useState<string | undefined>();

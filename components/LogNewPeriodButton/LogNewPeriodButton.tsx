@@ -4,14 +4,6 @@ import type { LogNewPeriodButtonProps } from "./LogNewPeriodButton.types";
 import { Feather } from "@expo/vector-icons";
 
 /**
- * A simple, reusable “Log period +” button
- *
- * - The button is centered by its parent container
- * - The background color is dynamic (passed via `color`)
- * - It supports loading and disabled states
- * - It is fully accessible and test-friendly
- */
-/**
  * LogNewPeriodButton
  *
  * A simple, reusable “Log period +” button.

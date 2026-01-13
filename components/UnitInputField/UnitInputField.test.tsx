@@ -31,3 +31,16 @@ it("calls onChangeText when typing", () => {
   fireEvent.changeText(getByTestId("unit-input"), "30");
   expect(onChangeText).toHaveBeenCalledWith("30");
 });
+
+it("renders error message when error prop is provided", () => {
+  const { getByText } = render(
+    <UnitInputField
+      unit="cm"
+      value="100"
+      onChangeText={() => {}}
+      error="Value is too high"
+    />,
+  );
+
+  expect(getByText("Value is too high")).toBeTruthy();
+});

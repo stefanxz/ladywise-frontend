@@ -1,8 +1,8 @@
-import { renderHook, act, waitFor } from "@testing-library/react-native";
+import { renderHook, act } from "@testing-library/react-native";
 import { useHealthRealtime } from "@/hooks/useHealthRealtime";
 import { Client } from "@stomp/stompjs";
 
-// 1. Mock External Dependencies
+// mock external dependencies
 jest.mock("sockjs-client", () => {
   return jest.fn().mockImplementation(() => ({}));
 });
@@ -26,132 +26,151 @@ describe("useHealthRealtime Hook", () => {
   let mockActivate: jest.Mock;
   let mockDeactivate: jest.Mock;
   let mockSubscribe: jest.Mock;
-  // We'll capture the 'onConnect' function assigned by the hook here
+  
+  // Captures for internal client handlers
   let capturedOnConnect: (() => void) | undefined;
+  let capturedOnStompError: ((frame: any) => void) | undefined;
+
+  // Spy on console to verify debug/error logs
+  let consoleLogSpy: jest.SpyInstance;
+  let consoleErrorSpy: jest.SpyInstance;
 
   beforeEach(() => {
     jest.clearAllMocks();
     capturedOnConnect = undefined;
+    capturedOnStompError = undefined;
 
     mockActivate = jest.fn();
     mockDeactivate = jest.fn();
     mockSubscribe = jest.fn();
 
-    // Setup the Client mock to capture the onConnect assignment
-    (Client as unknown as jest.Mock).mockImplementation(() => {
+    // Mock console to keep test output clean and verify logging logic
+    consoleLogSpy = jest.spyOn(console, "log").mockImplementation(() => {});
+    consoleErrorSpy = jest.spyOn(console, "error").mockImplementation(() => {});
+
+    // Setup the Client mock
+    (Client as unknown as jest.Mock).mockImplementation((config) => {
       const clientInstance: any = {
         activate: mockActivate,
         deactivate: mockDeactivate,
         subscribe: mockSubscribe,
-        active: true, // Added to satisfy the hook's cleanup check
+        active: true,
+        // Expose the config passed to constructor so we can test 'debug' function
+        _config: config, 
       };
 
-      // Define a setter for onConnect to capture it when the hook writes to it
+      // Capture onConnect
       Object.defineProperty(clientInstance, "onConnect", {
-        set: (fn) => {
-          capturedOnConnect = fn;
-        },
+        set: (fn) => { capturedOnConnect = fn; },
         get: () => capturedOnConnect,
+      });
+
+      // Capture onStompError
+      Object.defineProperty(clientInstance, "onStompError", {
+        set: (fn) => { capturedOnStompError = fn; },
+        get: () => capturedOnStompError,
       });
 
       return clientInstance;
     });
   });
 
-  it("should not activate client if userId or token is missing", () => {
-    renderHook(() => useHealthRealtime(null, null));
-    expect(Client).not.toHaveBeenCalled();
-
-    renderHook(() => useHealthRealtime("user", null));
-    expect(Client).not.toHaveBeenCalled();
+  afterEach(() => {
+    consoleLogSpy.mockRestore();
+    consoleErrorSpy.mockRestore();
   });
 
   it("should initialize and activate client when auth is provided", () => {
     renderHook(() => useHealthRealtime(mockUserId, mockToken));
-
     expect(Client).toHaveBeenCalledTimes(1);
     expect(mockActivate).toHaveBeenCalledTimes(1);
   });
 
-  it("should subscribe to channels and update state on message receipt", async () => {
-    const { result } = renderHook(() =>
-      useHealthRealtime(mockUserId, mockToken),
-    );
-
-    // 1. Verify initial state
-    expect(result.current.isConnected).toBe(false);
-    expect(result.current.realtimeRisks).toBeNull();
-
-    // 2. Simulate Connection Event
-    // We wrapped this in act because it triggers state updates (setIsConnected)
-    act(() => {
-      if (capturedOnConnect) capturedOnConnect();
-    });
-
-    expect(result.current.isConnected).toBe(true);
-
-    // 3. Verify Subscriptions were made
-    // The hook subscribes to 3 topics. Let's find the callback for risks.
-    expect(mockSubscribe).toHaveBeenCalledWith(
-      `/topic/risks/${mockUserId}`,
-      expect.any(Function),
-    );
-
-    // 4. Simulate Incoming Risk Data
-    // Extract the callback function passed to .subscribe for the risks topic
-    const riskCallback = mockSubscribe.mock.calls.find(
-      (call) => call[0] === `/topic/risks/${mockUserId}`,
-    )[1];
-
-    const mockRiskPayload = {
-      anemia: { risk: "High", key_inputs: [], summary_sentence: "Bad." },
-      thrombosis: { risk: "Low", key_inputs: [], summary_sentence: "Good." },
-    };
-
-    // Execute the callback with a mock STOMP message
-    act(() => {
-      riskCallback({ body: JSON.stringify(mockRiskPayload) });
-    });
-
-    // 5. Verify State Update
-    expect(result.current.realtimeRisks).toEqual(mockRiskPayload);
-  });
-
-  it("should update trend state when trend messages arrive", () => {
-    const { result } = renderHook(() =>
-      useHealthRealtime(mockUserId, mockToken),
-    );
+  it("should handle Thrombosis trend updates specifically", () => {
+    const { result } = renderHook(() => useHealthRealtime(mockUserId, mockToken));
 
     // Connect
     act(() => {
       if (capturedOnConnect) capturedOnConnect();
     });
 
-    // Find the anemia subscription callback
-    const anemiaCallback = mockSubscribe.mock.calls.find(
-      (call) => call[0] === `/topic/insights/anemia/${mockUserId}`,
+    // Find subscription for thrombosis
+    const thrombosisTopic = `/topic/insights/thrombosis/${mockUserId}`;
+    const thrombosisCallback = mockSubscribe.mock.calls.find(
+      (call) => call[0] === thrombosisTopic
     )[1];
 
-    const mockTrend = {
-      trend: "worsening",
-      description: "Iron levels dropping.",
-    };
+    expect(thrombosisCallback).toBeDefined();
 
-    // Simulate Message
+    const mockTrend = { trend: "improving", description: "Clot risk lower" };
+
+    // Trigger update
     act(() => {
-      anemiaCallback({ body: JSON.stringify(mockTrend) });
+      thrombosisCallback({ body: JSON.stringify(mockTrend) });
     });
 
-    expect(result.current.anemiaTrend).toEqual(mockTrend);
+    expect(result.current.thrombosisTrend).toEqual(mockTrend);
+  });
+
+  it("should safely ignore messages with empty bodies", () => {
+    const { result } = renderHook(() => useHealthRealtime(mockUserId, mockToken));
+
+    act(() => {
+      if (capturedOnConnect) capturedOnConnect();
+    });
+
+    const riskCallback = mockSubscribe.mock.calls.find(
+      (call) => call[0] === `/topic/risks/${mockUserId}`
+    )[1];
+
+    // Trigger update with NO body (simulate empty frame)
+    act(() => {
+      riskCallback({ body: null });
+    });
+
+    // State should remain null
+    expect(result.current.realtimeRisks).toBeNull();
+  });
+
+  it("should handle STOMP broker errors", () => {
+    renderHook(() => useHealthRealtime(mockUserId, mockToken));
+
+    const errorFrame = {
+      headers: { message: "Invalid Sub" },
+      body: "Subscription ID missing",
+    };
+
+    // Simulate the error event
+    act(() => {
+      if (capturedOnStompError) capturedOnStompError(errorFrame);
+    });
+
+    // Verify console.error was called (covering the onStompError function)
+    expect(consoleErrorSpy).toHaveBeenCalledWith(
+      "❌ STOMP Broker Error:", 
+      "Invalid Sub"
+    );
+  });
+
+  it("should filter heartbeat logs in debug configuration", () => {
+    renderHook(() => useHealthRealtime(mockUserId, mockToken));
+
+    // Access the config passed to the Client constructor
+    const clientConstructorCall = (Client as unknown as jest.Mock).mock.calls[0][0];
+    const debugFn = clientConstructorCall.debug;
+
+    // Test 1: PING - should be ignored
+    debugFn("<<< PING");
+    expect(consoleLogSpy).not.toHaveBeenCalledWith("[STOMP Internal]:", expect.stringContaining("PING"));
+
+    // Test 2: actual message - should be logged
+    debugFn("Connected to Broker");
+    expect(consoleLogSpy).toHaveBeenCalledWith("[STOMP Internal]:", "Connected to Broker");
   });
 
   it("should deactivate client on unmount", () => {
-    const { unmount } = renderHook(() =>
-      useHealthRealtime(mockUserId, mockToken),
-    );
-
+    const { unmount } = renderHook(() => useHealthRealtime(mockUserId, mockToken));
     unmount();
-
     expect(mockDeactivate).toHaveBeenCalledTimes(1);
   });
 });

@@ -15,14 +15,24 @@ import { deletePeriod, logNewPeriod, updatePeriod } from "@/lib/api";
 import { PeriodLogRequest } from "@/lib/types/period";
 import { ParsedPeriod, TooltipState } from "@/lib/types/calendar";
 
+/**
+ * Props for the usePeriodInteraction hook.
+ */
 interface UsePeriodInteractionProps {
+  /** Array of currently loaded periods. */
   periods: ParsedPeriod[];
+  /** Function to refresh the data after a change. */
   refreshData: () => Promise<void>;
+  /** Whether to start in log mode initially. */
   initialLogMode: boolean;
 }
 
 /**
- * Manages user interactions: selection, logging, editing, deleting, and validation of periods
+ * Manages user interactions: selection, logging, editing, deleting, and validation of periods.
+ * Handles the logic for dates, overlaps, and API calls for mutations.
+ *
+ * @param props - Configuration props
+ * @returns An object containing state and handlers for period interaction
  */
 export function usePeriodInteraction({
   periods,
@@ -269,7 +279,7 @@ export function usePeriodInteraction({
       Alert.alert(
         "Oops!",
         error.message ||
-          "We had trouble saving that just now. Please try again in a moment.",
+        "We had trouble saving that just now. Please try again in a moment.",
       );
     } finally {
       setIsSaving(false);

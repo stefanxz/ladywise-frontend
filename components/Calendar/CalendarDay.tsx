@@ -7,15 +7,27 @@ import { themes } from "@/lib/themes";
 // Fixed darker red for selection endpoints
 const SELECTION_RED = "rgba(205, 22, 61, 0.9)";
 
+/**
+ * Properties for the CalendarDay component.
+ */
 interface CalendarDayProps {
+  /** The date object representing this day. Null for padding days. */
   date: Date | null;
+  /** Callback when the day is pressed. Returns date and touch position. */
   onPress?: (date: Date, position: { x: number; y: number }) => void;
+  /** Whether this day is a period day. */
   isPeriod?: boolean;
+  /** Whether to visually select this day (e.g. start/end of a range). */
   isSelected?: boolean;
+  /** Whether the day is within the current selection range. */
   isInRange?: boolean;
+  /** Whether this day is the start of the selection range. */
   isSelectionStart?: boolean;
+  /** Whether this day is the end of the selection range. */
   isSelectionEnd?: boolean;
+  /** Whether this day is a predicted period day. */
   isPrediction?: boolean;
+  /** Theme color used for highlighting 'today'. */
   themeColor: string;
 }
 

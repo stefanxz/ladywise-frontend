@@ -5,7 +5,11 @@ import type { Toast } from "@/context/ToastContext";
 import { Colors, riskColors } from "@/constants/colors";
 import { Ionicons } from "@expo/vector-icons";
 
+/**
+ * Properties for the ToastItem component.
+ */
 type ToastItemProps = {
+  /** The toast object containing message, type, and duration. */
   toast: Toast;
 };
 

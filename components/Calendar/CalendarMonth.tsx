@@ -4,17 +4,29 @@ import { Feather } from "@expo/vector-icons";
 import { format, isSameDay, isWithinInterval } from "date-fns";
 import CalendarDay from "./CalendarDay";
 
-// Props for CalendarMonth
+/**
+ * Properties for the CalendarMonth component.
+ */
 type CalendarMonthProps = {
+  /** The month object containing title and days array. */
   item: any;
+  /** Set of date strings (yyyy-MM-dd) representing actual period days. */
   periodDateSet: Set<string>;
+  /** Set of date strings (yyyy-MM-dd) representing predicted period days. */
   predictionDateSet: Set<string>;
+  /** Current selection range (start and end dates). */
   selection: { start: Date | null; end: Date | null };
+  /** Whether the user is currently in log selection mode. */
   isLogMode: boolean;
+  /** Whether the current selection is ongoing (open-ended). */
   isOngoing: boolean;
+  /** Theme highlight color. */
   themeColor: string;
+  /** Callback when a date is pressed. */
   onPress: (date: Date, position: { x: number; y: number }) => void;
+  /** Callback to close the tooltip. */
   onCloseTooltip: () => void;
+  /** The current date (Today). */
   today: Date;
 };
 

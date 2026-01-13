@@ -3,6 +3,13 @@ import { FLOW_MAP, RISK_MAP, SYMPTOM_MAP } from "@/constants/cycle-mappings";
 import { DailyLogRequest } from "@/lib/types/period";
 import { ApiRiskResponse, RiskData, RiskLevel } from "@/lib/types/risks";
 
+/**
+ * Utility to conditionally class names.
+ * Filters out falsy values and joins the result.
+ *
+ * @param xs - Array of class names or falsy values.
+ * @returns Joined class names string.
+ */
 export const cn = (...xs: (string | false | undefined | null)[]) =>
   xs.filter(Boolean).join(" ");
 
@@ -67,7 +74,7 @@ export const mapApiToAnswers = (data: any, date: string): DailyCycleAnswers => {
   return {
     date: date,
     flow: data.flow ? (REVERSE_FLOW_MAP[data.flow] ?? null) : null,
-    
+
     // If the array is empty, default to "None of the above"
     symptoms: mappedSymptoms.length === 0 ? ["None of the above"] : mappedSymptoms,
     riskFactors: mappedRiskFactors.length === 0 ? ["None of the above"] : mappedRiskFactors,

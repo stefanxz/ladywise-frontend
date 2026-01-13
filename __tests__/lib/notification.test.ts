@@ -109,4 +109,14 @@ describe("Notification API Helpers", () => {
       expect(result).toBe("Sent!");
     });
   });
+
+  // verify API errors are propagated correctly
+  describe("Error Handling", () => {
+    it("throws error when API call fails", async () => {
+      const mockError = new Error("Network Error");
+      (api.get as jest.Mock).mockRejectedValueOnce(mockError);
+
+      await expect(getNotificationSettings()).rejects.toThrow("Network Error");
+    });
+  });
 });
