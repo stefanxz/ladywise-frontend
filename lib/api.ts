@@ -188,15 +188,10 @@ export async function getRiskHistory(
   token: string,
   userId: string,
 ): Promise<RiskHistoryPoint[]> {
-  const config = {
-    params: { userId },
+  // Endpoint updated to match backend changes
+  const { data } = await api.get<RiskHistoryPoint[]>("/api/diagnostics", {
     headers: { Authorization: `Bearer ${token}` },
-  };
-
-  const { data } = await api.get<RiskHistoryPoint[]>(
-    `/api/users/${userId}/risks/history`,
-    config,
-  );
+  });
 
   return data;
 }

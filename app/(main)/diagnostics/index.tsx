@@ -5,32 +5,24 @@ import {
   ActivityIndicator,
   ScrollView,
   TouchableOpacity,
+  Pressable, // Added import
 } from "react-native";
-import { Link } from "expo-router";
+import { Link, useFocusEffect } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { isAxiosError } from "axios";
 import { Feather } from "@expo/vector-icons";
 import { RiskLineChart } from "@/components/charts/RiskLineChart";
 import { useAuth } from "@/context/AuthContext";
 import { getRiskHistory } from "@/lib/api";
-import type { RiskHistoryPoint } from "@/lib/types/risks";
 import { Colors, riskColors, flowColors } from "@/constants/colors";
-import { mockHistory } from "@/constants/mock-data";
+// Use RiskHistoryPoint to match API
+import type { RiskHistoryPoint } from "@/lib/types/risks";
 import type { RiskNum, FlowNum } from "@/lib/types/diagnostics";
 import ShareReportModal from "@/components/ShareReport/ShareReportModal";
-
-const riskLabels: Record<RiskNum, string> = {
-  0: "Low",
-  1: "Medium",
-  2: "High",
-};
-
-const flowLabels: Record<FlowNum, string> = {
-  0: "None",
-  1: "Light",
-  2: "Normal",
-  3: "Heavy",
-};
+import { useToast } from "@/hooks/useToast";
+import { RISK_LABELS, FLOW_LABELS } from "@/constants/diagnostics";
+import { mockHistory } from "@/constants/mock-data";
+import { formatDateUTC } from "@/utils/helpers";
 
 type DiagnosticsScreenProps = {
   initialHistory?: RiskHistoryPoint[];
@@ -49,11 +41,18 @@ export default function DiagnosticsScreen({
   initialHistory: historyProp,
 }: DiagnosticsScreenProps) {
   const { token, userId } = useAuth();
+  const { showToast } = useToast();
 
-  const [history, setHistory] = useState<RiskHistoryPoint[]>(historyProp ?? []);
+  const [history, setHistory] = useState<RiskHistoryPoint[]>(
+    historyProp ?? [],
+  );
   const [loading, setLoading] = useState(!historyProp);
   const [error, setError] = useState<string | null>(null);
   const [showShareModal, setShowShareModal] = useState(false);
+
+  const handleSharePress = async () => {
+    setShowShareModal(true);
+  };
 
   useEffect(() => {
     if (historyProp) return; // Don't fetch if history is passed as a prop
@@ -116,12 +115,12 @@ export default function DiagnosticsScreen({
 
   const formatRiskTick = (value: string) => {
     const rounded = Math.round(Number(value)) as RiskNum;
-    return riskLabels[rounded] ?? "";
+    return RISK_LABELS[rounded] ?? "";
   };
 
   const formatFlowTick = (value: string) => {
     const rounded = Math.round(Number(value)) as FlowNum;
-    return flowLabels[rounded] ?? "";
+    return FLOW_LABELS[rounded] ?? "";
   };
 
   if (loading) {
@@ -154,12 +153,7 @@ export default function DiagnosticsScreen({
     );
   }
 
-  const labels = history.map((item) =>
-    new Date(item.recordedAt).toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-    }),
-  );
+  const labels = history.map((item) => formatDateUTC(item.recordedAt));
 
   const thrombosisData = history.map((item) => item.thrombosisRisk);
   const anemiaData = history.map((item) => item.anemiaRisk);
@@ -208,7 +202,7 @@ export default function DiagnosticsScreen({
                     className="text-xl font-semibold"
                     style={{ color: riskColors[latestThrombosis] }}
                   >
-                    {riskLabels[latestThrombosis]}
+                    {RISK_LABELS[latestThrombosis]}
                   </Text>
                 </View>
                 {/* placeholder for "same as last month" etc. */}
@@ -253,7 +247,7 @@ export default function DiagnosticsScreen({
                     className="text-xl font-semibold"
                     style={{ color: riskColors[latestAnemia] }}
                   >
-                    {riskLabels[latestAnemia]}
+                    {RISK_LABELS[latestAnemia]}
                   </Text>
                 </View>
                 <Text className="text-xs text-inactiveText">
@@ -284,7 +278,7 @@ export default function DiagnosticsScreen({
                   className="text-xl font-semibold"
                   style={{ color: flowColors[latestFlow] }}
                 >
-                  {flowLabels[latestFlow]}
+                  {FLOW_LABELS[latestFlow]}
                 </Text>
               </View>
               <Text className="text-xs text-inactiveText">
@@ -303,7 +297,7 @@ export default function DiagnosticsScreen({
           {/* Share Insights Button */}
           <TouchableOpacity
             testID="share-insights-button"
-            onPress={() => setShowShareModal(true)}
+            onPress={handleSharePress}
             className="bg-gray-200 rounded-xl py-3 px-6 flex-row items-center justify-center self-center mb-2"
           >
             <Text className="text-headingText font-medium text-sm mr-2">

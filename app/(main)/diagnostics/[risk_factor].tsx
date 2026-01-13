@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -10,7 +10,6 @@ import {
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { Feather } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { captureRef } from "react-native-view-shot";
 
 import { Colors } from "@/constants/colors";
 import { RiskLineChart } from "@/components/charts/RiskLineChart";
@@ -47,9 +46,9 @@ const ExtendedDiagnosticsScreen = () => {
   // Format title from risk_factor (e.g., 'anemia-risk' -> 'Anemia Risk')
   const title = risk_factor
     ? risk_factor
-        .split("-")
-        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-        .join(" ")
+      .split("-")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ")
     : "Diagnostics";
 
   const { token, userId } = useAuth();
@@ -60,8 +59,6 @@ const ExtendedDiagnosticsScreen = () => {
     [],
   );
   const [showShareModal, setShowShareModal] = useState(false);
-  const [graphBase64, setGraphBase64] = useState<string | undefined>(undefined);
-  const chartRef = useRef<View>(null);
 
   // This should be aligned with the logic in the main diagnostics screen
   const riskLabels: Record<number, string> = {
@@ -164,19 +161,6 @@ const ExtendedDiagnosticsScreen = () => {
 
   // Capture chart as Base64 when opening share modal
   const handleSharePress = async () => {
-    try {
-      if (chartRef.current) {
-        const base64 = await captureRef(chartRef, {
-          format: "png",
-          result: "base64",
-          quality: 0.8,
-        });
-        setGraphBase64(base64);
-      }
-    } catch (e) {
-      console.warn("Failed to capture chart:", e);
-      // Continue without graph capture
-    }
     setShowShareModal(true);
   };
 
@@ -211,7 +195,7 @@ const ExtendedDiagnosticsScreen = () => {
               </Text>
             </TouchableOpacity>
           </View>
-          <View className="items-center" ref={chartRef} collapsable={false}>
+          <View className="items-center">
             {riskData.data.length > 0 ? (
               <RiskLineChart
                 labels={riskData.labels}
@@ -321,8 +305,6 @@ const ExtendedDiagnosticsScreen = () => {
           visible={showShareModal}
           onClose={() => setShowShareModal(false)}
           reportType={reportType}
-          graphImageBase64={graphBase64}
-          insightSummary={insights}
         />
       </ScrollView>
     </SafeAreaView>

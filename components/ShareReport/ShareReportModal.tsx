@@ -34,8 +34,6 @@ const ShareReportModal: React.FC<ShareReportModalProps> = ({
   visible,
   onClose,
   reportType,
-  graphImageBase64,
-  insightSummary,
 }) => {
   const { token } = useAuth();
   const [email, setEmail] = useState("");
@@ -75,8 +73,6 @@ const ShareReportModal: React.FC<ShareReportModalProps> = ({
       const message = await shareReport(token, {
         clinicianEmail: trimmedEmail,
         reportType,
-        graphImageBase64,
-        insightSummary,
       });
       setSuccess(message || `Report successfully sent to ${trimmedEmail}`);
       // Clear email after success
@@ -94,7 +90,7 @@ const ShareReportModal: React.FC<ShareReportModalProps> = ({
     } finally {
       setLoading(false);
     }
-  }, [email, loading, token, reportType, graphImageBase64, insightSummary]);
+  }, [email, loading, token, reportType]);
 
   const handleClose = useCallback(() => {
     // Reset all state when closing
@@ -130,7 +126,10 @@ const ShareReportModal: React.FC<ShareReportModalProps> = ({
         accessibilityRole="button"
         accessibilityLabel="Close share report dialog backdrop"
       >
-        <View pointerEvents="box-none" className="w-full max-w-sm">
+        <Pressable
+          className="w-full max-w-sm"
+          onPress={(e) => e.stopPropagation()}
+        >
           <View className="rounded-2xl bg-white p-5 shadow-lg">
             <View className="items-center">
               {/* Icon */}
@@ -229,7 +228,7 @@ const ShareReportModal: React.FC<ShareReportModalProps> = ({
               </View>
             </View>
           </View>
-        </View>
+        </Pressable>
       </Pressable>
     </Modal>
   );
