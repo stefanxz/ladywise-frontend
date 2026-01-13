@@ -3,7 +3,6 @@ import { ActivityIndicator, Pressable, Text, View } from "react-native";
 import type { LogNewPeriodButtonProps } from "./LogNewPeriodButton.types";
 import { Feather } from "@expo/vector-icons";
 
-
 /**
  * LogNewPeriodButton
  *
