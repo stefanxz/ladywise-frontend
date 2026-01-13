@@ -22,6 +22,7 @@ import type {
 import ShareReportModal from "@/components/ShareReport/ShareReportModal";
 import { useToast } from "@/hooks/useToast";
 import { RISK_LABELS, FLOW_LABELS } from "@/constants/diagnostics";
+import { formatDateUTC } from "@/utils/helpers";
 
 type DiagnosticsScreenProps = {
   initialHistory?: DiagnosticsResponseDTO[];
@@ -112,27 +113,6 @@ export default function DiagnosticsScreen({
     }, [token, userId, historyProp]),
   );
 
-  // Helper to format UTC date
-  const formatDateUTC = (dateStr: string) => {
-    // Handle potential object format if somehow leaked (defensive)
-    const dStr =
-      typeof dateStr === "object" && (dateStr as any).$date
-        ? (dateStr as any).$date
-        : String(dateStr);
-    const d = new Date(dStr);
-
-    // Use UTC methods to avoid timezone shift
-    if (isNaN(d.getTime())) return "";
-
-    const month = d.toLocaleString("en-US", {
-      month: "short",
-      timeZone: "UTC",
-    });
-    const day = d.getUTCDate();
-
-    return `${month} ${day}`;
-  };
-
   const formatRiskTick = (value: string) => {
     const rounded = Math.round(Number(value)) as RiskNum;
     return RISK_LABELS[rounded] ?? "";
@@ -197,7 +177,7 @@ export default function DiagnosticsScreen({
             Diagnostics
           </Text>
 
-          {/* --- Thrombosis Card --- */}
+          {/* Thrombosis Card */}
           <Link
             href={
               {
@@ -242,7 +222,7 @@ export default function DiagnosticsScreen({
             </TouchableOpacity>
           </Link>
 
-          {/* --- Anemia Card --- */}
+          {/* Anemia Card */}
           <Link
             href={
               {
@@ -286,7 +266,7 @@ export default function DiagnosticsScreen({
             </TouchableOpacity>
           </Link>
 
-          {/* --- Flow Card --- */}
+          {/* Flow Card */}
           <View className="bg-white rounded-2xl shadow-sm p-4 mb-10">
             <Text className="text-lg font-semibold text-headingText mb-3">
               Menstrual Flow

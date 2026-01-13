@@ -76,8 +76,12 @@ export const mapApiToAnswers = (data: any, date: string): DailyCycleAnswers => {
     flow: data.flow ? (REVERSE_FLOW_MAP[data.flow] ?? null) : null,
 
     // If the array is empty, default to "None of the above"
-    symptoms: mappedSymptoms.length === 0 ? ["None of the above"] : mappedSymptoms,
-    riskFactors: mappedRiskFactors.length === 0 ? ["None of the above"] : mappedRiskFactors,
+    symptoms:
+      mappedSymptoms.length === 0 ? ["None of the above"] : mappedSymptoms,
+    riskFactors:
+      mappedRiskFactors.length === 0
+        ? ["None of the above"]
+        : mappedRiskFactors,
   };
 };
 
@@ -128,4 +132,24 @@ export const mapApiToInsights = (apiData: ApiRiskResponse): RiskData[] => {
   };
 
   return [anemiaCard, thrombosisCard];
+};
+
+export const formatDateUTC = (dateStr: string) => {
+  // Handle potential object format if somehow leaked (defensive)
+  const dStr =
+    typeof dateStr === "object" && (dateStr as any).$date
+      ? (dateStr as any).$date
+      : String(dateStr);
+  const d = new Date(dStr);
+
+  // Use UTC methods to avoid timezone shift
+  if (isNaN(d.getTime())) return "";
+
+  const month = d.toLocaleString("en-US", {
+    month: "short",
+    timeZone: "UTC",
+  });
+  const day = d.getUTCDate();
+
+  return `${month} ${day}`;
 };

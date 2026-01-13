@@ -33,6 +33,7 @@ import {
   RiskNum,
   FlowNum,
 } from "@/lib/types/diagnostics";
+import { formatDateUTC } from "@/utils/helpers";
 
 const chartWidth = Dimensions.get("window").width - 80; // Screen padding (20*2) + Card padding (20*2)
 
@@ -75,31 +76,9 @@ const ExtendedDiagnosticsScreen = () => {
   const [graphBase64, setGraphBase64] = useState<string | undefined>(undefined);
   const chartRef = useRef<View>(null);
 
-  // This should be aligned with the logic in the main diagnostics screen
   const formatRiskTick = (value: string) => {
-    const rounded = Math.round(Number(value)) as RiskNum; // Cast to RiskNum to match type
+    const rounded = Math.round(Number(value)) as RiskNum;
     return RISK_LABELS[rounded] ?? "";
-  };
-
-  // Helper to format UTC date
-  const formatDateUTC = (dateStr: string) => {
-    // Handle potential object format if somehow leaked (defensive)
-    const dStr =
-      typeof dateStr === "object" && (dateStr as any).$date
-        ? (dateStr as any).$date
-        : String(dateStr);
-    const d = new Date(dStr);
-
-    // Use UTC methods to avoid timezone shift
-    if (isNaN(d.getTime())) return "";
-
-    const month = d.toLocaleString("en-US", {
-      month: "short",
-      timeZone: "UTC",
-    });
-    const day = d.getUTCDate();
-
-    return `${month} ${day}`;
   };
 
   useFocusEffect(
@@ -225,7 +204,7 @@ const ExtendedDiagnosticsScreen = () => {
       return () => {
         isActive = false;
       };
-    }, [risk_factor, token, userId]),
+    }, [risk_factor, showToast, token, userId]),
   );
 
   /* Derived Data for Graph */
