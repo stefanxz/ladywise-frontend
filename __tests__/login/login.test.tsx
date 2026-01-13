@@ -17,7 +17,7 @@ jest.mock("@/context/AuthContext", () => ({
   }),
 }));
 
-// --- Mock navigation, stack, and icons ---
+// Mock navigation, stack, and icons
 const mockRouter = { push: jest.fn(), replace: jest.fn(), back: jest.fn() };
 jest.mock("expo-router", () => ({
   Stack: { Screen: () => null },
@@ -25,11 +25,13 @@ jest.mock("expo-router", () => ({
   useLocalSearchParams: jest.fn(() => ({})),
 }));
 
-jest.mock("@expo/vector-icons", () => ({
-  Feather: () => null,
-  Ionicons: () => null,
-}));
-
+jest.mock("@expo/vector-icons", () => {
+  const { View } = require("react-native");
+  return {
+    Feather: (props: any) => <View {...props} testID="feather-icon" />,
+    Ionicons: () => null,
+  };
+});
 jest.mock("react-native-safe-area-context", () => {
   const React = require("react");
   return {
@@ -40,7 +42,7 @@ jest.mock("react-native-safe-area-context", () => {
   };
 });
 
-// --- Mock components not under test ---
+// Mock components not under test 
 jest.mock("@/components/AppBarBackButton/AppBarBackButton", () => ({
   AppBar: () => null,
 }));
@@ -220,6 +222,84 @@ describe("LoginScreen", () => {
       expect(mockSignIn).not.toHaveBeenCalled();
 
       consoleErrorSpy.mockRestore();
+    });
+  });
+  describe("Interactions & Edge Cases", () => {
+    it("toggles password visibility when the eye icon is pressed", () => {
+      const { getByPlaceholderText, getAllByTestId } = setup();
+      const passwordInput = getByPlaceholderText("Your password");
+
+      expect(passwordInput.props.secureTextEntry).toBe(true);
+
+      const eyeIcon = getAllByTestId("feather-icon")[0];
+      
+      fireEvent.press(eyeIcon);
+
+      expect(passwordInput.props.secureTextEntry).toBe(false);
+
+      fireEvent.press(eyeIcon);
+      expect(passwordInput.props.secureTextEntry).toBe(true);
+    });
+
+    it("navigates to password recovery when 'Forgot password?' is pressed", () => {
+      const { getByText } = setup();
+      
+      fireEvent.press(getByText("Forgot password?"));
+      
+      expect(mockRouter.push).toHaveBeenCalledWith("/(auth)/password_recovery");
+    });
+
+    it("keeps login button disabled if password is empty", () => {
+      const { typeEmail, getLoginBtn } = setup();
+      
+      mockedValidation.isEmailValid.mockReturnValue(true);
+      typeEmail("valid@example.com");
+      
+      expect(getLoginBtn()).toHaveAccessibilityState({ disabled: true });
+    });
+  });
+
+  describe("Network & Generic Errors", () => {
+    it("displays friendly message on Network Error", async () => {
+      const { typeEmail, typePassword, pressLogin, findByText } = setup();
+      mockedValidation.isEmailValid.mockReturnValue(true);
+
+      const networkError = new AxiosError("Network Error", "ERR_NETWORK");
+      mockedApi.loginUser.mockRejectedValue(networkError);
+
+      typeEmail("test@test.com");
+      typePassword("123456");
+      pressLogin();
+
+      const errorMsg = await findByText("We couldn't reach the server. Please check your connection.");
+      expect(errorMsg).toBeTruthy();
+    });
+
+    it("displays raw error string if server returns text response", async () => {
+      const { typeEmail, typePassword, pressLogin, findByText } = setup();
+      mockedValidation.isEmailValid.mockReturnValue(true);
+
+      const serverError = new AxiosError(
+        "Server Error", 
+        "500", 
+        undefined, 
+        undefined, 
+        { 
+          data: "Critical Database Failure", 
+          status: 500, 
+          statusText: "Server Error", 
+          headers: {}, 
+          config: {} as any 
+        }
+      );
+      mockedApi.loginUser.mockRejectedValue(serverError);
+
+      typeEmail("test@test.com");
+      typePassword("123456");
+      pressLogin();
+
+      const errorMsg = await findByText("Critical Database Failure");
+      expect(errorMsg).toBeTruthy();
     });
   });
 });

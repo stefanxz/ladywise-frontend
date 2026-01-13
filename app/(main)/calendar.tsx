@@ -30,7 +30,6 @@ import { CycleQuestionsBottomSheet } from "@/components/CycleQuestionsBottomShee
 import { useDailyEntry } from "@/hooks/useDailyEntry";
 import { useLocalSearchParams } from "expo-router";
 
-// Main calendar screen component
 /**
  * CalendarScreen
  *
