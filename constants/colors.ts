@@ -15,6 +15,9 @@ export const Colors = {
   lightGreen: "#F0FDF4",
   lightRed: "#FEF2F2",
 
+  green: "#16a34a",
+  red: "#dc2626",
+
   tooltipColor: "#292524",
 };
 
