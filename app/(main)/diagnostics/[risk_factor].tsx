@@ -221,11 +221,12 @@ const ExtendedDiagnosticsScreen = () => {
                 className="text-sm leading-snug text-regularText"
                 numberOfLines={isExpanded ? undefined : 4}
                 onTextLayout={(e) => {
-                  // Check if text was truncated (more than 4 lines)
-                  if (!isExpanded && e.nativeEvent.lines.length > 4) {
-                    setShowReadMore(true);
-                  } else if (!isExpanded && e.nativeEvent.lines.length <= 4) {
-                    setShowReadMore(false);
+                  const lineCount = e.nativeEvent.lines.length;
+
+                  if (!isExpanded) {
+                    // Only set it to true if lines > 4
+                    const shouldShow = lineCount >= 4;
+                    setShowReadMore(shouldShow);
                   }
                 }}
               >
