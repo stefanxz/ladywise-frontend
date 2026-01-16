@@ -90,4 +90,33 @@ describe("QuestionnaireThrombosisRisk", () => {
     fireEvent.press(screen.getByText("Continue"));
     expect(updateAnswers).toHaveBeenCalled();
   });
+
+  it("handles skipping", () => {
+    const updateAnswers = jest.fn();
+    (useQuestionnaire as jest.Mock).mockReturnValue({
+      answers: { thrombosisRiskFactors: [] },
+      updateAnswers,
+    });
+    render(<QuestionnaireThrombosisRisk />);
+
+    fireEvent.press(screen.getByText("Skip"));
+
+    expect(updateAnswers).toHaveBeenCalledWith({
+      thrombosisRiskFactors: [],
+    });
+    expect(mockPush).toHaveBeenCalledWith("./questionnaire-final-questions");
+  });
+
+  it("deselects an already selected option", () => {
+    render(<QuestionnaireThrombosisRisk />);
+    const option = screen.getByTestId("multiselect-option-smoking");
+    
+    // Select
+    fireEvent.press(option);
+    expect(option.props.accessibilityState.selected).toBe(true);
+    
+    // Deselect
+    fireEvent.press(option);
+    expect(option.props.accessibilityState.selected).toBe(false);
+  });
 });

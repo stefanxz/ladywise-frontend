@@ -32,6 +32,18 @@ jest.mock("react-native-safe-area-context", () => {
 
 jest.mock("@expo/vector-icons");
 
+// Mock ThemedPressable to simplify
+jest.mock("@/components/ThemedPressable/ThemedPressable", () => {
+  const { TouchableOpacity, Text } = require("react-native");
+  return {
+    ThemedPressable: ({ onPress, testID, label }: any) => (
+      <TouchableOpacity onPress={onPress} testID={testID}>
+        <Text>{label}</Text>
+      </TouchableOpacity>
+    ),
+  };
+});
+
 const mockMark = markFirstQuestionnaireComplete as jest.Mock;
 
 beforeEach(() => {
@@ -48,6 +60,23 @@ describe("First questionnaire to Home navigation flow", () => {
     await waitFor(() =>
       expect(mockRouter.replace).toHaveBeenCalledWith("/(main)/home"),
     );
+  });
+
+  it("shows alert on completion error", async () => {
+    const alertSpy = jest.spyOn(require("react-native").Alert, "alert");
+    mockRouter.replace.mockImplementationOnce(() => {
+      throw new Error("Navigation Failed");
+    });
+
+    const { getByTestId } = render(<FirstQuestionnaireCompletion />);
+    fireEvent.press(getByTestId("continue-btn"));
+
+    await waitFor(() => {
+      expect(alertSpy).toHaveBeenCalledWith(
+        "Connection Error",
+        expect.stringContaining("could not update your progress"),
+      );
+    });
   });
 
   // TODO: uncomment this once backend endpoint works

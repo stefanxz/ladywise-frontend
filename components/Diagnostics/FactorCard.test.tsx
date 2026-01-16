@@ -22,4 +22,16 @@ describe("FactorCard Component", () => {
     expect(getByText("High Risk")).toBeTruthy();
     expect(getByText("This is a test description")).toBeTruthy();
   });
+
+  it("renders correctly without optional variant prop", () => {
+    const { getByText } = render(
+      <FactorCard
+        title="Default Variant Factor"
+        value="Normal"
+        description="Desc"
+        icon={MockIcon}
+      />
+    );
+    expect(getByText("Default Variant Factor")).toBeTruthy();
+  });
 });

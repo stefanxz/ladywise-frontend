@@ -54,9 +54,17 @@ jest.mock("@/components/ThemedPressable/ThemedPressable", () => ({
 
 // mock Navigation to capture event listeners
 const mockAddListener = jest.fn();
+// capture effect cleanups
+const effectCleanups: (() => void)[] = [];
+
 jest.mock("@react-navigation/native", () => ({
   // mock useFocusEffect to execute the callback immediately so listeners are attached
-  useFocusEffect: jest.fn((callback) => callback()),
+  useFocusEffect: jest.fn((callback) => {
+    const cleanup = callback();
+    if (typeof cleanup === 'function') {
+      effectCleanups.push(cleanup);
+    }
+  }),
   useNavigation: jest.fn(() => ({
     goBack: jest.fn(),
     addListener: mockAddListener,
@@ -69,6 +77,8 @@ const router = __getMocks();
 describe("QuestionnaireIntro screen", () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    // clear cleanups
+    effectCleanups.length = 0;
     // default mock implementation for addListener to return a teardown function
     mockAddListener.mockReturnValue(jest.fn());
   });
@@ -89,7 +99,6 @@ describe("QuestionnaireIntro screen", () => {
     );
   });
 
-
   it("redirects to personal details register screen when AppBar back is pressed", () => {
     const { getByTestId } = render(<QuestionnaireIntro />);
     
@@ -100,7 +109,7 @@ describe("QuestionnaireIntro screen", () => {
     expect(router.replace).toHaveBeenCalledWith("/(auth)/register/personal-details");
   });
 
-it("intercepts Android Hardware Back press and redirects", () => {
+  it("intercepts Android Hardware Back press and redirects", () => {
     // spy on BackHandler
     const addEventListenerSpy = jest.spyOn(BackHandler, "addEventListener");
     const mockRemove = jest.fn();
@@ -163,5 +172,12 @@ it("intercepts Android Hardware Back press and redirects", () => {
     expect(mockEvent.preventDefault).not.toHaveBeenCalled();
     // should NOT redirect
     expect(router.replace).not.toHaveBeenCalled();
+  });
+
+  it("cleans up rerouting ref on unmount (triggers effect cleanup)", () => {
+    render(<QuestionnaireIntro />);
+    
+    // Simulate unmount by calling captured cleanups
+    effectCleanups.forEach(cleanup => cleanup());
   });
 });

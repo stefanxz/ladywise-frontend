@@ -24,6 +24,11 @@ jest.mock("react-native-safe-area-context", () => {
   };
 });
 
+// Mock expo-linear-gradient
+jest.mock("expo-linear-gradient", () => ({
+  LinearGradient: "LinearGradient",
+}));
+
 describe("SettingsPageLayout", () => {
   const mockPush = jest.fn();
   const mockBack = jest.fn();
@@ -52,6 +57,19 @@ describe("SettingsPageLayout", () => {
       expect(getByTestId("settings-page-title")).toBeTruthy();
       expect(getByTestId("settings-page-description")).toBeTruthy();
       expect(getByTestId("test-child")).toBeTruthy();
+    });
+
+    it("should render floating action when provided", () => {
+      const { getByText } = render(
+        <SettingsPageLayout
+          {...defaultProps}
+          floatingAction={<Text>Floating Action</Text>}
+        >
+          <Text testID="test-child">Test Content</Text>
+        </SettingsPageLayout>,
+      );
+
+      expect(getByText("Floating Action")).toBeTruthy();
     });
 
     it("should display the correct title", () => {

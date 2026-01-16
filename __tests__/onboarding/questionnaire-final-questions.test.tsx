@@ -125,6 +125,54 @@ describe("QuestionnaireFinalQuestions", () => {
     });
   });
 
+  it("handles generic object error during submission", async () => {
+    (submitQuestionnaire as jest.Mock).mockRejectedValueOnce("Unknown error");
+    (useQuestionnaire as jest.Mock).mockReturnValue({
+      answers: {
+        personal: { age: "25", weight: "60", height: "170" },
+        familyHistory: {},
+        anemiaRiskFactors: [],
+        thrombosisRiskFactors: [],
+        usesEstrogenContraception: null,
+        usesBiosensorCup: null,
+      },
+      updateAnswers: jest.fn(),
+      reset: jest.fn(),
+    });
+    render(<QuestionnaireFinalQuestions />);
+
+    fireEvent.press(screen.getByText("Finish"));
+
+    await waitFor(() => {
+      expect(screen.getByText("Something went wrong. Please try again.")).toBeTruthy();
+    });
+  });
+
+  it("prevents double submission", async () => {
+    (submitQuestionnaire as jest.Mock).mockImplementation(
+      () => new Promise((resolve) => setTimeout(resolve, 100))
+    );
+    (useQuestionnaire as jest.Mock).mockReturnValue({
+      answers: {
+        personal: { age: "25", weight: "60", height: "170" },
+        familyHistory: {},
+        anemiaRiskFactors: [],
+        thrombosisRiskFactors: [],
+        usesEstrogenContraception: null,
+        usesBiosensorCup: null,
+      },
+      updateAnswers: jest.fn(),
+      reset: jest.fn(),
+    });
+    render(<QuestionnaireFinalQuestions />);
+
+    const button = screen.getByText("Finish");
+    fireEvent.press(button);
+    fireEvent.press(button);
+
+    expect(submitQuestionnaire).toHaveBeenCalledTimes(1);
+  });
+
   it("submits with null values if finish is pressed without answers", async () => {
     const updateAnswers = jest.fn();
     const reset = jest.fn();

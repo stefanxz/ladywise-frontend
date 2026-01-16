@@ -112,6 +112,58 @@ describe("useHealthRealtime Hook", () => {
     expect(result.current.thrombosisTrend).toEqual(mockTrend);
   });
 
+  it("should handle Anemia trend updates specifically", () => {
+    const { result } = renderHook(() => useHealthRealtime(mockUserId, mockToken));
+
+    // Connect
+    act(() => {
+      if (capturedOnConnect) capturedOnConnect();
+    });
+
+    // Find subscription for anemia
+    const anemiaTopic = `/topic/insights/anemia/${mockUserId}`;
+    const anemiaCallback = mockSubscribe.mock.calls.find(
+      (call) => call[0] === anemiaTopic
+    )[1];
+
+    expect(anemiaCallback).toBeDefined();
+
+    const mockTrend = { trend: "worsening", description: "Iron levels low" };
+
+    // Trigger update
+    act(() => {
+      anemiaCallback({ body: JSON.stringify(mockTrend) });
+    });
+
+    expect(result.current.anemiaTrend).toEqual(mockTrend);
+  });
+
+  it("should handle Risk updates", () => {
+    const { result } = renderHook(() => useHealthRealtime(mockUserId, mockToken));
+
+    // Connect
+    act(() => {
+      if (capturedOnConnect) capturedOnConnect();
+    });
+
+    // Find subscription for risks
+    const risksTopic = `/topic/risks/${mockUserId}`;
+    const risksCallback = mockSubscribe.mock.calls.find(
+      (call) => call[0] === risksTopic
+    )[1];
+
+    expect(risksCallback).toBeDefined();
+
+    const mockRisks = { anemia: { risk: "High" }, thrombosis: { risk: "Low" } };
+
+    // Trigger update
+    act(() => {
+      risksCallback({ body: JSON.stringify(mockRisks) });
+    });
+
+    expect(result.current.realtimeRisks).toEqual(mockRisks);
+  });
+
   it("should safely ignore messages with empty bodies", () => {
     const { result } = renderHook(() => useHealthRealtime(mockUserId, mockToken));
 
@@ -166,6 +218,10 @@ describe("useHealthRealtime Hook", () => {
     // Test 2: actual message - should be logged
     debugFn("Connected to Broker");
     expect(consoleLogSpy).toHaveBeenCalledWith("[STOMP Internal]:", "Connected to Broker");
+
+    // Test 3: PONG - should be ignored
+    debugFn(">>> PONG");
+    expect(consoleLogSpy).not.toHaveBeenCalledWith("[STOMP Internal]:", expect.stringContaining("PONG"));
   });
 
   it("should deactivate client on unmount", () => {

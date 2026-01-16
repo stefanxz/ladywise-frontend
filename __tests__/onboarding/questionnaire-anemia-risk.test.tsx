@@ -94,4 +94,33 @@ describe("QuestionnaireAnemiaRisk", () => {
     fireEvent.press(screen.getByText("Continue"));
     expect(updateAnswers).toHaveBeenCalled();
   });
+
+  it("handles skipping", () => {
+    const updateAnswers = jest.fn();
+    (useQuestionnaire as jest.Mock).mockReturnValue({
+      answers: { anemiaRiskFactors: [] },
+      updateAnswers,
+    });
+    render(<QuestionnaireAnemiaRisk />);
+
+    fireEvent.press(screen.getByText("Skip"));
+
+    expect(updateAnswers).toHaveBeenCalledWith({
+      anemiaRiskFactors: [],
+    });
+    expect(mockPush).toHaveBeenCalledWith("./questionnaire-thrombosis-risk");
+  });
+
+  it("deselects an already selected option", () => {
+    render(<QuestionnaireAnemiaRisk />);
+    const option = screen.getByTestId("multiselect-option-iron-deficiency");
+    
+    // Select
+    fireEvent.press(option);
+    expect(option.props.accessibilityState.selected).toBe(true);
+    
+    // Deselect (hits 'if (exists)' branch)
+    fireEvent.press(option);
+    expect(option.props.accessibilityState.selected).toBe(false);
+  });
 });

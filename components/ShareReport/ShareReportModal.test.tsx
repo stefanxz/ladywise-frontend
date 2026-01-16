@@ -184,4 +184,44 @@ describe("ShareReportModal", () => {
     expect(screen.queryByTestId("send-button")).toBeNull();
     expect(screen.getByText("Close")).toBeTruthy();
   });
+
+  it("shows error when user is not logged in", async () => {
+    mockUseAuth.mockReturnValue({ token: null });
+    render(<ShareReportModal {...defaultProps} />);
+
+    fireEvent.changeText(screen.getByTestId("clinician-email-input"), "doc@example.com");
+    fireEvent.press(screen.getByTestId("send-button"));
+
+    await waitFor(() => {
+      expect(screen.getByText("You must be logged in to share reports.")).toBeTruthy();
+    });
+  });
+
+  it("handles 400 Bad Request error from API", async () => {
+    const error: any = new Error("Bad Request");
+    error.response = { status: 400 };
+    mockShareReport.mockRejectedValue(error);
+
+    render(<ShareReportModal {...defaultProps} />);
+    fireEvent.changeText(screen.getByTestId("clinician-email-input"), "doc@example.com");
+    fireEvent.press(screen.getByTestId("send-button"));
+
+    await waitFor(() => {
+      expect(screen.getByText("Invalid email format or missing report type.")).toBeTruthy();
+    });
+  });
+
+  it("handles 403 Forbidden error from API (session expired)", async () => {
+    const error: any = new Error("Forbidden");
+    error.response = { status: 403 };
+    mockShareReport.mockRejectedValue(error);
+
+    render(<ShareReportModal {...defaultProps} />);
+    fireEvent.changeText(screen.getByTestId("clinician-email-input"), "doc@example.com");
+    fireEvent.press(screen.getByTestId("send-button"));
+
+    await waitFor(() => {
+      expect(screen.getByText("Session expired. Please log in again.")).toBeTruthy();
+    });
+  });
 });
