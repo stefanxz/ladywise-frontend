@@ -14,8 +14,6 @@ import { format } from "date-fns"; // Assuming date-fns is available, or use nat
 export const cn = (...xs: (string | false | undefined | null)[]) =>
   xs.filter(Boolean).join(" ");
 
-
-
 /**
  * Transforms UI-level daily log answers into a backend-compatible payload.
  * Maps string literals to enums.

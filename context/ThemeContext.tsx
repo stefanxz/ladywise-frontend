@@ -16,7 +16,7 @@ type ThemeContextData = {
  */
 const ThemeContext = createContext<ThemeContextData>({
   theme: themes.neutral,
-  setPhase: () => { }, // Default empty function
+  setPhase: () => {}, // Default empty function
 });
 
 /**

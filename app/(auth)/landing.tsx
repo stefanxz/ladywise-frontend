@@ -38,6 +38,7 @@ export default function LandingPage() {
           source={logotest}
           className="w-40 h-40 mb-3"
           resizeMode="contain"
+          testID="logo-image"
         />
         <Text
           className="text-4xl font-aclonica-regular text-brand text-center"

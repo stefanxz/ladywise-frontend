@@ -67,7 +67,7 @@ jest.mock("@/utils/calendarHelpers", () => {
   const { addDays } = require("date-fns");
   return {
     generateDateSet: jest.fn(() => new Set()),
-    
+
     // We manually parse "YYYY-MM-DD" to (year, month, day) integers
     parseToLocalWithoutTime: jest.fn((dateString) => {
       if (!dateString) return new Date();
@@ -96,6 +96,7 @@ jest.mock("@/components/FloatingAddButton/FloatingAddButton", () => ({
 // needed to find the button by text/testID
 jest.mock("@/components/LogNewPeriodButton/LogNewPeriodButton", () => {
   const { TouchableOpacity, Text } = require("react-native");
+  // eslint-disable-next-line react/display-name
   return ({ onPress }: any) => (
     <TouchableOpacity onPress={onPress} testID="log-period-button">
       <Text>Log New Period</Text>
@@ -107,6 +108,7 @@ jest.mock("@/components/LogNewPeriodButton/LogNewPeriodButton", () => {
 // needed to simulate edit/delete actions
 jest.mock("@/components/Calendar/EditDeleteTooltip", () => {
   const { View, TouchableOpacity, Text } = require("react-native");
+  // eslint-disable-next-line react/display-name
   return ({ visible, onEditPeriod, onDelete }: any) => {
     if (!visible) return null;
     return (
@@ -128,6 +130,7 @@ jest.mock("@/components/Calendar/CalendarMonth", () => {
   const { TouchableOpacity, Text, View } = require("react-native");
   const { addDays, subDays } = require("date-fns");
 
+  // eslint-disable-next-line react/display-name
   return ({ onPress, today, item }: any) => (
     <View testID={`month-view-${item.id}`}>
       <TouchableOpacity
@@ -500,7 +503,9 @@ describe("CalendarScreen", () => {
   });
   describe("Additional Edge Cases & UI Logic", () => {
     it("should exit log mode and reset UI when Cancel is pressed", async () => {
-      const { getByTestId, getByText, queryByText } = render(<CalendarScreen />);
+      const { getByTestId, getByText, queryByText } = render(
+        <CalendarScreen />,
+      );
       await waitFor(() => expect(getPeriodHistory).toHaveBeenCalled());
 
       // enter Log Mode
@@ -523,7 +528,7 @@ describe("CalendarScreen", () => {
       (logNewPeriod as jest.Mock).mockRejectedValue(new Error("Network Error"));
 
       const { getByTestId, getAllByTestId, getByText } = render(
-        <CalendarScreen />
+        <CalendarScreen />,
       );
       await waitFor(() => expect(getPeriodHistory).toHaveBeenCalled());
 
@@ -533,7 +538,7 @@ describe("CalendarScreen", () => {
 
       fireEvent.press(getByText("Save"));
 
-      // check we did NOT reset to normal mode 
+      // check we did NOT reset to normal mode
       await waitFor(() => {
         expect(getByText("Save")).toBeTruthy();
       });
@@ -546,14 +551,14 @@ describe("CalendarScreen", () => {
       });
 
       const { toJSON } = render(<CalendarScreen />);
-      
+
       await waitFor(() => expect(getCycleStatus).toHaveBeenCalled());
 
       // check if FloatingAddButton is in the render tree
       const tree = JSON.stringify(toJSON());
       expect(tree).toContain("FloatingAddButton");
     });
-    
+
     it("should NOT render FloatingAddButton when phase is follicular", async () => {
       // override the mock to return follicular phase
       (getCycleStatus as jest.Mock).mockResolvedValue({

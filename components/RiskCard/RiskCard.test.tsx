@@ -34,4 +34,11 @@ describe("RiskCard", () => {
     // We confirm the dynamic class string is being correctly assigned.
     expect(levelElement.props.className).toContain(expectedClass);
   });
+
+  it("should apply fallback color for unknown level", () => {
+    // @ts-ignore - simulating unknown level
+    render(<RiskCard {...baseProps} level="Unknown" />);
+    const levelElement = screen.getByText("Unknown");
+    expect(levelElement.props.className).toContain("text-gray-500");
+  });
 });

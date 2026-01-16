@@ -19,7 +19,7 @@ describe("App Themes Configuration", () => {
   it("defines correct brand colors for menstrual phase", () => {
     const theme = themes.menstrual;
     // check red is the correct shade
-    expect(theme.button).toBe("#D90000"); 
+    expect(theme.button).toBe("#D90000");
     expect(theme.gradientStart).toBeDefined();
   });
 

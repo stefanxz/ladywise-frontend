@@ -25,13 +25,16 @@ jest.mock("@gorhom/bottom-sheet", () => {
 
   return {
     __esModule: true,
+    // eslint-disable-next-line react/display-name
     default: React.forwardRef(({ children }: any, ref: any) => children),
+    // eslint-disable-next-line react/display-name
     BottomSheetModal: React.forwardRef(
       ({ children }: any, ref: any) => children,
     ),
     BottomSheetBackdrop: ({ children }: any) => children,
     BottomSheetView: ({ children, ...props }: any) =>
       React.createElement(View, props, children),
+    // eslint-disable-next-line react/display-name
     BottomSheetScrollView: React.forwardRef(
       ({ children, ...props }: any, ref: any) =>
         React.createElement(ScrollView, { ...props, ref }, children),

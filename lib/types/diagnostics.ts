@@ -11,23 +11,23 @@ export type RiskNum = 0 | 1 | 2 | 3;
 export type FlowNum = 0 | 1 | 2 | 3;
 
 export interface DiagnosticsResponseDTO {
-    id: string;
-    userId: string;
-    date: string; // ISO Date "YYYY-MM-DD"
+  id: string;
+  userId: string;
+  date: string; // ISO Date "YYYY-MM-DD"
 
-    // Risks
-    anemiaRisk?: number | null; // 0-3 scale likely
-    thrombosisRisk?: number | null;
+  // Risks
+  anemiaRisk?: number | null; // 0-3 scale likely
+  thrombosisRisk?: number | null;
 
-    // Flow
-    flowLevel?: number | null;
-    periodId?: string | null;
+  // Flow
+  flowLevel?: number | null;
+  periodId?: string | null;
 
-    // Detailed Insights
-    anemiaKeyInputs?: string[] | null;
-    anemiaSummary?: string | null;
-    thrombosisKeyInputs?: string[] | null;
-    thrombosisSummary?: string | null;
+  // Detailed Insights
+  anemiaKeyInputs?: string[] | null;
+  anemiaSummary?: string | null;
+  thrombosisKeyInputs?: string[] | null;
+  thrombosisSummary?: string | null;
 
-    lastUpdated: string; // ISO Timestamp
+  lastUpdated: string; // ISO Timestamp
 }

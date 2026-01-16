@@ -6,8 +6,8 @@ import { fireEvent, render, waitFor } from "@testing-library/react-native";
 import React from "react";
 import { AxiosError } from "axios";
 import { useLocalSearchParams } from "expo-router";
+import { Keyboard, KeyboardAvoidingView, Platform } from "react-native";
 
-// Provide a lightweight AuthContext mock so the screen can drive setStatus without pulling in the real layout.
 const mockSignIn = jest.fn();
 jest.mock("@/context/AuthContext", () => ({
   useAuth: () => ({
@@ -17,7 +17,6 @@ jest.mock("@/context/AuthContext", () => ({
   }),
 }));
 
-// Mock navigation, stack, and icons
 const mockRouter = { push: jest.fn(), replace: jest.fn(), back: jest.fn() };
 jest.mock("expo-router", () => ({
   Stack: { Screen: () => null },
@@ -42,12 +41,10 @@ jest.mock("react-native-safe-area-context", () => {
   };
 });
 
-// Mock components not under test
 jest.mock("@/components/AppBarBackButton/AppBarBackButton", () => ({
   AppBar: () => null,
 }));
 
-// --- Mock modules --- //
 jest.mock("@/lib/api", () => ({
   loginUser: jest.fn(),
 }));
@@ -296,6 +293,215 @@ describe("LoginScreen", () => {
 
       const errorMsg = await findByText("Critical Database Failure");
       expect(errorMsg).toBeTruthy();
+    });
+  });
+
+  describe("Form Validation Edge Cases", () => {
+    it("clears email error when user types in email field", () => {
+      const { typeEmail, queryByText } = setup();
+
+      mockedValidation.isEmailValid.mockReturnValue(false);
+      typeEmail("bad");
+
+      // Trigger blur to show error
+      const emailInput = queryByText("Your email");
+      if (emailInput) fireEvent(emailInput, "blur");
+
+      // Now type again - error should clear
+      mockedValidation.isEmailValid.mockReturnValue(true);
+      typeEmail("good@email.com");
+
+      // The validation error should be cleared on change
+      expect(mockedValidation.isEmailValid).toHaveBeenLastCalledWith(
+        "good@email.com",
+      );
+    });
+
+    it("clears form error when user types in password field", async () => {
+      const { typeEmail, typePassword, pressLogin, queryByText, findByText } =
+        setup();
+
+      mockedValidation.isEmailValid.mockReturnValue(true);
+      const mockAxiosError = new AxiosError(
+        "Request failed",
+        "401",
+        undefined,
+        undefined,
+        {
+          status: 401,
+          data: "Invalid email or password",
+          statusText: "Unauthorized",
+          headers: {},
+          config: {} as any,
+        },
+      );
+      mockedApi.loginUser.mockRejectedValue(mockAxiosError);
+
+      typeEmail("user@example.com");
+      typePassword("wrong");
+      pressLogin();
+
+      await findByText("Invalid email or password");
+
+      // Type in password field - error should clear
+      typePassword("newpassword");
+
+      expect(queryByText("Invalid email or password")).toBeNull();
+    });
+
+    it("shows validation error on email blur if email is invalid", () => {
+      const { getByPlaceholderText, findByText } = setup();
+
+      mockedValidation.isEmailValid.mockReturnValue(false);
+      const emailInput = getByPlaceholderText("Your email");
+
+      fireEvent.changeText(emailInput, "notanemail");
+      fireEvent(emailInput, "blur");
+
+      expect(findByText("Please enter a valid email address.")).toBeTruthy();
+    });
+
+    it("does not show validation error on blur if email field is empty", () => {
+      const { getByPlaceholderText, queryByText } = setup();
+
+      mockedValidation.isEmailValid.mockReturnValue(false);
+      const emailInput = getByPlaceholderText("Your email");
+
+      fireEvent(emailInput, "blur");
+
+      expect(queryByText("Please enter a valid email address.")).toBeNull();
+    });
+  });
+
+  describe("Network & Error Edge Cases", () => {
+    it("displays friendly message on 404 error", async () => {
+      const { typeEmail, typePassword, pressLogin, findByText } = setup();
+      mockedValidation.isEmailValid.mockReturnValue(true);
+
+      const notFoundError = new AxiosError(
+        "Not Found",
+        "404",
+        undefined,
+        undefined,
+        {
+          status: 404,
+          data: {},
+          statusText: "Not Found",
+          headers: {},
+          config: {} as any,
+        },
+      );
+      mockedApi.loginUser.mockRejectedValue(notFoundError);
+
+      typeEmail("test@test.com");
+      typePassword("123456");
+      pressLogin();
+
+      const errorMsg = await findByText(
+        "We couldn't reach the server. Please check your connection.",
+      );
+      expect(errorMsg).toBeTruthy();
+    });
+
+    it("displays friendly message when response is undefined", async () => {
+      const { typeEmail, typePassword, pressLogin, findByText } = setup();
+      mockedValidation.isEmailValid.mockReturnValue(true);
+
+      const noResponseError = new AxiosError("No response", "ERR_NETWORK");
+      noResponseError.response = undefined;
+      mockedApi.loginUser.mockRejectedValue(noResponseError);
+
+      typeEmail("test@test.com");
+      typePassword("123456");
+      pressLogin();
+
+      const errorMsg = await findByText(
+        "We couldn't reach the server. Please check your connection.",
+      );
+      expect(errorMsg).toBeTruthy();
+    });
+
+    it("displays generic error for non-Axios errors", async () => {
+      const { typeEmail, typePassword, pressLogin, findByText } = setup();
+      mockedValidation.isEmailValid.mockReturnValue(true);
+
+      mockedApi.loginUser.mockRejectedValue(new Error("Something went wrong"));
+
+      typeEmail("test@test.com");
+      typePassword("123456");
+      pressLogin();
+
+      const errorMsg = await findByText(
+        "We couldn't log you in. Please try again.",
+      );
+      expect(errorMsg).toBeTruthy();
+    });
+  });
+
+  describe("Keyboard Handling", () => {
+    it("sets up keyboard listeners on mount and removes them on unmount", () => {
+      const addListenerSpy = jest.spyOn(Keyboard, "addListener");
+
+      const { unmount } = setup();
+
+      expect(addListenerSpy).toHaveBeenCalledWith(
+        "keyboardDidShow",
+        expect.any(Function),
+      );
+      expect(addListenerSpy).toHaveBeenCalledWith(
+        "keyboardDidHide",
+        expect.any(Function),
+      );
+
+      unmount();
+
+      addListenerSpy.mockRestore();
+    });
+  });
+
+  describe("Platform-specific behavior", () => {
+    const originalPlatform = Platform.OS;
+
+    afterEach(() => {
+      Platform.OS = originalPlatform;
+    });
+
+    it("uses padding keyboard behavior on iOS", () => {
+      Platform.OS = "ios";
+      const { UNSAFE_getByType } = render(<LoginScreen />);
+
+      const keyboardAvoidingView = UNSAFE_getByType(KeyboardAvoidingView);
+      expect(keyboardAvoidingView.props.behavior).toBe("padding");
+    });
+
+    it("uses height keyboard behavior on Android", () => {
+      Platform.OS = "android";
+      const { UNSAFE_getByType } = render(<LoginScreen />);
+
+      const keyboardAvoidingView = UNSAFE_getByType(KeyboardAvoidingView);
+      expect(keyboardAvoidingView.props.behavior).toBe("height");
+    });
+  });
+
+  describe("Password Reset Banner", () => {
+    it("does not show banner when passwordReset param is not present", () => {
+      (useLocalSearchParams as jest.Mock).mockReturnValue({});
+      const { queryByText } = setup();
+
+      expect(
+        queryByText("Your password has been updated. Please log in."),
+      ).toBeNull();
+    });
+
+    it("does not show banner when passwordReset param is false", () => {
+      (useLocalSearchParams as jest.Mock).mockReturnValue({
+        passwordReset: "false",
+      });
+      const { queryByText } = setup();
+
+      expect(
+        queryByText("Your password has been updated. Please log in."),
+      ).toBeNull();
     });
   });
 });

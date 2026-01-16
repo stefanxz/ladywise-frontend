@@ -14,7 +14,7 @@ jest.mock("@react-native-async-storage/async-storage", () => ({
 describe("AsyncStorage Helpers", () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    jest.spyOn(console, "error").mockImplementation(() => {}); 
+    jest.spyOn(console, "error").mockImplementation(() => {});
   });
 
   describe("incrementFailedLoginCount", () => {
@@ -23,7 +23,10 @@ describe("AsyncStorage Helpers", () => {
 
       await incrementFailedLoginCount();
 
-      expect(AsyncStorage.setItem).toHaveBeenCalledWith("failedLoginCount", "1");
+      expect(AsyncStorage.setItem).toHaveBeenCalledWith(
+        "failedLoginCount",
+        "1",
+      );
     });
 
     it("increments existing count", async () => {
@@ -31,7 +34,10 @@ describe("AsyncStorage Helpers", () => {
 
       await incrementFailedLoginCount();
 
-      expect(AsyncStorage.setItem).toHaveBeenCalledWith("failedLoginCount", "3");
+      expect(AsyncStorage.setItem).toHaveBeenCalledWith(
+        "failedLoginCount",
+        "3",
+      );
     });
 
     it("logs error if storage fails", async () => {
@@ -42,7 +48,7 @@ describe("AsyncStorage Helpers", () => {
 
       expect(console.error).toHaveBeenCalledWith(
         "Error updating failed login count",
-        error
+        error,
       );
     });
   });
@@ -50,7 +56,10 @@ describe("AsyncStorage Helpers", () => {
   describe("resetFailedLoginCount", () => {
     it("sets count to 0", async () => {
       await resetFailedLoginCount();
-      expect(AsyncStorage.setItem).toHaveBeenCalledWith("failedLoginCount", "0");
+      expect(AsyncStorage.setItem).toHaveBeenCalledWith(
+        "failedLoginCount",
+        "0",
+      );
     });
 
     it("logs error if storage fails", async () => {
@@ -61,7 +70,7 @@ describe("AsyncStorage Helpers", () => {
 
       expect(console.error).toHaveBeenCalledWith(
         "Error resetting failed login count",
-        error
+        error,
       );
     });
   });
@@ -87,7 +96,7 @@ describe("AsyncStorage Helpers", () => {
       expect(result).toBe(0);
       expect(console.error).toHaveBeenCalledWith(
         "Error getting failed login count:",
-        error
+        error,
       );
     });
   });

@@ -68,4 +68,16 @@ describe("AppBarBackButton", () => {
     expect(back).not.toHaveBeenCalled();
     expect(replace).toHaveBeenCalledWith("/");
   });
+
+  it("calls custom onBackPress when provided", () => {
+    const onBackPress = jest.fn();
+    const { getByTestId } = render(<AppBar onBackPress={onBackPress} />);
+    fireEvent.press(getByTestId("back-pressable"));
+    expect(onBackPress).toHaveBeenCalledTimes(1);
+
+    // Ensure default handler wasn't called
+    const { back, replace } = getRouterMocks();
+    expect(back).not.toHaveBeenCalled();
+    expect(replace).not.toHaveBeenCalled();
+  });
 });

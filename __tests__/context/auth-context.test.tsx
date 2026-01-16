@@ -63,7 +63,9 @@ describe("AuthContext", () => {
     });
 
     it("handles storage errors gracefully", async () => {
-      (authLib.getAuthData as jest.Mock).mockRejectedValue(new Error("Storage fail"));
+      (authLib.getAuthData as jest.Mock).mockRejectedValue(
+        new Error("Storage fail"),
+      );
 
       const { result } = renderHook(() => useAuth(), { wrapper });
 
@@ -80,7 +82,11 @@ describe("AuthContext", () => {
         await result.current.signIn("new-token", "new-user", "new@test.com");
       });
 
-      expect(authLib.storeAuthData).toHaveBeenCalledWith("new-token", "new-user", "new@test.com");
+      expect(authLib.storeAuthData).toHaveBeenCalledWith(
+        "new-token",
+        "new-user",
+        "new@test.com",
+      );
       expect(apiLib.setAuthToken).toHaveBeenCalledWith("new-token");
       expect(result.current.token).toBe("new-token");
       expect(result.current.userId).toBe("new-user");

@@ -20,7 +20,7 @@ jest.mock("@react-native-async-storage/async-storage", () => ({
 const createMockJwt = (payload: object) => {
   const header = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"; // {"alg":"HS256","typ":"JWT"}
   // using Buffer to encode base64 for NodeJS environment
-  const body = Buffer.from(JSON.stringify(payload)).toString("base64"); 
+  const body = Buffer.from(JSON.stringify(payload)).toString("base64");
   const signature = "fakeSignature";
   return `${header}.${body}.${signature}`;
 };
@@ -39,19 +39,30 @@ describe("Auth Library", () => {
     it("storeAuthData saves to SecureStore", async () => {
       await auth.storeAuthData("token123", "user123", "test@test.com");
 
-      expect(SecureStore.setItemAsync).toHaveBeenCalledWith("auth_token", "token123");
-      expect(SecureStore.setItemAsync).toHaveBeenCalledWith("auth_user_id", "user123");
-      expect(SecureStore.setItemAsync).toHaveBeenCalledWith("auth_email", "test@test.com");
+      expect(SecureStore.setItemAsync).toHaveBeenCalledWith(
+        "auth_token",
+        "token123",
+      );
+      expect(SecureStore.setItemAsync).toHaveBeenCalledWith(
+        "auth_user_id",
+        "user123",
+      );
+      expect(SecureStore.setItemAsync).toHaveBeenCalledWith(
+        "auth_email",
+        "test@test.com",
+      );
       expect(AsyncStorage.setItem).not.toHaveBeenCalled();
     });
 
     it("getAuthData retrieves from SecureStore", async () => {
-      (SecureStore.getItemAsync as jest.Mock).mockImplementation(async (key) => {
-        if (key === "auth_token") return "token123";
-        if (key === "auth_user_id") return "user123";
-        if (key === "auth_email") return "test@test.com";
-        return null;
-      });
+      (SecureStore.getItemAsync as jest.Mock).mockImplementation(
+        async (key) => {
+          if (key === "auth_token") return "token123";
+          if (key === "auth_user_id") return "user123";
+          if (key === "auth_email") return "test@test.com";
+          return null;
+        },
+      );
 
       const data = await auth.getAuthData();
 
@@ -81,53 +92,59 @@ describe("Auth Library", () => {
     it("returns VALID for unexpired token", () => {
       const futureTime = Math.floor(Date.now() / 1000) + 3600; // 1 hour later
       const token = createMockJwt({ exp: futureTime });
-      
+
       expect(auth.isTokenValid({ token })).toBe("VALID");
     });
 
     it("returns EXPIRED for expired token", () => {
       const pastTime = Math.floor(Date.now() / 1000) - 3600; // 1 hour ago
       const token = createMockJwt({ exp: pastTime });
-      
+
       expect(auth.isTokenValid({ token })).toBe("EXPIRED");
     });
 
     it("returns EXPIRED (or safe fail) for malformed token", () => {
-      expect(auth.isTokenValid({ token: "invalid.token.structure" })).toBe("EXPIRED");
+      expect(auth.isTokenValid({ token: "invalid.token.structure" })).toBe(
+        "EXPIRED",
+      );
     });
   });
 
   describe("isAuthenticated", () => {
     it("returns true only if token is valid AND user details exist", async () => {
-        // mocking getAuthData to return a valid session
-        const futureTime = Math.floor(Date.now() / 1000) + 3600;
-        const validToken = createMockJwt({ exp: futureTime });
-        
-        // mocking the internal behavior of SecureStore to simulate getAuthData success
-        (SecureStore.isAvailableAsync as jest.Mock).mockResolvedValue(true);
-        (SecureStore.getItemAsync as jest.Mock).mockImplementation(async (key) => {
-            if (key === "auth_token") return validToken;
-            if (key === "auth_user_id") return "123";
-            if (key === "auth_email") return "test@test.com";
-            return null;
-        });
+      // mocking getAuthData to return a valid session
+      const futureTime = Math.floor(Date.now() / 1000) + 3600;
+      const validToken = createMockJwt({ exp: futureTime });
 
-        const result = await auth.isAuthenticated();
-        expect(result).toBe(true);
+      // mocking the internal behavior of SecureStore to simulate getAuthData success
+      (SecureStore.isAvailableAsync as jest.Mock).mockResolvedValue(true);
+      (SecureStore.getItemAsync as jest.Mock).mockImplementation(
+        async (key) => {
+          if (key === "auth_token") return validToken;
+          if (key === "auth_user_id") return "123";
+          if (key === "auth_email") return "test@test.com";
+          return null;
+        },
+      );
+
+      const result = await auth.isAuthenticated();
+      expect(result).toBe(true);
     });
 
     it("returns false if token is expired", async () => {
-        const pastTime = Math.floor(Date.now() / 1000) - 3600;
-        const expiredToken = createMockJwt({ exp: pastTime });
-        
-        (SecureStore.isAvailableAsync as jest.Mock).mockResolvedValue(true);
-        (SecureStore.getItemAsync as jest.Mock).mockImplementation(async (key) => {
-            if (key === "auth_token") return expiredToken;
-            return "some-value";
-        });
+      const pastTime = Math.floor(Date.now() / 1000) - 3600;
+      const expiredToken = createMockJwt({ exp: pastTime });
 
-        const result = await auth.isAuthenticated();
-        expect(result).toBe(false);
+      (SecureStore.isAvailableAsync as jest.Mock).mockResolvedValue(true);
+      (SecureStore.getItemAsync as jest.Mock).mockImplementation(
+        async (key) => {
+          if (key === "auth_token") return expiredToken;
+          return "some-value";
+        },
+      );
+
+      const result = await auth.isAuthenticated();
+      expect(result).toBe(false);
     });
   });
 });

@@ -279,7 +279,7 @@ export function usePeriodInteraction({
       Alert.alert(
         "Oops!",
         error.message ||
-        "We had trouble saving that just now. Please try again in a moment.",
+          "We had trouble saving that just now. Please try again in a moment.",
       );
     } finally {
       setIsSaving(false);

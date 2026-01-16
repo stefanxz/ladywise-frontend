@@ -52,6 +52,7 @@ jest.mock("@/components/charts/RiskLineChart", () => ({
 }));
 
 jest.mock("@/components/Diagnostics/FactorCard", () => {
+  // eslint-disable-next-line react/display-name
   return (props: any) => {
     const { View, Text } = require("react-native");
     return (
@@ -67,6 +68,7 @@ jest.mock("react-native-view-shot", () => ({
 }));
 
 jest.mock("@/components/ShareReport/ShareReportModal", () => {
+  // eslint-disable-next-line react/display-name
   return (props: any) => {
     const { View, Text } = require("react-native");
     if (!props.visible) return null;
