@@ -130,6 +130,31 @@ describe("QuestionnaireIntro screen", () => {
     expect(router.replace).toHaveBeenCalledWith("/(auth)/register/personal-details");
   });
 
+  it("prevents double redirection if back is pressed multiple times", () => {
+    // spy on BackHandler
+    const addEventListenerSpy = jest.spyOn(BackHandler, "addEventListener");
+    const mockRemove = jest.fn();
+    addEventListenerSpy.mockReturnValue({ remove: mockRemove } as any);
+
+    render(<QuestionnaireIntro />);
+
+    // find the registered 'hardwareBackPress' call
+    const hardwareBackCall = addEventListenerSpy.mock.calls.find(
+      (call) => call[0] === "hardwareBackPress"
+    );
+
+    expect(hardwareBackCall).toBeDefined();
+    const hardwareBackCallback = hardwareBackCall![1]; 
+    
+    // First press
+    hardwareBackCallback();
+    expect(router.replace).toHaveBeenCalledTimes(1);
+
+    // Second press (should be blocked by ref)
+    hardwareBackCallback();
+    expect(router.replace).toHaveBeenCalledTimes(1);
+  });
+
   it("intercepts Navigation 'beforeRemove' (swipe back) and redirects", () => {
     render(<QuestionnaireIntro />);
 

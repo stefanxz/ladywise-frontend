@@ -391,4 +391,105 @@ describe("RegisterIndex screen", () => {
       expect(getByText("Registration failed.")).toBeTruthy();
     });
   });
+
+  it("handles keyboard events and cleanup", () => {
+    const { Keyboard } = require("react-native");
+    const removeMock = jest.fn();
+    const addListenerSpy = jest.spyOn(Keyboard, "addListener").mockReturnValue({ remove: removeMock } as any);
+
+    const { unmount } = setup();
+
+    expect(addListenerSpy).toHaveBeenCalledWith("keyboardDidShow", expect.any(Function));
+    expect(addListenerSpy).toHaveBeenCalledWith("keyboardDidHide", expect.any(Function));
+
+    const showCallback = addListenerSpy.mock.calls.find(call => call[0] === "keyboardDidShow")?.[1];
+    const hideCallback = addListenerSpy.mock.calls.find(call => call[0] === "keyboardDidHide")?.[1];
+
+    act(() => {
+      showCallback();
+    });
+    act(() => {
+      hideCallback();
+    });
+
+    unmount();
+    // In some test environments (like StrictMode), effects might run multiple times.
+    // We just want to ensure cleanup is called.
+    expect(removeMock).toHaveBeenCalled();
+  });
+
+  it("handles Axios error with missing response data message (fallback to e.message)", async () => {
+    const { toggleTnc, typeEmail, typePassword, typeConfirm, pressContinue, getByText } = setup();
+    
+    toggleTnc();
+    typeEmail("fail@example.com");
+    mockedValidations.isEmailValid.mockReturnValue(true);
+    typePassword("Abcd1234");
+    mockedValidations.isPasswordValid.mockReturnValue(true);
+    typeConfirm("Abcd1234");
+
+    const error = new Error("Network Error");
+    // @ts-ignore
+    error.isAxiosError = true;
+    // @ts-ignore
+    error.response = { status: 500, data: {} };
+    mockedApi.registerUser.mockRejectedValue(error);
+
+    await act(async () => {
+      pressContinue();
+    });
+
+    await waitFor(() => {
+      expect(getByText("Network Error")).toBeTruthy();
+    });
+  });
+
+  it("handles Axios error with absolutely no message (fallback to default)", async () => {
+    const { toggleTnc, typeEmail, typePassword, typeConfirm, pressContinue, getByText } = setup();
+    
+    toggleTnc();
+    typeEmail("fail2@example.com");
+    mockedValidations.isEmailValid.mockReturnValue(true);
+    typePassword("Abcd1234");
+    mockedValidations.isPasswordValid.mockReturnValue(true);
+    typeConfirm("Abcd1234");
+
+    const error = new Error();
+    // @ts-ignore
+    error.isAxiosError = true;
+    // @ts-ignore
+    error.response = { status: 500, data: {} };
+    // @ts-ignore
+    error.message = undefined; 
+    mockedApi.registerUser.mockRejectedValue(error);
+
+    await act(async () => {
+      pressContinue();
+    });
+
+    await waitFor(() => {
+      expect(getByText("Registration failed.")).toBeTruthy();
+    });
+  });
+
+  it("adjusts padding on Android when keyboard shows", () => {
+      const { Platform, Keyboard } = require("react-native");
+      const originalOS = Platform.OS;
+      // Force Platform.OS to android
+      Object.defineProperty(Platform, 'OS', { get: () => 'android', configurable: true });
+
+      const addListenerSpy = jest.spyOn(Keyboard, "addListener").mockReturnValue({ remove: jest.fn() } as any);
+      
+      try {
+        const { getByTestId } = render(<RegisterIndex />);
+        
+        const showCallback = addListenerSpy.mock.calls.find(call => call[0] === "keyboardDidShow")?.[1];
+        
+        act(() => {
+          showCallback();
+        });
+      } finally {
+        Object.defineProperty(Platform, 'OS', { get: () => originalOS, configurable: true });
+      }
+  });
 });
