@@ -8,7 +8,9 @@ jest.mock("./CycleQuestionOptionPill", () => {
   return {
     CycleQuestionOptionPill: ({ label, onPress, selected }: any) => (
       <TouchableOpacity onPress={onPress} testID={`pill-${label}`}>
-        <Text>{label} {selected ? "(selected)" : ""}</Text>
+        <Text>
+          {label} {selected ? "(selected)" : ""}
+        </Text>
       </TouchableOpacity>
     ),
   };
@@ -26,20 +28,26 @@ describe("CycleQuestion", () => {
   });
 
   it("renders correctly", () => {
-    const { getByText } = render(<CycleQuestion {...defaultProps} value={null} />);
+    const { getByText } = render(
+      <CycleQuestion {...defaultProps} value={null} />,
+    );
     expect(getByText("How do you feel?")).toBeTruthy();
     expect(getByText("Happy")).toBeTruthy();
   });
 
   describe("Single Select", () => {
     it("selects an option", () => {
-      const { getByTestId } = render(<CycleQuestion {...defaultProps} value={null} />);
+      const { getByTestId } = render(
+        <CycleQuestion {...defaultProps} value={null} />,
+      );
       fireEvent.press(getByTestId("pill-Happy"));
       expect(defaultProps.onSelect).toHaveBeenCalledWith("Happy");
     });
 
     it("marks option as selected", () => {
-      const { getByText } = render(<CycleQuestion {...defaultProps} value="Happy" />);
+      const { getByText } = render(
+        <CycleQuestion {...defaultProps} value="Happy" />,
+      );
       expect(getByText("Happy (selected)")).toBeTruthy();
     });
   });
@@ -47,7 +55,7 @@ describe("CycleQuestion", () => {
   describe("Multi Select", () => {
     it("adds an option to selection", () => {
       const { getByTestId } = render(
-        <CycleQuestion {...defaultProps} multiSelect={true} value={[]} />
+        <CycleQuestion {...defaultProps} multiSelect={true} value={[]} />,
       );
       fireEvent.press(getByTestId("pill-Happy"));
       expect(defaultProps.onSelect).toHaveBeenCalledWith(["Happy"]);
@@ -55,7 +63,11 @@ describe("CycleQuestion", () => {
 
     it("removes an option from selection", () => {
       const { getByTestId } = render(
-        <CycleQuestion {...defaultProps} multiSelect={true} value={["Happy", "Sad"]} />
+        <CycleQuestion
+          {...defaultProps}
+          multiSelect={true}
+          value={["Happy", "Sad"]}
+        />,
       );
       fireEvent.press(getByTestId("pill-Happy"));
       expect(defaultProps.onSelect).toHaveBeenCalledWith(["Sad"]);
@@ -63,7 +75,11 @@ describe("CycleQuestion", () => {
 
     it("clears 'None' when selecting a valid option", () => {
       const { getByTestId } = render(
-        <CycleQuestion {...defaultProps} multiSelect={true} value={["None of the above"]} />
+        <CycleQuestion
+          {...defaultProps}
+          multiSelect={true}
+          value={["None of the above"]}
+        />,
       );
       fireEvent.press(getByTestId("pill-Happy"));
       // Should result in JUST Happy, removing None
@@ -72,7 +88,11 @@ describe("CycleQuestion", () => {
 
     it("clears other options when selecting 'None'", () => {
       const { getByTestId } = render(
-        <CycleQuestion {...defaultProps} multiSelect={true} value={["Happy", "Sad"]} />
+        <CycleQuestion
+          {...defaultProps}
+          multiSelect={true}
+          value={["Happy", "Sad"]}
+        />,
       );
       fireEvent.press(getByTestId("pill-None of the above"));
       // Should result in JUST None
@@ -82,7 +102,7 @@ describe("CycleQuestion", () => {
     it("handles selection correctly when value is not array (defensive)", () => {
       const { getByTestId } = render(
         // @ts-ignore - simulating bad prop
-        <CycleQuestion {...defaultProps} multiSelect={true} value={null} />
+        <CycleQuestion {...defaultProps} multiSelect={true} value={null} />,
       );
       fireEvent.press(getByTestId("pill-Happy"));
       expect(defaultProps.onSelect).toHaveBeenCalledWith(["Happy"]);

@@ -11,12 +11,12 @@ export interface RiskResult {
 
 export interface InsightResult {
   trend:
-  | "improving"
-  | "stable"
-  | "worsening"
-  | "neutral"
-  | "increasing"
-  | "declining";
+    | "improving"
+    | "stable"
+    | "worsening"
+    | "neutral"
+    | "increasing"
+    | "declining";
   description: string;
 }
 

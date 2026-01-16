@@ -1,13 +1,19 @@
 import React from "react";
 import { render, fireEvent } from "@testing-library/react-native";
-import { QuestionScreen, BinaryChoiceGroup, MultiSelectGroup } from "./QuestionScreen";
+import {
+  QuestionScreen,
+  BinaryChoiceGroup,
+  MultiSelectGroup,
+} from "./QuestionScreen";
 import { Text, View } from "react-native";
 
 // Mock Safe Area
 jest.mock("react-native-safe-area-context", () => {
   const { View } = require("react-native");
   return {
-    SafeAreaView: ({ children, ...props }: any) => <View {...props}>{children}</View>,
+    SafeAreaView: ({ children, ...props }: any) => (
+      <View {...props}>{children}</View>
+    ),
   };
 });
 
@@ -33,7 +39,7 @@ describe("QuestionScreen Component", () => {
         footer={<Text>Footer</Text>}
       >
         <Text>Child Content</Text>
-      </QuestionScreen>
+      </QuestionScreen>,
     );
 
     expect(getByText("Test Title")).toBeTruthy();
@@ -49,13 +55,9 @@ describe("QuestionScreen Component", () => {
 
   it("renders without description, footer, and skip button", () => {
     const { getByText, queryByText } = render(
-      <QuestionScreen
-        step={1}
-        title="Minimal Title"
-        showSkip={false}
-      >
+      <QuestionScreen step={1} title="Minimal Title" showSkip={false}>
         <Text>Child Content</Text>
-      </QuestionScreen>
+      </QuestionScreen>,
     );
 
     expect(getByText("Minimal Title")).toBeTruthy();
@@ -74,11 +76,11 @@ describe("BinaryChoiceGroup Component", () => {
         value={true}
         onChange={onChange}
         testIDPrefix="choice"
-      />
+      />,
     );
 
     expect(getByText("Yes or No?")).toBeTruthy();
-    
+
     const yesButton = getByTestId("choice-yes");
     const noButton = getByTestId("choice-no");
 
@@ -93,11 +95,7 @@ describe("BinaryChoiceGroup Component", () => {
   it("renders without question and testIDPrefix", () => {
     const onChange = jest.fn();
     const { queryByText, getAllByText } = render(
-      <BinaryChoiceGroup
-        question=""
-        value={null}
-        onChange={onChange}
-      />
+      <BinaryChoiceGroup question="" value={null} onChange={onChange} />,
     );
 
     expect(queryByText("Yes or No?")).toBeNull();
@@ -119,11 +117,11 @@ describe("MultiSelectGroup Component", () => {
         options={options}
         selected={["opt1"]}
         onToggle={onToggle}
-      />
+      />,
     );
 
     expect(getByText("Select options")).toBeTruthy();
-    
+
     // Check accessibility state or props logic
     const opt1 = getByTestId("multiselect-option-opt1");
     const opt2 = getByTestId("multiselect-option-opt2");
@@ -143,7 +141,7 @@ describe("MultiSelectGroup Component", () => {
         options={options}
         selected={[]}
         onToggle={onToggle}
-      />
+      />,
     );
 
     expect(queryByText("Select options")).toBeNull();

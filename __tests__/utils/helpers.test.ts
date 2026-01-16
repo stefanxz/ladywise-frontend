@@ -1,18 +1,19 @@
-import { 
-  cn, 
-  mapAnswersToPayload, 
-  mapApiToAnswers, 
-  mapApiToInsights 
+import {
+  cn,
+  mapAnswersToPayload,
+  mapApiToAnswers,
+  mapApiToInsights,
 } from "@/utils/helpers";
 import { DailyCycleAnswers } from "@/components/CycleQuestionsBottomSheet/CycleQuestionsBottomSheet.types";
 
 describe("General Helpers", () => {
-  
   // ClassName utility
   describe("cn (className merger)", () => {
     it("joins strings and ignores falsy values", () => {
       expect(cn("base-class", "active-class")).toBe("base-class active-class");
-      expect(cn("base", false && "hidden", null, undefined, "visible")).toBe("base visible");
+      expect(cn("base", false && "hidden", null, undefined, "visible")).toBe(
+        "base visible",
+      );
     });
 
     it("returns empty string if all inputs are falsy", () => {
@@ -25,15 +26,15 @@ describe("General Helpers", () => {
     it("converts UI answers to backend enums", () => {
       const answers: DailyCycleAnswers = {
         date: "2024-01-01",
-        flow: "Light", 
-        symptoms: ["Cramps (Pain)"], 
+        flow: "Light",
+        symptoms: ["Cramps (Pain)"],
         riskFactors: ["Biosensor Cup"],
       };
 
       const result = mapAnswersToPayload(answers);
 
       expect(result.date).toBe("2024-01-01");
-      expect(result.flow).toBeDefined(); 
+      expect(result.flow).toBeDefined();
       expect(Array.isArray(result.symptoms)).toBe(true);
     });
 
@@ -56,7 +57,7 @@ describe("General Helpers", () => {
     it("converts backend keys back to UI strings", () => {
       const apiData = {
         flow: "LIGHT",
-        symptoms: [], 
+        symptoms: [],
         riskFactors: [],
       };
 
@@ -72,8 +73,8 @@ describe("General Helpers", () => {
   describe("mapApiToInsights", () => {
     it("maps high risk score correctly", () => {
       const mockApiData: any = {
-        anemiaRisk: 3, 
-        thrombosisRisk: 1, 
+        anemiaRisk: 3,
+        thrombosisRisk: 1,
         latestAnemiaInsight: { description: "Anemia warning" },
         latestThrombosisInsight: { description: "Thrombosis okay" },
       };

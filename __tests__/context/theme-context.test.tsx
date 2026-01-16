@@ -10,7 +10,7 @@ describe("ThemeContext", () => {
 
   it("provides default theme (follicular)", () => {
     const { result } = renderHook(() => useTheme(), { wrapper });
-    
+
     // checking deep equality against the imported theme object
     expect(result.current.theme).toEqual(themes.follicular);
   });

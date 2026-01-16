@@ -3,7 +3,11 @@ import { startOfDay, endOfDay } from "date-fns";
 import { useAuth } from "@/context/AuthContext";
 import { useTheme } from "@/context/ThemeContext";
 import { getCycleStatus, getPeriodHistory, getPredictions } from "@/lib/api";
-import { generateDateSet, parseToLocalWithoutTime, safeFetch } from "@/utils/calendarHelpers";
+import {
+  generateDateSet,
+  parseToLocalWithoutTime,
+  safeFetch,
+} from "@/utils/calendarHelpers";
 import { ParsedPeriod, ParsedPrediction } from "@/lib/types/calendar";
 
 /**
@@ -66,7 +70,11 @@ export function usePeriodData() {
 
     // Fetch predictions (next 6 months)
     // We treat 404 as empty array
-    const predictionData = await safeFetch(getPredictions(6), [], "predictions");
+    const predictionData = await safeFetch(
+      getPredictions(6),
+      [],
+      "predictions",
+    );
 
     // Parse predictions
     const parsedPredictions = predictionData.map((p) => ({

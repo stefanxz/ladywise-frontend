@@ -30,7 +30,7 @@ describe("FactorCard Component", () => {
         value="Normal"
         description="Desc"
         icon={MockIcon}
-      />
+      />,
     );
     expect(getByText("Default Variant Factor")).toBeTruthy();
   });

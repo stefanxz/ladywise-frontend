@@ -29,18 +29,22 @@ jest.mock("react-native-safe-area-context", () => ({
 // Mock Child Components to simplify testing
 jest.mock("@/components/MainPageHeader/Header", () => {
   const { Text } = require("react-native");
+  // eslint-disable-next-line react/display-name
   return () => <Text>Header</Text>;
 });
 jest.mock("@/components/CalendarStrip/CalendarStrip", () => {
   const { Text } = require("react-native");
+  // eslint-disable-next-line react/display-name
   return () => <Text>CalendarStrip</Text>;
 });
 jest.mock("@/components/PhaseCard/PhaseCard", () => {
   const { Text } = require("react-native");
+  // eslint-disable-next-line react/display-name
   return () => <Text>PhaseCard</Text>;
 });
 jest.mock("@/components/InsightsSection/InsightsSection", () => {
   const { Text } = require("react-native");
+  // eslint-disable-next-line react/display-name
   return () => <Text>InsightsSection</Text>;
 });
 jest.mock("@/components/FloatingAddButton/FloatingAddButton", () => ({
@@ -49,20 +53,23 @@ jest.mock("@/components/FloatingAddButton/FloatingAddButton", () => ({
     return <Text>FloatingAddButton</Text>;
   },
 }));
-jest.mock("@/components/CycleQuestionsBottomSheet/CycleQuestionsBottomSheet", () => ({
-  CycleQuestionsBottomSheet: () => {
-    const { Text } = require("react-native");
-    return <Text>CycleQuestionsBottomSheet</Text>;
-  },
-}));
+jest.mock(
+  "@/components/CycleQuestionsBottomSheet/CycleQuestionsBottomSheet",
+  () => ({
+    CycleQuestionsBottomSheet: () => {
+      const { Text } = require("react-native");
+      return <Text>CycleQuestionsBottomSheet</Text>;
+    },
+  }),
+);
 
 describe("Home Screen", () => {
   const mockRouter = { push: jest.fn() };
-  
+
   beforeEach(() => {
     jest.clearAllMocks();
     (useRouter as jest.Mock).mockReturnValue(mockRouter);
-    
+
     // Default Mock Implementations
     (useAuth as jest.Mock).mockReturnValue({
       token: "mock-token",
@@ -106,7 +113,7 @@ describe("Home Screen", () => {
       anemia: { risk: "Low", key_inputs: [] },
       thrombosis: { risk: "Low", key_inputs: [] },
     });
-    
+
     (getUserById as jest.Mock).mockResolvedValue({
       firstName: "Jane",
       lastName: "Doe",
@@ -115,7 +122,7 @@ describe("Home Screen", () => {
 
   it("renders correctly", async () => {
     const { getByText } = render(<Home />);
-    
+
     // Check if child components are rendered (by their mock name)
     expect(getByText("Header")).toBeTruthy();
     expect(getByText("CalendarStrip")).toBeTruthy();
@@ -129,14 +136,14 @@ describe("Home Screen", () => {
     });
 
     const { getByTestId } = render(<Home />);
-    // Since ActivityIndicator is mocked or default, usually it has testID or we check for it. 
+    // Since ActivityIndicator is mocked or default, usually it has testID or we check for it.
     // But here we are checking if Header is NOT present
     expect(() => getByTestId("Header")).toThrow();
   });
 
   it("fetches data on mount", async () => {
     render(<Home />);
-    
+
     await waitFor(() => {
       expect(getUserById).toHaveBeenCalledWith("mock-token", "user-123");
       expect(getCycleStatus).toHaveBeenCalled();
@@ -153,7 +160,7 @@ describe("Home Screen", () => {
     });
 
     const { getByText } = render(<Home />);
-    
+
     // Check if connection status is displayed
     expect(getByText("● Live Updates Active")).toBeTruthy();
   });
@@ -173,9 +180,9 @@ describe("Home Screen", () => {
     });
 
     const { getByText } = render(<Home />);
-    
+
     await waitFor(() => {
-        expect(getByText("FloatingAddButton")).toBeTruthy();
+      expect(getByText("FloatingAddButton")).toBeTruthy();
     });
   });
 
@@ -185,20 +192,20 @@ describe("Home Screen", () => {
     (getCycleStatus as jest.Mock).mockRejectedValue(mockError);
 
     render(<Home />);
-    
-    // If error is handled, it sets phase to "neutral". 
+
+    // If error is handled, it sets phase to "neutral".
     // We can verify this by checking if PhaseCard is rendered (it should be, but with "neutral" data or default)
     // Or we can check if setPhase was called with "neutral"
-    
+
     // We need to spy on setPhase from useTheme
     // Since useTheme is mocked in beforeEach, we can access the mock function if we stored it or we can re-mock it here.
-    // Ideally, we should inspect the component output. 
+    // Ideally, we should inspect the component output.
     // If phase is neutral, CalendarStrip might show default days.
-    
+
     await waitFor(() => {
-        expect(getCycleStatus).toHaveBeenCalled();
+      expect(getCycleStatus).toHaveBeenCalled();
     });
-    
+
     // Since we can't easily check internal state without spy, let's verify no crash and some default element exists.
     // The component catches the error and doesn't rethrow.
   });
@@ -226,24 +233,24 @@ describe("Home Screen", () => {
     const { getByText } = render(<Home />);
 
     await waitFor(() => {
-        // InsightsSection is mocked, but we can check if it received the props?
-        // Actually, InsightsSection mock renders "InsightsSection".
-        // But we passed `insights={displayedInsights}` to it.
-        // We can inspect the mock calls if needed, or if we mock InsightsSection to render children/props.
-        // Let's rely on the fact that if we mocked InsightsSection to display props, we could see it.
-        // But since we mocked it as simple text, we can't see the content.
-        
-        // Let's verify getRiskData was called.
-        expect(getRiskData).toHaveBeenCalled();
+      // InsightsSection is mocked, but we can check if it received the props?
+      // Actually, InsightsSection mock renders "InsightsSection".
+      // But we passed `insights={displayedInsights}` to it.
+      // We can inspect the mock calls if needed, or if we mock InsightsSection to render children/props.
+      // Let's rely on the fact that if we mocked InsightsSection to display props, we could see it.
+      // But since we mocked it as simple text, we can't see the content.
+
+      // Let's verify getRiskData was called.
+      expect(getRiskData).toHaveBeenCalled();
     });
   });
 
   it("handles error when loading risks", async () => {
     (getRiskData as jest.Mock).mockRejectedValue(new Error("API Error"));
-    
+
     // Should not crash
     render(<Home />);
-    
+
     await waitFor(() => {
       expect(getRiskData).toHaveBeenCalled();
     });
@@ -253,21 +260,21 @@ describe("Home Screen", () => {
     // Capture the callback passed to useDailyEntry
     let captureCallback: () => void = () => {};
     (useDailyEntry as jest.Mock).mockImplementation((_, cb) => {
-        captureCallback = cb;
-        return {
-            bottomSheetRef: { current: null },
-            isLoading: false,
-            selectedDayData: null,
-            openQuestionnaire: jest.fn(),
-            handleSave: jest.fn(),
-        };
+      captureCallback = cb;
+      return {
+        bottomSheetRef: { current: null },
+        isLoading: false,
+        selectedDayData: null,
+        openQuestionnaire: jest.fn(),
+        handleSave: jest.fn(),
+      };
     });
 
     render(<Home />);
-    
+
     // Trigger the callback
     captureCallback();
-    
+
     // We can't verify state change easily without observing side effects.
     // InsightsSection receives isCalculating.
     // We can mock InsightsSection to render the prop value.

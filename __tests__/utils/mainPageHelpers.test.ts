@@ -49,7 +49,7 @@ describe("mainPageHelpers", () => {
     it("uses empty array as default for periodDates", () => {
       const days = generateCalendarDays();
       expect(days).toHaveLength(7);
-      expect(days.every(d => !d.isPeriodDay)).toBe(true);
+      expect(days.every((d) => !d.isPeriodDay)).toBe(true);
     });
 
     it("marks period days correctly", () => {
@@ -92,9 +92,9 @@ describe("mainPageHelpers", () => {
     });
 
     it("handles null/undefined gracefully", () => {
-        // @ts-ignore
+      // @ts-ignore
       expect(formatPhaseName(null)).toBe("Loading Phase...");
-       // @ts-ignore
+      // @ts-ignore
       expect(formatPhaseName(undefined)).toBe("Loading Phase...");
     });
   });

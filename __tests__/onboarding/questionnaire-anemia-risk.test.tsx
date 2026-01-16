@@ -114,11 +114,11 @@ describe("QuestionnaireAnemiaRisk", () => {
   it("deselects an already selected option", () => {
     render(<QuestionnaireAnemiaRisk />);
     const option = screen.getByTestId("multiselect-option-iron-deficiency");
-    
+
     // Select
     fireEvent.press(option);
     expect(option.props.accessibilityState.selected).toBe(true);
-    
+
     // Deselect (hits 'if (exists)' branch)
     fireEvent.press(option);
     expect(option.props.accessibilityState.selected).toBe(false);

@@ -74,7 +74,7 @@ describe("AppBarBackButton", () => {
     const { getByTestId } = render(<AppBar onBackPress={onBackPress} />);
     fireEvent.press(getByTestId("back-pressable"));
     expect(onBackPress).toHaveBeenCalledTimes(1);
-    
+
     // Ensure default handler wasn't called
     const { back, replace } = getRouterMocks();
     expect(back).not.toHaveBeenCalled();

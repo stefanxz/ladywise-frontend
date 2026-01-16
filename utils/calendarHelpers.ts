@@ -9,8 +9,8 @@ import {
   isBefore,
   areIntervalsOverlapping,
   addDays,
-  subDays
-} from 'date-fns';
+  subDays,
+} from "date-fns";
 
 // Interface for objects that have a start and end date (Periods, Predictions)
 export interface DateRange {
@@ -31,7 +31,7 @@ export const parseToLocalWithoutTime = (dateStr: string): Date => {
   if (!dateStr) return new Date();
 
   // Split the string to get purely year, month, and day
-  const parts = dateStr.split('T')[0].split('-');
+  const parts = dateStr.split("T")[0].split("-");
 
   // Construct a Date in local timezone
   const year = parseInt(parts[0], 10);
@@ -53,7 +53,7 @@ export const parseToLocalWithoutTime = (dateStr: string): Date => {
 export const safeFetch = async <T>(
   promise: Promise<T>,
   fallbackValue: T,
-  context: string
+  context: string,
 ): Promise<T> => {
   try {
     return await promise;
@@ -103,10 +103,10 @@ export const generateMonths = (startDate: Date, count: number) => {
   return Array.from({ length: count }).map((_, index) => {
     const monthDate = addMonths(startDate, index);
     return {
-      id: format(monthDate, 'yyyy-MM'),
+      id: format(monthDate, "yyyy-MM"),
       date: monthDate,
-      titleMonth: format(monthDate, 'MMMM'),
-      titleYear: format(monthDate, 'yyyy'),
+      titleMonth: format(monthDate, "MMMM"),
+      titleYear: format(monthDate, "yyyy"),
       days: generateDaysForMonth(monthDate),
     };
   });
@@ -122,10 +122,10 @@ export const generateMonths = (startDate: Date, count: number) => {
 export const generateDateSet = (ranges: DateRange[]): Set<string> => {
   const set = new Set<string>();
 
-  ranges.forEach(range => {
+  ranges.forEach((range) => {
     try {
       const days = eachDayOfInterval({ start: range.start, end: range.end });
-      days.forEach(d => set.add(format(d, 'yyyy-MM-dd')));
+      days.forEach((d) => set.add(format(d, "yyyy-MM-dd")));
     } catch (e) {
       console.warn("Invalid interval skipped", range);
     }

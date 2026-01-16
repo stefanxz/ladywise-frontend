@@ -189,11 +189,16 @@ describe("ShareReportModal", () => {
     mockUseAuth.mockReturnValue({ token: null });
     render(<ShareReportModal {...defaultProps} />);
 
-    fireEvent.changeText(screen.getByTestId("clinician-email-input"), "doc@example.com");
+    fireEvent.changeText(
+      screen.getByTestId("clinician-email-input"),
+      "doc@example.com",
+    );
     fireEvent.press(screen.getByTestId("send-button"));
 
     await waitFor(() => {
-      expect(screen.getByText("You must be logged in to share reports.")).toBeTruthy();
+      expect(
+        screen.getByText("You must be logged in to share reports."),
+      ).toBeTruthy();
     });
   });
 
@@ -203,11 +208,16 @@ describe("ShareReportModal", () => {
     mockShareReport.mockRejectedValue(error);
 
     render(<ShareReportModal {...defaultProps} />);
-    fireEvent.changeText(screen.getByTestId("clinician-email-input"), "doc@example.com");
+    fireEvent.changeText(
+      screen.getByTestId("clinician-email-input"),
+      "doc@example.com",
+    );
     fireEvent.press(screen.getByTestId("send-button"));
 
     await waitFor(() => {
-      expect(screen.getByText("Invalid email format or missing report type.")).toBeTruthy();
+      expect(
+        screen.getByText("Invalid email format or missing report type."),
+      ).toBeTruthy();
     });
   });
 
@@ -217,11 +227,16 @@ describe("ShareReportModal", () => {
     mockShareReport.mockRejectedValue(error);
 
     render(<ShareReportModal {...defaultProps} />);
-    fireEvent.changeText(screen.getByTestId("clinician-email-input"), "doc@example.com");
+    fireEvent.changeText(
+      screen.getByTestId("clinician-email-input"),
+      "doc@example.com",
+    );
     fireEvent.press(screen.getByTestId("send-button"));
 
     await waitFor(() => {
-      expect(screen.getByText("Session expired. Please log in again.")).toBeTruthy();
+      expect(
+        screen.getByText("Session expired. Please log in again."),
+      ).toBeTruthy();
     });
   });
 });

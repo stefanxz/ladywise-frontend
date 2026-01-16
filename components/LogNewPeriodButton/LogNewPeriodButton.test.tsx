@@ -65,11 +65,16 @@ describe("LogNewPeriodButton", () => {
 
   it("handles both loading and disabled states simultaneously", () => {
     const { getByTestId, UNSAFE_getByType } = render(
-      <LogNewPeriodButton color={baseColor} onPress={() => {}} loading disabled />,
+      <LogNewPeriodButton
+        color={baseColor}
+        onPress={() => {}}
+        loading
+        disabled
+      />,
     );
     const button = getByTestId("log-new-period-button");
     const { ActivityIndicator } = require("react-native");
-    
+
     expect(button.props.accessibilityState.disabled).toBe(true);
     expect(button.props.accessibilityState.busy).toBe(true);
     expect(UNSAFE_getByType(ActivityIndicator)).toBeTruthy();
@@ -103,9 +108,9 @@ describe("LogNewPeriodButton", () => {
     const flatStyle = button.props.style;
     // It might be an array or object.
     if (Array.isArray(flatStyle)) {
-        expect(flatStyle).toContainEqual({ borderColor: "red" });
+      expect(flatStyle).toContainEqual({ borderColor: "red" });
     } else {
-        expect(flatStyle).toMatchObject({ borderColor: "red" });
+      expect(flatStyle).toMatchObject({ borderColor: "red" });
     }
   });
 });

@@ -85,7 +85,7 @@ export function mapBackendListToFactors(
  */
 export function parseFactorsFromKeywords(
   keys: string[] | null | undefined,
-  riskFactor: string | undefined
+  riskFactor: string | undefined,
 ): (FactorCardProps & { id: string })[] {
   const parsedFactors: (FactorCardProps & { id: string })[] = [];
 

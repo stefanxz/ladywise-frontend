@@ -95,7 +95,7 @@ const CalendarDay = React.memo(
         if (!isSelected) {
           styles.backgroundColor = themeColor;
         }
-        
+
         // If it's selected, period, or prediction, we don't keep the standard today border
         if (!isSelected && !isInRange && !isPeriod && !isPrediction) {
           // Standard today style

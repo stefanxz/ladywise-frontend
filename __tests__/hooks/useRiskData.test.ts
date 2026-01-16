@@ -56,7 +56,10 @@ describe("useRiskData", () => {
       expect(result.current.loading).toBe(false);
     });
 
-    expect(mockShowToast).toHaveBeenCalledWith("Received invalid data from server.", "error");
+    expect(mockShowToast).toHaveBeenCalledWith(
+      "Received invalid data from server.",
+      "error",
+    );
     expect(result.current.history).toEqual([]);
   });
 
@@ -69,6 +72,9 @@ describe("useRiskData", () => {
       expect(result.current.loading).toBe(false);
     });
 
-    expect(mockShowToast).toHaveBeenCalledWith("Failed to load history.", "error");
+    expect(mockShowToast).toHaveBeenCalledWith(
+      "Failed to load history.",
+      "error",
+    );
   });
 });

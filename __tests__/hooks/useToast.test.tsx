@@ -9,10 +9,12 @@ import React from "react";
 describe("useToast hook", () => {
   it("throws error when used outside ToastProvider", () => {
     // console.error is expected when error boundary catches, silence it for this test
-    const spy = jest.spyOn(console, 'error').mockImplementation(() => {});
-    
-    expect(() => renderHook(() => useToast())).toThrow("useToast must be used within ToastProvider");
-    
+    const spy = jest.spyOn(console, "error").mockImplementation(() => {});
+
+    expect(() => renderHook(() => useToast())).toThrow(
+      "useToast must be used within ToastProvider",
+    );
+
     spy.mockRestore();
   });
 

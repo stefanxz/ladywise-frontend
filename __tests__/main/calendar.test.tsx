@@ -96,6 +96,7 @@ jest.mock("@/components/FloatingAddButton/FloatingAddButton", () => ({
 // needed to find the button by text/testID
 jest.mock("@/components/LogNewPeriodButton/LogNewPeriodButton", () => {
   const { TouchableOpacity, Text } = require("react-native");
+  // eslint-disable-next-line react/display-name
   return ({ onPress }: any) => (
     <TouchableOpacity onPress={onPress} testID="log-period-button">
       <Text>Log New Period</Text>
@@ -107,6 +108,7 @@ jest.mock("@/components/LogNewPeriodButton/LogNewPeriodButton", () => {
 // needed to simulate edit/delete actions
 jest.mock("@/components/Calendar/EditDeleteTooltip", () => {
   const { View, TouchableOpacity, Text } = require("react-native");
+  // eslint-disable-next-line react/display-name
   return ({ visible, onEditPeriod, onDelete }: any) => {
     if (!visible) return null;
     return (
@@ -128,6 +130,7 @@ jest.mock("@/components/Calendar/CalendarMonth", () => {
   const { TouchableOpacity, Text, View } = require("react-native");
   const { addDays, subDays } = require("date-fns");
 
+  // eslint-disable-next-line react/display-name
   return ({ onPress, today, item }: any) => (
     <View testID={`month-view-${item.id}`}>
       <TouchableOpacity

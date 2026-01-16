@@ -144,13 +144,15 @@ describe("QuestionnaireFinalQuestions", () => {
     fireEvent.press(screen.getByText("Finish"));
 
     await waitFor(() => {
-      expect(screen.getByText("Something went wrong. Please try again.")).toBeTruthy();
+      expect(
+        screen.getByText("Something went wrong. Please try again."),
+      ).toBeTruthy();
     });
   });
 
   it("prevents double submission", async () => {
     (submitQuestionnaire as jest.Mock).mockImplementation(
-      () => new Promise((resolve) => setTimeout(resolve, 100))
+      () => new Promise((resolve) => setTimeout(resolve, 100)),
     );
     (useQuestionnaire as jest.Mock).mockReturnValue({
       answers: {

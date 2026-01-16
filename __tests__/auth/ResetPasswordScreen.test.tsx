@@ -115,25 +115,33 @@ describe("ResetPasswordScreen", () => {
   });
 
   it("clears validation errors when user types", async () => {
-    const { getByTestId, queryByText, getByText } = render(<ResetPasswordScreen />);
+    const { getByTestId, queryByText, getByText } = render(
+      <ResetPasswordScreen />,
+    );
 
     // Trigger validation error
     fillPasswords(getByTestId, "weak", "weak");
     fireEvent.press(getByTestId("reset-password-button"));
 
     await waitFor(() => {
-      expect(getByText(/Password must contain at least 8 characters/)).toBeTruthy();
+      expect(
+        getByText(/Password must contain at least 8 characters/),
+      ).toBeTruthy();
     });
 
     // Type in new password field
     fireEvent.changeText(getByTestId("new-password-input"), "S");
-    
+
     // Error should be gone
-    expect(queryByText(/Password must contain at least 8 characters/)).toBeNull();
+    expect(
+      queryByText(/Password must contain at least 8 characters/),
+    ).toBeNull();
   });
 
   it("clears confirm password error when user types in confirm field", async () => {
-    const { getByTestId, queryByText, getByText } = render(<ResetPasswordScreen />);
+    const { getByTestId, queryByText, getByText } = render(
+      <ResetPasswordScreen />,
+    );
 
     // Trigger mismatch error
     fillPasswords(getByTestId, "StrongPass1", "Mismatch");
@@ -144,14 +152,19 @@ describe("ResetPasswordScreen", () => {
     });
 
     // Type in confirm field
-    fireEvent.changeText(getByTestId("confirm-new-password-input"), "StrongPass1");
+    fireEvent.changeText(
+      getByTestId("confirm-new-password-input"),
+      "StrongPass1",
+    );
 
     expect(queryByText("Please make sure the passwords match.")).toBeNull();
   });
 
   it("handles API error during reset", async () => {
     const errorMessage = "Network error";
-    (api.resetPassword as jest.Mock).mockRejectedValueOnce(new Error(errorMessage));
+    (api.resetPassword as jest.Mock).mockRejectedValueOnce(
+      new Error(errorMessage),
+    );
 
     const { getByTestId, getByText } = render(<ResetPasswordScreen />);
 
@@ -172,7 +185,9 @@ describe("ResetPasswordScreen", () => {
     fireEvent.press(getByTestId("reset-password-button"));
 
     await waitFor(() => {
-      expect(getByText("We couldn't reset your password. Please try again.")).toBeTruthy();
+      expect(
+        getByText("We couldn't reset your password. Please try again."),
+      ).toBeTruthy();
     });
   });
 });

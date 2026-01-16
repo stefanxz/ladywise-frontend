@@ -26,7 +26,7 @@ describe("useHealthRealtime Hook", () => {
   let mockActivate: jest.Mock;
   let mockDeactivate: jest.Mock;
   let mockSubscribe: jest.Mock;
-  
+
   // Captures for internal client handlers
   let capturedOnConnect: (() => void) | undefined;
   let capturedOnStompError: ((frame: any) => void) | undefined;
@@ -56,18 +56,22 @@ describe("useHealthRealtime Hook", () => {
         subscribe: mockSubscribe,
         active: true,
         // Expose the config passed to constructor so we can test 'debug' function
-        _config: config, 
+        _config: config,
       };
 
       // Capture onConnect
       Object.defineProperty(clientInstance, "onConnect", {
-        set: (fn) => { capturedOnConnect = fn; },
+        set: (fn) => {
+          capturedOnConnect = fn;
+        },
         get: () => capturedOnConnect,
       });
 
       // Capture onStompError
       Object.defineProperty(clientInstance, "onStompError", {
-        set: (fn) => { capturedOnStompError = fn; },
+        set: (fn) => {
+          capturedOnStompError = fn;
+        },
         get: () => capturedOnStompError,
       });
 
@@ -87,7 +91,9 @@ describe("useHealthRealtime Hook", () => {
   });
 
   it("should handle Thrombosis trend updates specifically", () => {
-    const { result } = renderHook(() => useHealthRealtime(mockUserId, mockToken));
+    const { result } = renderHook(() =>
+      useHealthRealtime(mockUserId, mockToken),
+    );
 
     // Connect
     act(() => {
@@ -97,7 +103,7 @@ describe("useHealthRealtime Hook", () => {
     // Find subscription for thrombosis
     const thrombosisTopic = `/topic/insights/thrombosis/${mockUserId}`;
     const thrombosisCallback = mockSubscribe.mock.calls.find(
-      (call) => call[0] === thrombosisTopic
+      (call) => call[0] === thrombosisTopic,
     )[1];
 
     expect(thrombosisCallback).toBeDefined();
@@ -113,7 +119,9 @@ describe("useHealthRealtime Hook", () => {
   });
 
   it("should handle Anemia trend updates specifically", () => {
-    const { result } = renderHook(() => useHealthRealtime(mockUserId, mockToken));
+    const { result } = renderHook(() =>
+      useHealthRealtime(mockUserId, mockToken),
+    );
 
     // Connect
     act(() => {
@@ -123,7 +131,7 @@ describe("useHealthRealtime Hook", () => {
     // Find subscription for anemia
     const anemiaTopic = `/topic/insights/anemia/${mockUserId}`;
     const anemiaCallback = mockSubscribe.mock.calls.find(
-      (call) => call[0] === anemiaTopic
+      (call) => call[0] === anemiaTopic,
     )[1];
 
     expect(anemiaCallback).toBeDefined();
@@ -139,7 +147,9 @@ describe("useHealthRealtime Hook", () => {
   });
 
   it("should handle Risk updates", () => {
-    const { result } = renderHook(() => useHealthRealtime(mockUserId, mockToken));
+    const { result } = renderHook(() =>
+      useHealthRealtime(mockUserId, mockToken),
+    );
 
     // Connect
     act(() => {
@@ -149,7 +159,7 @@ describe("useHealthRealtime Hook", () => {
     // Find subscription for risks
     const risksTopic = `/topic/risks/${mockUserId}`;
     const risksCallback = mockSubscribe.mock.calls.find(
-      (call) => call[0] === risksTopic
+      (call) => call[0] === risksTopic,
     )[1];
 
     expect(risksCallback).toBeDefined();
@@ -165,14 +175,16 @@ describe("useHealthRealtime Hook", () => {
   });
 
   it("should safely ignore messages with empty bodies", () => {
-    const { result } = renderHook(() => useHealthRealtime(mockUserId, mockToken));
+    const { result } = renderHook(() =>
+      useHealthRealtime(mockUserId, mockToken),
+    );
 
     act(() => {
       if (capturedOnConnect) capturedOnConnect();
     });
 
     const riskCallback = mockSubscribe.mock.calls.find(
-      (call) => call[0] === `/topic/risks/${mockUserId}`
+      (call) => call[0] === `/topic/risks/${mockUserId}`,
     )[1];
 
     // Trigger update with NO body (simulate empty frame)
@@ -199,8 +211,8 @@ describe("useHealthRealtime Hook", () => {
 
     // Verify console.error was called (covering the onStompError function)
     expect(consoleErrorSpy).toHaveBeenCalledWith(
-      "❌ STOMP Broker Error:", 
-      "Invalid Sub"
+      "❌ STOMP Broker Error:",
+      "Invalid Sub",
     );
   });
 
@@ -208,24 +220,36 @@ describe("useHealthRealtime Hook", () => {
     renderHook(() => useHealthRealtime(mockUserId, mockToken));
 
     // Access the config passed to the Client constructor
-    const clientConstructorCall = (Client as unknown as jest.Mock).mock.calls[0][0];
+    const clientConstructorCall = (Client as unknown as jest.Mock).mock
+      .calls[0][0];
     const debugFn = clientConstructorCall.debug;
 
     // Test 1: PING - should be ignored
     debugFn("<<< PING");
-    expect(consoleLogSpy).not.toHaveBeenCalledWith("[STOMP Internal]:", expect.stringContaining("PING"));
+    expect(consoleLogSpy).not.toHaveBeenCalledWith(
+      "[STOMP Internal]:",
+      expect.stringContaining("PING"),
+    );
 
     // Test 2: actual message - should be logged
     debugFn("Connected to Broker");
-    expect(consoleLogSpy).toHaveBeenCalledWith("[STOMP Internal]:", "Connected to Broker");
+    expect(consoleLogSpy).toHaveBeenCalledWith(
+      "[STOMP Internal]:",
+      "Connected to Broker",
+    );
 
     // Test 3: PONG - should be ignored
     debugFn(">>> PONG");
-    expect(consoleLogSpy).not.toHaveBeenCalledWith("[STOMP Internal]:", expect.stringContaining("PONG"));
+    expect(consoleLogSpy).not.toHaveBeenCalledWith(
+      "[STOMP Internal]:",
+      expect.stringContaining("PONG"),
+    );
   });
 
   it("should deactivate client on unmount", () => {
-    const { unmount } = renderHook(() => useHealthRealtime(mockUserId, mockToken));
+    const { unmount } = renderHook(() =>
+      useHealthRealtime(mockUserId, mockToken),
+    );
     unmount();
     expect(mockDeactivate).toHaveBeenCalledTimes(1);
   });

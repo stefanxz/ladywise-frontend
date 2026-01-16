@@ -110,11 +110,11 @@ describe("QuestionnaireThrombosisRisk", () => {
   it("deselects an already selected option", () => {
     render(<QuestionnaireThrombosisRisk />);
     const option = screen.getByTestId("multiselect-option-smoking");
-    
+
     // Select
     fireEvent.press(option);
     expect(option.props.accessibilityState.selected).toBe(true);
-    
+
     // Deselect
     fireEvent.press(option);
     expect(option.props.accessibilityState.selected).toBe(false);

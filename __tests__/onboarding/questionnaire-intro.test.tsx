@@ -10,7 +10,7 @@ import { fireEvent, render } from "@testing-library/react-native";
 import React from "react";
 import { BackHandler } from "react-native";
 
-// mock dependencies 
+// mock dependencies
 jest.mock("expo-router");
 jest.mock("@expo/vector-icons");
 
@@ -61,7 +61,7 @@ jest.mock("@react-navigation/native", () => ({
   // mock useFocusEffect to execute the callback immediately so listeners are attached
   useFocusEffect: jest.fn((callback) => {
     const cleanup = callback();
-    if (typeof cleanup === 'function') {
+    if (typeof cleanup === "function") {
       effectCleanups.push(cleanup);
     }
   }),
@@ -101,12 +101,14 @@ describe("QuestionnaireIntro screen", () => {
 
   it("redirects to personal details register screen when AppBar back is pressed", () => {
     const { getByTestId } = render(<QuestionnaireIntro />);
-    
+
     // simulate pressing the AppBar back button
     fireEvent.press(getByTestId("app-bar-back"));
 
     // should use replace instead of back to ensure correct stack reset
-    expect(router.replace).toHaveBeenCalledWith("/(auth)/register/personal-details");
+    expect(router.replace).toHaveBeenCalledWith(
+      "/(auth)/register/personal-details",
+    );
   });
 
   it("intercepts Android Hardware Back press and redirects", () => {
@@ -119,15 +121,17 @@ describe("QuestionnaireIntro screen", () => {
 
     // find the registered 'hardwareBackPress' call
     const hardwareBackCall = addEventListenerSpy.mock.calls.find(
-      (call) => call[0] === "hardwareBackPress"
+      (call) => call[0] === "hardwareBackPress",
     );
 
     expect(hardwareBackCall).toBeDefined();
-    const hardwareBackCallback = hardwareBackCall![1]; 
+    const hardwareBackCallback = hardwareBackCall![1];
     const result = hardwareBackCallback();
 
     expect(result).toBe(true);
-    expect(router.replace).toHaveBeenCalledWith("/(auth)/register/personal-details");
+    expect(router.replace).toHaveBeenCalledWith(
+      "/(auth)/register/personal-details",
+    );
   });
 
   it("prevents double redirection if back is pressed multiple times", () => {
@@ -140,12 +144,12 @@ describe("QuestionnaireIntro screen", () => {
 
     // find the registered 'hardwareBackPress' call
     const hardwareBackCall = addEventListenerSpy.mock.calls.find(
-      (call) => call[0] === "hardwareBackPress"
+      (call) => call[0] === "hardwareBackPress",
     );
 
     expect(hardwareBackCall).toBeDefined();
-    const hardwareBackCallback = hardwareBackCall![1]; 
-    
+    const hardwareBackCallback = hardwareBackCall![1];
+
     // First press
     hardwareBackCallback();
     expect(router.replace).toHaveBeenCalledTimes(1);
@@ -160,7 +164,7 @@ describe("QuestionnaireIntro screen", () => {
 
     // find the registered 'beforeRemove' callback passed to navigation.addListener
     const beforeRemoveCallback = mockAddListener.mock.calls.find(
-      (call) => call[0] === "beforeRemove"
+      (call) => call[0] === "beforeRemove",
     )[1];
 
     expect(beforeRemoveCallback).toBeDefined();
@@ -175,14 +179,16 @@ describe("QuestionnaireIntro screen", () => {
     beforeRemoveCallback(mockEvent);
 
     expect(mockEvent.preventDefault).toHaveBeenCalled();
-    expect(router.replace).toHaveBeenCalledWith("/(auth)/register/personal-details");
+    expect(router.replace).toHaveBeenCalledWith(
+      "/(auth)/register/personal-details",
+    );
   });
 
   it("ignores 'beforeRemove' events that are not back actions (e.g., NAVIGATE)", () => {
     render(<QuestionnaireIntro />);
 
     const beforeRemoveCallback = mockAddListener.mock.calls.find(
-      (call) => call[0] === "beforeRemove"
+      (call) => call[0] === "beforeRemove",
     )[1];
 
     // event type that isn't GO_BACK, POP, or POP_TO_TOP
@@ -201,8 +207,8 @@ describe("QuestionnaireIntro screen", () => {
 
   it("cleans up rerouting ref on unmount (triggers effect cleanup)", () => {
     render(<QuestionnaireIntro />);
-    
+
     // Simulate unmount by calling captured cleanups
-    effectCleanups.forEach(cleanup => cleanup());
+    effectCleanups.forEach((cleanup) => cleanup());
   });
 });

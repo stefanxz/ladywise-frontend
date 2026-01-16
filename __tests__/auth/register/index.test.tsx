@@ -304,7 +304,15 @@ describe("RegisterIndex screen", () => {
   });
 
   it("clears confirm password error when typing", () => {
-    const { toggleTnc, typeEmail, typePassword, typeConfirm, pressContinue, getByText, queryByText } = setup();
+    const {
+      toggleTnc,
+      typeEmail,
+      typePassword,
+      typeConfirm,
+      pressContinue,
+      getByText,
+      queryByText,
+    } = setup();
     toggleTnc();
     typeEmail("user@example.com");
     mockedValidations.isEmailValid.mockReturnValue(true);
@@ -320,8 +328,15 @@ describe("RegisterIndex screen", () => {
   });
 
   it("handles 409 Conflict error (Email already taken)", async () => {
-    const { toggleTnc, typeEmail, typePassword, typeConfirm, pressContinue, getByText } = setup();
-    
+    const {
+      toggleTnc,
+      typeEmail,
+      typePassword,
+      typeConfirm,
+      pressContinue,
+      getByText,
+    } = setup();
+
     toggleTnc();
     typeEmail("taken@example.com");
     mockedValidations.isEmailValid.mockReturnValue(true);
@@ -346,8 +361,15 @@ describe("RegisterIndex screen", () => {
   });
 
   it("handles generic Axios error", async () => {
-    const { toggleTnc, typeEmail, typePassword, typeConfirm, pressContinue, getByText } = setup();
-    
+    const {
+      toggleTnc,
+      typeEmail,
+      typePassword,
+      typeConfirm,
+      pressContinue,
+      getByText,
+    } = setup();
+
     toggleTnc();
     typeEmail("error@example.com");
     mockedValidations.isEmailValid.mockReturnValue(true);
@@ -372,8 +394,15 @@ describe("RegisterIndex screen", () => {
   });
 
   it("handles generic non-Axios error", async () => {
-    const { toggleTnc, typeEmail, typePassword, typeConfirm, pressContinue, getByText } = setup();
-    
+    const {
+      toggleTnc,
+      typeEmail,
+      typePassword,
+      typeConfirm,
+      pressContinue,
+      getByText,
+    } = setup();
+
     toggleTnc();
     typeEmail("crash@example.com");
     mockedValidations.isEmailValid.mockReturnValue(true);
@@ -395,21 +424,33 @@ describe("RegisterIndex screen", () => {
   it("handles keyboard events and cleanup", () => {
     const { Keyboard } = require("react-native");
     const removeMock = jest.fn();
-    const addListenerSpy = jest.spyOn(Keyboard, "addListener").mockReturnValue({ remove: removeMock } as any);
+    const addListenerSpy = jest
+      .spyOn(Keyboard, "addListener")
+      .mockReturnValue({ remove: removeMock } as any);
 
     const { unmount } = setup();
 
-    expect(addListenerSpy).toHaveBeenCalledWith("keyboardDidShow", expect.any(Function));
-    expect(addListenerSpy).toHaveBeenCalledWith("keyboardDidHide", expect.any(Function));
+    expect(addListenerSpy).toHaveBeenCalledWith(
+      "keyboardDidShow",
+      expect.any(Function),
+    );
+    expect(addListenerSpy).toHaveBeenCalledWith(
+      "keyboardDidHide",
+      expect.any(Function),
+    );
 
-    const showCallback = addListenerSpy.mock.calls.find(call => call[0] === "keyboardDidShow")?.[1];
-    const hideCallback = addListenerSpy.mock.calls.find(call => call[0] === "keyboardDidHide")?.[1];
+    const showCallback = addListenerSpy.mock.calls.find(
+      (call) => call[0] === "keyboardDidShow",
+    )?.[1] as (() => void) | undefined;
+    const hideCallback = addListenerSpy.mock.calls.find(
+      (call) => call[0] === "keyboardDidHide",
+    )?.[1] as (() => void) | undefined;
 
     act(() => {
-      showCallback();
+      showCallback?.();
     });
     act(() => {
-      hideCallback();
+      hideCallback?.();
     });
 
     unmount();
@@ -419,8 +460,15 @@ describe("RegisterIndex screen", () => {
   });
 
   it("handles Axios error with missing response data message (fallback to e.message)", async () => {
-    const { toggleTnc, typeEmail, typePassword, typeConfirm, pressContinue, getByText } = setup();
-    
+    const {
+      toggleTnc,
+      typeEmail,
+      typePassword,
+      typeConfirm,
+      pressContinue,
+      getByText,
+    } = setup();
+
     toggleTnc();
     typeEmail("fail@example.com");
     mockedValidations.isEmailValid.mockReturnValue(true);
@@ -445,8 +493,15 @@ describe("RegisterIndex screen", () => {
   });
 
   it("handles Axios error with absolutely no message (fallback to default)", async () => {
-    const { toggleTnc, typeEmail, typePassword, typeConfirm, pressContinue, getByText } = setup();
-    
+    const {
+      toggleTnc,
+      typeEmail,
+      typePassword,
+      typeConfirm,
+      pressContinue,
+      getByText,
+    } = setup();
+
     toggleTnc();
     typeEmail("fail2@example.com");
     mockedValidations.isEmailValid.mockReturnValue(true);
@@ -460,7 +515,7 @@ describe("RegisterIndex screen", () => {
     // @ts-ignore
     error.response = { status: 500, data: {} };
     // @ts-ignore
-    error.message = undefined; 
+    error.message = undefined;
     mockedApi.registerUser.mockRejectedValue(error);
 
     await act(async () => {
@@ -473,23 +528,33 @@ describe("RegisterIndex screen", () => {
   });
 
   it("adjusts padding on Android when keyboard shows", () => {
-      const { Platform, Keyboard } = require("react-native");
-      const originalOS = Platform.OS;
-      // Force Platform.OS to android
-      Object.defineProperty(Platform, 'OS', { get: () => 'android', configurable: true });
+    const { Platform, Keyboard } = require("react-native");
+    const originalOS = Platform.OS;
+    // Force Platform.OS to android
+    Object.defineProperty(Platform, "OS", {
+      get: () => "android",
+      configurable: true,
+    });
 
-      const addListenerSpy = jest.spyOn(Keyboard, "addListener").mockReturnValue({ remove: jest.fn() } as any);
-      
-      try {
-        const { getByTestId } = render(<RegisterIndex />);
-        
-        const showCallback = addListenerSpy.mock.calls.find(call => call[0] === "keyboardDidShow")?.[1];
-        
-        act(() => {
-          showCallback();
-        });
-      } finally {
-        Object.defineProperty(Platform, 'OS', { get: () => originalOS, configurable: true });
-      }
+    const addListenerSpy = jest
+      .spyOn(Keyboard, "addListener")
+      .mockReturnValue({ remove: jest.fn() } as any);
+
+    try {
+      const { getByTestId } = render(<RegisterIndex />);
+
+      const showCallback = addListenerSpy.mock.calls.find(
+        (call) => call[0] === "keyboardDidShow",
+      )?.[1] as (() => void) | undefined;
+
+      act(() => {
+        showCallback?.();
+      });
+    } finally {
+      Object.defineProperty(Platform, "OS", {
+        get: () => originalOS,
+        configurable: true,
+      });
+    }
   });
 });
