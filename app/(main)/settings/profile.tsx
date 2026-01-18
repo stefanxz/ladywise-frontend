@@ -15,7 +15,7 @@ import { ThemedPressable } from "@/components/ThemedPressable/ThemedPressable";
 import {
   BinaryChoiceGroup,
   MultiSelectGroup,
-} from "@/app/onboarding/components/QuestionScreen";
+} from "@/components/QuestionScreen/QuestionScreen";
 import { ANEMIA_RISK_OPTIONS } from "@/data/anemia-risk-options";
 import { THROMBOSIS_RISK_OPTIONS } from "@/data/thrombosis-risk-options";
 import { useToast } from "@/hooks/useToast";

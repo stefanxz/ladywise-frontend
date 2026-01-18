@@ -2,7 +2,7 @@ import { THROMBOSIS_RISK_OPTIONS as OPTIONS } from "@/data/thrombosis-risk-optio
 import {
   MultiSelectGroup,
   QuestionScreen,
-} from "@/app/onboarding/components/QuestionScreen";
+} from "@/components/QuestionScreen/QuestionScreen";
 import { useQuestionnaire } from "@/app/onboarding/QuestionnaireContext";
 import { ThemedPressable } from "@/components/ThemedPressable/ThemedPressable";
 import { useRouter } from "expo-router";
