@@ -1,7 +1,7 @@
 import {
   BinaryChoiceGroup,
   QuestionScreen,
-} from "@/app/onboarding/components/QuestionScreen";
+} from "@/components/QuestionScreen/QuestionScreen";
 import { useQuestionnaire } from "@/app/onboarding/QuestionnaireContext";
 import { ThemedPressable } from "@/components/ThemedPressable/ThemedPressable";
 import { submitQuestionnaire } from "@/lib/api";
