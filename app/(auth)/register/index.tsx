@@ -24,12 +24,14 @@ import TermsConditionsPopUp, {
 import termsData from "../../../data/terms-and-conditions.json";
 type ApiError = { message?: string };
 /**
- * RegisterIndex
+ * User Registration Entry Screen
  *
- * The initial screen in the user registration flow.
- * Collects email, password, and terms agreement.
+ * This is the first step in the onboarding process where new users create their
+ * account credentials. It captures and validates basic account information including
+ * email, password, and confirmation of legal terms and conditions.
  *
- * @returns {JSX.Element} The rendered registration screen
+ * It enforces password complexity requirements and ensures that email addresses
+ * follow a valid format before allowing the user to proceed to personal details.
  */
 export default function RegisterIndex() {
   const [email, setEmail] = useState("");
@@ -53,6 +55,8 @@ export default function RegisterIndex() {
 
   const [isKeyboardVisible, setKeyboardVisible] = useState(false);
 
+  // Monitor keyboard events to adjust layout padding on Android.
+  // This prevents the keyboard from overlapping critical UI elements (like the continue button).
   useEffect(() => {
     const keyboardDidShowListener = Keyboard.addListener(
       "keyboardDidShow",
@@ -89,6 +93,14 @@ export default function RegisterIndex() {
     if (confirmPasswordError) setConfirmPasswordError(null);
   };
 
+  /**
+   * Registration Submission Handler
+   *
+   * Performs client-side validation for the registration form. If all fields are
+   * valid, it calls the backend API to create the user account. Upon successful
+   * registration, it automatically signs the user in and redirects them to the
+   * personal details configuration step.
+   */
   const handleContinue = async () => {
     setFormError(null);
     setEmailError(null);
@@ -96,6 +108,7 @@ export default function RegisterIndex() {
     setConfirmPasswordError(null);
 
     let hasError = false;
+    // Check if email is present and follows standard format
     if (!email.trim()) {
       setEmailError("Please enter your email.");
       hasError = true;
@@ -104,6 +117,7 @@ export default function RegisterIndex() {
       hasError = true;
     }
 
+    // Enforce password complexity rules (length, case, numbers)
     if (!isPasswordValid(password)) {
       setPasswordError(
         "Password must contain at least 8 characters, 1 upper case, 1 lower case and 1 number (and no spaces).",
@@ -111,6 +125,7 @@ export default function RegisterIndex() {
       hasError = true;
     }
 
+    // Verify password confirmation matches
     if (confirmPassword !== password || !confirmPassword.trim()) {
       setConfirmPasswordError("Please make sure the passwords match.");
       hasError = true;
@@ -127,6 +142,7 @@ export default function RegisterIndex() {
         consentVersion: termsData.version,
       });
 
+      // Auto-login after successful registration to streamline UX
       await signIn(
         loginResponse.token,
         loginResponse.userId,
@@ -141,6 +157,7 @@ export default function RegisterIndex() {
           e.message ??
           "Registration failed.";
 
+        // Handle specific conflict error (e.g. email already exists)
         if (status === 409) {
           setEmailError(message);
           return;

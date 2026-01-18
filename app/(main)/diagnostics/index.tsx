@@ -29,13 +29,15 @@ type DiagnosticsScreenProps = {
 };
 
 /**
- * DiagnosticsScreen
+ * Diagnostics Overview Dashboard
  *
- * Main diagnostics dashboard displaying summaries for various risk factors (Thrombosis, Anemia, Menstrual Flow).
- * Shows trend lines and current status for each factor.
+ * Serves as the primary analytical hub of the application, aggregating health
+ * data to provide a high-level summary of a user's health status. It specifically
+ * tracks and visualizes trends for thrombosis risk, anemia risk, and menstrual flow
+ * patterns over time.
  *
- * @param {DiagnosticsScreenProps} props - Component props
- * @returns {JSX.Element} The rendered diagnostics dashboard
+ * Each health category is presented as a summary card with current status indicators
+ * and interactive trend charts that lead to more detailed diagnostic views.
  */
 export default function DiagnosticsScreen({
   initialHistory: historyProp,
@@ -49,6 +51,13 @@ export default function DiagnosticsScreen({
   const [loading, setLoading] = useState(!historyProp);
   const [showShareModal, setShowShareModal] = useState(false);
 
+  /**
+   * Diagnostic Data Fetching
+   *
+   * Refreshes the user's risk and flow history whenever the screen comes into focus.
+   * This ensures that the dashboard always displays the most recent calculations
+   * based on the latest daily entries and biosensor data.
+   */
   useFocusEffect(
     React.useCallback(() => {
       if (historyProp) return; // Don't fetch if history is passed as a prop
@@ -146,6 +155,8 @@ export default function DiagnosticsScreen({
     );
   }
 
+  // Filter history to include only relevant entries for each risk type
+  // This ensures the charts don't display "zero" lines for missing data points
   const thrombosisHistory = history.filter(
     (item) => (item.thrombosisRisk ?? 0) > 0,
   );
@@ -156,14 +167,17 @@ export default function DiagnosticsScreen({
     (item) => item.thrombosisRisk ?? 0,
   );
 
+  // Similar filtering for Anemia risk to maintain chart accuracy
   const anemiaHistory = history.filter((item) => (item.anemiaRisk ?? 0) > 0);
   const anemiaLabels = anemiaHistory.map((item) => formatDateUTC(item.date));
   const anemiaData = anemiaHistory.map((item) => item.anemiaRisk ?? 0);
 
+  // Flow data is typically continuous, so we map the entire history
   // Renamed to flowChartLabels to avoid shadowing the global flowLabels constant
   const flowChartLabels = history.map((item) => formatDateUTC(item.date));
   const flowData = history.map((item) => item.flowLevel ?? 0);
 
+  // Extract the most recent entry to display current status on summary cards
   const latest = history[history.length - 1];
   const latestThrombosis = (latest.thrombosisRisk ?? 0) as RiskNum;
   const latestAnemia = (latest.anemiaRisk ?? 0) as RiskNum;
@@ -212,6 +226,8 @@ export default function DiagnosticsScreen({
                 </Text>
               </View>
 
+              {/* Thrombosis Trend Chart */}
+              {/* Displays risk levels (1-3) over time. Interactivity enabled for tapping data points. */}
               <RiskLineChart
                 labels={thrombosisLabels}
                 data={thrombosisData}
@@ -256,6 +272,7 @@ export default function DiagnosticsScreen({
                 </Text>
               </View>
 
+              {/* Anemia Trend Chart */}
               <RiskLineChart
                 labels={anemiaLabels}
                 data={anemiaData}
@@ -287,6 +304,8 @@ export default function DiagnosticsScreen({
               </Text>
             </View>
 
+            {/* Menstrual Flow Chart */}
+            {/* Visualizes flow intensity (Light, Normal, Heavy) over the recorded history. */}
             <RiskLineChart
               labels={flowChartLabels}
               data={flowData}

@@ -30,7 +30,16 @@ type CalendarMonthProps = {
   today: Date;
 };
 
-// Defines a month view in the calendar, rendering days with appropriate styles
+/**
+ * Calendar Month Component
+ *
+ * Responsible for rendering a single month's grid within the larger calendar view.
+ * It manages the display of individual days, applying distinct visual styles for
+ * tracked periods, predicted cycles, and the current user selection.
+ *
+ * This component handles the logic for determining which days fall within a
+ * selected range and coordinates with the parent calendar to handle user interactions.
+ */
 const CalendarMonth = React.memo(
   ({
     item,

@@ -10,11 +10,15 @@ import { isAxiosError } from "axios";
 import { useToast } from "@/hooks/useToast";
 
 /**
- * AccountSettings
+ * Account Security Settings Screen
  *
- * Screen for managing account security settings.
- * Allows users to change their password and delete their account.
+ * This screen provides users with tools to manage their account's security
+ * and lifecycle. It allows for updating the account password with strict
+ * validation and provides a permanent account deletion mechanism with
+ * mandatory confirmation to prevent accidental data loss.
  *
+ * All operations here involve sensitive backend requests and immediate
+ * session management.
  */
 export default function AccountSettings() {
   const { signOut } = useAuth();
@@ -37,6 +41,13 @@ export default function AccountSettings() {
     setConfirmPwError(null);
   };
 
+  /**
+   * Password Update Handler
+   *
+   * Validates the current password, the new password's complexity, and ensure
+   * both new password entries match. On successful update, it notifies the user
+   * and clears the sensitive form fields.
+   */
   const handleUpdatePassword = async () => {
     clearErrors();
     let hasError = false;
@@ -102,6 +113,13 @@ export default function AccountSettings() {
     }
   };
 
+  /**
+   * Account Deletion Handler
+   *
+   * Permanently removes the user's account and all associated health data
+   * from the system. Due to the destructive nature of this action, it is
+   * only executed after an explicit confirmation from the user.
+   */
   const handleDeleteAccount = async () => {
     setIsDeleting(true);
     try {

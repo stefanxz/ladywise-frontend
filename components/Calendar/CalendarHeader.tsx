@@ -8,12 +8,12 @@ import { useRouter } from "expo-router";
 const WEEK_DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
 /**
- * CalendarHeader
+ * Calendar Navigation Header
  *
- * Renders the header for the Calendar screen, including the title,
- * a help button, and the row of weekday labels (Mon-Sun).
- *
- * @returns {JSX.Element} The rendered header component
+ * Provides the persistent top-level navigation and information bar for the
+ * calendar screen. It includes the screen title, a quick-access help/tutorial
+ * button, and the static weekday labels (Monday through Sunday) that align
+ * with the monthly date grids.
  */
 const CalendarHeader = () => {
   const router = useRouter();

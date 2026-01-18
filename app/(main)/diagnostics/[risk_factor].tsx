@@ -27,13 +27,16 @@ import ViewModeDropdown from "@/components/Diagnostics/ViewModeDropdown";
 const chartWidth = Dimensions.get("window").width - 80; // Screen padding (20*2) + Card padding (20*2)
 
 /**
- * ExtendedDiagnosticsScreen
+ * Specialized Diagnostics Detail Screen
  *
- * Detailed view for a specific risk factor (e.g., Anemia or Thrombosis).
- * Displays a trend graph, current risk level, factors contributing to the risk, and insights.
- * Allows sharing of the risk report.
+ * Provides an in-depth analytical view for a specific health risk factor (e.g.,
+ * Anemia or Thrombosis). This screen breaks down the overall risk into its
+ * constituent components, showing historical trends, AI-generated insights based
+ * on the user's data, and specific contributing factors identified by the system.
  *
- * @returns {JSX.Element} The rendered extended diagnostics screen
+ * It allows users to visualize their health journey over daily, weekly, or
+ * monthly intervals and provides options to share these detailed reports with
+ * medical professionals.
  */
 const ExtendedDiagnosticsScreen = () => {
   const router = useRouter();
@@ -70,6 +73,13 @@ const ExtendedDiagnosticsScreen = () => {
     return RISK_LABELS[rounded] ?? "";
   };
 
+  /**
+   * Insight and Factor Synchronization
+   *
+   * Analyzes the most recent diagnostic history entry to extract narrative
+   * insights and identifiable risk factors. These are then parsed and mapped
+   * to UI components to provide the user with actionable health context.
+   */
   useEffect(() => {
     if (!loading && history.length > 0) {
       const latest = history[history.length - 1];
@@ -93,7 +103,13 @@ const ExtendedDiagnosticsScreen = () => {
     }
   }, [history, loading, risk_factor]);
 
-  /* Derived Data for Graph */
+  /**
+   * Diagnostic Trend Data Processing
+   *
+   * Transforms the raw historical diagnostic data into a format suitable for
+   * the line chart. It filters out entries with insufficient data and aligns
+   * dates with their corresponding risk values for the selected risk factor.
+   */
   const riskData = React.useMemo(() => {
     if (!history.length) return { labels: [], data: [] };
 

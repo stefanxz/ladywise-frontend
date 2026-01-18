@@ -4,6 +4,16 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useToast } from "@/hooks/useToast";
 import { ToastItem } from "./ToastItem";
 
+/**
+ * Toast Container Component
+ *
+ * Serves as the fixed overlay wrapper for all active toast notifications.
+ * It positions itself safely within the screen boundaries (respecting safe area insets)
+ * and stacks the active toasts vertically.
+ *
+ * This component should typically be placed near the root of the application tree
+ * to ensure toasts appear above other content.
+ */
 export const ToastContainer: React.FC = () => {
   const { toasts } = useToast();
   const insets = useSafeAreaInsets();

@@ -11,13 +11,15 @@ import { useState } from "react";
 import { Text, View } from "react-native";
 
 /**
- * QuestionnaireFinalQuestions
+ * Onboarding: Final Health Questionnaire Step
  *
- * Final step of the questionnaire.
- * Asks about contraceptive use and biosensor cup usage.
- * Submits the aggregated data to the backend.
+ * This concluding step captures specific health habits, such as the use of
+ * hormonal contraception and specialized medical hardware (biosensor cup).
+ * These final data points are critical for calibrating the system's
+ * analytical models to the user's specific physiological context.
  *
- * @returns {JSX.Element} The rendered final questions screen
+ * This screen also handles the final aggregation of all onboarding data and
+ * manages the secure submission of the complete health profile to the backend.
  */
 export default function QuestionnaireFinalQuestions() {
   const router = useRouter();
@@ -32,6 +34,14 @@ export default function QuestionnaireFinalQuestions() {
   // Error States
   const [apiError, setApiError] = useState<string | null>(null); // For submission errors
 
+  /**
+   * Complete Health Profile Submission
+   *
+   * Aggregates answers from all previous questionnaire steps, transforms them
+   * into the required backend payload format, and performs the final network
+   * request. On successful submission, it clears the local questionnaire state
+   * and directs the user to the onboarding completion screen.
+   */
   const submit = async (
     estrogen: boolean | null,
     biosensor: boolean | null,

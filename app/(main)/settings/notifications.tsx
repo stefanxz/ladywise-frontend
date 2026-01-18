@@ -14,7 +14,14 @@ import FrequencyOptionPill from "@/components/Settings/FrequencyOptionPill";
 import { useToast } from "@/hooks/useToast";
 
 /**
- * Notification settings screen.
+ * Notification Preferences Screen
+ *
+ * Allows users to customize their push notification settings.
+ * Users can independently configure the frequency of reminders for daily logging
+ * (Daily, Monthly, or Off) and toggle notifications for menstrual cycle phase changes.
+ *
+ * It uses optimistic UI updates to provide a responsive experience while ensuring
+ * state consistency with the backend.
  */
 export default function NotificationsSettings() {
   const { showToast } = useToast();
@@ -49,6 +56,13 @@ export default function NotificationsSettings() {
     fetchSettings();
   }, []);
 
+  /**
+   * Universal handler for updating notification preferences.
+   *
+   * Performs an optimistic update on the local state before calling the API.
+   * If the API request fails, it automatically reverts the local state to its
+   * previous value and notifies the user.
+   */
   const handleUpdateSetting = useCallback(
     async (type: NotificationType, frequency: NotificationFrequency) => {
       // Optimistically update UI
@@ -79,6 +93,11 @@ export default function NotificationsSettings() {
     [questionnaireFrequency, phaseFrequency, showToast],
   );
 
+  /**
+   * Helper to toggle Phase Change notifications.
+   * Simplified interface for the Switch component that maps boolean states
+   * to API frequency enums (TRUE -> DAILY, FALSE -> NONE).
+   */
   const handleTogglePhaseNotifications = useCallback(
     (enabled: boolean) => {
       // Toggle between DAILY and NONE

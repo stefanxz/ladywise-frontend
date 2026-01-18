@@ -14,9 +14,14 @@ type ToastItemProps = {
 };
 
 /**
- * Customizable toast item component.
+ * Individual Toast Notification Item
  *
- * @param toast {ToastItemProps} - The toast object
+ * Renders a single animated toast message with a specific style based on its
+ * type (Success, Error, Info). It handles its own entry and exit animations,
+ * as well as an automatic dismissal timer.
+ *
+ * Tapping the toast or its close icon will trigger an immediate dismissal
+ * with a coordinated fade-out and slide-up animation.
  */
 export const ToastItem: React.FC<ToastItemProps> = ({
   toast,
@@ -45,7 +50,10 @@ export const ToastItem: React.FC<ToastItemProps> = ({
   }[toast.type || "info"];
 
   /**
-   * Executes exit animations and invokes context cleanup function.
+   * Coordinated Dismissal Animation
+   *
+   * Triggers the exit transition for the toast. Once the animation completes,
+   * it calls the global `hideToast` method to remove the item from the state.
    */
   const handleDismiss = useCallback(() => {
     Animated.parallel([

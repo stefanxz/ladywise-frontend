@@ -33,6 +33,15 @@ export const usePushNotifications = (isAuthenticated: boolean) => {
   );
   const responseListener = useRef<Notifications.EventSubscription | null>(null);
 
+  /**
+   * Push Notification Registration and Lifecycle
+   *
+   * Orchestrates the multi-step process of requesting notification permissions,
+   * retrieving a unique device token from Expo, and synchronizing that token
+   * with the application backend. It also establishes persistent listeners to
+   * handle notifications arriving while the app is in the foreground or when
+   * a user interacts with a system notification.
+   */
   useEffect(() => {
     // If user is not authenticated stop cause we can't
     if (!isAuthenticated) return;

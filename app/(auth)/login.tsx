@@ -24,12 +24,15 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 
 /**
- * LoginScreen
+ * User Login Screen
  *
- * Screen component that allows users to authenticate with their email and password.
- * Handles form validation, credential submission, and error feedback.
+ * Provides a secure entry point for existing users to authenticate with the
+ * application. It handles email and password validation, credential submission
+ * to the backend, and manages session state upon successful login.
  *
- * @returns {JSX.Element} The rendered login screen
+ * It also includes features like password visibility toggling, a "Forgot Password"
+ * flow, and provides detailed feedback for various authentication failure scenarios
+ * (e.g., network issues, invalid credentials).
  */
 export default function LoginScreen() {
   const router = useRouter();
@@ -70,6 +73,14 @@ export default function LoginScreen() {
   const bottomPadding =
     Platform.OS === "android" && isKeyboardVisible ? 350 : 0;
 
+  /**
+   * Login Submission Handler
+   *
+   * Validates form inputs before attempting to authenticate the user with the
+   * backend API. On success, it resets failed login counters, updates the
+   * global authentication context, and redirects the user to the main home screen.
+   * If authentication fails, it provides contextual error messages to the user.
+   */
   const handleLogin = async () => {
     setEmailError(null);
     setFormError(null);
@@ -89,11 +100,13 @@ export default function LoginScreen() {
 
     try {
       setIsSubmitting(true);
+      // Attempt authentication with the provided credentials
       const loginResponse = await loginUser({
         email: email.trim(),
         password: password.trim(),
       });
 
+      // Clear tracking of failed attempts on successful login
       await resetFailedLoginCount();
       // Update session context immediately so navigation switches to the main stack.
 
@@ -105,6 +118,7 @@ export default function LoginScreen() {
 
       router.replace("/(main)/home");
     } catch (error) {
+      // Track failures to potentially implement lockouts or CAPTCHA later
       await incrementFailedLoginCount();
       let message = "We couldn't log you in. Please try again.";
 
