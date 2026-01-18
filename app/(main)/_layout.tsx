@@ -19,12 +19,15 @@ import { usePushNotifications } from "@/hooks/usePushNotifications";
 export default function HomeLayout() {
   const { token, isLoading } = useAuth();
 
+  // Register for push notifications as soon as the authenticated session is active
   usePushNotifications(!!token);
 
+  // Defer rendering until authentication state is resolved to prevent flashing screens
   if (isLoading) {
     return null;
   }
 
+  // Redirect unauthenticated users to the landing page (auth flow entry point)
   if (!token) {
     return <Redirect href="/(auth)/landing" />;
   }

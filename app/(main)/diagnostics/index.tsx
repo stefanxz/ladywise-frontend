@@ -155,6 +155,8 @@ export default function DiagnosticsScreen({
     );
   }
 
+  // Filter history to include only relevant entries for each risk type
+  // This ensures the charts don't display "zero" lines for missing data points
   const thrombosisHistory = history.filter(
     (item) => (item.thrombosisRisk ?? 0) > 0,
   );
@@ -165,14 +167,17 @@ export default function DiagnosticsScreen({
     (item) => item.thrombosisRisk ?? 0,
   );
 
+  // Similar filtering for Anemia risk to maintain chart accuracy
   const anemiaHistory = history.filter((item) => (item.anemiaRisk ?? 0) > 0);
   const anemiaLabels = anemiaHistory.map((item) => formatDateUTC(item.date));
   const anemiaData = anemiaHistory.map((item) => item.anemiaRisk ?? 0);
 
+  // Flow data is typically continuous, so we map the entire history
   // Renamed to flowChartLabels to avoid shadowing the global flowLabels constant
   const flowChartLabels = history.map((item) => formatDateUTC(item.date));
   const flowData = history.map((item) => item.flowLevel ?? 0);
 
+  // Extract the most recent entry to display current status on summary cards
   const latest = history[history.length - 1];
   const latestThrombosis = (latest.thrombosisRisk ?? 0) as RiskNum;
   const latestAnemia = (latest.anemiaRisk ?? 0) as RiskNum;
@@ -221,6 +226,8 @@ export default function DiagnosticsScreen({
                 </Text>
               </View>
 
+              {/* Thrombosis Trend Chart */}
+              {/* Displays risk levels (1-3) over time. Interactivity enabled for tapping data points. */}
               <RiskLineChart
                 labels={thrombosisLabels}
                 data={thrombosisData}
@@ -265,6 +272,7 @@ export default function DiagnosticsScreen({
                 </Text>
               </View>
 
+              {/* Anemia Trend Chart */}
               <RiskLineChart
                 labels={anemiaLabels}
                 data={anemiaData}
@@ -296,6 +304,8 @@ export default function DiagnosticsScreen({
               </Text>
             </View>
 
+            {/* Menstrual Flow Chart */}
+            {/* Visualizes flow intensity (Light, Normal, Heavy) over the recorded history. */}
             <RiskLineChart
               labels={flowChartLabels}
               data={flowData}

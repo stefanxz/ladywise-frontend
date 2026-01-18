@@ -54,6 +54,8 @@ const TermsConditionsPopUp = forwardRef<
   );
   TermsConditionsPopUp.displayName = "TermsConditionsPopUp";
 
+  // Expose control methods to parent components via ref
+  // This allows the parent to open/close the modal programmatically
   useImperativeHandle(ref, () => ({
     open: () => {
       modalRef.current?.present();
@@ -130,7 +132,8 @@ const TermsConditionsPopUp = forwardRef<
         )}
       </BottomSheetScrollView>
       {mode === "accept" ? (
-        // Show Cancel & Accept buttons
+        // Mode: 'accept' (Registration)
+        // Requires explicit user agreement to proceed
         <View className="mt-4 flex-row gap-3 px-4 pb-8">
           <Pressable
             className="flex-1 border border-slate-300 rounded-xl py-3 items-center"
@@ -147,7 +150,8 @@ const TermsConditionsPopUp = forwardRef<
           </Pressable>
         </View>
       ) : (
-        // Show just OK button
+        // Mode: 'display' (Information)
+        // Simple dismissal for reviewing terms without action required
         <View className="mt-4 px-4 pb-8">
           <Pressable
             className="bg-brand rounded-xl py-3 items-center"

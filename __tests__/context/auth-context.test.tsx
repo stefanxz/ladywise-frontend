@@ -4,7 +4,6 @@ import { AuthProvider, useAuth } from "@/context/AuthContext";
 import * as authLib from "@/lib/auth";
 import * as apiLib from "@/lib/api";
 
-// --- Mocks ---
 jest.mock("@/lib/auth", () => ({
   getAuthData: jest.fn(),
   storeAuthData: jest.fn(),

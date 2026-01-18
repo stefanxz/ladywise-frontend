@@ -32,7 +32,7 @@ type QuestionScreenProps = {
  */
 export function QuestionScreen({
   step,
-  totalSteps = QUESTIONNAIRE_TOTAL_STEPS,
+  totalSteps = QUESTIONNAIRE_TOTAL_STEPS, // Defaults to the standard flow length, but can be overridden for sub-flows
   title,
   description,
   children,
@@ -192,6 +192,7 @@ export function MultiSelectGroup({
               key={option.id}
               onPress={() => onToggle(option.id)}
               testID={`multiselect-option-${option.id}`}
+              // Indicate selection state to screen readers (TalkBack/VoiceOver)
               accessibilityState={{ selected: isSelected }}
               className={cn(
                 "w-full rounded-2xl border border-transparent px-4 py-3",

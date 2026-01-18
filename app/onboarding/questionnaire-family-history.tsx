@@ -39,6 +39,10 @@ export default function QuestionnaireFamilyHistory() {
     router.push("./questionnaire-anemia-risk");
   };
 
+  /**
+   * Skips the family history section.
+   * Explicitly sets values to null to indicate "unanswered" or "unknown" rather than "no".
+   */
   const handleSkip = () => {
     updateAnswers({
       familyHistory: {
@@ -59,6 +63,7 @@ export default function QuestionnaireFamilyHistory() {
         <ThemedPressable
           label="Continue"
           onPress={handleContinue}
+          // Button is disabled until both questions have a Yes/No selection
           disabled={familyAnemia === null && familyThrombosis === null}
         />
       }

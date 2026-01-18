@@ -26,7 +26,10 @@ import {
  * for mapping backend data keys to user-facing UI elements.
  */
 export const FACTORS_REGISTRY: Record<string, FactorDefinition> = {
-  // Medical risk factors
+  /**
+   * Medical Risk Factors
+   * Genetic predispositions and medical history items
+   */
   family_history_anemia: {
     id: "family_history_anemia",
     title: "Family History",
@@ -75,7 +78,10 @@ export const FACTORS_REGISTRY: Record<string, FactorDefinition> = {
     icon: Baby,
   },
 
-  // Symptoms
+  /**
+   * Physiological Symptoms
+   * User-reported daily health observations
+   */
   chest_pain: {
     id: "chest_pain",
     title: "Chest Pain",
@@ -124,7 +130,10 @@ export const FACTORS_REGISTRY: Record<string, FactorDefinition> = {
     icon: Battery,
   },
 
-  // Flow characteristics
+  /**
+   * Menstrual Flow Characteristics
+   *Qualitative assessment of menstrual volume
+   */
   flow_light: {
     id: "flow_light",
     title: "Flow Characteristics",

@@ -9,7 +9,6 @@ import { QuestionnaireProvider } from "@/app/onboarding/QuestionnaireContext";
 import { fireEvent, render } from "@testing-library/react-native";
 import React from "react";
 
-// --- Mock dependencies ---
 jest.mock("expo-router");
 jest.mock("@expo/vector-icons");
 jest.mock("react-native-safe-area-context", () => {
@@ -21,7 +20,6 @@ jest.mock("react-native-safe-area-context", () => {
   };
 });
 
-// --- Get router mock from expo-router ---
 const { __getMocks } = jest.requireMock("expo-router");
 const router = __getMocks();
 
@@ -136,8 +134,7 @@ describe("QuestionnairePersonalDetails screen", () => {
     expect(router.push).not.toHaveBeenCalled();
   });
 
-  // -------------------------------------------------------------------------
-  // Checkign weight input
+  // Check weight input
   it("shows 'Please enter your weight.' when weight is empty", () => {
     const { pressContinue, getByText } = setup();
 
@@ -231,8 +228,7 @@ describe("QuestionnairePersonalDetails screen", () => {
     expect(getByText("Weight is out of range.")).toBeTruthy();
   });
 
-  // -----------------------------------------------------------------------------------------------------------
-  // Checkign height input
+  // Check height input
   it("shows 'Please enter your height.' when height is empty", () => {
     const { pressContinue, getByText } = setup();
 

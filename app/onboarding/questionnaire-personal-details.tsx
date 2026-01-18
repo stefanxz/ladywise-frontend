@@ -86,6 +86,7 @@ export default function Questionnaire() {
     const maxAge = 56;
 
     let hasError = false;
+    // Ensure age is entered, is a number, and falls within the supported range (13-56)
     if (!age.trim()) {
       setAgeError("Please enter your age.");
       hasError = true;
@@ -104,6 +105,7 @@ export default function Questionnaire() {
       }
     }
 
+    // Validate weight is present, numeric, and within a realistic human range (5-540kg)
     if (!weight.trim()) {
       setWeightError("Please enter your weight.");
       hasError = true;
@@ -121,6 +123,7 @@ export default function Questionnaire() {
       }
     }
 
+    // Validate height is present, numeric, and within a realistic human range (62-216cm)
     if (!height.trim()) {
       setHeightError("Please enter your height.");
       hasError = true;

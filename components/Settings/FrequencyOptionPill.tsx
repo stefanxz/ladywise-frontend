@@ -2,7 +2,11 @@ import { Pressable, Text } from "react-native";
 import React from "react";
 
 /**
- * A pill-styled button for selecting notification frequency.
+ * Selectable Frequency Option Component
+ *
+ * Renders a pill-shaped button used for selecting a single option from a set
+ * (e.g., Daily, Weekly, None). It provides visual feedback for selected,
+ * unselected, and disabled states.
  */
 export default function FrequencyOptionPill({
   label,

@@ -55,6 +55,8 @@ export default function RegisterIndex() {
 
   const [isKeyboardVisible, setKeyboardVisible] = useState(false);
 
+  // Monitor keyboard events to adjust layout padding on Android.
+  // This prevents the keyboard from overlapping critical UI elements (like the continue button).
   useEffect(() => {
     const keyboardDidShowListener = Keyboard.addListener(
       "keyboardDidShow",
@@ -106,6 +108,7 @@ export default function RegisterIndex() {
     setConfirmPasswordError(null);
 
     let hasError = false;
+    // Check if email is present and follows standard format
     if (!email.trim()) {
       setEmailError("Please enter your email.");
       hasError = true;
@@ -114,6 +117,7 @@ export default function RegisterIndex() {
       hasError = true;
     }
 
+    // Enforce password complexity rules (length, case, numbers)
     if (!isPasswordValid(password)) {
       setPasswordError(
         "Password must contain at least 8 characters, 1 upper case, 1 lower case and 1 number (and no spaces).",
@@ -121,6 +125,7 @@ export default function RegisterIndex() {
       hasError = true;
     }
 
+    // Verify password confirmation matches
     if (confirmPassword !== password || !confirmPassword.trim()) {
       setConfirmPasswordError("Please make sure the passwords match.");
       hasError = true;
@@ -137,6 +142,7 @@ export default function RegisterIndex() {
         consentVersion: termsData.version,
       });
 
+      // Auto-login after successful registration to streamline UX
       await signIn(
         loginResponse.token,
         loginResponse.userId,
@@ -151,6 +157,7 @@ export default function RegisterIndex() {
           e.message ??
           "Registration failed.";
 
+        // Handle specific conflict error (e.g. email already exists)
         if (status === 409) {
           setEmailError(message);
           return;

@@ -100,11 +100,13 @@ export default function LoginScreen() {
 
     try {
       setIsSubmitting(true);
+      // Attempt authentication with the provided credentials
       const loginResponse = await loginUser({
         email: email.trim(),
         password: password.trim(),
       });
 
+      // Clear tracking of failed attempts on successful login
       await resetFailedLoginCount();
       // Update session context immediately so navigation switches to the main stack.
 
@@ -116,6 +118,7 @@ export default function LoginScreen() {
 
       router.replace("/(main)/home");
     } catch (error) {
+      // Track failures to potentially implement lockouts or CAPTCHA later
       await incrementFailedLoginCount();
       let message = "We couldn't log you in. Please try again.";
 

@@ -120,6 +120,12 @@ export default function ProfileSettings() {
     setBiosensorCup(healthDocument.health.biosensorCup ?? null);
   };
 
+  /**
+   * Toggles an anemia condition in the selection list.
+   * Enforces mutual exclusivity for the "None" option:
+   * - Selecting "None" clears all other selections.
+   * - Selecting any specific condition automatically unselects "None".
+   */
   const toggleAnemiaCondition = (id: string) => {
     setAnemiaConditions((prev) => {
       // If "None" is clicked
@@ -143,6 +149,10 @@ export default function ProfileSettings() {
     });
   };
 
+  /**
+   * Toggles a thrombosis condition in the selection list.
+   * Mirrors the logic of toggleAnemiaCondition with "None" exclusivity.
+   */
   const toggleThrombosisCondition = (id: string) => {
     setThrombosisConditions((prev) => {
       // If "None" is clicked
@@ -166,6 +176,13 @@ export default function ProfileSettings() {
     });
   };
 
+  /**
+   * Validates all form inputs against defined constraints.
+   * - Age: 13-56 years (medically relevant range for menstruation).
+   * - Weight: 5-540 kg (broad physiological range).
+   * - Height: 62-216 cm (broad physiological range).
+   * Returns true if all fields are valid, otherwise returns false and sets error state.
+   */
   const validateForm = (): boolean => {
     const newErrors: { [key: string]: string } = {};
 
