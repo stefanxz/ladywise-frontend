@@ -2,7 +2,6 @@ import * as auth from "@/lib/auth";
 import * as SecureStore from "expo-secure-store";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-// --- Mocks ---
 jest.mock("expo-secure-store", () => ({
   setItemAsync: jest.fn(),
   getItemAsync: jest.fn(),

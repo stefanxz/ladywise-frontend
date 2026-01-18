@@ -16,12 +16,17 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { updateUser } from "@/lib/api";
 
 /**
- * RegisterPersDetails
+ * Personal Details Registration Screen
  *
- * Registration step to collect the user's personal details (First Name, Last Name).
- * Updates the user profile after initial account creation.
+ * This screen is the second step in the registration flow, displayed immediately
+ * after the user has created their account credentials. Its primary purpose is to
+ * capture the user's personal identity information (first and last name) to
+ * personalize the application experience.
  *
- * @returns {JSX.Element} The rendered personal details screen
+ * It handles input validation, error display, and updating the user's profile
+ * via the backend API before navigating to the onboarding questionnaire.
+ *
+ * @returns {JSX.Element} The rendered screen with a form for personal details.
  */
 export default function RegisterPersDetails() {
   const [firstName, setFirstName] = useState("");
@@ -34,6 +39,14 @@ export default function RegisterPersDetails() {
 
   const [isKeyboardVisible, setKeyboardVisible] = useState(false);
 
+  /**
+   * Keyboard Visibility Listener
+   *
+   * Monitors the software keyboard state to adjust the bottom padding of the
+   * scroll view. This ensures that the form fields remain visible and accessible
+   * even when the keyboard is open, particularly on Android devices where
+   * keyboard behavior can overlap UI elements.
+   */
   useEffect(() => {
     const keyboardDidShowListener = Keyboard.addListener(
       "keyboardDidShow",
@@ -61,6 +74,14 @@ export default function RegisterPersDetails() {
     router.replace("/(main)/home");
   }, [router]);
 
+  /**
+   * Form Submission Handler
+   *
+   * Validates the name fields to ensure they are not empty. If validation passes,
+   * it initiates an API call to update the user's profile. On success, it
+   * advances the user to the next stage of onboarding (the questionnaire).
+   * Any errors during validation or API update are caught and displayed to the user.
+   */
   const handlePressed = async () => {
     setFirstNameError(null);
     setLastNameError(null);

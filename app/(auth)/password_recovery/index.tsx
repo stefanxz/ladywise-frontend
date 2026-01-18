@@ -16,12 +16,15 @@ import { isEmailValid } from "@/utils/validations";
 import { requestPasswordReset } from "@/lib/api";
 
 /**
- * PasswordRecovery
+ * Password Recovery Initiation Screen
  *
- * The initial screen in the password recovery flow.
- * Prompts the user for their email address to initiate the reset process.
+ * This screen serves as the starting point for users who have forgotten their
+ * account password. It allows them to provide their registered email address,
+ * which is then validated and used to trigger a secure reset link from the
+ * backend service.
  *
- * @returns {JSX.Element} The rendered password recovery start screen
+ * It includes real-time email format validation and clear feedback on the
+ * success or failure of the recovery request.
  */
 export default function PasswordRecovery() {
   const router = useRouter();
@@ -36,6 +39,14 @@ export default function PasswordRecovery() {
     if (emailError) setEmailError(null);
   };
 
+  /**
+   * Password Recovery Submission
+   *
+   * Validates the provided email address for correct formatting and non-emptiness.
+   * On successful validation, it calls the recovery API and, if the request is
+   * accepted, redirects the user to an informational screen confirming that
+   * the recovery email has been dispatched.
+   */
   const handleContinue = async () => {
     setEmailError(null);
     setFormError(null);

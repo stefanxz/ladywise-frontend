@@ -30,13 +30,16 @@ import { formatPhaseName, generateCalendarDays } from "@/utils/mainPageHelpers";
 import { useDailyEntry } from "@/hooks/useDailyEntry";
 
 /**
- * Home
+ * Main Application Dashboard (Home)
  *
- * The primary dashboard screen of the application.
- * Displays the daily calendar strip, current cycle phase, risk insights, and easy access to logging.
- * Integrates real-time health data updates.
+ * This screen serves as the primary hub for the authenticated user, providing a
+ * comprehensive snapshot of their current health status. It integrates daily
+ * cycle tracking, real-time risk assessment via biosensors (when connected),
+ * and curated health insights.
  *
- * @returns {JSX.Element} The rendered home screen
+ * The dashboard dynamically adapts its UI (colors, phase information) based on the
+ * user's menstrual cycle and provides immediate access to daily logging and
+ * specialized diagnostic tools.
  */
 const Home = () => {
   const router = useRouter();
@@ -94,6 +97,13 @@ const Home = () => {
     return initialApiData;
   }, [realtimeRisks, initialApiData]);
 
+  /**
+   * Risk Data Initialization
+   *
+   * Fetches historical risk data from the backend on initial load. This provides
+   * immediate feedback to the user while waiting for potential real-time
+   * updates from connected health devices.
+   */
   useEffect(() => {
     const loadRisks = async () => {
       if (isAuthLoading || !token || !userId) return;
@@ -118,6 +128,13 @@ const Home = () => {
     loadRisks();
   }, [token, userId, isAuthLoading, realtimeRisks]);
 
+  /**
+   * Cycle and Profile Synchronization
+   *
+   * Refreshes the user's display name and menstrual cycle status whenever the
+   * home screen gains focus. This ensures that phase calculations and calendar
+   * highlights are always based on the most recent entries.
+   */
   useFocusEffect(
     useCallback(() => {
       if (isAuthLoading || !token || !userId) return;

@@ -23,8 +23,15 @@ import { useToast } from "@/hooks/useToast";
 const NONE_OPTION = "none";
 
 /**
- * Screen for managing user profile information (questionnaire data).
- * Fetches current user data and displays it.
+ * Profile Settings Screen
+ *
+ * Provides a comprehensive interface for users to view and update their personal
+ * information and health-related questionnaire data. This includes basic details
+ * like age, weight, and height, as well as complex health history such as
+ * family history of anemia or thrombosis and current medication use.
+ *
+ * The screen synchronizes local form state with both the primary user account
+ * and the specialized health document stored on the backend.
  */
 export default function ProfileSettings() {
   const { token, userId } = useAuth();
@@ -53,6 +60,13 @@ export default function ProfileSettings() {
   const [estrogenPill, setEstrogenPill] = useState<boolean | null>(null);
   const [biosensorCup, setBiosensorCup] = useState<boolean | null>(null);
 
+  /**
+   * Data Initialization Effect
+   *
+   * Fetches the user's basic profile and their detailed health document on mount.
+   * Once retrieved, it populates the local form state to reflect the current
+   * values stored on the server.
+   */
   useEffect(() => {
     async function fetchData() {
       if (!token || !userId) return;
@@ -106,6 +120,12 @@ export default function ProfileSettings() {
     setBiosensorCup(healthDocument.health.biosensorCup ?? null);
   };
 
+  /**
+   * Toggles an anemia condition in the selection list.
+   * Enforces mutual exclusivity for the "None" option:
+   * - Selecting "None" clears all other selections.
+   * - Selecting any specific condition automatically unselects "None".
+   */
   const toggleAnemiaCondition = (id: string) => {
     setAnemiaConditions((prev) => {
       // If "None" is clicked
@@ -129,6 +149,10 @@ export default function ProfileSettings() {
     });
   };
 
+  /**
+   * Toggles a thrombosis condition in the selection list.
+   * Mirrors the logic of toggleAnemiaCondition with "None" exclusivity.
+   */
   const toggleThrombosisCondition = (id: string) => {
     setThrombosisConditions((prev) => {
       // If "None" is clicked
@@ -152,6 +176,13 @@ export default function ProfileSettings() {
     });
   };
 
+  /**
+   * Validates all form inputs against defined constraints.
+   * - Age: 13-56 years (medically relevant range for menstruation).
+   * - Weight: 5-540 kg (broad physiological range).
+   * - Height: 62-216 cm (broad physiological range).
+   * Returns true if all fields are valid, otherwise returns false and sets error state.
+   */
   const validateForm = (): boolean => {
     const newErrors: { [key: string]: string } = {};
 
@@ -200,6 +231,14 @@ export default function ProfileSettings() {
     return Object.keys(newErrors).length === 0;
   };
 
+  /**
+   * Save Changes Handler
+   *
+   * Orchestrates the multi-step update process: first validating the form input,
+   * then updating basic user profile information, and finally submitting the
+   * health-specific questionnaire data. Displays success or error feedback
+   * to the user via toast notifications.
+   */
   const handleSave = async () => {
     if (!user || !userId) {
       showToast("Unable to save: user data not loaded", "error");

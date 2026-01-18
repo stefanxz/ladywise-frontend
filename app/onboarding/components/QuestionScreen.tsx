@@ -20,18 +20,19 @@ type QuestionScreenProps = {
 };
 
 /**
- * QuestionScreen
+ * Questionnaire Step Layout Wrapper
  *
- * Reusable wrapper component for questionnaire steps.
- * Displays a title, description, progress bar, and content.
- * Optionally includes a "Skip" button and footer.
+ * Provides a consistent structural and visual framework for all onboarding
+ * questionnaire screens. It automatically handles the integration of the
+ * progress indicator, navigation actions (like "Skip"), and consistent
+ * scrollable content areas.
  *
- * @param {QuestionScreenProps} props - Component props
- * @returns {JSX.Element} The rendered question screen layout
+ * This component ensures that the questionnaire feels like a unified journey
+ * while allowing for diverse content types within each step.
  */
 export function QuestionScreen({
   step,
-  totalSteps = QUESTIONNAIRE_TOTAL_STEPS,
+  totalSteps = QUESTIONNAIRE_TOTAL_STEPS, // Defaults to the standard flow length, but can be overridden for sub-flows
   title,
   description,
   children,
@@ -97,12 +98,12 @@ type BinaryChoiceGroupProps = {
 };
 
 /**
- * BinaryChoiceGroup
+ * Mutually Exclusive Binary Selection Group
  *
- * Component for selecting between two mutually exclusive options (e.g., Yes/No).
- *
- * @param {BinaryChoiceGroupProps} props - Component props
- * @returns {JSX.Element} The rendered binary choice group
+ * A specialized input component for capturing "Yes/No" style responses. It
+ * provides large, touch-friendly targets and clear visual feedback for the
+ * currently selected state, ensuring a low-friction interaction model during
+ * the onboarding process.
  */
 export function BinaryChoiceGroup({
   question,
@@ -165,12 +166,12 @@ type MultiSelectGroupProps = {
 };
 
 /**
- * MultiSelectGroup
+ * Multi-Selection Option Grid
  *
- * Component for selecting multiple options from a list.
- *
- * @param {MultiSelectGroupProps} props - Component props
- * @returns {JSX.Element} The rendered multi-select group
+ * Manages the presentation and interaction logic for lists where users may
+ * select one or more relevant items (e.g., specific medical conditions).
+ * It coordinates with the parent component to handle selection toggles and
+ * provides immediate visual confirmation of the current selection set.
  */
 export function MultiSelectGroup({
   question,
@@ -191,6 +192,7 @@ export function MultiSelectGroup({
               key={option.id}
               onPress={() => onToggle(option.id)}
               testID={`multiselect-option-${option.id}`}
+              // Indicate selection state to screen readers (TalkBack/VoiceOver)
               accessibilityState={{ selected: isSelected }}
               className={cn(
                 "w-full rounded-2xl border border-transparent px-4 py-3",

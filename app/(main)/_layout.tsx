@@ -6,23 +6,28 @@ import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import { usePushNotifications } from "@/hooks/usePushNotifications";
 
 /**
- * HomeLayout
+ * Authenticated Main Layout
  *
- * Main layout for the authenticated application.
- * Manages the bottom tab navigation and global providers like BottomSheetModalProvider.
- * Redirects to landing if no authentication token is present.
+ * This layout serves as the shell for the core application experience. It
+ * establishes the bottom tab navigation structure and provides global context
+ * providers like the BottomSheetModalProvider to all nested screens.
  *
- * @returns {JSX.Element | null} The rendered layout or null/redirect
+ * It acts as a security gate, ensuring that unauthenticated users are redirected
+ * to the landing page and managing global background tasks like push
+ * notification registration.
  */
 export default function HomeLayout() {
   const { token, isLoading } = useAuth();
 
+  // Register for push notifications as soon as the authenticated session is active
   usePushNotifications(!!token);
 
+  // Defer rendering until authentication state is resolved to prevent flashing screens
   if (isLoading) {
     return null;
   }
 
+  // Redirect unauthenticated users to the landing page (auth flow entry point)
   if (!token) {
     return <Redirect href="/(auth)/landing" />;
   }

@@ -57,6 +57,8 @@ export const useHealthRealtime = (
     const cleanBaseUrl = baseUrl.replace(/\/$/, "");
     const socketUrl = `${cleanBaseUrl}/sockjs`;
 
+    // Initialize STOMP client over SockJS
+    // This allows for bi-directional real-time communication with the Spring Boot backend
     const client = new Client({
       webSocketFactory: () =>
         new SockJS(socketUrl, null, {
@@ -81,6 +83,7 @@ export const useHealthRealtime = (
       setIsConnected(true);
 
       // Risk Subscription
+      // Listens for real-time updates to the user's calculated risk scores
       client.subscribe(`/topic/risks/${userId}`, (message: IMessage) => {
         if (message.body) {
           const parsed = JSON.parse(message.body);
@@ -91,6 +94,7 @@ export const useHealthRealtime = (
       });
 
       // Anemia Trend Subscription
+      // Receives AI-driven insights regarding anemia progression
       client.subscribe(
         `/topic/insights/anemia/${userId}`,
         (message: IMessage) => {
@@ -103,6 +107,7 @@ export const useHealthRealtime = (
       );
 
       // Thrombosis Trend Subscription
+      // Receives AI-driven insights regarding thrombosis progression
       client.subscribe(
         `/topic/insights/thrombosis/${userId}`,
         (message: IMessage) => {

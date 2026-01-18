@@ -27,6 +27,18 @@ type PeriodActionTooltipProps = {
   onClose: () => void;
 };
 
+/**
+ * Calendar Contextual Action Tooltip
+ *
+ * A specialized overlay that appears when a user interacts with a tracked date
+ * in the calendar. It provides immediate access to primary management tasks
+ * such as modifying period ranges, updating detailed daily questionnaires,
+ * or removing cycle entries entirely.
+ *
+ * The component handles complex dynamic positioning logic to ensure it remains
+ * correctly aligned with the target date regardless of screen dimensions or
+ * platform-specific UI behaviors.
+ */
 export default function PeriodActionTooltip({
   visible,
   position,

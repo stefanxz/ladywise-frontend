@@ -15,11 +15,21 @@ import {
 } from "lucide-react-native";
 
 /**
- * This registry serves as the Single Source of Truth for all
- * potential risk factors and symptoms displayed in the application.
+ * Risk and Symptom Factors Registry
+ *
+ * This registry serves as the central configuration for all health-related factors
+ * tracked within the application, including medical risk factors, physical symptoms,
+ * and menstrual flow characteristics.
+ *
+ * Each entry defines how a factor is identified, titled, and visually represented
+ * across the dashboard and diagnostics screens. It acts as the single source of truth
+ * for mapping backend data keys to user-facing UI elements.
  */
 export const FACTORS_REGISTRY: Record<string, FactorDefinition> = {
-  // Medical risk factors
+  /**
+   * Medical Risk Factors
+   * Genetic predispositions and medical history items
+   */
   family_history_anemia: {
     id: "family_history_anemia",
     title: "Family History",
@@ -68,7 +78,10 @@ export const FACTORS_REGISTRY: Record<string, FactorDefinition> = {
     icon: Baby,
   },
 
-  // Symptoms
+  /**
+   * Physiological Symptoms
+   * User-reported daily health observations
+   */
   chest_pain: {
     id: "chest_pain",
     title: "Chest Pain",
@@ -117,7 +130,10 @@ export const FACTORS_REGISTRY: Record<string, FactorDefinition> = {
     icon: Battery,
   },
 
-  // Flow characteristics
+  /**
+   * Menstrual Flow Characteristics
+   *Qualitative assessment of menstrual volume
+   */
   flow_light: {
     id: "flow_light",
     title: "Flow Characteristics",

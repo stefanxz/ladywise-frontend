@@ -10,12 +10,15 @@ import { useMemo, useState } from "react";
 import { View } from "react-native";
 
 /**
- * QuestionnaireThrombosisRisk
+ * Onboarding: Thrombosis Risk Evaluation
  *
- * Fourth step of the questionnaire: Thrombosis Risk Factors.
- * Allows the user to select multiple conditions related to thrombosis.
+ * This dedicated section of the questionnaire evaluates specific lifestyle
+ * and clinical factors associated with thrombosis risk. It complements the
+ * general health history by focusing on indicators like immobility, smoking,
+ * or recent major surgery.
  *
- * @returns {JSX.Element} The rendered thrombosis risk questionnaire step
+ * The captured information is used by the system to generate targeted health
+ * alerts and educational content tailored to the user's specific risk profile.
  */
 export default function QuestionnaireThrombosisRisk() {
   const router = useRouter();

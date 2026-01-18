@@ -19,9 +19,12 @@ export type Tutorial = {
 };
 
 /**
- * TutorialsScreen
+ * Help and Tutorials Screen
  *
- * Tutorials and help resources page
+ * A centralized resource page where users can find educational content and
+ * guidance on using the application effectively. It features a curated list
+ * of video tutorials that cover various aspects of health tracking and
+ * biosensor usage, presented in a clean, easily navigable list format.
  */
 export default function TutorialsScreen() {
   const [showVideoModal, setShowVideoModal] = useState(false);
@@ -41,6 +44,13 @@ export default function TutorialsScreen() {
     setShowVideoModal(true);
   };
 
+  /**
+   * Tutorial Content Synchronization
+   *
+   * Fetches the latest list of tutorial resources from the backend on component
+   * mount. This ensures that help content can be updated remotely without
+   * requiring an app update.
+   */
   useEffect(() => {
     const loadTutorials = async () => {
       try {
