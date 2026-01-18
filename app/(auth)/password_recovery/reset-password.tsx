@@ -10,12 +10,15 @@ import { resetPassword } from "@/lib/api";
 import { isPasswordValid } from "@/utils/validations";
 
 /**
- * ResetPasswordScreen
+ * Final Password Reset Screen
  *
- * Screen that allows users to set a new password using a token from the reset link.
- * Validates the new password and confirmation before submitting.
+ * This screen is the destination for users arriving from a secure password
+ * reset link. It provides the interface for setting a new account password,
+ * ensuring that the new credentials meet the application's complexity
+ * requirements and match the confirmation input.
  *
- * @returns {JSX.Element} The rendered password reset screen
+ * Upon successful reset, the user is redirected to the login screen with a
+ * success notification to finalize their re-authentication.
  */
 export default function ResetPasswordScreen() {
   const router = useRouter();
@@ -44,6 +47,14 @@ export default function ResetPasswordScreen() {
     if (formError) setFormError(null);
   };
 
+  /**
+   * Secure Password Update Execution
+   *
+   * Validates the integrity of the reset token and the new password fields.
+   * If all security checks pass, it transmits the new credentials to the backend
+   * for permanent updating. Errors during the process are captured and displayed
+   * to guide the user toward a successful resolution.
+   */
   const handleResetPassword = async () => {
     setFormError(null);
     setPasswordError(null);

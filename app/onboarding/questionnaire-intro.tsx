@@ -7,12 +7,15 @@ import { BackHandler, Image, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 /**
- * RegisterQuestIntro
+ * Onboarding Initiation Screen
  *
- * Introduction screen to the questionnaire flow.
- * Explains the purpose of the data collection to the user.
+ * This screen welcomes the user to the personalized tracking experience and
+ * provides context for why health information is being collected. It acts
+ * as a transition point between account creation and detailed health profiling.
  *
- * @returns {JSX.Element} The rendered intro screen
+ * It includes robust navigation guards to ensure users can return to their
+ * personal details configuration if needed, while maintaining the integrity
+ * of the onboarding stack.
  */
 export default function RegisterQuestIntro() {
   const router = useRouter();
@@ -26,7 +29,13 @@ export default function RegisterQuestIntro() {
     router.replace("/(auth)/register/personal-details");
   }, [router]);
 
-  // Intercept iOS swipe/header back
+  /**
+   * iOS Swipe-Back Navigation Guard
+   *
+   * Intercepts standard navigation events (like the iOS swipe-back gesture or
+   * header back buttons) to ensure the user is correctly routed back to the
+   * personal details section rather than simply popping the previous stack entry.
+   */
   useFocusEffect(
     useCallback(() => {
       const sub = navigation.addListener("beforeRemove", (e: any) => {
@@ -41,7 +50,13 @@ export default function RegisterQuestIntro() {
     }, [navigation, goBackToPersonalDetails]),
   );
 
-  // Intercept Android hardware back
+  /**
+   * Android Hardware Back Navigation Guard
+   *
+   * Specialized listener for the physical Android back button. It overrides
+   * default behavior during the questionnaire intro to maintain consistent
+   * cross-platform navigation logic.
+   */
   useFocusEffect(
     useCallback(() => {
       const onHardwareBack = () => {

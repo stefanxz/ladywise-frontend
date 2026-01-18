@@ -17,18 +17,16 @@ import type { ShareReportModalProps, ReportType } from "@/lib/types/reports";
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 /**
- * ShareReportModal
+ * Clinical Data Sharing Interface
  *
- * A modal dialog that allows users to share their health report with a clinician via email.
- * Validates the email address and handles the API call to send the report.
+ * This modal component provides a secure way for users to share their summarized
+ * health data and risk assessments with medical professionals. It allows for
+ * the targeted distribution of specific reports (e.g., Thrombosis-only or Full)
+ * directly to a clinician's email.
  *
- * @param {ShareReportModalProps} props - Component props
- * @param {boolean} props.visible - Whether the modal is visible
- * @param {function} props.onClose - Callback to close the modal
- * @param {ReportType} props.reportType - The type of report to share (e.g., THROMBOSIS_ONLY)
- * @param {string} props.graphImageBase64 - Base64 string of the risk chart
- * @param {string} props.insightSummary - Text summary of the AI insights
- * @returns {JSX.Element} The rendered share report modal
+ * It manages its own input validation, submission state, and provides clear
+ * success or error notifications to ensure the user is informed about the
+ * status of their data sharing request.
  */
 const ShareReportModal: React.FC<ShareReportModalProps> = ({
   visible,
@@ -45,6 +43,13 @@ const ShareReportModal: React.FC<ShareReportModalProps> = ({
     return EMAIL_REGEX.test(emailToValidate.trim());
   };
 
+  /**
+   * Report Dispatch Coordination
+   *
+   * Validates the recipient's email address and initiates the report generation
+   * and delivery process via the backend API. It handles authorization checks
+   * and provides contextual feedback based on the server's response.
+   */
   const handleSend = useCallback(async () => {
     if (loading) return;
 

@@ -24,12 +24,15 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 
 /**
- * LoginScreen
+ * User Login Screen
  *
- * Screen component that allows users to authenticate with their email and password.
- * Handles form validation, credential submission, and error feedback.
+ * Provides a secure entry point for existing users to authenticate with the
+ * application. It handles email and password validation, credential submission
+ * to the backend, and manages session state upon successful login.
  *
- * @returns {JSX.Element} The rendered login screen
+ * It also includes features like password visibility toggling, a "Forgot Password"
+ * flow, and provides detailed feedback for various authentication failure scenarios
+ * (e.g., network issues, invalid credentials).
  */
 export default function LoginScreen() {
   const router = useRouter();
@@ -70,6 +73,14 @@ export default function LoginScreen() {
   const bottomPadding =
     Platform.OS === "android" && isKeyboardVisible ? 350 : 0;
 
+  /**
+   * Login Submission Handler
+   *
+   * Validates form inputs before attempting to authenticate the user with the
+   * backend API. On success, it resets failed login counters, updates the
+   * global authentication context, and redirects the user to the main home screen.
+   * If authentication fails, it provides contextual error messages to the user.
+   */
   const handleLogin = async () => {
     setEmailError(null);
     setFormError(null);

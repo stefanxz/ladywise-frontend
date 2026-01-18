@@ -10,12 +10,15 @@ import { useMemo, useState } from "react";
 import { View } from "react-native";
 
 /**
- * QuestionnaireAnemiaRisk
+ * Onboarding: Anemia Risk Assessment
  *
- * Third step of the questionnaire: Anemia Risk Factors.
- * Allows the user to select multiple conditions related to anemia.
+ * This screen presents users with a multi-selection list of known clinical
+ * risk factors for anemia. It allows for a granular assessment of their health
+ * context, which directly informs the diagnostic insights displayed on their
+ * main dashboard.
  *
- * @returns {JSX.Element} The rendered anemia risk questionnaire step
+ * The selection logic ensures that choosing "None" correctly resets other
+ * selections to maintain data accuracy.
  */
 export default function QuestionnaireAnemiaRisk() {
   const router = useRouter();

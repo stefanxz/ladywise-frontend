@@ -25,16 +25,19 @@ import {
 } from "react-native-safe-area-context";
 
 /**
- * TermsConditionsPopUp
+ * Legal Terms and Privacy Overlay
  *
- * A bottom sheet modal displaying the full Terms of Service and Privacy Policy.
- * Can be used in 'accept' mode (Registration) or 'display' mode (Settings).
+ * A specialized bottom sheet designed to present the application's Privacy Policy
+ * and Terms of Service in an accessible, scrollable format. It supports two
+ * operational modes:
  *
- * @param {TermsConditionsPopUpProps} props - Component props
- * @param {function} [props.onAccept] - Callback when terms are accepted
- * @param {'accept' | 'display'} [props.mode='accept'] - Display mode
- * @param {React.Ref<TermsConditionsPopUpRef>} ref - Ref to control the modal (open/close)
- * @returns {JSX.Element} The rendered bottom sheet
+ * 1. 'accept' mode: Used during registration, requiring the user to explicitly
+ *    agree to the terms before proceeding.
+ * 2. 'display' mode: Used for general reference (e.g., from Settings), providing
+ *    a simple 'OK' button to dismiss.
+ *
+ * The component utilizes a ref-based interface to allow external control over
+ * its presentation state.
  */
 const TermsConditionsPopUp = forwardRef<
   TermsConditionsPopUpRef,

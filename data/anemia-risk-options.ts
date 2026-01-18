@@ -1,3 +1,12 @@
+/**
+ * Anemia Risk Options
+ *
+ * Defines the list of selectable options presented to users when assessing
+ * their potential risk factors for anemia. These options are used in questionnaires
+ * or risk assessment forms to gather health context.
+ *
+ * Each option includes a unique identifier and a human-readable label.
+ */
 export const ANEMIA_RISK_OPTIONS = [
   { id: "iron-deficiency", label: "Iron deficiency" },
   { id: "heavy-menstrual-bleeding", label: "Heavy menstrual bleeding" },

@@ -9,12 +9,15 @@ import { useState } from "react";
 import { View } from "react-native";
 
 /**
- * QuestionnaireFamilyHistory
+ * Onboarding: Family Health History Section
  *
- * Second step of the questionnaire: Family History.
- * Asks about family history of Anemia and Thrombosis.
+ * This step of the questionnaire focuses on capturing potential genetic
+ * predispositions to anemia and thrombosis. By identifying conditions that
+ * run in the user's family, the application can provide more nuanced risk
+ * assessments and personalized health advice.
  *
- * @returns {JSX.Element} The rendered family history questionnaire step
+ * Users can either specify their history or skip this section if they are
+ * unsure or prefer not to disclose.
  */
 export default function QuestionnaireFamilyHistory() {
   const router = useRouter();

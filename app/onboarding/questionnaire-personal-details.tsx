@@ -16,12 +16,14 @@ import { useQuestionnaire } from "./QuestionnaireContext";
 import { ProgressBar } from "@/components/ProgressBar/ProgressBar";
 
 /**
- * Questionnaire
+ * Onboarding: Personal Details Questionnaire
  *
- * First step of the questionnaire: Personal Details.
- * Collects age, weight, and height with validation.
+ * This screen is the initial entry point for the onboarding questionnaire.
+ * It collects essential physiological data—age, weight, and height—required for
+ * accurate health monitoring and risk assessment.
  *
- * @returns {JSX.Element} The rendered personal details form
+ * It enforces strict validation ranges based on medical guidelines to ensure
+ * data integrity before allowing the user to proceed with the health history steps.
  */
 export default function Questionnaire() {
   const router = useRouter();
@@ -62,8 +64,13 @@ export default function Questionnaire() {
   const bottomPadding =
     Platform.OS === "android" && isKeyboardVisible ? 400 : 50;
 
-  // navigation to the next screen of first time questionnaire
-  // Only go to the next page of the questionnaire when all fields are inputted correctly
+  /**
+   * Input Validation and Navigation
+   *
+   * Validates each personal detail against predefined safety ranges. If all
+   * validations pass, it updates the global onboarding context and navigates
+   * the user to the family history section of the questionnaire.
+   */
   const handleContinue = async () => {
     setAgeError(null);
     setWeightError(null);

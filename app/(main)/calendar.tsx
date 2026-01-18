@@ -31,19 +31,16 @@ import { useDailyEntry } from "@/hooks/useDailyEntry";
 import { useLocalSearchParams } from "expo-router";
 
 /**
- * CalendarScreen
+ * Menstrual Cycle Calendar Management Screen
  *
- * The main screen for viewing and managing menstrual cycle data.
- * Displays a vertical list of months, allows logging of periods, and provides
- * visual feedback for cycle predictions and history.
+ * This is the central hub for tracking and managing historical cycle data. It
+ * provides an intuitive, infinite-scrolling interface for reviewing past
+ * periods and visualizing future predictions.
  *
- * Features:
- * - Infinite scrolling of past and future months
- * - Period logging and editing (start/end dates, ongoing status)
- * - Visual indicators for period days, predictions, and today
- * - Tooltip interactions for editing/deleting entries
- *
- * @returns {JSX.Element} The rendered calendar screen
+ * The screen supports complex interactions including date selection for period
+ * logging, editing of existing entries through contextual tooltips, and
+ * integrated access to daily symptom questionnaires. It maintains high
+ * performance by using specialized hooks for pagination and data synchronization.
  */
 export default function CalendarScreen() {
   const params = useLocalSearchParams();
@@ -75,7 +72,14 @@ export default function CalendarScreen() {
     PRELOAD_PAST_MONTHS,
   } = useCalendarPagination();
 
-  // Interaction logic
+  /**
+   * Calendar Interaction State Management
+   *
+   * Orchestrates the complex state transitions between regular viewing,
+   * range-based logging, and entry editing. It manages current selection
+   * highlights and provides standardized handlers for saving and deleting
+   * cycle data.
+   */
   const {
     isLogMode,
     isOngoing,
@@ -107,7 +111,13 @@ export default function CalendarScreen() {
   // Determine if the floating button should be shown
   const showFloatingButton = currentPhase === "menstrual";
 
-  // Edit daily cycle questionnaire handler
+  /**
+   * Daily Symptom Questionnaire Navigation
+   *
+   * Facilitates the transition from the calendar view to the specialized
+   * symptom logging interface for a specific date. It ensures that any active
+   * tooltips are cleared before presenting the questionnaire entry form.
+   */
   const handleEditDailyQuestionnaire = () => {
     if (!tooltip.date) return;
     // Close tooltip
